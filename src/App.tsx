@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { DataProvider } from "@/contexts/DataContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import Layout from "@/components/shared/Layout";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
@@ -16,7 +17,7 @@ const TermsPage = lazy(() => import("@/pages/TermsPage"));
 function Loading() {
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-10 h-10 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );
 }
@@ -24,6 +25,7 @@ function Loading() {
 export default function App() {
   return (
     <ErrorBoundary>
+      <LanguageProvider>
       <DataProvider>
         <ScrollToTop />
         <Layout>
@@ -45,6 +47,7 @@ export default function App() {
           </Suspense>
         </Layout>
       </DataProvider>
+      </LanguageProvider>
     </ErrorBoundary>
   );
 }

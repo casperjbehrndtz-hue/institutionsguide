@@ -20,29 +20,29 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary fangede en fejl:", error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-bg p-6">
-          <div className="glass-card p-8 max-w-md text-center">
+          <div className="card p-8 max-w-md text-center">
             <h1 className="font-display text-2xl font-bold text-foreground mb-4">
-              Noget gik galt
+              Something went wrong
             </h1>
             <p className="text-muted mb-6">
-              Der opstod en uventet fejl. Prøv at genindlæse siden.
+              An unexpected error occurred. Try reloading the page.
             </p>
             <p className="text-sm text-muted/60 font-mono mb-6">
               {this.state.error?.message}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
-              aria-label="Genindlæs siden"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-light transition-colors min-h-[44px]"
+              aria-label="Reload page"
             >
-              Genindlæs siden
+              Reload page
             </button>
           </div>
         </div>

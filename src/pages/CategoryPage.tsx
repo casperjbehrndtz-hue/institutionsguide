@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 import InstitutionMap from "@/components/map/InstitutionMap";
@@ -13,34 +14,6 @@ interface Props {
   category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
 }
 
-const CATEGORY_META: Record<string, { title: string; description: string; color: string }> = {
-  vuggestue: {
-    title: "Vuggestuer i Danmark",
-    description: "Find og sammenlign vuggestuer (0-2 år) i alle 98 kommuner. Se priser, ejerskab og beregn fripladstilskud.",
-    color: "text-success",
-  },
-  boernehave: {
-    title: "Børnehaver i Danmark",
-    description: "Sammenlign børnehaver (3-5 år) i hele landet. Se kommunale, selvejende og private børnehaver med priser.",
-    color: "text-primary",
-  },
-  dagpleje: {
-    title: "Dagplejere i Danmark",
-    description: "Find dagpleje (0-2 år) i din kommune. Ofte et billigere alternativ til vuggestue med højere voksen-barn ratio.",
-    color: "text-warning",
-  },
-  skole: {
-    title: "Skoler i Danmark",
-    description: "Sammenlign folkeskoler og friskoler med kvalitetsdata: trivsel, karaktersnit, fravær og kompetencedækning.",
-    color: "text-blue-500",
-  },
-  sfo: {
-    title: "SFO og fritidsordninger",
-    description: "Find SFO-tilbud (6-9 år) i din kommune. Se priser og sammenlign med andre fritidsordninger.",
-    color: "text-purple-500",
-  },
-};
-
 function formatDKK(val: number | null): string {
   if (val === null) return "–";
   return _formatDKK(val);
@@ -48,6 +21,7 @@ function formatDKK(val: number | null): string {
 
 export default function CategoryPage({ category }: Props) {
   const { institutions, municipalities, loading, error } = useData();
+  const { t, language } = useLanguage();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<InstitutionCategory>(category);
   const [municipalityFilter, setMunicipality] = useState("");
@@ -59,12 +33,16 @@ export default function CategoryPage({ category }: Props) {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearMeLoading, setNearMeLoading] = useState(false);
 
+  const categoryTitles: Record<string, string> = {
+    vuggestue: language === "en" ? "Nurseries in Denmark" : "Vuggestuer i Danmark",
+    boernehave: language === "en" ? "Kindergartens in Denmark" : "Børnehaver i Danmark",
+    dagpleje: language === "en" ? "Childminders in Denmark" : "Dagplejere i Danmark",
+    skole: language === "en" ? "Schools in Denmark" : "Skoler i Danmark",
+    sfo: language === "en" ? "After-school care in Denmark" : "SFO og fritidsordninger",
+  };
+
   const filtered = useFilteredInstitutions(institutions, {
-    search,
-    category: catFilter,
-    municipality: municipalityFilter,
-    qualityFilter,
-    sortKey,
+    search, category: catFilter, municipality: municipalityFilter, qualityFilter, sortKey,
   });
 
   const municipalityNames = useMemo(() => municipalities.map((m) => m.municipality), [municipalities]);
@@ -95,9 +73,6 @@ export default function CategoryPage({ category }: Props) {
     );
   }, []);
 
-  const meta = CATEGORY_META[category];
-
-  // Filtered municipality data for this category
   const catMunicipalities = useMemo(() => {
     return municipalities
       .map((m) => {
@@ -139,8 +114,8 @@ export default function CategoryPage({ category }: Props) {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="glass-card p-8 text-center max-w-md">
-          <h1 className="font-display text-2xl font-bold mb-4">Fejl</h1>
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">{t.errors.loadFailed}</h1>
           <p className="text-muted">{error}</p>
         </div>
       </div>
@@ -151,37 +126,37 @@ export default function CategoryPage({ category }: Props) {
     <>
       {/* Category header */}
       <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
-        <h1 className={`font-display text-3xl sm:text-4xl font-bold text-foreground mb-3`}>
-          {meta.title}
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+          {categoryTitles[category]}
         </h1>
-        <p className="text-muted text-base max-w-2xl mx-auto mb-4">{meta.description}</p>
+        <p className="text-muted text-base max-w-2xl mx-auto mb-4">
+          {t.categoryDescriptions[category]}
+        </p>
         <p className="font-mono text-primary text-lg font-semibold">
-          {filtered.length.toLocaleString("da-DK")} institutioner
+          {filtered.length.toLocaleString("da-DK")} {t.common.institutions}
         </p>
       </section>
 
       {/* Dagpleje info box */}
       {category === "dagpleje" && (
         <section className="max-w-3xl mx-auto px-4 py-6">
-          <div className="glass-card p-6">
-            <h2 className="font-display text-xl font-bold mb-4">Dagpleje vs. vuggestue</h2>
+          <div className="card p-6">
+            <h2 className="font-display text-xl font-bold mb-4">{t.dagplejeInfo.title}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
-                <h3 className="font-semibold text-success mb-2">Fordele ved dagpleje</h3>
+                <h3 className="font-semibold text-success mb-2">{t.dagplejeInfo.pros}</h3>
                 <ul className="space-y-1 text-muted">
-                  <li>Ofte billigere end vuggestue</li>
-                  <li>Mindre grupper (maks 4-5 børn)</li>
-                  <li>Hjemlig atmosfære</li>
-                  <li>Tæt voksen-barn relation</li>
+                  {t.dagplejeInfo.prosList.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-destructive mb-2">Ulemper ved dagpleje</h3>
+                <h3 className="font-semibold text-destructive mb-2">{t.dagplejeInfo.cons}</h3>
                 <ul className="space-y-1 text-muted">
-                  <li>Færre pædagogiske faciliteter</li>
-                  <li>Sårbar ved sygdom (kun én dagplejer)</li>
-                  <li>Mindre social stimulering</li>
-                  <li>Varierende kvalitet</li>
+                  {t.dagplejeInfo.consList.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -192,14 +167,9 @@ export default function CategoryPage({ category }: Props) {
       {/* School quality note */}
       {category === "skole" && (
         <section className="max-w-3xl mx-auto px-4 py-6">
-          <div className="glass-card p-6">
-            <h2 className="font-display text-xl font-bold mb-3">Om kvalitetsdata</h2>
-            <p className="text-sm text-muted leading-relaxed">
-              Kvalitetsdata for skoler inkluderer trivselsmålinger, karaktergennemsnit ved afgangsprøven,
-              fravær, kompetencedækning og undervisningseffekt (socioøkonomisk reference). Data stammer fra
-              Undervisningsministeriet og dækker skoleåret 2024/2025. Skoler markeret &quot;Over middel&quot;
-              klarer sig bedre end forventet ud fra elevernes socioøkonomiske baggrund.
-            </p>
+          <div className="card p-6">
+            <h2 className="font-display text-xl font-bold mb-3">{t.schoolInfo.title}</h2>
+            <p className="text-sm text-muted leading-relaxed">{t.schoolInfo.description}</p>
           </div>
         </section>
       )}
@@ -226,16 +196,17 @@ export default function CategoryPage({ category }: Props) {
       <section className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3 overflow-y-auto max-h-[600px] lg:max-h-[700px]">
           {visibleList.length === 0 && (
-            <p className="text-center text-muted py-12">Ingen institutioner matcher din søgning.</p>
+            <p className="text-center text-muted py-12">
+              {language === "da" ? "Ingen institutioner matcher din søgning." : "No institutions match your search."}
+            </p>
           )}
           {visibleList.map((inst) => (
-            <div key={inst.id} className={`glass-card hover:scale-[1.01] transition-transform ${
+            <div key={inst.id} className={`card hover:scale-[1.01] transition-transform ${
               selected?.id === inst.id ? "ring-2 ring-primary" : ""
             }`}>
               <button
                 onClick={() => handleSelect(inst)}
                 className="w-full text-left p-4 min-h-[44px]"
-                aria-label={`Se detaljer for ${inst.name}`}
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -248,13 +219,13 @@ export default function CategoryPage({ category }: Props) {
                         inst.quality.o === 0 ? "bg-warning/10 text-warning" :
                         "bg-destructive/10 text-destructive"
                       }`}>
-                        {inst.quality.o === 1 ? "Over middel" : inst.quality.o === 0 ? "Middel" : "Under middel"}
+                        {inst.quality.o === 1 ? t.detail.aboveAvg : inst.quality.o === 0 ? t.detail.average : t.detail.belowAvg}
                       </span>
                     )}
                   </div>
                   <div className="text-right shrink-0 ml-2">
                     <p className="font-mono text-sm font-medium text-primary">{formatDKK(inst.monthlyRate)}</p>
-                    <span className="text-xs text-muted">/md.</span>
+                    <span className="text-xs text-muted">{t.common.perMonth}</span>
                   </div>
                 </div>
               </button>
@@ -262,13 +233,13 @@ export default function CategoryPage({ category }: Props) {
                 to={`/institution/${inst.id}`}
                 className="block text-xs text-primary hover:underline px-4 pb-3"
               >
-                Se fuld profil &rarr;
+                {t.common.seeFullProfile} &rarr;
               </Link>
             </div>
           ))}
           {filtered.length > 50 && (
             <p className="text-center text-sm text-muted py-4">
-              Viser 50 af {filtered.length.toLocaleString("da-DK")} resultater.
+              {t.common.showing} 50 {t.common.of} {filtered.length.toLocaleString("da-DK")} {t.common.results}.
             </p>
           )}
         </div>
@@ -293,17 +264,21 @@ export default function CategoryPage({ category }: Props) {
       {/* Municipality ranking for this category */}
       <section className="max-w-5xl mx-auto px-4 py-12">
         <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-          Kommuner — {meta.title.split(" ")[0]}
+          {language === "da" ? "Kommuner" : "Municipalities"} — {categoryTitles[category]?.split(" ")[0]}
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-3 px-3 text-muted font-medium" scope="col">Kommune</th>
+                <th className="text-left py-3 px-3 text-muted font-medium" scope="col">{t.sort.municipality}</th>
                 {category !== "skole" && (
-                  <th className="text-right py-3 px-3 text-muted font-medium" scope="col">Takst/md.</th>
+                  <th className="text-right py-3 px-3 text-muted font-medium" scope="col">
+                    {language === "da" ? "Takst/md." : "Rate/mo."}
+                  </th>
                 )}
-                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">Antal</th>
+                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">
+                  {language === "da" ? "Antal" : "Count"}
+                </th>
               </tr>
             </thead>
             <tbody>

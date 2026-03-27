@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const choice = localStorage.getItem("cookie-consent");
@@ -18,29 +20,29 @@ export default function CookieConsent() {
 
   return (
     <div
-      className="fixed bottom-0 inset-x-0 z-50 bg-[#1A2632] text-white p-4 sm:p-5 animate-fade-in"
+      className="fixed bottom-0 inset-x-0 z-50 bg-bg-card border-t border-border p-4 sm:p-5 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
       role="dialog"
       aria-label="Cookie-samtykke"
     >
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
-        <p className="text-sm text-white/90 flex-1">
-          Vi bruger cookies til at forbedre din oplevelse. Læs mere i vores{" "}
-          <Link to="/privatliv" className="underline hover:text-white">privatlivspolitik</Link>.
+        <p className="text-sm text-foreground flex-1">
+          {t.cookie.message}{" "}
+          <Link to="/privatliv" className="text-primary underline hover:text-accent transition-colors">{t.footer.privacy.toLowerCase()}</Link>.
         </p>
         <div className="flex gap-3">
           <button
             onClick={() => handleChoice(false)}
-            className="px-4 py-2 text-sm rounded-lg border border-white/30 text-white/80 hover:bg-white/10 transition-colors min-h-[44px]"
-            aria-label="Afvis cookies"
+            className="px-4 py-2 text-sm rounded-lg border border-border text-muted hover:bg-border/30 transition-colors min-h-[44px]"
+            aria-label={t.cookie.decline}
           >
-            Afvis
+            {t.cookie.decline}
           </button>
           <button
             onClick={() => handleChoice(true)}
-            className="px-4 py-2 text-sm rounded-lg bg-primary text-white font-medium hover:bg-primary-dark transition-colors min-h-[44px]"
-            aria-label="Acceptér cookies"
+            className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary-light transition-colors min-h-[44px]"
+            aria-label={t.cookie.accept}
           >
-            Acceptér
+            {t.cookie.accept}
           </button>
         </div>
       </div>

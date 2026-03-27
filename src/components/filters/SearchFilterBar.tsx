@@ -1,4 +1,5 @@
 import { Search, SlidersHorizontal, MapPin } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { InstitutionCategory, SortKey } from "@/lib/types";
 
 interface Props {
@@ -18,27 +19,9 @@ interface Props {
   nearMeLoading?: boolean;
 }
 
-const CATEGORIES: { value: InstitutionCategory; label: string }[] = [
-  { value: "alle", label: "Alle" },
-  { value: "vuggestue", label: "Vuggestue" },
-  { value: "boernehave", label: "Børnehave" },
-  { value: "dagpleje", label: "Dagpleje" },
-  { value: "skole", label: "Skole" },
-  { value: "sfo", label: "SFO" },
-];
-
 const POPULAR_MUNICIPALITIES = [
   "København", "Aarhus", "Odense", "Aalborg", "Frederiksberg",
   "Gentofte", "Roskilde", "Helsingør", "Vejle", "Horsens",
-];
-
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: "name", label: "Navn" },
-  { value: "price", label: "Pris" },
-  { value: "municipality", label: "Kommune" },
-  { value: "rating", label: "Rating" },
-  { value: "grades", label: "Karakterer" },
-  { value: "absence", label: "Fravær" },
 ];
 
 export default function SearchFilterBar({
@@ -57,6 +40,26 @@ export default function SearchFilterBar({
   onNearMe,
   nearMeLoading,
 }: Props) {
+  const { t } = useLanguage();
+
+  const CATEGORIES: { value: InstitutionCategory; label: string }[] = [
+    { value: "alle", label: t.categories.alle },
+    { value: "vuggestue", label: t.categories.vuggestue },
+    { value: "boernehave", label: t.categories.boernehave },
+    { value: "dagpleje", label: t.categories.dagpleje },
+    { value: "skole", label: t.categories.skole },
+    { value: "sfo", label: t.categories.sfo },
+  ];
+
+  const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+    { value: "name", label: t.sort.name },
+    { value: "price", label: t.sort.price },
+    { value: "municipality", label: t.sort.municipality },
+    { value: "rating", label: t.sort.rating },
+    { value: "grades", label: t.sort.grades },
+    { value: "absence", label: t.sort.absence },
+  ];
+
   const otherMunicipalities = municipalities.filter(
     (m) => !POPULAR_MUNICIPALITIES.includes(m)
   );
@@ -67,27 +70,27 @@ export default function SearchFilterBar({
         {/* Search */}
         <div className="relative">
           <label htmlFor="search-input" className="sr-only">
-            Søg institution, adresse eller postnummer
+            {t.common.search}
           </label>
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
           <input
             id="search-input"
             type="text"
-            placeholder="Søg institution, adresse, postnummer..."
+            placeholder={t.common.search}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-10 pr-24 py-3 rounded-xl border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
-            aria-label="Søg efter institutioner"
+            aria-label={t.common.search}
           />
           {onNearMe && (
             <button
               onClick={onNearMe}
               disabled={nearMeLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-medium hover:bg-primary-dark transition-colors disabled:opacity-60"
-              aria-label="Find institutioner nær mig"
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary-light transition-colors disabled:opacity-60"
+              aria-label={t.common.nearMe}
             >
               <MapPin className={`w-3.5 h-3.5 ${nearMeLoading ? "animate-pulse" : ""}`} />
-              Nær mig
+              {t.common.nearMe}
             </button>
           )}
         </div>
@@ -102,11 +105,10 @@ export default function SearchFilterBar({
                 onClick={() => onCategoryChange(cat.value)}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[44px] ${
                   category === cat.value
-                    ? "bg-primary text-white"
+                    ? "bg-primary text-primary-foreground"
                     : "bg-border/40 text-muted hover:bg-border/70"
                 }`}
                 aria-pressed={category === cat.value}
-                aria-label={`Filtrer efter ${cat.label}`}
               >
                 {cat.label}
               </button>
@@ -116,22 +118,21 @@ export default function SearchFilterBar({
           {/* Municipality dropdown */}
           <div className="flex items-center gap-1.5">
             <label htmlFor="municipality-select" className="sr-only">
-              Vælg kommune
+              {t.common.allMunicipalities}
             </label>
             <select
               id="municipality-select"
               value={municipality}
               onChange={(e) => onMunicipalityChange(e.target.value)}
               className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label="Vælg kommune"
             >
-              <option value="">Alle kommuner</option>
-              <optgroup label="Populære">
+              <option value="">{t.common.allMunicipalities}</option>
+              <optgroup label={t.popular}>
                 {POPULAR_MUNICIPALITIES.map((m) => (
                   <option key={m} value={m}>{m}</option>
                 ))}
               </optgroup>
-              <optgroup label="Alle kommuner">
+              <optgroup label={t.common.allMunicipalities}>
                 {otherMunicipalities.map((m) => (
                   <option key={m} value={m}>{m}</option>
                 ))}
@@ -143,19 +144,18 @@ export default function SearchFilterBar({
           {(category === "alle" || category === "skole") && (
             <div className="flex items-center gap-1.5">
               <label htmlFor="quality-select" className="sr-only">
-                Kvalitetsfilter
+                {t.common.allRatings}
               </label>
               <select
                 id="quality-select"
                 value={qualityFilter}
                 onChange={(e) => onQualityFilterChange(e.target.value)}
                 className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
-                aria-label="Filtrer efter kvalitetsvurdering"
               >
-                <option value="">Alle vurderinger</option>
-                <option value="1">Over middel</option>
-                <option value="0">Middel</option>
-                <option value="-1">Under middel</option>
+                <option value="">{t.common.allRatings}</option>
+                <option value="1">{t.detail.aboveAvg}</option>
+                <option value="0">{t.detail.average}</option>
+                <option value="-1">{t.detail.belowAvg}</option>
               </select>
             </div>
           )}
@@ -164,14 +164,13 @@ export default function SearchFilterBar({
           <div className="flex items-center gap-1.5 ml-auto">
             <SlidersHorizontal className="w-4 h-4 text-muted" />
             <label htmlFor="sort-select" className="sr-only">
-              Sortér efter
+              Sort
             </label>
             <select
               id="sort-select"
               value={sortKey}
               onChange={(e) => onSortChange(e.target.value as SortKey)}
               className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label="Sortér resultater"
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -185,7 +184,7 @@ export default function SearchFilterBar({
           <span className="font-mono font-medium text-foreground">
             {resultCount.toLocaleString("da-DK")}
           </span>{" "}
-          institutioner fundet
+          {t.common.institutions} {t.common.found}
         </p>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 import InstitutionMap from "@/components/map/InstitutionMap";
@@ -10,15 +11,12 @@ import CompareBar from "@/components/compare/CompareBar";
 import { formatDKK as _formatDKK } from "@/lib/format";
 import type { UnifiedInstitution, InstitutionCategory, SortKey } from "@/lib/types";
 
-const CATEGORY_CARDS = [
-  { category: "vuggestue" as const, label: "Vuggestuer", icon: Home, color: "text-success", href: "/vuggestue", desc: "0–2 år" },
-  { category: "boernehave" as const, label: "Børnehaver", icon: Building2, color: "text-primary", href: "/boernehave", desc: "3–5 år" },
-  { category: "dagpleje" as const, label: "Dagplejere", icon: Users, color: "text-warning", href: "/dagpleje", desc: "0–2 år" },
-  { category: "skole" as const, label: "Skoler", icon: GraduationCap, color: "text-blue-500", href: "/skole", desc: "6–16 år" },
-  { category: "sfo" as const, label: "SFO", icon: BookOpen, color: "text-purple-500", href: "/sfo", desc: "6–9 år" },
-];
+function formatDKK(val: number | null): string {
+  if (val === null) return "–";
+  return _formatDKK(val);
+}
 
-const FAQ_ITEMS = [
+const FAQ_ITEMS_DA = [
   {
     q: "Hvad er fripladstilskud, og hvem kan få det?",
     a: "Fripladstilskud er en rabat på forældrebetalingen for dagtilbud. Tilskuddet afhænger af husstandsindkomsten. I 2026 kan familier med en indkomst under 677.500 kr. få delvist tilskud, og under 218.100 kr. får man fuld friplads.",
@@ -37,13 +35,28 @@ const FAQ_ITEMS = [
   },
 ];
 
-function formatDKK(val: number | null): string {
-  if (val === null) return "–";
-  return _formatDKK(val);
-}
+const FAQ_ITEMS_EN = [
+  {
+    q: "What is childcare subsidy, and who can get it?",
+    a: "Childcare subsidy (fripladstilskud) is a discount on parental fees for daycare. The subsidy depends on household income. In 2026, families with an income below DKK 677,500 can receive partial subsidy, and below DKK 218,100 full subsidy.",
+  },
+  {
+    q: "What is the difference between childminder and nursery?",
+    a: "Childminders (dagpleje) care for children in their private home with max 4-5 children, while nurseries (vuggestue) are institutions with more children and staff. Childminders are often cheaper, while nurseries typically have more pedagogues and facilities.",
+  },
+  {
+    q: "How is the quality score for schools calculated?",
+    a: "The quality score is based on official data from the Danish Ministry of Education and includes well-being surveys, grade averages, absence, competence coverage and teaching effectiveness (socio-economic reference).",
+  },
+  {
+    q: "Are the prices up to date?",
+    a: "Prices are based on data from Statistics Denmark (2025 figures) and the Daycare Registry. Municipalities typically adjust rates annually, so minor deviations may occur.",
+  },
+];
 
 export default function HomePage() {
   const { institutions, municipalities, loading, error } = useData();
+  const { t, language } = useLanguage();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<InstitutionCategory>("alle");
   const [municipality, setMunicipality] = useState("");
@@ -58,7 +71,6 @@ export default function HomePage() {
   const filtered = useFilteredInstitutions(institutions, { search, category, municipality, qualityFilter, sortKey });
   const municipalityNames = useMemo(() => municipalities.map((m) => m.municipality), [municipalities]);
 
-  // Sort by distance if user location is available
   const distanceSorted = useMemo(() => {
     if (!userLocation) return filtered;
     return [...filtered].sort((a, b) => {
@@ -68,7 +80,6 @@ export default function HomePage() {
     });
   }, [filtered, userLocation]);
 
-  // Visible list (limit for performance)
   const visibleList = useMemo(() => distanceSorted.slice(0, 50), [distanceSorted]);
 
   const handleNearMe = useCallback(() => {
@@ -97,6 +108,16 @@ export default function HomePage() {
     setCompareList([...compareList, inst]);
   }
 
+  const CATEGORY_CARDS = [
+    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, color: "text-success", href: "/vuggestue", desc: t.ageGroups.vuggestue },
+    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, color: "text-primary", href: "/boernehave", desc: t.ageGroups.boernehave },
+    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, color: "text-warning", href: "/dagpleje", desc: t.ageGroups.dagpleje },
+    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, color: "text-blue-500", href: "/skole", desc: t.ageGroups.skole },
+    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, color: "text-purple-500", href: "/sfo", desc: t.ageGroups.sfo },
+  ];
+
+  const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -108,8 +129,8 @@ export default function HomePage() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="glass-card p-8 text-center max-w-md">
-          <h1 className="font-display text-2xl font-bold mb-4">Fejl ved indlæsning</h1>
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">{t.errors.loadFailed}</h1>
           <p className="text-muted">{error}</p>
         </div>
       </div>
@@ -121,11 +142,12 @@ export default function HomePage() {
       {/* Hero */}
       <section className="px-4 py-12 sm:py-16 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-          Find den rette institution for dit barn
+          {t.home.heroTitle}
         </h1>
         <p className="text-muted text-lg max-w-2xl mx-auto mb-8">
-          Sammenlign <span className="font-mono font-semibold text-primary">{institutions.length.toLocaleString("da-DK")}+</span> vuggestuer,
-          børnehaver, dagplejere, skoler og SFO&apos;er i alle 98 kommuner.
+          {language === "da" ? "Sammenlign " : "Compare "}
+          <span className="font-mono font-semibold text-primary">{institutions.length.toLocaleString("da-DK")}+</span>{" "}
+          {t.home.heroSubtitle}
         </p>
 
         {/* Category cards */}
@@ -136,8 +158,8 @@ export default function HomePage() {
               <Link
                 key={card.category}
                 to={card.href}
-                className="glass-card p-4 text-center hover:scale-[1.02] transition-transform min-h-[44px]"
-                aria-label={`Se ${card.label}`}
+                className="card p-4 text-center hover:scale-[1.02] transition-transform min-h-[44px]"
+                aria-label={`${t.common.show} ${card.label}`}
               >
                 <card.icon className={`w-8 h-8 mx-auto mb-2 ${card.color}`} />
                 <p className="font-semibold text-foreground text-sm">{card.label}</p>
@@ -172,16 +194,18 @@ export default function HomePage() {
         {/* Sidebar list */}
         <div className="space-y-3 overflow-y-auto max-h-[600px] lg:max-h-[700px]">
           {visibleList.length === 0 && (
-            <p className="text-center text-muted py-12">Ingen institutioner matcher din søgning.</p>
+            <p className="text-center text-muted py-12">
+              {language === "da" ? "Ingen institutioner matcher din søgning." : "No institutions match your search."}
+            </p>
           )}
           {visibleList.map((inst) => (
-            <div key={inst.id} className={`glass-card hover:scale-[1.01] transition-transform ${
+            <div key={inst.id} className={`card hover:scale-[1.01] transition-transform ${
               selected?.id === inst.id ? "ring-2 ring-primary" : ""
             }`}>
               <button
                 onClick={() => handleSelect(inst)}
                 className="w-full text-left p-4 min-h-[44px]"
-                aria-label={`Se detaljer for ${inst.name}`}
+                aria-label={`${inst.name}`}
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -193,7 +217,7 @@ export default function HomePage() {
                     <p className="font-mono text-sm font-medium text-primary">
                       {formatDKK(inst.monthlyRate)}
                     </p>
-                    <span className="text-xs text-muted">/md.</span>
+                    <span className="text-xs text-muted">{t.common.perMonth}</span>
                   </div>
                 </div>
               </button>
@@ -201,13 +225,13 @@ export default function HomePage() {
                 to={`/institution/${inst.id}`}
                 className="block text-xs text-primary hover:underline px-4 pb-3"
               >
-                Se fuld profil &rarr;
+                {t.common.seeFullProfile} &rarr;
               </Link>
             </div>
           ))}
           {filtered.length > 50 && (
             <p className="text-center text-sm text-muted py-4">
-              Viser 50 af {filtered.length.toLocaleString("da-DK")} resultater. Brug filtre til at indsnævre.
+              {t.common.showing} 50 {t.common.of} {filtered.length.toLocaleString("da-DK")} {t.common.results}. {t.common.useFilters}
             </p>
           )}
         </div>
@@ -233,18 +257,18 @@ export default function HomePage() {
       {/* Municipality ranking */}
       <section className="max-w-7xl mx-auto px-4 py-12">
         <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-          Kommuneoversigt
+          {t.home.municipalityOverview}
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-3 px-3 text-muted font-medium" scope="col">Kommune</th>
-                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">Dagpleje</th>
-                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">Vuggestue</th>
-                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">Børnehave</th>
-                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">SFO</th>
-                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">Institutioner</th>
+                <th className="text-left py-3 px-3 text-muted font-medium" scope="col">{t.sort.municipality}</th>
+                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">{t.categories.dagpleje}</th>
+                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">{t.categories.vuggestue}</th>
+                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">{t.categories.boernehave}</th>
+                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">{t.categories.sfo}</th>
+                <th className="text-right py-3 px-3 text-muted font-medium" scope="col">{t.common.institutions}</th>
               </tr>
             </thead>
             <tbody>
@@ -270,7 +294,7 @@ export default function HomePage() {
         </div>
         {municipalities.length > 20 && (
           <p className="text-center text-sm text-muted mt-4">
-            Viser 20 af {municipalities.length} kommuner. Brug søgefeltet ovenfor til at finde din kommune.
+            {t.common.showing} 20 {t.common.of} {municipalities.length} {language === "da" ? "kommuner." : "municipalities."}
           </p>
         )}
       </section>
@@ -278,41 +302,41 @@ export default function HomePage() {
       {/* Cross-sell: Suite products */}
       <section className="max-w-4xl mx-auto px-4 py-12">
         <h2 className="font-display text-2xl font-bold text-foreground mb-2 text-center">
-          Flere værktøjer til din familieøkonomi
+          {t.home.moreTools}
         </h2>
         <p className="text-muted text-center mb-8">
-          Institutionsguide er del af ParFinans-familien af gratis finansielle værktøjer.
+          {t.home.moreToolsSubtitle}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <a
             href="https://nemtbudget.nu"
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-card p-5 hover:scale-[1.02] transition-transform group"
+            className="card p-5 hover:scale-[1.02] transition-transform group"
           >
             <Wallet className="w-8 h-8 text-blue-500 mb-3" />
             <p className="font-semibold text-foreground group-hover:text-primary transition-colors">NemtBudget</p>
-            <p className="text-sm text-muted mt-1">Beregn dit rådighedsbeløb gratis. Find ud af hvad du reelt har til overs efter alle faste udgifter.</p>
+            <p className="text-sm text-muted mt-1">{t.suiteProducts.nemtbudget}</p>
           </a>
           <a
             href="https://parfinans.dk"
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-card p-5 hover:scale-[1.02] transition-transform group"
+            className="card p-5 hover:scale-[1.02] transition-transform group"
           >
             <Calculator className="w-8 h-8 text-amber-600 mb-3" />
             <p className="font-semibold text-foreground group-hover:text-primary transition-colors">ParFinans</p>
-            <p className="text-sm text-muted mt-1">Fair fordeling af udgifter for par. Beregn parøkonomi med præcis skat for alle 98 kommuner.</p>
+            <p className="text-sm text-muted mt-1">{t.suiteProducts.parfinans}</p>
           </a>
           <a
             href="https://børneskat.dk"
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-card p-5 hover:scale-[1.02] transition-transform group"
+            className="card p-5 hover:scale-[1.02] transition-transform group"
           >
             <PiggyBank className="w-8 h-8 text-success mb-3" />
             <p className="font-semibold text-foreground group-hover:text-primary transition-colors">Børneskat</p>
-            <p className="text-sm text-muted mt-1">Skatteeffektiv opsparing til dit barn. Guide, investeringstjekker og beregner til børnedepot.</p>
+            <p className="text-sm text-muted mt-1">{t.suiteProducts.boerneskat}</p>
           </a>
         </div>
       </section>
@@ -321,14 +345,14 @@ export default function HomePage() {
       <section className="max-w-3xl mx-auto px-4 py-12">
         <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
           <HelpCircle className="w-6 h-6 text-primary" />
-          Ofte stillede spørgsmål
+          {t.home.faq}
         </h2>
         <div className="space-y-4">
           {FAQ_ITEMS.map((faq) => (
-            <details key={faq.q} className="glass-card p-4 group">
+            <details key={faq.q} className="card p-4 group">
               <summary className="font-semibold text-foreground cursor-pointer list-none flex justify-between items-center min-h-[44px]">
                 {faq.q}
-                <span className="text-muted group-open:rotate-180 transition-transform">▼</span>
+                <span className="text-muted group-open:rotate-180 transition-transform ml-2 shrink-0">&#x25BC;</span>
               </summary>
               <p className="text-muted text-sm mt-3 leading-relaxed">{faq.a}</p>
             </details>

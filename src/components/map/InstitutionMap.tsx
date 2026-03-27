@@ -99,7 +99,7 @@ export default function InstitutionMap({ institutions, onSelect, flyTo, maxMarke
       </MapContainer>
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 z-[1000] glass-card p-3 text-xs" role="region" aria-label="Kort-forklaring">
+      <div className="absolute bottom-4 left-4 z-[1000] card p-3 text-xs" role="region" aria-label="Kort-forklaring">
         {LEGEND_ITEMS.map((item) => (
           <div key={item.label} className="flex items-center gap-2 mb-1 last:mb-0">
             <span

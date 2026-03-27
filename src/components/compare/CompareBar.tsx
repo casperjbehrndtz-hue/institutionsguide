@@ -29,9 +29,9 @@ export default function CompareBar({ selected, onRemove, onClear }: Props) {
   if (selected.length === 0) return null;
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 bg-[#1A2632] text-white p-4 animate-fade-in">
+    <div className="fixed bottom-0 inset-x-0 z-40 bg-bg-card border-t border-border p-4 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
       <div className="max-w-7xl mx-auto flex items-center gap-3 flex-wrap">
-        <span className="text-sm text-white/70 shrink-0">
+        <span className="text-sm text-muted shrink-0">
           Sammenlign ({selected.length}/4):
         </span>
 
@@ -39,12 +39,12 @@ export default function CompareBar({ selected, onRemove, onClear }: Props) {
           {selected.map((inst) => (
             <span
               key={inst.id}
-              className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1.5 text-sm"
+              className="inline-flex items-center gap-1.5 bg-primary/10 text-primary rounded-full px-3 py-1.5 text-sm"
             >
               {inst.name}
               <button
                 onClick={() => onRemove(inst.id)}
-                className="p-0.5 hover:bg-white/20 rounded-full min-w-[28px] min-h-[28px] flex items-center justify-center"
+                className="p-0.5 hover:bg-primary/20 rounded-full min-w-[28px] min-h-[28px] flex items-center justify-center"
                 aria-label={`Fjern ${inst.name} fra sammenligning`}
               >
                 <X className="w-3.5 h-3.5" />
@@ -56,7 +56,7 @@ export default function CompareBar({ selected, onRemove, onClear }: Props) {
         <div className="flex gap-2">
           <button
             onClick={onClear}
-            className="px-3 py-2 text-sm border border-white/30 rounded-lg hover:bg-white/10 transition-colors min-h-[44px]"
+            className="px-3 py-2 text-sm border border-border rounded-lg text-muted hover:bg-border/30 transition-colors min-h-[44px]"
             aria-label="Ryd sammenligning"
           >
             Ryd
@@ -65,7 +65,7 @@ export default function CompareBar({ selected, onRemove, onClear }: Props) {
             <Link
               to="/sammenlign"
               state={{ institutions: selected }}
-              className="px-4 py-2 text-sm bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors flex items-center gap-2 min-h-[44px]"
+              className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-light transition-colors flex items-center gap-2 min-h-[44px]"
               aria-label="Vis sammenligning"
             >
               Vis sammenligning

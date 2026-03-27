@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import InstitutionMap from "@/components/map/InstitutionMap";
 import InstitutionDetail from "@/components/detail/InstitutionDetail";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
@@ -15,20 +16,21 @@ function formatDKK(val: number | null): string {
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo"] as const;
 
-const CATEGORY_LABELS: Record<string, string> = {
-  vuggestue: "Vuggestuer",
-  boernehave: "Børnehaver",
-  dagpleje: "Dagplejere",
-  skole: "Skoler",
-  sfo: "SFO",
-};
-
 export default function KommunePage() {
   const { name } = useParams<{ name: string }>();
   const decodedName = decodeURIComponent(name || "");
   const { institutions, municipalities, loading, error } = useData();
+  const { t, language } = useLanguage();
   const [selected, setSelected] = useState<UnifiedInstitution | null>(null);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    vuggestue: t.categories.vuggestue,
+    boernehave: t.categories.boernehave,
+    dagpleje: t.categories.dagpleje,
+    skole: t.categories.skole,
+    sfo: t.categories.sfo,
+  };
 
   const munInstitutions = useMemo(
     () => institutions.filter((i) => i.municipality === decodedName),
@@ -36,10 +38,8 @@ export default function KommunePage() {
   );
 
   const munSummary = municipalities.find((m) => m.municipality === decodedName);
-
   const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === decodedName);
 
-  // Center on municipality
   const center = useMemo(() => {
     if (munInstitutions.length === 0) return null;
     const avgLat = munInstitutions.reduce((s, i) => s + i.lat, 0) / munInstitutions.length;
@@ -47,7 +47,6 @@ export default function KommunePage() {
     return { lat: avgLat, lng: avgLng, zoom: 11 };
   }, [munInstitutions]);
 
-  // Group institutions by category
   const grouped = useMemo(() => {
     const map: Record<string, UnifiedInstitution[]> = {};
     for (const cat of CATEGORIES) {
@@ -56,7 +55,6 @@ export default function KommunePage() {
     return map;
   }, [munInstitutions]);
 
-  // Nearby municipalities
   const nearbyMunicipalities = useMemo(() => {
     const idx = municipalities.findIndex((m) => m.municipality === decodedName);
     if (idx === -1) return [];
@@ -83,13 +81,17 @@ export default function KommunePage() {
   if (error || munInstitutions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="glass-card p-8 text-center max-w-md">
-          <h1 className="font-display text-2xl font-bold mb-4">Kommune ikke fundet</h1>
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">
+            {language === "da" ? "Kommune ikke fundet" : "Municipality not found"}
+          </h1>
           <p className="text-muted mb-6">
-            Vi kunne ikke finde data for &quot;{decodedName}&quot;.
+            {language === "da"
+              ? `Vi kunne ikke finde data for "${decodedName}".`
+              : `Could not find data for "${decodedName}".`}
           </p>
           <Link to="/" className="text-primary hover:underline font-medium">
-            Gå til forsiden
+            {t.errors.goHome}
           </Link>
         </div>
       </div>
@@ -104,10 +106,10 @@ export default function KommunePage() {
           {decodedName}
         </h1>
         <p className="text-muted text-base mb-2">
-          Institutioner og skoler i {decodedName}
+          {t.municipality.institutionsIn} {decodedName}
         </p>
         <p className="font-mono text-primary text-lg font-semibold">
-          {munInstitutions.length.toLocaleString("da-DK")} institutioner
+          {munInstitutions.length.toLocaleString("da-DK")} {t.common.institutions}
         </p>
       </section>
 
@@ -115,20 +117,20 @@ export default function KommunePage() {
       {munSummary && (
         <section className="max-w-4xl mx-auto px-4 py-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="glass-card p-4 text-center">
-              <p className="text-xs text-muted mb-1">Dagpleje/md.</p>
+            <div className="card p-4 text-center">
+              <p className="text-xs text-muted mb-1">{t.categories.dagpleje}{t.common.perMonth}</p>
               <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.dagpleje)}</p>
             </div>
-            <div className="glass-card p-4 text-center">
-              <p className="text-xs text-muted mb-1">Vuggestue/md.</p>
+            <div className="card p-4 text-center">
+              <p className="text-xs text-muted mb-1">{t.categories.vuggestue}{t.common.perMonth}</p>
               <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.vuggestue)}</p>
             </div>
-            <div className="glass-card p-4 text-center">
-              <p className="text-xs text-muted mb-1">Børnehave/md.</p>
+            <div className="card p-4 text-center">
+              <p className="text-xs text-muted mb-1">{t.categories.boernehave}{t.common.perMonth}</p>
               <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.boernehave)}</p>
             </div>
-            <div className="glass-card p-4 text-center">
-              <p className="text-xs text-muted mb-1">SFO/md.</p>
+            <div className="card p-4 text-center">
+              <p className="text-xs text-muted mb-1">{t.categories.sfo}{t.common.perMonth}</p>
               <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.sfo)}</p>
             </div>
           </div>
@@ -153,18 +155,17 @@ export default function KommunePage() {
             )}
           </div>
 
-          {/* Friplads calculator */}
           {rates && rates.vuggestue && (
             <div>
               <FripladsCalculator
                 annualRate={rates.vuggestue}
-                label={`Beregn fripladstilskud — ${decodedName} (vuggestue)`}
+                label={`${t.friplads.title} — ${decodedName} (${t.categories.vuggestue.toLowerCase()})`}
               />
               {rates.boernehave && (
                 <div className="mt-4">
                   <FripladsCalculator
                     annualRate={rates.boernehave}
-                    label={`Beregn fripladstilskud — ${decodedName} (børnehave)`}
+                    label={`${t.friplads.title} — ${decodedName} (${t.categories.boernehave.toLowerCase()})`}
                   />
                 </div>
               )}
@@ -188,18 +189,17 @@ export default function KommunePage() {
                   <button
                     key={inst.id}
                     onClick={() => handleSelect(inst)}
-                    className="text-left glass-card p-4 hover:scale-[1.01] transition-transform min-h-[44px]"
-                    aria-label={`Se detaljer for ${inst.name}`}
+                    className="text-left card p-4 hover:scale-[1.01] transition-transform min-h-[44px]"
                   >
                     <p className="font-semibold text-foreground text-sm">{inst.name}</p>
                     <p className="text-xs text-muted">{inst.address}</p>
-                    <p className="font-mono text-sm text-primary mt-1">{formatDKK(inst.monthlyRate)}/md.</p>
+                    <p className="font-mono text-sm text-primary mt-1">{formatDKK(inst.monthlyRate)}{t.common.perMonth}</p>
                   </button>
                 ))}
               </div>
               {list.length > 12 && (
                 <p className="text-sm text-muted mt-3">
-                  Og {list.length - 12} flere {CATEGORY_LABELS[cat].toLowerCase()}...
+                  {language === "da" ? "Og" : "And"} {list.length - 12} {t.municipality.andMore} {CATEGORY_LABELS[cat].toLowerCase()}...
                 </p>
               )}
             </div>
@@ -211,14 +211,14 @@ export default function KommunePage() {
       {nearbyMunicipalities.length > 0 && (
         <section className="max-w-4xl mx-auto px-4 py-8">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">
-            Se også andre kommuner
+            {t.municipality.seeOtherMunicipalities}
           </h2>
           <div className="flex flex-wrap gap-2">
             {nearbyMunicipalities.map((m) => (
               <Link
                 key={m}
                 to={`/kommune/${encodeURIComponent(m)}`}
-                className="glass-card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
+                className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
               >
                 {m}
               </Link>

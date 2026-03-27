@@ -114,19 +114,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function loadData() {
       try {
-        const [skoleRes, vuggestueRes, dagplejeRes] = await Promise.all([
+        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes] = await Promise.all([
           fetch("/data/skole-data.json"),
           fetch("/data/vuggestue-data.json"),
+          fetch("/data/boernehave-data.json"),
           fetch("/data/dagpleje-data.json"),
+          fetch("/data/sfo-data.json"),
         ]);
 
-        if (!skoleRes.ok || !vuggestueRes.ok || !dagplejeRes.ok) {
+        if (!skoleRes.ok || !vuggestueRes.ok || !boernehaveRes.ok || !dagplejeRes.ok) {
           throw new Error("Kunne ikke indlæse data. Prøv igen senere.");
         }
 
         const skoleData: SchoolData = await skoleRes.json();
         const vuggestueData: CompactDagtilbudData = await vuggestueRes.json();
+        const boernehaveData: CompactDagtilbudData = await boernehaveRes.json();
         const dagplejeData: CompactDagtilbudData = await dagplejeRes.json();
+        const sfoData: CompactDagtilbudData = sfoRes.ok ? await sfoRes.json() : { i: [] };
 
         setNationalAverages(skoleData.avg);
 
@@ -142,10 +146,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // Vuggestuer (compact format)
+        // Vuggestuer (compact format) — forced category "vuggestue"
         for (const d of vuggestueData.i) {
           const u = compactDagtilbudToUnified(d, "vug");
           if (u && !seen.has(u.id)) {
+            u.category = "vuggestue";
+            seen.add(u.id);
+            unified.push(u);
+          }
+        }
+
+        // Børnehaver (compact format) — forced category "boernehave"
+        for (const d of boernehaveData.i) {
+          const id = `bh-${d.id}`;
+          const u = compactDagtilbudToUnified(d, "bh");
+          if (u && !seen.has(u.id)) {
+            u.category = "boernehave";
             seen.add(u.id);
             unified.push(u);
           }
@@ -155,6 +171,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
         for (const d of dagplejeData.i) {
           const u = compactDagtilbudToUnified(d, "dag");
           if (u && !seen.has(u.id)) {
+            seen.add(u.id);
+            unified.push(u);
+          }
+        }
+
+        // SFO/Klub (compact format)
+        for (const d of sfoData.i) {
+          const u = compactDagtilbudToUnified(d, "sfo");
+          if (u && !seen.has(u.id)) {
+            u.category = "sfo";
             seen.add(u.id);
             unified.push(u);
           }
