@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0E7490;
+  --color-primary-light: #22D3EE;
+  --color-primary-dark: #0A5C73;
+  --color-bg: #FDFAF5;
+  --color-bg-card: #FFFFFF;
+  --color-foreground: #1A2632;
+  --color-muted: #556B7A;
+  --color-border: #E8DFD7;
+  --color-success: #1B8F5F;
+  --color-warning: #F4B82C;
+  --color-destructive: #D73C3C;
+
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, Consolas, monospace;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0F1419;
+    --color-bg-card: #1A2332;
+    --color-foreground: #E8E6E3;
+    --color-muted: #8899A6;
+    --color-border: #2F3B4A;
+    --color-primary: #22D3EE;
+    --color-primary-dark: #0E7490;
+  }
+}
+
+/* Base styles */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-foreground);
+}
+
+/* Monospace numbers */
+.font-mono, [class*="tabular"] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Leaflet popup overrides */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid var(--color-border) !important;
+  font-family: var(--font-body) !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.leaflet-popup-tip {
+  box-shadow: none !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+/* Utility: glass card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.glass-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-card {
+    background: rgba(26, 35, 50, 0.85);
+  }
+}
+
+/* Utility: fade in */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus ring for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}

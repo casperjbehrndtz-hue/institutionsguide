@@ -1,0 +1,219 @@
+import { createContext, useContext, useEffect, useState, useMemo, type ReactNode } from "react";
+import type {
+  UnifiedInstitution,
+  CompactSchool,
+  DagtilbudInstitution,
+  MunicipalitySummary,
+  SchoolQuality,
+} from "@/lib/types";
+import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
+
+interface SchoolData {
+  s: CompactSchool[];
+  avg: { trivsel: number; karakterer: number; fravaer: number };
+}
+
+interface VuggestueData {
+  institutions: DagtilbudInstitution[];
+}
+
+interface DagplejeData {
+  dagplejere: DagtilbudInstitution[];
+}
+
+interface DataContextValue {
+  institutions: UnifiedInstitution[];
+  municipalities: MunicipalitySummary[];
+  loading: boolean;
+  error: string | null;
+  nationalAverages: { trivsel: number; karakterer: number; fravaer: number };
+}
+
+const DataContext = createContext<DataContextValue | null>(null);
+
+function mapSchoolType(t: "f" | "p" | "e"): string {
+  switch (t) {
+    case "f": return "folkeskole";
+    case "p": return "friskole";
+    case "e": return "efterskole";
+    default: return "skole";
+  }
+}
+
+function schoolToUnified(s: CompactSchool): UnifiedInstitution | null {
+  if (!s.la || !s.lo) return null;
+  return {
+    id: `school-${s.id}`,
+    name: s.n,
+    category: "skole",
+    subtype: mapSchoolType(s.t),
+    municipality: s.m.replace(" Kommune", ""),
+    address: s.a,
+    postalCode: s.z,
+    city: s.c,
+    lat: s.la,
+    lng: s.lo,
+    monthlyRate: s.sfo ? s.sfo : null,
+    annualRate: s.sfo ? s.sfo * 12 : null,
+    leader: s.l,
+    web: s.w,
+    email: s.e,
+    quality: s.q,
+  };
+}
+
+function dagtilbudCategory(type: string): "vuggestue" | "boernehave" | "dagpleje" | "sfo" {
+  switch (type) {
+    case "dagpleje": return "dagpleje";
+    case "sfo":
+    case "klub": return "sfo";
+    case "boernehave": return "boernehave";
+    default: return "vuggestue"; // vuggestue, aldersintegreret, andet
+  }
+}
+
+function dagtilbudToUnified(d: DagtilbudInstitution, prefix: string): UnifiedInstitution | null {
+  if (!d.lat || !d.lng) return null;
+  return {
+    id: `${prefix}-${d.id}`,
+    name: d.name,
+    category: dagtilbudCategory(d.type),
+    subtype: d.ownership,
+    municipality: d.municipality,
+    address: d.address,
+    postalCode: d.postalCode,
+    city: d.city,
+    lat: d.lat,
+    lng: d.lng,
+    monthlyRate: d.monthlyRate,
+    annualRate: d.annualRate,
+    ownership: d.ownership,
+    email: d.email || undefined,
+    phone: d.phone || undefined,
+  };
+}
+
+export function DataProvider({ children }: { children: ReactNode }) {
+  const [institutions, setInstitutions] = useState<UnifiedInstitution[]>([]);
+  const [nationalAverages, setNationalAverages] = useState({ trivsel: 3.6, karakterer: 7.4, fravaer: 7.4 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [skoleRes, vuggestueRes, dagplejeRes] = await Promise.all([
+          fetch("/data/skole-data.json"),
+          fetch("/data/vuggestue-data.json"),
+          fetch("/data/dagpleje-data.json"),
+        ]);
+
+        if (!skoleRes.ok || !vuggestueRes.ok || !dagplejeRes.ok) {
+          throw new Error("Kunne ikke indlæse data. Prøv igen senere.");
+        }
+
+        const skoleData: SchoolData = await skoleRes.json();
+        const vuggestueData: VuggestueData = await vuggestueRes.json();
+        const dagplejeData: DagplejeData = await dagplejeRes.json();
+
+        setNationalAverages(skoleData.avg);
+
+        const seen = new Set<string>();
+        const unified: UnifiedInstitution[] = [];
+
+        // Schools
+        for (const s of skoleData.s) {
+          const u = schoolToUnified(s);
+          if (u && !seen.has(u.id)) {
+            seen.add(u.id);
+            unified.push(u);
+          }
+        }
+
+        // Vuggestuer
+        for (const d of vuggestueData.institutions) {
+          const u = dagtilbudToUnified(d, "vug");
+          if (u && !seen.has(u.id)) {
+            seen.add(u.id);
+            unified.push(u);
+          }
+        }
+
+        // Dagplejere
+        for (const d of dagplejeData.dagplejere) {
+          const u = dagtilbudToUnified(d, "dag");
+          if (u && !seen.has(u.id)) {
+            seen.add(u.id);
+            unified.push(u);
+          }
+        }
+
+        setInstitutions(unified);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Ukendt fejl ved indlæsning af data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const municipalities = useMemo<MunicipalitySummary[]>(() => {
+    const map = new Map<string, MunicipalitySummary>();
+
+    for (const inst of institutions) {
+      let m = map.get(inst.municipality);
+      if (!m) {
+        const rateInfo = CHILDCARE_RATES_2025.find(
+          (r) => r.municipality === inst.municipality
+        );
+        m = {
+          municipality: inst.municipality,
+          code: "",
+          vuggestueCount: 0,
+          boernehaveCount: 0,
+          dagplejeCount: 0,
+          sfoCount: 0,
+          folkeskoleCount: 0,
+          friskoleCount: 0,
+          rates: {
+            dagpleje: rateInfo?.dagpleje ? Math.round(rateInfo.dagpleje / 12) : null,
+            vuggestue: rateInfo?.vuggestue ? Math.round(rateInfo.vuggestue / 12) : null,
+            boernehave: rateInfo?.boernehave ? Math.round(rateInfo.boernehave / 12) : null,
+            sfo: rateInfo?.sfo ? Math.round(rateInfo.sfo / 12) : null,
+          },
+        };
+        map.set(inst.municipality, m);
+      }
+      switch (inst.category) {
+        case "vuggestue": m.vuggestueCount++; break;
+        case "boernehave": m.boernehaveCount++; break;
+        case "dagpleje": m.dagplejeCount++; break;
+        case "sfo": m.sfoCount++; break;
+        case "skole":
+          if (inst.subtype === "folkeskole") m.folkeskoleCount++;
+          else m.friskoleCount++;
+          break;
+      }
+    }
+
+    return Array.from(map.values()).sort((a, b) => a.municipality.localeCompare(b.municipality, "da"));
+  }, [institutions]);
+
+  const value: DataContextValue = {
+    institutions,
+    municipalities,
+    loading,
+    error,
+    nationalAverages,
+  };
+
+  return <DataContext value={value}>{children}</DataContext>;
+}
+
+export function useData(): DataContextValue {
+  const ctx = useContext(DataContext);
+  if (!ctx) throw new Error("useData must be used within DataProvider");
+  return ctx;
+}

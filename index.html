@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Institutionsguide — Find og sammenlign børnepasning og skoler i Danmark</title>
+  <meta name="description" content="Sammenlign 5.000+ vuggestuer, børnehaver, dagplejere, skoler og SFO'er i alle 98 kommuner. Se priser, kvalitetsdata og beregn fripladstilskud. Gratis." />
+  <meta property="og:title" content="Institutionsguide — Børnepasning og skoler i hele Danmark" />
+  <meta property="og:description" content="Find og sammenlign institutioner. 5.000+ vuggestuer, børnehaver, dagplejere og skoler med priser og kvalitetsdata." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="da_DK" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#1A2632" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://institutionsguide.dk/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Analytics: Umami (cookieless, no consent needed under ePrivacy) -->
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="%VITE_UMAMI_ID%"></script>
+  <!-- Analytics: PostHog (cookieless mode, no consent needed) -->
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageviewId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    if("%VITE_POSTHOG_KEY%"&&!"%VITE_POSTHOG_KEY%".includes("VITE_")){posthog.init("%VITE_POSTHOG_KEY%",{api_host:"https://eu.i.posthog.com",persistence:"memory",autocapture:true,capture_pageview:true,capture_pageleave:true,disable_session_recording:false})}
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Institutionsguide",
+    "url": "https://institutionsguide.dk",
+    "description": "Sammenlign børnepasning og skoler i alle 98 kommuner i Danmark",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "DKK" },
+    "inLanguage": "da"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Hvad koster en vuggestueplads i Danmark?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Prisen for en vuggestueplads varierer fra kommune til kommune. I 2025 ligger månedstaksten typisk mellem 2.500 og 4.500 kr. De billigste kommuner er ofte i Jylland, mens København og Nordsjælland er dyrest."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hvad er fripladstilskud, og hvem kan få det?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Fripladstilskud er en rabat på forældrebetalingen for dagtilbud. Tilskuddet afhænger af husstandsindkomsten. Familier med en indkomst under 677.500 kr. kan få delvist tilskud, og under 218.100 kr. får man fuld friplads."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hvad er forskellen på dagpleje og vuggestue?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Dagpleje foregår i en dagplejers private hjem med maks 4-5 børn, mens en vuggestue er en institution med flere børn og personale. Dagpleje er ofte billigere, mens vuggestuer typisk har flere pædagoger og faciliteter."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hvordan finder jeg den bedste skole til mit barn?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Institutionsguide viser kvalitetsdata for alle folkeskoler og friskoler i Danmark, herunder trivsel, karaktergennemsnit, fravær og kompetencedækning. Du kan sammenligne skoler side om side for at finde den bedste skole i dit område."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Hvor mange institutioner er der i Danmark?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Danmark har over 5.000 daginstitutioner, dagplejere og skoler fordelt på alle 98 kommuner. Det inkluderer vuggestuer, børnehaver, dagplejere, folkeskoler, friskoler og SFO-tilbud."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <noscript>
+    <div style="max-width:640px;margin:40px auto;padding:0 20px;font-family:system-ui,sans-serif;color:#1a2632">
+      <h1>Institutionsguide — Børnepasning og skoler i Danmark</h1>
+      <p>Sammenlign 5.000+ vuggestuer, børnehaver, dagplejere og skoler i alle 98 kommuner.</p>
+      <ul>
+        <li><a href="/vuggestue">Vuggestuer</a></li>
+        <li><a href="/boernehave">Børnehaver</a></li>
+        <li><a href="/dagpleje">Dagplejere</a></li>
+        <li><a href="/skole">Skoler</a></li>
+        <li><a href="/sfo">SFO</a></li>
+      </ul>
+      <p>Institutionsguide kræver JavaScript for at fungere. Aktivér venligst JavaScript i din browser.</p>
+    </div>
+  </noscript>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
