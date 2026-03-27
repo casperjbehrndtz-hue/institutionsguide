@@ -2,9 +2,7 @@ import { createContext, useContext, useEffect, useState, useMemo, type ReactNode
 import type {
   UnifiedInstitution,
   CompactSchool,
-  DagtilbudInstitution,
   MunicipalitySummary,
-  SchoolQuality,
 } from "@/lib/types";
 import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
 
@@ -13,12 +11,26 @@ interface SchoolData {
   avg: { trivsel: number; karakterer: number; fravaer: number };
 }
 
-interface VuggestueData {
-  institutions: DagtilbudInstitution[];
+/** Compact dagtilbud record (short keys from compact-data.mjs) */
+interface CompactDagtilbud {
+  id: string;
+  n: string;
+  tp: string;
+  ow: string;
+  m: string;
+  a?: string;
+  z?: string;
+  c?: string;
+  la?: number;
+  lo?: number;
+  e?: string;
+  ph?: string;
+  ar?: number;
+  mr?: number;
 }
 
-interface DagplejeData {
-  dagplejere: DagtilbudInstitution[];
+interface CompactDagtilbudData {
+  i: CompactDagtilbud[];
 }
 
 interface DataContextValue {
@@ -72,24 +84,24 @@ function dagtilbudCategory(type: string): "vuggestue" | "boernehave" | "dagpleje
   }
 }
 
-function dagtilbudToUnified(d: DagtilbudInstitution, prefix: string): UnifiedInstitution | null {
-  if (!d.lat || !d.lng) return null;
+function compactDagtilbudToUnified(d: CompactDagtilbud, prefix: string): UnifiedInstitution | null {
+  if (!d.la || !d.lo) return null;
   return {
     id: `${prefix}-${d.id}`,
-    name: d.name,
-    category: dagtilbudCategory(d.type),
-    subtype: d.ownership,
-    municipality: d.municipality,
-    address: d.address,
-    postalCode: d.postalCode,
-    city: d.city,
-    lat: d.lat,
-    lng: d.lng,
-    monthlyRate: d.monthlyRate,
-    annualRate: d.annualRate,
-    ownership: d.ownership,
-    email: d.email || undefined,
-    phone: d.phone || undefined,
+    name: d.n,
+    category: dagtilbudCategory(d.tp),
+    subtype: d.ow,
+    municipality: d.m,
+    address: d.a || "",
+    postalCode: d.z || "",
+    city: d.c || "",
+    lat: d.la,
+    lng: d.lo,
+    monthlyRate: d.mr || null,
+    annualRate: d.ar || null,
+    ownership: d.ow,
+    email: d.e,
+    phone: d.ph,
   };
 }
 
@@ -113,8 +125,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
 
         const skoleData: SchoolData = await skoleRes.json();
-        const vuggestueData: VuggestueData = await vuggestueRes.json();
-        const dagplejeData: DagplejeData = await dagplejeRes.json();
+        const vuggestueData: CompactDagtilbudData = await vuggestueRes.json();
+        const dagplejeData: CompactDagtilbudData = await dagplejeRes.json();
 
         setNationalAverages(skoleData.avg);
 
@@ -130,18 +142,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // Vuggestuer
-        for (const d of vuggestueData.institutions) {
-          const u = dagtilbudToUnified(d, "vug");
+        // Vuggestuer (compact format)
+        for (const d of vuggestueData.i) {
+          const u = compactDagtilbudToUnified(d, "vug");
           if (u && !seen.has(u.id)) {
             seen.add(u.id);
             unified.push(u);
           }
         }
 
-        // Dagplejere
-        for (const d of dagplejeData.dagplejere) {
-          const u = dagtilbudToUnified(d, "dag");
+        // Dagplejere (compact format)
+        for (const d of dagplejeData.i) {
+          const u = compactDagtilbudToUnified(d, "dag");
           if (u && !seen.has(u.id)) {
             seen.add(u.id);
             unified.push(u);

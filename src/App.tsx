@@ -9,6 +9,7 @@ const HomePage = lazy(() => import("@/pages/HomePage"));
 const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
 const KommunePage = lazy(() => import("@/pages/KommunePage"));
 const ComparePage = lazy(() => import("@/pages/ComparePage"));
+const InstitutionPage = lazy(() => import("@/pages/InstitutionPage"));
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 
@@ -35,6 +36,7 @@ export default function App() {
               <Route path="/skole" element={<CategoryPage category="skole" />} />
               <Route path="/sfo" element={<CategoryPage category="sfo" />} />
               <Route path="/kommune/:name" element={<KommunePage />} />
+              <Route path="/institution/:id" element={<InstitutionPage />} />
               <Route path="/sammenlign" element={<ComparePage />} />
               <Route path="/privatliv" element={<PrivacyPage />} />
               <Route path="/vilkaar" element={<TermsPage />} />

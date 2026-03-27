@@ -229,35 +229,42 @@ export default function CategoryPage({ category }: Props) {
             <p className="text-center text-muted py-12">Ingen institutioner matcher din søgning.</p>
           )}
           {visibleList.map((inst) => (
-            <button
-              key={inst.id}
-              onClick={() => handleSelect(inst)}
-              className={`w-full text-left glass-card p-4 hover:scale-[1.01] transition-transform min-h-[44px] ${
-                selected?.id === inst.id ? "ring-2 ring-primary" : ""
-              }`}
-              aria-label={`Se detaljer for ${inst.name}`}
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="font-semibold text-foreground">{inst.name}</p>
-                  <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>
-                  <p className="text-xs text-muted">{inst.municipality}</p>
-                  {inst.quality?.o !== undefined && (
-                    <span className={`inline-block text-xs mt-1 px-2 py-0.5 rounded-full ${
-                      inst.quality.o === 1 ? "bg-success/10 text-success" :
-                      inst.quality.o === 0 ? "bg-warning/10 text-warning" :
-                      "bg-destructive/10 text-destructive"
-                    }`}>
-                      {inst.quality.o === 1 ? "Over middel" : inst.quality.o === 0 ? "Middel" : "Under middel"}
-                    </span>
-                  )}
+            <div key={inst.id} className={`glass-card hover:scale-[1.01] transition-transform ${
+              selected?.id === inst.id ? "ring-2 ring-primary" : ""
+            }`}>
+              <button
+                onClick={() => handleSelect(inst)}
+                className="w-full text-left p-4 min-h-[44px]"
+                aria-label={`Se detaljer for ${inst.name}`}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="font-semibold text-foreground">{inst.name}</p>
+                    <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>
+                    <p className="text-xs text-muted">{inst.municipality}</p>
+                    {inst.quality?.o !== undefined && (
+                      <span className={`inline-block text-xs mt-1 px-2 py-0.5 rounded-full ${
+                        inst.quality.o === 1 ? "bg-success/10 text-success" :
+                        inst.quality.o === 0 ? "bg-warning/10 text-warning" :
+                        "bg-destructive/10 text-destructive"
+                      }`}>
+                        {inst.quality.o === 1 ? "Over middel" : inst.quality.o === 0 ? "Middel" : "Under middel"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0 ml-2">
+                    <p className="font-mono text-sm font-medium text-primary">{formatDKK(inst.monthlyRate)}</p>
+                    <span className="text-xs text-muted">/md.</span>
+                  </div>
                 </div>
-                <div className="text-right shrink-0 ml-2">
-                  <p className="font-mono text-sm font-medium text-primary">{formatDKK(inst.monthlyRate)}</p>
-                  <span className="text-xs text-muted">/md.</span>
-                </div>
-              </div>
-            </button>
+              </button>
+              <Link
+                to={`/institution/${inst.id}`}
+                className="block text-xs text-primary hover:underline px-4 pb-3"
+              >
+                Se fuld profil &rarr;
+              </Link>
+            </div>
           ))}
           {filtered.length > 50 && (
             <p className="text-center text-sm text-muted py-4">
