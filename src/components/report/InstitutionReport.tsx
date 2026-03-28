@@ -92,8 +92,11 @@ export default function InstitutionReport({
 
       {/* Overall score */}
       <div className="flex items-center gap-6 rounded-xl bg-bg-card p-5 mb-4">
-        <div className={`w-[72px] h-[72px] rounded-full border-[3px] flex items-center justify-center shrink-0 ${SCORE_COLOR(s10)}`}>
-          <span className="font-mono text-[28px] font-medium">{s10.toFixed(1)}</span>
+        <div className="flex flex-col items-center shrink-0">
+          <div className={`w-[72px] h-[72px] rounded-full border-[3px] flex items-center justify-content shrink-0 ${SCORE_COLOR(s10)}`}>
+            <span className="font-mono text-[28px] font-medium w-full text-center">{s10.toFixed(1)}</span>
+          </div>
+          <span className="text-[10px] text-muted mt-1">{lang === "da" ? "af 10" : "of 10"}</span>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium text-foreground">
@@ -181,7 +184,7 @@ export default function InstitutionReport({
             {lang === "da" ? "Andre institutioner i nærheden" : "Other institutions nearby"}
           </p>
           <div className="space-y-2">
-            {nearby.slice(0, 3).map((n) => {
+            {nearby.slice(0, 5).map((n) => {
               const ns = nearbyScores.find((s) => s.id === n.id);
               return (
                 <Link
@@ -211,7 +214,7 @@ export default function InstitutionReport({
       )}
 
       {/* Disclaimer */}
-      <p className="text-[11px] text-muted leading-relaxed">
+      <p className="text-xs text-muted leading-relaxed">
         {lang === "da"
           ? "Vurderingen er baseret på offentligt tilgængelige data fra Undervisningsministeriet, kommunale nøgletal og geografisk analyse. Scoren er vejledende og erstatter ikke et personligt besøg."
           : "The assessment is based on publicly available data from the Danish Ministry of Education, municipal statistics and geographical analysis. The score is advisory and does not replace a personal visit."}

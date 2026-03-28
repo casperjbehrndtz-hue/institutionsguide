@@ -157,6 +157,16 @@ export default function ComparePage() {
           <ComparisonTable institutions={institutions} />
         </div>
       </section>
+
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          body { background: white !important; }
+          .print\\:hidden { display: none !important; }
+          section { break-inside: avoid; }
+          .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+        }
+      `}</style>
     </>
   );
 }

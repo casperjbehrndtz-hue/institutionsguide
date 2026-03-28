@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { calculateFriplads } from "@/lib/childcare/friplads";
 import { formatDKK } from "@/lib/format";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFamily } from "@/contexts/FamilyContext";
 
 interface Props {
   annualRate: number;
@@ -9,10 +10,16 @@ interface Props {
 }
 
 export default function FripladsCalculator({ annualRate, label }: Props) {
-  const [income, setIncome] = useState(450_000);
-  const [singleParent, setSingleParent] = useState(false);
-  const [children, setChildren] = useState(1);
+  const { profile, setProfile } = useFamily();
+  const [income, setIncome] = useState(profile?.income ?? 450_000);
+  const [singleParent, setSingleParent] = useState(profile?.singleParent ?? false);
+  const [children, setChildren] = useState(profile?.childCount ?? 1);
   const { t } = useLanguage();
+
+  // Persist changes back to FamilyContext
+  useEffect(() => {
+    setProfile({ income, singleParent, childCount: children });
+  }, [income, singleParent, children, setProfile]);
 
   const result = useMemo(
     () => calculateFriplads(annualRate, income, singleParent, children, 0),
@@ -117,7 +124,7 @@ export default function FripladsCalculator({ annualRate, label }: Props) {
           </p>
         )}
       </div>
-      <p className="text-[10px] text-muted mt-2">
+      <p className="text-xs text-muted mt-2">
         {t.friplads.disclaimer}
       </p>
     </div>

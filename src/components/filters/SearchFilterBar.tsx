@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { InstitutionCategory, AgeGroup, SortKey } from "@/lib/types";
@@ -34,6 +34,84 @@ const POPULAR_MUNICIPALITIES = [
   "København", "Aarhus", "Odense", "Aalborg", "Frederiksberg",
   "Gentofte", "Roskilde", "Helsingør", "Vejle", "Horsens",
 ];
+
+function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: {
+  value: string;
+  onChange: (v: string) => void;
+  municipalities: string[];
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!query) {
+      const popular = POPULAR_MUNICIPALITIES.filter((m) => municipalities.includes(m));
+      const rest = municipalities.filter((m) => !POPULAR_MUNICIPALITIES.includes(m));
+      return [...popular, ...rest];
+    }
+    const q = query.toLowerCase();
+    return municipalities.filter((m) => m.toLowerCase().includes(q));
+  }, [query, municipalities]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <input
+        type="text"
+        value={open ? query : value || ""}
+        placeholder={placeholder}
+        onFocus={() => { setOpen(true); setQuery(""); }}
+        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+        className={`w-[180px] px-3 py-1.5 rounded-xl border bg-bg-card text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
+          value ? "border-primary text-primary font-medium" : "border-border text-foreground"
+        }`}
+        role="combobox"
+        aria-expanded={open}
+        aria-label={placeholder}
+      />
+      {value && !open && (
+        <button
+          onClick={() => { onChange(""); setQuery(""); }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-border/30 rounded"
+          aria-label="Clear"
+        >
+          <X className="w-3.5 h-3.5 text-muted" />
+        </button>
+      )}
+      {open && (
+        <div className="absolute top-full left-0 mt-1 w-[220px] max-h-[280px] overflow-y-auto bg-bg-card border border-border rounded-xl shadow-lg z-50">
+          <button
+            onClick={() => { onChange(""); setOpen(false); setQuery(""); }}
+            className={`w-full text-left px-3 py-2 text-sm hover:bg-primary/5 ${!value ? "text-primary font-medium" : "text-foreground"}`}
+          >
+            {placeholder}
+          </button>
+          {filtered.slice(0, 30).map((m) => (
+            <button
+              key={m}
+              onClick={() => { onChange(m); setOpen(false); setQuery(""); }}
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-primary/5 ${value === m ? "text-primary font-medium bg-primary/5" : "text-foreground"}`}
+            >
+              {m}
+            </button>
+          ))}
+          {filtered.length > 30 && (
+            <p className="px-3 py-2 text-xs text-muted">+{filtered.length - 30} mere...</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function SearchFilterBar({
   search,
@@ -191,30 +269,13 @@ export default function SearchFilterBar({
             </select>
           </div>
 
-          {/* Municipality dropdown */}
-          <div className="flex items-center gap-1.5">
-            <label htmlFor="municipality-select" className="sr-only">
-              {t.common.allMunicipalities}
-            </label>
-            <select
-              id="municipality-select"
-              value={municipality}
-              onChange={(e) => onMunicipalityChange(e.target.value)}
-              className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="">{t.common.allMunicipalities}</option>
-              <optgroup label={t.popular}>
-                {POPULAR_MUNICIPALITIES.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </optgroup>
-              <optgroup label={t.common.allMunicipalities}>
-                {otherMunicipalities.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
+          {/* Municipality searchable combobox */}
+          <MunicipalityCombobox
+            value={municipality}
+            onChange={onMunicipalityChange}
+            municipalities={municipalities}
+            placeholder={t.common.allMunicipalities}
+          />
 
           {/* Quality filter (for schools) */}
           {(category === "alle" || category === "skole") && (
@@ -266,13 +327,40 @@ export default function SearchFilterBar({
           )}
         </div>
 
-        {/* Result count */}
-        <p className="text-sm text-muted" aria-live="polite">
-          <span className="font-mono font-medium text-foreground">
-            {resultCount.toLocaleString("da-DK")}
-          </span>{" "}
-          {t.common.institutions} {t.common.found}
-        </p>
+        {/* Result count + active filter pills */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <p className="text-sm text-muted" aria-live="polite">
+            <span className="font-mono font-medium text-foreground">
+              {resultCount.toLocaleString("da-DK")}
+            </span>{" "}
+            {t.common.institutions} {t.common.found}
+          </p>
+          {/* Active filter pills */}
+          {search && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
+              &ldquo;{search}&rdquo;
+              <button onClick={() => onSearchChange("")} className="hover:bg-primary/20 rounded-full p-0.5" aria-label="Clear search"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {municipality && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
+              {municipality}
+              <button onClick={() => onMunicipalityChange("")} className="hover:bg-primary/20 rounded-full p-0.5" aria-label="Clear municipality"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {ageGroup && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
+              {AGE_OPTIONS.find((o) => o.value === ageGroup)?.label}
+              <button onClick={() => onAgeGroupChange("")} className="hover:bg-primary/20 rounded-full p-0.5" aria-label="Clear age"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {qualityFilter && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-primary/10 text-primary">
+              {qualityFilter === "1" ? t.detail.aboveAvg : qualityFilter === "0" ? t.detail.average : t.detail.belowAvg}
+              <button onClick={() => onQualityFilterChange("")} className="hover:bg-primary/20 rounded-full p-0.5" aria-label="Clear quality"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

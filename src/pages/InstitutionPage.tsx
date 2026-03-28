@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { MapPin, Mail, Phone, ExternalLink, Star, ArrowLeft, ChevronRight, Heart, CheckCircle, AlertTriangle, GitCompareArrows } from "lucide-react";
+import { MapPin, Mail, Phone, ExternalLink, Star, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ChevronDown } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -9,15 +9,10 @@ import PriceHistoryChart from "@/components/charts/PriceHistoryChart";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
 import InstitutionMap from "@/components/map/InstitutionMap";
-import StaticMapThumb from "@/components/shared/StaticMapThumb";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import { institutionSchema, breadcrumbSchema } from "@/lib/schema";
 import ShareButton from "@/components/shared/ShareButton";
-import InsightFlags from "@/components/insights/InsightFlags";
-import PercentileProfile from "@/components/insights/PercentileProfile";
-import NearbyComparison from "@/components/insights/NearbyComparison";
-import { generateFlags, generatePercentileProfile, generateNearbyComparison } from "@/lib/insights";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/contexts/CompareContext";
 import CompareBar from "@/components/compare/CompareBar";
@@ -37,14 +32,22 @@ function categoryPath(cat: string): string {
   return paths[cat] || "/";
 }
 
-function QualityDot({ value, max = 5 }: { value: number | undefined; max?: number }) {
+function QualityDot({ value, max = 5, lang = "da" }: { value: number | undefined; max?: number; lang?: string }) {
   if (value === undefined) return <span className="text-xs text-muted">-</span>;
   const pct = (value / max) * 100;
   const color = pct >= 70 ? "bg-success" : pct >= 40 ? "bg-warning" : "bg-destructive";
+  const label = pct >= 70
+    ? (lang === "da" ? "God" : "Good")
+    : pct >= 40
+    ? (lang === "da" ? "Middel" : "Average")
+    : (lang === "da" ? "Lav" : "Low");
   return (
     <div className="flex items-center gap-1.5">
-      <span className={`w-2.5 h-2.5 rounded-full ${color}`} />
+      <span className={`w-2.5 h-2.5 rounded-full ${color}`} aria-hidden="true" />
       <span className="font-mono text-sm">{value.toLocaleString("da-DK")}</span>
+      <span className={`text-[10px] font-medium ${pct >= 70 ? "text-success" : pct >= 40 ? "text-warning" : "text-destructive"}`}>
+        {label}
+      </span>
     </div>
   );
 }
@@ -110,7 +113,7 @@ export default function InstitutionPage() {
 
   const nearbyScores = useMemo(() => {
     if (!inst) return [];
-    return nearby.slice(0, 3).map((n) => {
+    return nearby.slice(0, 5).map((n) => {
       const sameCategory = institutions.filter((i) => i.municipality === n.municipality && i.category === n.category && i.id !== n.id);
       const prices = sameCategory.map((i) => i.monthlyRate).filter((p): p is number => p != null && p > 0);
       const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : null;
@@ -140,16 +143,16 @@ export default function InstitutionPage() {
   }
 
   const q = inst.quality;
+  const [showMore, setShowMore] = useState(false);
 
   return (
     <>
       <SEOHead
         title={`${inst.name} — ${categoryLabels[inst.category]} i ${inst.municipality}`}
-        description={`${inst.name} er en ${(categoryLabels[inst.category] || "").toLowerCase()} i ${inst.municipality}. ${inst.monthlyRate ? `Månedspris: ${formatDKK(inst.monthlyRate)}.` : ""} Se kontaktinfo, kvalitetsdata og beregn fripladstilskud.`}
+        description={`${inst.name} er en ${(categoryLabels[inst.category] || "").toLowerCase()} i ${inst.municipality}. ${inst.monthlyRate ? `Månedspris: ${formatDKK(inst.monthlyRate)}.` : ""} Se vurdering, kvalitetsdata og beregn fripladstilskud.`}
         path={`/institution/${inst.id}`}
       />
 
-      {/* Structured data for SEO */}
       <JsonLd data={institutionSchema(inst, "https://institutionsguide.dk")} />
       <JsonLd data={breadcrumbSchema([
         { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguide.dk/" },
@@ -159,7 +162,7 @@ export default function InstitutionPage() {
       ])} />
 
       {/* Breadcrumb */}
-      <nav className="max-w-5xl mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
+      <nav className="max-w-[640px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
         <ol className="flex items-center gap-1 flex-wrap">
           <li><Link to="/" className="hover:text-primary transition-colors">{language === "da" ? "Forside" : "Home"}</Link></li>
           <li><ChevronRight className="w-3.5 h-3.5" /></li>
@@ -171,73 +174,55 @@ export default function InstitutionPage() {
         </ol>
       </nav>
 
-      {/* Header */}
-      <section className="max-w-5xl mx-auto px-4 pt-4 pb-8">
-        <Link to={categoryPath(inst.category)} className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-4">
+      {/* Compact action bar */}
+      <div className="max-w-[640px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
+        <Link to={categoryPath(inst.category)} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
           <ArrowLeft className="w-4 h-4" />
           {language === "da" ? `Alle ${(categoryLabels[inst.category] || "").toLowerCase()}` : `All ${(categoryLabels[inst.category] || "").toLowerCase()}`}
         </Link>
-
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
-            {inst.name}
-          </h1>
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={() => {
-                if (isInCompare(inst.id)) {
-                  removeFromCompare(inst.id);
-                  const msg = language === "da" ? "Fjernet fra sammenligning" : "Removed from comparison";
-                  setCompareToast(msg);
-                } else {
-                  addToCompare(inst);
-                  const msg = language === "da" ? "Tilføjet til sammenligning" : "Added to comparison";
-                  setCompareToast(msg);
-                }
-                setTimeout(() => setCompareToast(false), 2500);
-              }}
-              className={`p-2 rounded-lg hover:bg-primary/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${isInCompare(inst.id) ? "bg-primary/10" : ""}`}
-              aria-label={language === "da" ? "Sammenlign med andre" : "Compare with others"}
-              title={language === "da" ? "Sammenlign med andre" : "Compare with others"}
-            >
-              <GitCompareArrows className={`w-5 h-5 transition-colors ${isInCompare(inst.id) ? "text-primary" : "text-muted hover:text-primary"}`} />
-            </button>
-            <ShareButton title={inst.name} url={`/institution/${inst.id}`} />
-            <button
-              onClick={() => toggleFavorite(inst.id)}
-              className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-              aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
-            >
-              <Heart className={`w-6 h-6 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
-            </button>
-          </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => {
+              if (isInCompare(inst.id)) {
+                removeFromCompare(inst.id);
+                const msg = language === "da" ? "Fjernet fra sammenligning" : "Removed from comparison";
+                setCompareToast(msg);
+              } else {
+                addToCompare(inst);
+                const msg = language === "da" ? "Tilføjet til sammenligning" : "Added to comparison";
+                setCompareToast(msg);
+              }
+              setTimeout(() => setCompareToast(false), 2500);
+            }}
+            className={`p-2 rounded-lg hover:bg-primary/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${isInCompare(inst.id) ? "bg-primary/10" : ""}`}
+            aria-label={language === "da" ? "Sammenlign" : "Compare"}
+          >
+            <GitCompareArrows className={`w-5 h-5 transition-colors ${isInCompare(inst.id) ? "text-primary" : "text-muted hover:text-primary"}`} />
+          </button>
+          <ShareButton title={inst.name} url={`/institution/${inst.id}`} />
+          <button
+            onClick={() => toggleFavorite(inst.id)}
+            className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
+          >
+            <Heart className={`w-6 h-6 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
+          </button>
         </div>
+      </div>
 
-        {/* Compare toast notification */}
-        {compareToast && (
-          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4">
-            {compareToast}
-          </div>
-        )}
-
-        <div className="flex flex-wrap gap-2 mb-4">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-            {categoryLabels[inst.category]}
-          </span>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-border text-muted">
-            {subtypeLabels[inst.subtype] || inst.subtype}
-          </span>
+      {/* Compare toast */}
+      {compareToast && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4">
+          {compareToast}
         </div>
+      )}
 
-        <div className="flex items-center gap-2 text-muted">
-          <MapPin className="w-4 h-4 shrink-0" />
-          <span className="text-sm">{inst.address}, {inst.postalCode} {inst.city} — {inst.municipality}</span>
-        </div>
-      </section>
-
-      {/* Områdevurdering — primary content, first thing users see */}
+      {/* ═══════════════════════════════════════════
+          THE REPORT — this IS the page content
+          Matches the HTML mockup exactly
+          ═══════════════════════════════════════════ */}
       {scoreResult && (
-        <section className="max-w-5xl mx-auto px-4 pb-8">
+        <section className="px-4 pb-6">
           <InstitutionReport
             score={scoreResult}
             institutionName={inst.name}
@@ -252,202 +237,200 @@ export default function InstitutionPage() {
         </section>
       )}
 
-      {/* Main content grid */}
-      <section className="max-w-5xl mx-auto px-4 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column: details */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Quality data grid (schools only) */}
-          {q && (
-            <div className="card p-5">
-              <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
-              {q.r !== undefined && (
-                <div className="flex items-center gap-2 mb-4">
-                  <Star className="w-5 h-5 text-warning fill-warning" />
-                  <span className="font-mono text-xl font-bold">{q.r}/5</span>
-                  <span className="text-sm text-muted">{t.detail.overallRating}</span>
+      {/* Compact contact strip */}
+      <section className="max-w-[640px] mx-auto px-4 pb-4">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
+          <div className="flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5" />
+            <span>{inst.address}, {inst.postalCode} {inst.city}</span>
+          </div>
+          {inst.phone && (
+            <a href={`tel:${inst.phone}`} className="flex items-center gap-1.5 text-primary hover:underline">
+              <Phone className="w-3.5 h-3.5" /> {inst.phone}
+            </a>
+          )}
+          {inst.email && (
+            <a href={`mailto:${inst.email}`} className="flex items-center gap-1.5 text-primary hover:underline">
+              <Mail className="w-3.5 h-3.5" /> {inst.email}
+            </a>
+          )}
+          {inst.web && (
+            <a href={inst.web.startsWith("http") ? inst.web : `https://${inst.web}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary hover:underline">
+              <ExternalLink className="w-3.5 h-3.5" /> {language === "da" ? "Hjemmeside" : "Website"}
+            </a>
+          )}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
+          PREVIEW + EXPANDABLE: More details
+          ═══════════════════════════════════════════ */}
+      <section className="max-w-[640px] mx-auto px-4 pb-12">
+        {/* Quick info preview cards */}
+        {!showMore && (
+          <div className="grid grid-cols-3 gap-2.5 mb-4">
+            {inst.monthlyRate != null && inst.monthlyRate > 0 && (
+              <button onClick={() => setShowMore(true)} className="rounded-lg bg-bg-card p-3 text-left hover:bg-border/20 transition-colors">
+                <p className="text-[11px] text-muted uppercase tracking-wide">{language === "da" ? "Pris" : "Price"}</p>
+                <p className="font-mono text-base font-medium text-primary mt-0.5">{formatDKK(inst.monthlyRate)}</p>
+                <p className="text-[11px] text-muted">{t.common.perMonth}</p>
+              </button>
+            )}
+            {inst.quality?.ts != null && (
+              <button onClick={() => setShowMore(true)} className="rounded-lg bg-bg-card p-3 text-left hover:bg-border/20 transition-colors">
+                <p className="text-[11px] text-muted uppercase tracking-wide">{t.detail.wellbeing}</p>
+                <p className="font-mono text-base font-medium text-foreground mt-0.5">{inst.quality.ts.toLocaleString("da-DK")}</p>
+                <p className="text-[11px] text-muted">{t.detail.nationalAvg} {nationalAverages.trivsel.toLocaleString("da-DK")}</p>
+              </button>
+            )}
+            {inst.quality?.k != null && (
+              <button onClick={() => setShowMore(true)} className="rounded-lg bg-bg-card p-3 text-left hover:bg-border/20 transition-colors">
+                <p className="text-[11px] text-muted uppercase tracking-wide">{t.detail.grades}</p>
+                <p className="font-mono text-base font-medium text-foreground mt-0.5">{inst.quality.k.toLocaleString("da-DK")}</p>
+                <p className="text-[11px] text-muted">{t.detail.nationalAvg} {nationalAverages.karakterer.toLocaleString("da-DK")}</p>
+              </button>
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={() => setShowMore(!showMore)}
+          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg border border-border/50 transition-colors"
+        >
+          {showMore
+            ? (language === "da" ? "Skjul detaljer" : "Hide details")
+            : (language === "da" ? "Priser, kvalitetsdata og mere" : "Prices, quality data and more")}
+          <ChevronDown className={`w-4 h-4 transition-transform ${showMore ? "rotate-180" : ""}`} />
+        </button>
+
+        {showMore && (
+          <div className="mt-6 space-y-6">
+            {/* Prices */}
+            {inst.monthlyRate != null && (
+              <div className="card p-5">
+                <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                    <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
+                    <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
+                    <p className="text-[10px] text-muted mt-1">{t.common.advisory}</p>
+                  </div>
+                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                    <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
+                    <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
+                  </div>
                 </div>
-              )}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div>
-                  <span className="text-xs text-muted block mb-1">{t.detail.wellbeing}</span>
-                  <QualityDot value={q.ts} />
-                  <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.trivsel.toLocaleString("da-DK")}</span>
-                </div>
-                <div>
-                  <span className="text-xs text-muted block mb-1">{t.detail.grades}</span>
-                  <QualityDot value={q.k} max={12} />
-                  <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.karakterer.toLocaleString("da-DK")}</span>
-                </div>
-                <div>
-                  <span className="text-xs text-muted block mb-1">{t.detail.absence}</span>
-                  {q.fp !== undefined ? (
-                    <>
+              </div>
+            )}
+
+            {/* Friplads calculator */}
+            {inst.annualRate && inst.annualRate > 0 && (
+              <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
+            )}
+
+            {/* Quality data grid (schools only) */}
+            {q && (
+              <div className="card p-5">
+                <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
+                {q.r !== undefined && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <Star className="w-5 h-5 text-warning fill-warning" />
+                    <span className="font-mono text-xl font-bold">{q.r}/5</span>
+                    <span className="text-sm text-muted">{t.detail.overallRating}</span>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <div>
+                    <span className="text-xs text-muted block mb-1">{t.detail.wellbeing}</span>
+                    <QualityDot value={q.ts} />
+                    <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.trivsel.toLocaleString("da-DK")}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted block mb-1">{t.detail.grades}</span>
+                    <QualityDot value={q.k} max={12} />
+                    <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.karakterer.toLocaleString("da-DK")}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted block mb-1">{t.detail.absence}</span>
+                    {q.fp !== undefined ? (
+                      <>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-2.5 h-2.5 rounded-full ${q.fp < 6 ? "bg-success" : q.fp < 9 ? "bg-warning" : "bg-destructive"}`} />
+                          <span className="font-mono text-sm">{q.fp.toLocaleString("da-DK")}%</span>
+                        </div>
+                        <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.fravaer.toLocaleString("da-DK")}%</span>
+                      </>
+                    ) : <span className="text-xs text-muted">-</span>}
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted block mb-1">{t.detail.competenceCoverage}</span>
+                    {q.kp !== undefined ? (
                       <div className="flex items-center gap-1.5">
-                        <span className={`w-2.5 h-2.5 rounded-full ${q.fp < 6 ? "bg-success" : q.fp < 9 ? "bg-warning" : "bg-destructive"}`} />
-                        <span className="font-mono text-sm">{q.fp.toLocaleString("da-DK")}%</span>
+                        <span className={`w-2.5 h-2.5 rounded-full ${q.kp >= 80 ? "bg-success" : q.kp >= 60 ? "bg-warning" : "bg-destructive"}`} />
+                        <span className="font-mono text-sm">{q.kp.toLocaleString("da-DK")}%</span>
                       </div>
-                      <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.fravaer.toLocaleString("da-DK")}%</span>
-                    </>
-                  ) : <span className="text-xs text-muted">-</span>}
+                    ) : <span className="text-xs text-muted">-</span>}
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted block mb-1">{t.detail.teachingEffect}</span>
+                    <span className="text-sm">{q.sr || "-"}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted block mb-1">{t.detail.classSize} / {t.detail.studentCount}</span>
+                    <span className="font-mono text-sm">{q.kv?.toLocaleString("da-DK") || "-"} / {q.el?.toLocaleString("da-DK") || "-"}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-xs text-muted block mb-1">{t.detail.competenceCoverage}</span>
-                  {q.kp !== undefined ? (
-                    <div className="flex items-center gap-1.5">
-                      <span className={`w-2.5 h-2.5 rounded-full ${q.kp >= 80 ? "bg-success" : q.kp >= 60 ? "bg-warning" : "bg-destructive"}`} />
-                      <span className="font-mono text-sm">{q.kp.toLocaleString("da-DK")}%</span>
-                    </div>
-                  ) : <span className="text-xs text-muted">-</span>}
-                </div>
-                <div>
-                  <span className="text-xs text-muted block mb-1">{t.detail.teachingEffect}</span>
-                  <span className="text-sm">{q.sr || "-"}</span>
-                </div>
-                <div>
-                  <span className="text-xs text-muted block mb-1">{t.detail.classSize} / {t.detail.studentCount}</span>
-                  <span className="font-mono text-sm">{q.kv?.toLocaleString("da-DK") || "-"} / {q.el?.toLocaleString("da-DK") || "-"}</span>
-                </div>
+                <p className="text-[10px] text-muted mt-4">{t.detail.dataSource}</p>
               </div>
-              <p className="text-[10px] text-muted mt-4">{t.detail.dataSource}</p>
-            </div>
-          )}
+            )}
 
-          {/* No quality data message for non-school institutions */}
-          {!q && (
-            <div className="card p-5">
-              <p className="text-sm text-muted">
-                {language === "da"
-                  ? "Kvalitetsdata er ikke tilgængelig for denne institutionstype"
-                  : "Quality data is not available for this institution type"}
-              </p>
-            </div>
-          )}
+            {/* Normering badge (dagtilbud only) */}
+            {inst.category !== "skole" && (() => {
+              const ageGroupMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
+              const ag = ageGroupMap[inst.category];
+              const latest = normering
+                .filter((n) => n.municipality === inst.municipality && n.ageGroup === ag)
+                .sort((a, b) => b.year - a.year);
+              if (latest.length === 0) return null;
+              const current = latest[0];
+              const prev = latest.length > 1 ? latest[1] : undefined;
+              return (
+                <NormeringBadge
+                  municipality={inst.municipality}
+                  ageGroup={current.ageGroup}
+                  ratio={current.ratio}
+                  year={current.year}
+                  previousRatio={prev?.ratio}
+                />
+              );
+            })()}
 
-          {/* 5. Prices + Friplads calculator (moved down) */}
-          <div className="card p-5">
-            <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
-                <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
-                <p className="text-[10px] text-muted mt-1">{t.common.advisory}</p>
-              </div>
-              <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
-                <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
-              </div>
-            </div>
-          </div>
+            {/* Price history chart */}
+            <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
 
-          {/* Friplads calculator */}
-          {inst.annualRate && inst.annualRate > 0 && (
-            <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
-          )}
+            {/* Price alert */}
+            <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
 
-          {/* Normering badge (dagtilbud only) */}
-          {inst.category !== "skole" && (() => {
-            const ageGroupMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
-            const ag = ageGroupMap[inst.category];
-            const latest = normering
-              .filter((n) => n.municipality === inst.municipality && n.ageGroup === ag)
-              .sort((a, b) => b.year - a.year);
-            if (latest.length === 0) return null;
-            const current = latest[0];
-            const prev = latest.length > 1 ? latest[1] : undefined;
-            return (
-              <NormeringBadge
-                municipality={inst.municipality}
-                ageGroup={current.ageGroup}
-                ratio={current.ratio}
-                year={current.year}
-                previousRatio={prev?.ratio}
+            {/* Map */}
+            <div className="h-[250px] rounded-xl overflow-hidden border border-border">
+              <InstitutionMap
+                institutions={[inst, ...nearby]}
+                onSelect={() => {}}
+                flyTo={{ lat: inst.lat, lng: inst.lng, zoom: 14 }}
               />
-            );
-          })()}
+            </div>
 
-          {/* Price history chart */}
-          <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
+            {/* Tilsyn */}
+            <TilsynSection institutionId={inst.id} institutionName={inst.name} />
 
-          {/* Price alert */}
-          <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
-        </div>
-
-        {/* Right column: map + contact + nearby */}
-        <div className="space-y-6">
-          {/* Mini map */}
-          <div className="h-[250px] rounded-xl overflow-hidden border border-border">
-            <InstitutionMap
-              institutions={[inst, ...nearby]}
-              onSelect={() => {}}
-              flyTo={{ lat: inst.lat, lng: inst.lng, zoom: 14 }}
-            />
-          </div>
-
-          {/* Contact */}
-          <div className="card p-5">
-            <h3 className="font-display text-base font-semibold mb-3">{t.detail.contact}</h3>
-            <div className="space-y-2">
-              {inst.email && (
-                <a href={`mailto:${inst.email}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
-                  <Mail className="w-4 h-4" /> {inst.email}
-                </a>
-              )}
-              {inst.phone && (
-                <a href={`tel:${inst.phone}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
-                  <Phone className="w-4 h-4" /> {inst.phone}
-                </a>
-              )}
-              {inst.web && (
-                <a href={inst.web.startsWith("http") ? inst.web : `https://${inst.web}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-primary hover:underline">
-                  <ExternalLink className="w-4 h-4" /> {t.detail.website}
-                </a>
-              )}
-              {/* Leader name removed — no GDPR legal basis to display personal names */}
+            {/* Reviews */}
+            <div className="space-y-6">
+              <ReviewSummaryV2 institutionId={inst.id} />
+              <ReviewListV2 institutionId={inst.id} />
+              <ReviewFormV2 institutionId={inst.id} />
             </div>
           </div>
-
-          {/* Nearby */}
-          {nearby.length > 0 && (
-            <div className="card p-5">
-              <h3 className="font-display text-base font-semibold mb-3">
-                {categoryLabels[inst.category]} {t.detail.nearby}
-              </h3>
-              <ul className="space-y-2">
-                {nearby.map((n) => (
-                  <li key={n.id}>
-                    <Link
-                      to={`/institution/${n.id}`}
-                      className="block p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
-                    >
-                      <p className="text-sm font-medium text-foreground">{n.name}</p>
-                      <div className="flex justify-between text-xs text-muted mt-0.5">
-                        <span>{n.municipality}</span>
-                        <span className="font-mono">{formatDKK(n.monthlyRate)}{t.common.perMonth}</span>
-                      </div>
-                      <span className="text-[10px] text-muted">{n.dist.toFixed(1)} {t.detail.awayKm}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Tilsyn section */}
-      <section className="max-w-5xl mx-auto px-4 pb-8">
-        <div className="lg:max-w-[calc(66.666%-0.75rem)]">
-          <TilsynSection institutionId={inst.id} institutionName={inst.name} />
-        </div>
-      </section>
-
-      {/* Reviews section */}
-      <section className="max-w-5xl mx-auto px-4 pb-12">
-        <div className="lg:max-w-[calc(66.666%-0.75rem)] space-y-6">
-          <ReviewSummaryV2 institutionId={inst.id} />
-          <ReviewListV2 institutionId={inst.id} />
-          <ReviewFormV2 institutionId={inst.id} />
-        </div>
+        )}
       </section>
 
       <CompareBar />

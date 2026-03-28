@@ -16,7 +16,7 @@ const CompareContext = createContext<CompareContextValue | null>(null);
 
 function loadFromStorage(): UnifiedInstitution[] {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw) as UnifiedInstitution[];
   } catch { /* ignore */ }
   return [];
@@ -24,7 +24,7 @@ function loadFromStorage(): UnifiedInstitution[] {
 
 function saveToStorage(list: UnifiedInstitution[]) {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
   } catch { /* ignore */ }
 }
 

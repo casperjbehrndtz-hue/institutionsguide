@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Trash2 } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -12,6 +12,7 @@ export default function FavoritesPage() {
   const { institutions, loading } = useData();
   const { t, language } = useLanguage();
   const { favorites, toggleFavorite, clearFavorites } = useFavorites();
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const categoryLabels: Record<string, string> = {
     vuggestue: t.categories.vuggestue,
@@ -56,7 +57,7 @@ export default function FavoritesPage() {
           </h1>
           {favoriteInstitutions.length > 0 && (
             <button
-              onClick={clearFavorites}
+              onClick={() => setShowConfirm(true)}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors min-h-[44px]"
             >
               <Trash2 className="w-4 h-4" />
@@ -118,6 +119,36 @@ export default function FavoritesPage() {
           </div>
         )}
       </section>
+
+      {/* Confirm clear dialog */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowConfirm(false)}>
+          <div className="bg-bg-card rounded-xl shadow-xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <p className="text-foreground font-medium mb-2">
+              {language === "da" ? "Ryd alle favoritter?" : "Clear all favorites?"}
+            </p>
+            <p className="text-sm text-muted mb-5">
+              {language === "da"
+                ? `${favoriteInstitutions.length} favoritter vil blive fjernet.`
+                : `${favoriteInstitutions.length} favorites will be removed.`}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 text-sm rounded-lg border border-border text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
+              >
+                {language === "da" ? "Annuller" : "Cancel"}
+              </button>
+              <button
+                onClick={() => { clearFavorites(); setShowConfirm(false); }}
+                className="px-4 py-2 text-sm rounded-lg bg-destructive text-white hover:bg-destructive/90 transition-colors min-h-[44px]"
+              >
+                {language === "da" ? "Ryd alle" : "Clear all"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

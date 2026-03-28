@@ -193,18 +193,12 @@ export default function HomePage() {
   }, [hoveredId]);
 
   const [geoConsented, setGeoConsented] = useState(false);
+  const [showGeoModal, setShowGeoModal] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
 
-  const handleNearMe = useCallback(() => {
-    if (!navigator.geolocation) return;
-    // Explicit consent before accessing geolocation (GDPR)
-    if (!geoConsented) {
-      const msg = language === "da"
-        ? "For at finde institutioner nær dig skal vi bruge din placering. Din position behandles kun lokalt i din browser og sendes ikke til vores servere.\n\nVil du tillade adgang til din placering?"
-        : "To find institutions near you, we need your location. Your position is processed locally in your browser only and is not sent to our servers.\n\nAllow access to your location?";
-      if (!window.confirm(msg)) return;
-      setGeoConsented(true);
-    }
+  const requestGeolocation = useCallback(() => {
     setNearMeLoading(true);
+    setGeoError(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -212,10 +206,26 @@ export default function HomePage() {
         setFlyTo({ ...loc, zoom: 13 });
         setNearMeLoading(false);
       },
-      () => setNearMeLoading(false),
+      () => {
+        setNearMeLoading(false);
+        setGeoError(
+          language === "da"
+            ? "Kunne ikke hente din placering. Tjek din browsers tilladelser."
+            : "Could not get your location. Check your browser permissions."
+        );
+      },
       { enableHighAccuracy: false, timeout: 8000 }
     );
-  }, [geoConsented, language]);
+  }, [language]);
+
+  const handleNearMe = useCallback(() => {
+    if (!navigator.geolocation) return;
+    if (!geoConsented) {
+      setShowGeoModal(true);
+      return;
+    }
+    requestGeolocation();
+  }, [geoConsented, requestGeolocation]);
 
   function handleSelect(inst: UnifiedInstitution) {
     setSelected(inst);
@@ -782,6 +792,49 @@ export default function HomePage() {
       <section className="max-w-xl mx-auto px-4 py-12">
         <EmailCapture />
       </section>
+
+      {/* Geolocation consent modal */}
+      {showGeoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowGeoModal(false)}>
+          <div className="bg-bg-card rounded-xl shadow-xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <MapPin className="w-5 h-5 text-primary" />
+              </div>
+              <p className="text-foreground font-medium">
+                {language === "da" ? "Find institutioner nær dig" : "Find institutions near you"}
+              </p>
+            </div>
+            <p className="text-sm text-muted mb-5 leading-relaxed">
+              {language === "da"
+                ? "Din placering behandles kun lokalt i din browser og sendes ikke til vores servere. Vi bruger den udelukkende til at vise afstand til institutioner."
+                : "Your location is processed locally in your browser only and is not sent to our servers. We use it solely to show distance to institutions."}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowGeoModal(false)}
+                className="px-4 py-2 text-sm rounded-lg border border-border text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
+              >
+                {language === "da" ? "Nej tak" : "No thanks"}
+              </button>
+              <button
+                onClick={() => { setGeoConsented(true); setShowGeoModal(false); requestGeolocation(); }}
+                className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary-light transition-colors min-h-[44px]"
+              >
+                {language === "da" ? "Tillad placering" : "Allow location"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Geolocation error toast */}
+      {geoError && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-destructive text-white px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4">
+          {geoError}
+          <button onClick={() => setGeoError(null)} className="ml-3 underline">OK</button>
+        </div>
+      )}
 
       {/* Compare bar */}
       <CompareBar />
