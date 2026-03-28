@@ -44,10 +44,18 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 const args = process.argv.slice(2);
 const limitIdx = args.indexOf("--limit");
 const catIdx = args.indexOf("--category");
+const regionIdx = args.indexOf("--region");
 const LIMIT = limitIdx !== -1 ? parseInt(args[limitIdx + 1], 10) : Infinity;
 const CATEGORY_FILTER = catIdx !== -1 ? args[catIdx + 1] : null;
+const REGION_FILTER = regionIdx !== -1 ? args[regionIdx + 1] : null;
 const DRY_RUN = args.includes("--dry-run");
 const DELAY_MS = 500; // Rate limiting: 2 requests/sec
+
+const REGIONS = {
+  hovedstaden: ["København","Frederiksberg","Gentofte","Gladsaxe","Herlev","Rødovre","Hvidovre","Brøndby","Vallensbæk","Ishøj","Albertslund","Ballerup","Glostrup","Tårnby","Dragør","Rudersdal","Lyngby-Taarbæk","Furesø","Høje-Taastrup","Egedal","Frederikssund","Helsingør","Hillerød","Hørsholm","Fredensborg","Gribskov","Halsnæs","Allerød","Bornholm"],
+  aarhus: ["Aarhus","Skanderborg","Favrskov","Syddjurs","Norddjurs","Odder","Silkeborg","Randers"],
+  odense: ["Odense","Kerteminde","Nordfyns","Nyborg","Faaborg-Midtfyn","Assens","Middelfart","Svendborg"],
+};
 
 // ── Load data ───────────────────────────────────────────────────────────────
 
@@ -225,9 +233,14 @@ function buildUserPrompt(inst, avgPrice, nearbyList) {
 
 async function main() {
   // Filter institutions
-  let candidates = CATEGORY_FILTER
-    ? allInstitutions.filter((i) => i.category === CATEGORY_FILTER)
-    : allInstitutions;
+  let candidates = allInstitutions;
+  if (CATEGORY_FILTER) {
+    candidates = candidates.filter((i) => i.category === CATEGORY_FILTER);
+  }
+  if (REGION_FILTER && REGIONS[REGION_FILTER]) {
+    const munis = new Set(REGIONS[REGION_FILTER].map((m) => m.toLowerCase()));
+    candidates = candidates.filter((i) => munis.has((i.m || "").toLowerCase()));
+  }
 
   if (LIMIT < candidates.length) {
     candidates = candidates.slice(0, LIMIT);
