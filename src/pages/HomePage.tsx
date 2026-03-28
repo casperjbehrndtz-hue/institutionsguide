@@ -516,85 +516,95 @@ export default function HomePage() {
               onClearAll={() => { setSearch(""); setCategory("alle"); setMunicipality(""); setAgeGroup(""); setQualityFilter(""); }}
             />
           )}
-          {visibleList.map((inst) => (
-            <div
-              key={inst.id}
-              data-inst-id={inst.id}
-              className={`card hover:scale-[1.01] transition-all ${
-                selected?.id === inst.id ? "ring-2 ring-primary" : ""
-              } ${hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""}`}
-              onMouseEnter={() => setHoveredId(inst.id)}
-              onMouseLeave={() => setHoveredId(null)}
-            >
-              <button
-                onClick={() => handleSelect(inst)}
-                className="w-full text-left p-4 min-h-[44px]"
-                aria-label={`${inst.name}`}
+          {visibleList.map((inst) => {
+            // Quick score for list display (0-10 scale)
+            const q = inst.quality;
+            let listScore: number | null = null;
+            if (inst.category === "skole" && q) {
+              const parts: { w: number; s: number }[] = [];
+              if (q.ts != null) parts.push({ w: 0.2, s: Math.max(0, Math.min(100, (q.ts - 3.5) / 0.8 * 100)) });
+              if (q.k != null) parts.push({ w: 0.2, s: Math.max(0, Math.min(100, (q.k - 5) / 5 * 100)) });
+              if (q.fp != null) parts.push({ w: 0.15, s: Math.max(0, Math.min(100, (12 - q.fp) / 9 * 100)) });
+              if (q.kp != null) parts.push({ w: 0.15, s: Math.max(0, Math.min(100, (q.kp - 70) / 30 * 100)) });
+              if (parts.length > 0) {
+                const tw = parts.reduce((s, p) => s + p.w, 0);
+                listScore = Math.round(parts.reduce((s, p) => s + p.s * p.w / tw, 0)) / 10;
+              }
+            } else if (inst.monthlyRate) {
+              // Simple heuristic for dagtilbud: cheaper = higher score
+              listScore = inst.monthlyRate < 2000 ? 7.5 : inst.monthlyRate < 3000 ? 6.5 : inst.monthlyRate < 4000 ? 5.5 : 4.5;
+            }
+            const scoreColor = listScore != null ? (listScore >= 7 ? "text-[#0F6E56] border-[#1D9E75]" : listScore >= 5 ? "text-[#8A5A12] border-[#BA7517]" : "text-[#A32D2D] border-[#A32D2D]") : "";
+
+            return (
+              <Link
+                key={inst.id}
+                to={`/institution/${inst.id}`}
+                data-inst-id={inst.id}
+                className={`card hover:scale-[1.01] transition-all block ${
+                  hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
+                }`}
+                onMouseEnter={() => setHoveredId(inst.id)}
+                onMouseLeave={() => setHoveredId(null)}
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-foreground">{inst.name}</p>
-                      {category === "alle" && (
-                        <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[inst.category] || ""}`}>
-                          {t.categories[inst.category]}
-                        </span>
-                      )}
+                <div className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-foreground">{inst.name}</p>
+                        {category === "alle" && (
+                          <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[inst.category] || ""}`}>
+                            {t.categories[inst.category]}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>
+                        {userLocation && (
+                          <span className="inline-flex items-center gap-0.5 text-xs text-primary/70">
+                            <MapPin className="w-3 h-3" />
+                            {formatDistance(haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng))}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted">{inst.municipality}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>
-                      {userLocation && (
-                        <span className="inline-flex items-center gap-0.5 text-xs text-primary/70">
-                          <MapPin className="w-3 h-3" />
-                          {formatDistance(haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng))}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted">{inst.municipality}</p>
-                  </div>
-                  <div className="flex items-start gap-2 shrink-0 ml-2">
-                    <div className="text-right">
+                    <div className="flex items-center gap-3 shrink-0 ml-3">
                       {inst.monthlyRate ? (
-                        <>
+                        <div className="text-right">
                           <p className="font-mono text-sm font-medium text-primary">
                             {formatDKK(inst.monthlyRate)}
                           </p>
                           <span className="text-xs text-muted">{t.common.perMonth}</span>
-                        </>
-                      ) : inst.category === "skole" && inst.quality && inst.quality.o !== undefined ? (
-                        <span className={`inline-block text-xs font-medium px-2 py-1 rounded-full ${
-                          inst.quality.o === 1 ? "bg-green-100 text-green-700" :
-                          inst.quality.o === 0 ? "bg-amber-100 text-amber-700" :
-                          "bg-red-100 text-red-700"
-                        }`}>
-                          {inst.quality.o === 1 ? t.detail.aboveAvg : inst.quality.o === 0 ? t.detail.average : t.detail.belowAvg}
-                        </span>
+                        </div>
                       ) : inst.category === "skole" ? (
                         <span className="text-xs text-muted">{language === "da" ? "Folkeskole" : "Public school"}</span>
                       ) : (
                         <span className="text-xs text-muted">{language === "da" ? "Se pris" : "See price"}</span>
                       )}
+                      {listScore != null && (
+                        <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${scoreColor}`}>
+                          <span className="font-mono text-sm font-medium">{listScore.toFixed(1)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              </button>
-              <div className="flex items-center justify-between px-4 pb-3">
-                <Link
-                  to={`/institution/${inst.id}`}
-                  className="text-xs text-primary hover:underline"
-                >
-                  {t.common.seeFullProfile} &rarr;
-                </Link>
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleFavorite(inst.id); }}
-                  className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                  aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
-                >
-                  <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
-                </button>
-              </div>
-            </div>
-          ))}
+                <div className="flex items-center justify-between px-4 pb-3 pt-0">
+                  <span className="text-xs text-primary font-medium">
+                    {t.common.seeFullProfile} &rarr;
+                  </span>
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
+                    className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
+                  >
+                    <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
+                  </button>
+                </div>
+              </Link>
+            );
+          })}
           {boundsFiltered.length > visibleCount && (
             <div className="text-center py-4 space-y-2">
               <p className="text-sm text-muted">

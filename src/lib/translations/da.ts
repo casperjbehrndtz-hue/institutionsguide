@@ -22,7 +22,7 @@ export const da: TranslationStrings = {
     resetFilters: "Nulstil",
     showMore: "Vis flere",
     nearMe: "Nær mig",
-    seeFullProfile: "Se fuld profil",
+    seeFullProfile: "Se vurdering",
     advisory: "Vejledende",
     partOfFamily: "Del af ParFinans-familien",
     noJsMessage: "Institutionsguide kræver JavaScript for at fungere.",
