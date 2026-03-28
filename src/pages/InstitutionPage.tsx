@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { MapPin, Mail, Phone, ExternalLink, Star, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ChevronDown } from "lucide-react";
+import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ChevronDown } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -33,21 +33,47 @@ function categoryPath(cat: string): string {
   return paths[cat] || "/";
 }
 
-function QualityDot({ value, max = 5, lang = "da" }: { value: number | undefined; max?: number; lang?: string }) {
-  if (value === undefined) return <span className="text-xs text-muted">-</span>;
-  const pct = (value / max) * 100;
-  const color = pct >= 70 ? "bg-success" : pct >= 40 ? "bg-warning" : "bg-destructive";
-  const label = pct >= 70
-    ? (lang === "da" ? "God" : "Good")
-    : pct >= 40
+function PercentileBar({ label, percentile, value, lang = "da" }: {
+  label: string;
+  percentile: number;
+  value: string;
+  lang?: string;
+}) {
+  const color = percentile >= 75
+    ? { dot: "#0F6E56", bg: "#E1F5EE", text: "#085041" }
+    : percentile >= 40
+    ? { dot: "#BA7517", bg: "#FAEEDA", text: "#633806" }
+    : { dot: "#A32D2D", bg: "#FCEBEB", text: "#791F1F" };
+
+  const rankLabel = percentile >= 90
+    ? "Top 10%"
+    : percentile >= 75
+    ? "Top 25%"
+    : percentile >= 60
+    ? (lang === "da" ? "Over middel" : "Above avg")
+    : percentile >= 40
     ? (lang === "da" ? "Middel" : "Average")
-    : (lang === "da" ? "Lav" : "Low");
+    : percentile >= 25
+    ? (lang === "da" ? "Under middel" : "Below avg")
+    : percentile >= 10
+    ? (lang === "da" ? "Bund 25%" : "Bottom 25%")
+    : (lang === "da" ? "Bund 10%" : "Bottom 10%");
+
   return (
-    <div className="flex items-center gap-1.5">
-      <span className={`w-2.5 h-2.5 rounded-full ${color}`} aria-hidden="true" />
-      <span className="font-mono text-sm">{value.toLocaleString("da-DK")}</span>
-      <span className={`text-[10px] font-medium ${pct >= 70 ? "text-success" : pct >= 40 ? "text-warning" : "text-destructive"}`}>
-        {label}
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-muted w-36 text-right shrink-0">{label}</span>
+      <div className="flex-1 relative h-1.5 bg-border/50 rounded-full">
+        <div
+          className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm"
+          style={{ left: `${percentile}%`, backgroundColor: color.dot }}
+        />
+      </div>
+      <span className="font-mono text-xs text-muted shrink-0 w-12 text-right">{value}</span>
+      <span
+        className="text-[10px] px-2 py-0.5 rounded-md shrink-0 min-w-[72px] text-center font-medium"
+        style={{ backgroundColor: color.bg, color: color.text }}
+      >
+        {rankLabel}
       </span>
     </div>
   );
@@ -111,6 +137,36 @@ export default function InstitutionPage() {
   const { assessment: aiAssessment, state: aiState } = useAssessment(
     inst, scoreResult, nearby, normering, municipalityAvgPrice,
   );
+
+  // Compute percentiles for school quality metrics across all schools
+  const percentiles = useMemo(() => {
+    if (!inst || inst.category !== "skole" || !inst.quality) return null;
+    const schools = institutions.filter((i) => i.category === "skole" && i.quality);
+    function pctRank(values: number[], val: number): number {
+      const sorted = [...values].sort((a, b) => a - b);
+      const below = sorted.filter((v) => v < val).length;
+      return Math.round((below / sorted.length) * 100);
+    }
+    function pctRankInverse(values: number[], val: number): number {
+      // For metrics where lower is better (absence, class size)
+      const sorted = [...values].sort((a, b) => a - b);
+      const above = sorted.filter((v) => v > val).length;
+      return Math.round((above / sorted.length) * 100);
+    }
+    const q = inst.quality;
+    const result: { label: string; percentile: number; value: string }[] = [];
+    const tsVals = schools.map((s) => s.quality!.ts).filter((v): v is number => v != null);
+    if (q.ts != null && tsVals.length > 0) result.push({ label: t.detail.wellbeing, percentile: pctRank(tsVals, q.ts), value: q.ts.toLocaleString("da-DK") });
+    const kVals = schools.map((s) => s.quality!.k).filter((v): v is number => v != null);
+    if (q.k != null && kVals.length > 0) result.push({ label: t.detail.grades, percentile: pctRank(kVals, q.k), value: q.k.toLocaleString("da-DK") });
+    const fpVals = schools.map((s) => s.quality!.fp).filter((v): v is number => v != null);
+    if (q.fp != null && fpVals.length > 0) result.push({ label: t.detail.absence, percentile: pctRankInverse(fpVals, q.fp), value: `${q.fp.toLocaleString("da-DK")}%` });
+    const kpVals = schools.map((s) => s.quality!.kp).filter((v): v is number => v != null);
+    if (q.kp != null && kpVals.length > 0) result.push({ label: t.detail.competenceCoverage, percentile: pctRank(kpVals, q.kp), value: `${q.kp.toLocaleString("da-DK")}%` });
+    const kvVals = schools.map((s) => s.quality!.kv).filter((v): v is number => v != null);
+    if (q.kv != null && kvVals.length > 0) result.push({ label: t.detail.classSize, percentile: pctRankInverse(kvVals, q.kv), value: q.kv.toLocaleString("da-DK") });
+    return result;
+  }, [inst, institutions, t]);
 
   const nearbyScores = useMemo(() => {
     if (!inst) return [];
@@ -339,59 +395,32 @@ export default function InstitutionPage() {
               <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
             )}
 
-            {/* Quality data grid (schools only) */}
-            {q && (
+            {/* Quality data — percentile bars (schools only) */}
+            {percentiles && percentiles.length > 0 && (
               <div className="card p-5">
                 <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
-                {q.r !== undefined && (
-                  <div className="flex items-center gap-2 mb-4">
-                    <Star className="w-5 h-5 text-warning fill-warning" />
-                    <span className="font-mono text-xl font-bold">{q.r}/5</span>
-                    <span className="text-sm text-muted">{t.detail.overallRating}</span>
+                <div className="space-y-3">
+                  {percentiles.map((p) => (
+                    <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
+                  ))}
+                </div>
+                {/* Legend */}
+                <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
+                </div>
+                {q?.sr && (
+                  <div className="mt-3 text-xs text-muted">
+                    {t.detail.teachingEffect}: <strong className="text-foreground">{q.sr}</strong>
                   </div>
                 )}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  <div>
-                    <span className="text-xs text-muted block mb-1">{t.detail.wellbeing}</span>
-                    <QualityDot value={q.ts} />
-                    <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.trivsel.toLocaleString("da-DK")}</span>
+                {q?.el != null && (
+                  <div className="text-xs text-muted mt-1">
+                    {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
                   </div>
-                  <div>
-                    <span className="text-xs text-muted block mb-1">{t.detail.grades}</span>
-                    <QualityDot value={q.k} max={12} />
-                    <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.karakterer.toLocaleString("da-DK")}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted block mb-1">{t.detail.absence}</span>
-                    {q.fp !== undefined ? (
-                      <>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`w-2.5 h-2.5 rounded-full ${q.fp < 6 ? "bg-success" : q.fp < 9 ? "bg-warning" : "bg-destructive"}`} />
-                          <span className="font-mono text-sm">{q.fp.toLocaleString("da-DK")}%</span>
-                        </div>
-                        <span className="text-[10px] text-muted">{t.detail.nationalAvg}: {nationalAverages.fravaer.toLocaleString("da-DK")}%</span>
-                      </>
-                    ) : <span className="text-xs text-muted">-</span>}
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted block mb-1">{t.detail.competenceCoverage}</span>
-                    {q.kp !== undefined ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-2.5 h-2.5 rounded-full ${q.kp >= 80 ? "bg-success" : q.kp >= 60 ? "bg-warning" : "bg-destructive"}`} />
-                        <span className="font-mono text-sm">{q.kp.toLocaleString("da-DK")}%</span>
-                      </div>
-                    ) : <span className="text-xs text-muted">-</span>}
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted block mb-1">{t.detail.teachingEffect}</span>
-                    <span className="text-sm">{q.sr || "-"}</span>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted block mb-1">{t.detail.classSize} / {t.detail.studentCount}</span>
-                    <span className="font-mono text-sm">{q.kv?.toLocaleString("da-DK") || "-"} / {q.el?.toLocaleString("da-DK") || "-"}</span>
-                  </div>
-                </div>
-                <p className="text-[10px] text-muted mt-4">{t.detail.dataSource}</p>
+                )}
+                <p className="text-[10px] text-muted mt-3">{t.detail.dataSource}</p>
               </div>
             )}
 

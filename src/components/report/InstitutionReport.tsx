@@ -135,10 +135,12 @@ export default function InstitutionReport({
           <p className="text-[13px] font-medium text-[#0F6E56] mb-2.5">
             {lang === "da" ? "Fordele" : "Strengths"}
           </p>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {pros.map((pro, i) => (
               <div key={i} className="flex gap-2 text-[13px] text-foreground leading-relaxed">
-                <span className="text-[#0F6E56] shrink-0 font-medium">+</span>
+                <span className="w-4 h-4 rounded-full bg-[#E1F5EE] flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[#0F6E56] text-[10px] font-bold">&#10003;</span>
+                </span>
                 <span>{pro[lang]}</span>
               </div>
             ))}
@@ -148,10 +150,12 @@ export default function InstitutionReport({
           <p className="text-[13px] font-medium text-[#A32D2D] mb-2.5">
             {lang === "da" ? "Opmærksomhedspunkter" : "Areas of concern"}
           </p>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {cons.map((con, i) => (
               <div key={i} className="flex gap-2 text-[13px] text-foreground leading-relaxed">
-                <span className="text-[#A32D2D] shrink-0 font-medium">–</span>
+                <span className="w-4 h-4 rounded-full bg-[#FAEEDA] flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[#BA7517] text-[10px] font-bold">!</span>
+                </span>
                 <span>{con[lang]}</span>
               </div>
             ))}
@@ -186,22 +190,33 @@ export default function InstitutionReport({
           <div className="space-y-2">
             {nearby.slice(0, 5).map((n) => {
               const ns = nearbyScores.find((s) => s.id === n.id);
+              const isSchool = n.category === "skole";
+              const badgeColor = ns
+                ? ns.overall >= 65 ? { bg: "#E1F5EE", text: "#085041" }
+                  : ns.overall >= 45 ? { bg: "#FAEEDA", text: "#633806" }
+                  : { bg: "#FCEBEB", text: "#791F1F" }
+                : null;
               return (
                 <Link
                   key={n.id}
                   to={`/institution/${n.id}`}
                   className="flex items-center justify-between px-4 py-2.5 rounded-lg bg-bg-card hover:bg-border/20 transition-colors"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-[13px] font-medium text-foreground">{n.name}</span>
                     {n.dist != null && (
                       <span className="text-[12px] text-muted ml-2">{n.dist.toFixed(1)} km</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 text-[12px] text-muted">
-                    {n.monthlyRate && <span>{formatDKK(n.monthlyRate)} kr.</span>}
-                    {ns && (
-                      <span className="text-sm font-medium font-mono text-foreground">
+                  <div className="flex items-center gap-3 text-[12px] text-muted shrink-0">
+                    {!isSchool && n.monthlyRate != null && n.monthlyRate > 0 && (
+                      <span>{formatDKK(n.monthlyRate)}/md.</span>
+                    )}
+                    {ns && badgeColor && (
+                      <span
+                        className="text-[10px] font-medium px-2 py-0.5 rounded-md"
+                        style={{ backgroundColor: badgeColor.bg, color: badgeColor.text }}
+                      >
                         {(ns.overall / 10).toFixed(1)}
                       </span>
                     )}

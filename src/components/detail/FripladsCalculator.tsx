@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { Info } from "lucide-react";
 import { calculateFriplads } from "@/lib/childcare/friplads";
 import { formatDKK } from "@/lib/format";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,7 +15,7 @@ export default function FripladsCalculator({ annualRate, label }: Props) {
   const [income, setIncome] = useState(profile?.income ?? 450_000);
   const [singleParent, setSingleParent] = useState(profile?.singleParent ?? false);
   const [children, setChildren] = useState(profile?.childCount ?? 1);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   // Persist changes back to FamilyContext
   useEffect(() => {
@@ -37,21 +38,36 @@ export default function FripladsCalculator({ annualRate, label }: Props) {
         <label htmlFor="friplads-income" className="block text-sm text-muted mb-1">
           {t.friplads.householdIncome}
         </label>
-        <input
-          id="friplads-income"
-          type="range"
-          min={0}
-          max={1_200_000}
-          step={5_000}
-          value={income}
-          onChange={(e) => setIncome(Number(e.target.value))}
-          className="w-full h-2 accent-primary cursor-pointer min-h-[44px]"
-          aria-label={t.friplads.householdIncome}
-          aria-valuetext={formatDKK(income)}
-        />
-        <p className="text-right font-mono text-sm text-foreground font-medium">
-          {formatDKK(income)}
+        <p className="text-right font-mono text-base text-foreground font-bold mb-1">
+          {income.toLocaleString("da-DK")} kr.
         </p>
+        <div className="relative">
+          <input
+            id="friplads-income"
+            type="range"
+            min={0}
+            max={1_200_000}
+            step={10_000}
+            value={income}
+            onChange={(e) => setIncome(Number(e.target.value))}
+            className="w-full h-2 accent-primary cursor-pointer min-h-[44px]"
+            aria-label={t.friplads.householdIncome}
+            aria-valuetext={`${income.toLocaleString("da-DK")} kr.`}
+          />
+          {/* Median reference marker */}
+          <div className="absolute top-0 pointer-events-none" style={{ left: `${(550_000 / 1_200_000) * 100}%` }}>
+            <div className="w-px h-3 bg-muted/60 mx-auto" />
+            <span className="text-[9px] text-muted whitespace-nowrap -translate-x-1/2 block">{language === "da" ? "Median" : "Median"}</span>
+          </div>
+        </div>
+        {/* Step labels */}
+        <div className="flex justify-between text-[9px] text-muted font-mono mt-0.5 px-0.5">
+          <span>200k</span>
+          <span>400k</span>
+          <span>600k</span>
+          <span>800k</span>
+          <span>1.000k</span>
+        </div>
       </div>
 
       {/* Single parent toggle */}
@@ -124,9 +140,10 @@ export default function FripladsCalculator({ annualRate, label }: Props) {
           </p>
         )}
       </div>
-      <p className="text-xs text-muted mt-2">
-        {t.friplads.disclaimer}
-      </p>
+      <div className="flex items-start gap-1.5 mt-2 group relative">
+        <Info className="w-3.5 h-3.5 text-muted shrink-0 mt-0.5 cursor-help" />
+        <p className="text-xs text-muted">{t.friplads.disclaimer}</p>
+      </div>
     </div>
   );
 }

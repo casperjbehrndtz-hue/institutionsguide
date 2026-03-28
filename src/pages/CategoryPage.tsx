@@ -17,7 +17,6 @@ import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import { useFavorites } from "@/hooks/useFavorites";
 import NoResults from "@/components/filters/NoResults";
-import StreetViewImage from "@/components/shared/StreetViewImage";
 import type { UnifiedInstitution } from "@/lib/types";
 
 /** Haversine distance in km between two lat/lng points */
@@ -48,7 +47,7 @@ const CATEGORY_BADGE_COLORS: Record<string, string> = {
 };
 
 export default function CategoryPage({ category }: Props) {
-  const { institutions, municipalities, loading, error } = useData();
+  const { institutions, municipalities, normering, loading, error } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
@@ -89,6 +88,66 @@ export default function CategoryPage({ category }: Props) {
   });
 
   const municipalityNames = useMemo(() => municipalities.map((m) => m.municipality), [municipalities]);
+
+  // Pre-compute normering lookups for list cards
+  const normeringMap = useMemo(() => {
+    const map = new Map<string, number>(); // key: "municipality|ageGroup" → latest ratio
+    const nationalSums = new Map<string, { sum: number; count: number }>();
+    for (const n of normering) {
+      const key = `${n.municipality}|${n.ageGroup}`;
+      const existing = map.get(key);
+      if (!existing) map.set(key, n.ratio);
+      // normering is not pre-sorted, keep latest year
+      const yearKey = `${key}|year`;
+      const existingYear = map.get(yearKey);
+      if (!existingYear || n.year > existingYear) {
+        map.set(yearKey, n.year);
+        map.set(key, n.ratio);
+      }
+      // National averages
+      const nat = nationalSums.get(n.ageGroup) ?? { sum: 0, count: 0 };
+      nat.sum += n.ratio;
+      nat.count++;
+      nationalSums.set(n.ageGroup, nat);
+    }
+    // Add national averages
+    for (const [ag, { sum, count }] of nationalSums) {
+      map.set(`__national__|${ag}`, sum / count);
+    }
+    return map;
+  }, [normering]);
+
+  function getInstNormering(inst: UnifiedInstitution): number | null {
+    const agMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
+    const ag = agMap[inst.category];
+    if (!ag) return null;
+    return normeringMap.get(`${inst.municipality}|${ag}`) ?? null;
+  }
+
+  function getInstQualityBadge(inst: UnifiedInstitution): { label: string; className: string } | null {
+    // Schools: use existing overall quality
+    if (inst.category === "skole" && inst.quality?.o !== undefined) {
+      if (inst.quality.o === 1) return { label: language === "da" ? "Over middel" : "Above avg", className: "bg-[#E1F5EE] text-[#085041]" };
+      if (inst.quality.o === 0) return { label: language === "da" ? "Middel" : "Average", className: "bg-[#FAEEDA] text-[#633806]" };
+      return { label: language === "da" ? "Under middel" : "Below avg", className: "bg-[#FCEBEB] text-[#791F1F]" };
+    }
+    // Dagtilbud: compare normering to national average
+    const agMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
+    const ag = agMap[inst.category];
+    if (!ag) return null;
+    const ratio = normeringMap.get(`${inst.municipality}|${ag}`);
+    const natAvg = normeringMap.get(`__national__|${ag}`);
+    if (ratio == null || natAvg == null) return null;
+    // Lower ratio = better (fewer children per adult)
+    if (ratio < natAvg - 0.2) return { label: language === "da" ? "Over middel" : "Above avg", className: "bg-[#E1F5EE] text-[#085041]" };
+    if (ratio > natAvg + 0.3) return { label: language === "da" ? "Under middel" : "Below avg", className: "bg-[#FCEBEB] text-[#791F1F]" };
+    return { label: language === "da" ? "Middel" : "Average", className: "bg-[#FAEEDA] text-[#633806]" };
+  }
+
+  const subtypeLabels: Record<string, string> = {
+    folkeskole: "Folkeskole", friskole: "Friskole", efterskole: "Efterskole",
+    kommunal: "Kommunal", selvejende: "Selvejende", privat: "Privat", udliciteret: "Udliciteret",
+  };
 
   const [visibleCount, setVisibleCount] = useState(50);
 
@@ -423,7 +482,10 @@ export default function CategoryPage({ category }: Props) {
               onClearAll={() => { setSearch(""); setCatFilter(category); setMunicipality(""); setAgeGroup(""); setQualityFilter(""); }}
             />
           )}
-          {visibleList.map((inst) => (
+          {visibleList.map((inst) => {
+            const badge = getInstQualityBadge(inst);
+            const norm = getInstNormering(inst);
+            return (
             <div
               key={inst.id}
               data-inst-id={inst.id}
@@ -437,69 +499,71 @@ export default function CategoryPage({ category }: Props) {
                 onClick={() => handleSelect(inst)}
                 className="w-full text-left p-4 min-h-[44px]"
               >
-                <div className="flex gap-3 items-start">
-                  <StreetViewImage
-                    lat={inst.lat}
-                    lng={inst.lng}
-                    width={120}
-                    height={80}
-                    alt={inst.name}
-                    className="w-[60px] h-[44px] rounded-lg shrink-0 mt-0.5"
-                  />
-                  <div className="flex justify-between items-start flex-1 min-w-0">
-                  <div className="min-w-0">
+                {/* Row 1: Name + badge + price */}
+                <div className="flex justify-between items-start gap-2">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-foreground truncate">{inst.name}</p>
+                      {badge && (
+                        <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-md ${badge.className}`}>
+                          {badge.label}
+                        </span>
+                      )}
                       {showCategoryBadge && (
                         <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[inst.category] || ""}`}>
                           {t.categories[inst.category]}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>
+                    {/* Row 2: Address + distance + municipality */}
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-xs text-muted truncate">{inst.address}, {inst.postalCode} {inst.city} — {inst.municipality}</p>
                       {userLocation && (
-                        <span className="inline-flex items-center gap-0.5 text-xs text-primary/70">
+                        <span className="inline-flex items-center gap-0.5 text-xs text-primary/70 shrink-0">
                           <MapPin className="w-3 h-3" />
                           {formatDistance(haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng))}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted">{inst.municipality}</p>
-                    {inst.quality?.o !== undefined && (
-                      <span className={`inline-block text-xs mt-1 px-2 py-0.5 rounded-full ${
-                        inst.quality.o === 1 ? "bg-success/10 text-success" :
-                        inst.quality.o === 0 ? "bg-warning/10 text-warning" :
-                        "bg-destructive/10 text-destructive"
-                      }`}>
-                        {inst.quality.o === 1 ? t.detail.aboveAvg : inst.quality.o === 0 ? t.detail.average : t.detail.belowAvg}
-                      </span>
-                    )}
                   </div>
                   <div className="text-right shrink-0 ml-2">
-                    <p className="font-mono text-sm font-medium text-primary">{formatDKK(inst.monthlyRate)}</p>
-                    <span className="text-xs text-muted">{t.common.perMonth}</span>
+                    <p className="font-mono text-sm font-bold tabular-nums text-primary">{formatDKK(inst.monthlyRate)}</p>
+                    <span className="text-[10px] text-muted">{t.common.perMonth}</span>
                   </div>
                 </div>
+                {/* Row 3: Key metrics strip */}
+                <div className="flex items-center gap-3 mt-2 pt-2 border-t border-border/40 text-[11px] text-muted">
+                  {norm != null && (
+                    <span>{language === "da" ? "Normering" : "Ratio"} <strong className="text-foreground font-mono">{norm.toFixed(1).replace(".", ",")}</strong></span>
+                  )}
+                  {inst.quality?.el != null && (
+                    <span>{inst.quality.el.toLocaleString("da-DK")} {language === "da" ? "elever" : "students"}</span>
+                  )}
+                  {inst.quality?.kv != null && (
+                    <span>{language === "da" ? "Klasse" : "Class"} <strong className="text-foreground font-mono">{inst.quality.kv.toLocaleString("da-DK")}</strong></span>
+                  )}
+                  <span>{subtypeLabels[inst.subtype] || inst.subtype}</span>
+                  <Link
+                    to={`/institution/${inst.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="ml-auto text-primary hover:underline"
+                  >
+                    {language === "da" ? "Se profil" : "Profile"} &rarr;
+                  </Link>
                 </div>
               </button>
-              <div className="flex items-center justify-between px-4 pb-3">
-                <Link
-                  to={`/institution/${inst.id}`}
-                  className="text-xs text-primary hover:underline"
-                >
-                  {t.common.seeFullProfile} &rarr;
-                </Link>
+              <div className="flex items-center justify-end px-4 pb-2">
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(inst.id); }}
-                  className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  className="p-1.5 rounded-lg hover:bg-red-50 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
                   aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
                 >
-                  <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
+                  <Heart className={`w-4 h-4 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
           {boundsFiltered.length > visibleCount && (
             <div className="text-center py-4 space-y-2">
               <p className="text-sm text-muted">
