@@ -7,6 +7,7 @@ import { useCompare } from "@/contexts/CompareContext";
 import type { UnifiedInstitution } from "@/lib/types";
 import { formatDKK } from "@/lib/format";
 import ShareButton from "@/components/shared/ShareButton";
+import StreetViewImage from "@/components/shared/StreetViewImage";
 
 interface Props {
   institution: UnifiedInstitution;
@@ -75,10 +76,18 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
       </div>
 
       {/* Address */}
-      <div className="flex items-start gap-1.5 text-xs text-muted mb-4">
+      <div className="flex items-start gap-1.5 text-xs text-muted mb-3">
         <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />
         <span>{inst.address}, {inst.postalCode} {inst.city} — {inst.municipality}</span>
       </div>
+
+      {/* Street View image */}
+      <StreetViewImage
+        lat={inst.lat}
+        lng={inst.lng}
+        alt={inst.name}
+        className="w-full h-[140px] rounded-lg mb-4"
+      />
 
       {/* Key metrics — compact */}
       <div className="grid grid-cols-2 gap-2.5 mb-4">

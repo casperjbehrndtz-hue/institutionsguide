@@ -23,6 +23,7 @@ import TilsynSection from "@/components/tilsyn/TilsynSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
 import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
+import StreetViewImage from "@/components/shared/StreetViewImage";
 
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
@@ -208,6 +209,16 @@ export default function InstitutionPage() {
             <Heart className={`w-6 h-6 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
           </button>
         </div>
+      </div>
+
+      {/* Street View hero image */}
+      <div className="max-w-[640px] mx-auto px-4 pb-4">
+        <StreetViewImage
+          lat={inst.lat}
+          lng={inst.lng}
+          alt={inst.name}
+          className="w-full h-[200px] sm:h-[260px] rounded-xl"
+        />
       </div>
 
       {/* Compare toast */}
