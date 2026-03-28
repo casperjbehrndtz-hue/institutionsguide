@@ -43,7 +43,9 @@ function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: 
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [highlightIndex, setHighlightIndex] = useState(-1);
   const ref = useRef<HTMLDivElement>(null);
+  const listboxId = "municipality-listbox";
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -63,19 +65,45 @@ function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: 
     return municipalities.filter((m) => m.toLowerCase().includes(q));
   }, [query, municipalities]);
 
+  const visibleItems = filtered.slice(0, 30);
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setOpen(true);
+      setHighlightIndex((prev) => Math.min(prev + 1, visibleItems.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((prev) => Math.max(prev - 1, -1));
+    } else if (e.key === "Enter" && open && highlightIndex >= 0) {
+      e.preventDefault();
+      onChange(visibleItems[highlightIndex]);
+      setOpen(false);
+      setQuery("");
+      setHighlightIndex(-1);
+    } else if (e.key === "Escape") {
+      setOpen(false);
+      setHighlightIndex(-1);
+    }
+  }
+
   return (
     <div className="relative" ref={ref}>
       <input
         type="text"
         value={open ? query : value || ""}
         placeholder={placeholder}
-        onFocus={() => { setOpen(true); setQuery(""); }}
-        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+        onFocus={() => { setOpen(true); setQuery(""); setHighlightIndex(-1); }}
+        onChange={(e) => { setQuery(e.target.value); setOpen(true); setHighlightIndex(-1); }}
+        onKeyDown={handleKeyDown}
         className={`w-[180px] px-3 py-1.5 rounded-xl border bg-bg-card text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
           value ? "border-primary text-primary font-medium" : "border-border text-foreground"
         }`}
         role="combobox"
         aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-controls={open ? listboxId : undefined}
+        aria-activedescendant={open && highlightIndex >= 0 ? `muni-option-${highlightIndex}` : undefined}
         aria-label={placeholder}
       />
       {value && !open && (
@@ -88,18 +116,25 @@ function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: 
         </button>
       )}
       {open && (
-        <div className="absolute top-full left-0 mt-1 w-[220px] max-h-[280px] overflow-y-auto bg-bg-card border border-border rounded-xl shadow-lg z-50">
+        <div id={listboxId} role="listbox" className="absolute top-full left-0 mt-1 w-[220px] max-h-[280px] overflow-y-auto bg-bg-card border border-border rounded-xl shadow-lg z-50">
           <button
-            onClick={() => { onChange(""); setOpen(false); setQuery(""); }}
+            role="option"
+            aria-selected={!value}
+            onClick={() => { onChange(""); setOpen(false); setQuery(""); setHighlightIndex(-1); }}
             className={`w-full text-left px-3 py-2 text-sm hover:bg-primary/5 ${!value ? "text-primary font-medium" : "text-foreground"}`}
           >
             {placeholder}
           </button>
-          {filtered.slice(0, 30).map((m) => (
+          {visibleItems.map((m, i) => (
             <button
               key={m}
-              onClick={() => { onChange(m); setOpen(false); setQuery(""); }}
-              className={`w-full text-left px-3 py-2 text-sm hover:bg-primary/5 ${value === m ? "text-primary font-medium bg-primary/5" : "text-foreground"}`}
+              id={`muni-option-${i}`}
+              role="option"
+              aria-selected={value === m}
+              onClick={() => { onChange(m); setOpen(false); setQuery(""); setHighlightIndex(-1); }}
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-primary/5 ${
+                highlightIndex === i ? "bg-primary/10" : ""
+              } ${value === m ? "text-primary font-medium bg-primary/5" : "text-foreground"}`}
             >
               {m}
             </button>

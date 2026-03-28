@@ -261,14 +261,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return Array.from(map.values()).sort((a, b) => a.municipality.localeCompare(b.municipality, "da"));
   }, [institutions]);
 
-  const value: DataContextValue = {
+  const value = useMemo<DataContextValue>(() => ({
     institutions,
     municipalities,
     normering,
     loading,
     error,
     nationalAverages,
-  };
+  }), [institutions, municipalities, normering, loading, error, nationalAverages]);
 
   return <DataContext value={value}>{children}</DataContext>;
 }

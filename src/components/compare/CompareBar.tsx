@@ -43,7 +43,7 @@ export default function CompareBar() {
                 <span className="truncate">{inst.name}</span>
                 <button
                   onClick={() => onRemove(inst.id)}
-                  className="p-0.5 hover:bg-primary/20 rounded-full min-w-[28px] min-h-[28px] flex items-center justify-center shrink-0"
+                  className="p-0.5 hover:bg-primary/20 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
                   aria-label={t.compare.removeAriaLabel.replace("{name}", inst.name)}
                 >
                   <X className="w-3.5 h-3.5" />
@@ -84,9 +84,9 @@ export default function CompareBar() {
 
       {/* Confirm clear dialog */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowConfirm(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-clear-title" onClick={() => setShowConfirm(false)}>
           <div className="bg-bg-card rounded-xl shadow-xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
-            <p className="text-foreground font-medium mb-2">
+            <p id="confirm-clear-title" className="text-foreground font-medium mb-2">
               {language === "da" ? "Ryd sammenligning?" : "Clear comparison?"}
             </p>
             <p className="text-sm text-muted mb-5">

@@ -26,7 +26,7 @@ const NormeringKommunePage = lazy(() => import("@/pages/NormeringKommunePage"));
 
 function Loading() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center" role="status" aria-label="Indlæser...">
       <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );

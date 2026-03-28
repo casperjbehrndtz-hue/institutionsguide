@@ -15,7 +15,7 @@
   --color-bg: #FFFFFF;             /* clean white — modern feel */
   --color-bg-card: #FFFFFF;
   --color-foreground: #1A2632;
-  --color-muted: #596A7B;          /* bumped darker for WCAG AA contrast on light bg */
+  --color-muted: #4F5F6F;          /* WCAG AA 5.5:1 contrast on white */
   --color-border: #E8E2D9;
   --color-success: #1B8F5F;
   --color-warning: #D4A017;
@@ -32,7 +32,7 @@
   --color-bg-card: #232836;
   --color-foreground: #E8E2D9;
   --color-muted: #8B95A5;
-  --color-border: #2E3440;
+  --color-border: #3B4252;
   --color-primary: #4A90D9;
   --color-primary-light: #2A4A6E;
   --color-primary-foreground: #F5F0E8;
@@ -363,6 +363,17 @@
 /* ── Dark mode: Scrollbar ── */
 .dark ::-webkit-scrollbar-thumb {
   background: #3B4252;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card:hover { transform: none; }
 }
 
 /* ── Print styles ── */
