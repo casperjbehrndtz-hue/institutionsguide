@@ -213,18 +213,6 @@ export default function InstitutionPage() {
           </div>
         </div>
 
-        {/* Prominent overall quality badge */}
-        {q?.o !== undefined && (
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold mb-4 ${
-            q.o === 1 ? "bg-success/10 text-success border border-success/20" :
-            q.o === 0 ? "bg-warning/10 text-warning border border-warning/20" :
-            "bg-destructive/10 text-destructive border border-destructive/20"
-          }`}>
-            {q.o >= 0 ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
-            {overallLabel(q.o)}
-          </div>
-        )}
-
         {/* Compare toast notification */}
         {compareToast && (
           <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4">
@@ -241,76 +229,34 @@ export default function InstitutionPage() {
           </span>
         </div>
 
-        <div className="flex items-start gap-3 text-muted">
-          <StaticMapThumb lat={inst.lat} lng={inst.lng} name={inst.name} />
-          <div className="flex items-start gap-2 pt-1">
-            <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
-            <span>{inst.address}, {inst.postalCode} {inst.city} — {inst.municipality}</span>
-          </div>
+        <div className="flex items-center gap-2 text-muted">
+          <MapPin className="w-4 h-4 shrink-0" />
+          <span className="text-sm">{inst.address}, {inst.postalCode} {inst.city} — {inst.municipality}</span>
         </div>
       </section>
+
+      {/* Områdevurdering — primary content, first thing users see */}
+      {scoreResult && (
+        <section className="max-w-5xl mx-auto px-4 pb-8">
+          <InstitutionReport
+            score={scoreResult}
+            institutionName={inst.name}
+            category={inst.category}
+            municipality={inst.municipality}
+            language={language}
+            nearby={nearby}
+            nearbyScores={nearbyScores}
+            aiAssessment={aiAssessment}
+            aiLoading={aiState === "loading"}
+          />
+        </section>
+      )}
 
       {/* Main content grid */}
       <section className="max-w-5xl mx-auto px-4 pb-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column: details */}
         <div className="lg:col-span-2 space-y-6">
-          {/* ── Insight Engine: Premium data layer (quality first) ── */}
-          {q && (() => {
-            const flags = generateFlags(q);
-            const profile = generatePercentileProfile(q);
-            const nearbyComp = generateNearbyComparison(inst, nearby);
-            const greenCount = flags.filter((f) => f.severity === "green").length;
-            const redCount = flags.filter((f) => f.severity === "red").length;
-            const yellowCount = flags.filter((f) => f.severity === "yellow").length;
-            const hasInsights = flags.length > 0 || profile.length > 0;
-
-            if (!hasInsights) return null;
-
-            return (
-              <>
-                {/* 1. Insight flags with executive summary */}
-                {flags.length > 0 && (
-                  <div className="card p-5">
-                    <h2 className="font-display text-lg font-semibold mb-2">
-                      {language === "da" ? "Skoleindsigt" : "School Insights"}
-                    </h2>
-                    {/* Executive summary sentence */}
-                    <p className="text-sm text-muted mb-4">
-                      {language === "da"
-                        ? `Denne skole har ${greenCount} styrke${greenCount !== 1 ? "r" : ""} og ${redCount + yellowCount} opmærksomhedspunkt${(redCount + yellowCount) !== 1 ? "er" : ""}`
-                        : `This school has ${greenCount} strength${greenCount !== 1 ? "s" : ""} and ${redCount + yellowCount} point${(redCount + yellowCount) !== 1 ? "s" : ""} of attention`}
-                    </p>
-                    <InsightFlags flags={flags} />
-                  </div>
-                )}
-
-                {/* 2. Percentile profile */}
-                {profile.length > 0 && (
-                  <div className="card p-5">
-                    <h2 className="font-display text-lg font-semibold mb-1">
-                      {language === "da" ? "Skolens profil" : "School Profile"}
-                    </h2>
-                    <p className="text-xs text-muted mb-4">
-                      {language === "da" ? "Placering blandt alle danske skoler" : "Ranking among all Danish schools"}
-                    </p>
-                    <PercentileProfile bars={profile} />
-                  </div>
-                )}
-
-                {/* 3. Nearby comparison */}
-                {nearbyComp.length > 0 && (
-                  <div className="card p-5">
-                    <h2 className="font-display text-lg font-semibold mb-3">
-                      {language === "da" ? "Sammenligning med nærområdet" : "Local area comparison"}
-                    </h2>
-                    <NearbyComparison comparisons={nearbyComp} neighborCount={nearby.length} />
-                  </div>
-                )}
-              </>
-            );
-          })()}
-
-          {/* 4. Quality data grid (schools only) */}
+          {/* Quality data grid (schools only) */}
           {q && (
             <div className="card p-5">
               <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
@@ -487,23 +433,6 @@ export default function InstitutionPage() {
           )}
         </div>
       </section>
-
-      {/* Områdevurdering */}
-      {scoreResult && (
-        <section className="max-w-5xl mx-auto px-4 pb-8">
-          <InstitutionReport
-            score={scoreResult}
-            institutionName={inst.name}
-            category={inst.category}
-            municipality={inst.municipality}
-            language={language}
-            nearby={nearby}
-            nearbyScores={nearbyScores}
-            aiAssessment={aiAssessment}
-            aiLoading={aiState === "loading"}
-          />
-        </section>
-      )}
 
       {/* Tilsyn section */}
       <section className="max-w-5xl mx-auto px-4 pb-8">
