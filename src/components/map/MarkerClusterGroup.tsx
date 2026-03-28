@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet.markercluster";
@@ -68,8 +68,16 @@ export default function MarkerClusterGroup({
   const map = useMap();
   const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const markerMapRef = useRef<Map<string, L.Marker>>(new Map());
+  const markerDataRef = useRef<Map<string, MarkerData>>(new Map());
+  const showPricesRef = useRef(showPrices);
+  showPricesRef.current = showPrices;
+
+  // Stable hover callback ref so it doesn't trigger cluster recreation
+  const onMarkerHoverRef = useRef(onMarkerHover);
+  onMarkerHoverRef.current = onMarkerHover;
 
   // Create / recreate cluster when markers or showPrices change
+  // NOTE: highlightedId is NOT in deps — we handle highlights separately below
   useEffect(() => {
     const cluster = L.markerClusterGroup({
       chunkedLoading: true,
@@ -93,39 +101,60 @@ export default function MarkerClusterGroup({
     });
 
     const newMarkerMap = new Map<string, L.Marker>();
+    const newDataMap = new Map<string, MarkerData>();
 
     markers.forEach((m) => {
-      const isHighlighted = m.id === highlightedId;
       const icon = showPrices
-        ? createPriceIcon(m.color, m.price, isHighlighted)
-        : createDotIcon(m.color, isHighlighted);
+        ? createPriceIcon(m.color, m.price, false)
+        : createDotIcon(m.color, false);
 
       const marker = L.marker([m.lat, m.lng], {
         icon,
-        zIndexOffset: isHighlighted ? 1000 : 0,
+        zIndexOffset: 0,
         _price: m.price,
       } as L.MarkerOptions & { _price: number | null });
       marker.bindPopup(m.popupHtml);
 
-      if (onMarkerHover) {
-        marker.on("mouseover", () => onMarkerHover(m.id));
-        marker.on("mouseout", () => onMarkerHover(null));
-      }
+      marker.on("mouseover", () => onMarkerHoverRef.current?.(m.id));
+      marker.on("mouseout", () => onMarkerHoverRef.current?.(null));
 
       newMarkerMap.set(m.id, marker);
+      newDataMap.set(m.id, m);
       cluster.addLayer(marker);
     });
 
     map.addLayer(cluster);
     clusterRef.current = cluster;
     markerMapRef.current = newMarkerMap;
+    markerDataRef.current = newDataMap;
 
     return () => {
       map.removeLayer(cluster);
       clusterRef.current = null;
       markerMapRef.current = new Map();
+      markerDataRef.current = new Map();
     };
-  }, [map, markers, showPrices, highlightedId, onMarkerHover]);
+  }, [map, markers, showPrices]);
+
+  // Update highlighted marker icon WITHOUT recreating the cluster
+  useEffect(() => {
+    const markerMap = markerMapRef.current;
+    const dataMap = markerDataRef.current;
+    const sp = showPricesRef.current;
+
+    // Update all markers: set highlighted state for the matching one, reset others
+    markerMap.forEach((marker, id) => {
+      const data = dataMap.get(id);
+      if (!data) return;
+      const isHighlighted = id === highlightedId;
+      const icon = sp
+        ? createPriceIcon(data.color, data.price, isHighlighted)
+        : createDotIcon(data.color, isHighlighted);
+      marker.setIcon(icon);
+      if (isHighlighted) marker.setZIndexOffset(1000);
+      else marker.setZIndexOffset(0);
+    });
+  }, [highlightedId]);
 
   return null;
 }

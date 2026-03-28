@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Heart, Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,7 +9,6 @@ import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 import InstitutionMap from "@/components/map/InstitutionMap";
-import InstitutionDetail from "@/components/detail/InstitutionDetail";
 import CompareBar from "@/components/compare/CompareBar";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
@@ -47,6 +46,7 @@ const CATEGORY_BADGE_COLORS: Record<string, string> = {
 };
 
 export default function CategoryPage({ category }: Props) {
+  const navigate = useNavigate();
   const { institutions, municipalities, normering, loading, error } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -63,13 +63,13 @@ export default function CategoryPage({ category }: Props) {
     defaultSortKey: category === "skole" ? "rating" : "price",
   });
   const { lat, lng, zoom: mapZoom, view, setMapView, setView } = useMapParams();
-  const [selected, setSelected] = useState<UnifiedInstitution | null>(null);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearMeLoading, setNearMeLoading] = useState(false);
   const mobileView = view === "kort" ? "map" : "list";
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const handleMarkerHover = useCallback((id: string | null) => setHoveredId(id), []);
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const [radiusKm, setRadiusKm] = useState<number | null>(null);
@@ -247,8 +247,7 @@ export default function CategoryPage({ category }: Props) {
   }, [municipalities, category]);
 
   function handleSelect(inst: UnifiedInstitution) {
-    setSelected(inst);
-    setFlyTo({ lat: inst.lat, lng: inst.lng, zoom: 14 });
+    navigate(`/institution/${inst.id}`);
   }
 
   function handleCompare(inst: UnifiedInstitution) {
@@ -440,7 +439,7 @@ export default function CategoryPage({ category }: Props) {
             onSelect={handleSelect}
             flyTo={flyTo}
             highlightedId={hoveredId}
-            onMarkerHover={(id: string | null) => setHoveredId(id)}
+            onMarkerHover={handleMarkerHover}
             isFullscreen={mapFullscreen}
             onToggleFullscreen={() => setMapFullscreen((f) => !f)}
             onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
@@ -579,30 +578,22 @@ export default function CategoryPage({ category }: Props) {
         </div>
 
         <div className={`h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
-          {selected ? (
-            <InstitutionDetail
-              institution={selected}
-              onClose={() => setSelected(null)}
-              onCompare={handleCompare}
-            />
-          ) : (
-            <InstitutionMap
-              institutions={boundsFiltered}
-              onSelect={handleSelect}
-              flyTo={flyTo}
-              highlightedId={hoveredId}
-              onMarkerHover={(id: string | null) => setHoveredId(id)}
-              isFullscreen={mapFullscreen}
-              onToggleFullscreen={() => setMapFullscreen((f) => !f)}
-              onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
-              initialCenter={{ lat, lng }}
-              initialZoom={mapZoom}
-              onViewChange={setMapView}
-              radiusCenter={userLocation}
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-            />
-          )}
+          <InstitutionMap
+            institutions={boundsFiltered}
+            onSelect={handleSelect}
+            flyTo={flyTo}
+            highlightedId={hoveredId}
+            onMarkerHover={handleMarkerHover}
+            isFullscreen={mapFullscreen}
+            onToggleFullscreen={() => setMapFullscreen((f) => !f)}
+            onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
+            initialCenter={{ lat, lng }}
+            initialZoom={mapZoom}
+            onViewChange={setMapView}
+            radiusCenter={userLocation}
+            radiusKm={radiusKm}
+            onRadiusChange={setRadiusKm}
+          />
         </div>
       </section>
 
