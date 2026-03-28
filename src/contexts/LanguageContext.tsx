@@ -19,7 +19,7 @@ function getInitialLanguage(): Language {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === "en" || stored === "da") return stored;
-  } catch {}
+  } catch { /* localStorage unavailable */ }
   return "da";
 }
 

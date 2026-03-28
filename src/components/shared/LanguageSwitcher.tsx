@@ -10,15 +10,15 @@ export default function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className="flex items-center gap-0.5 text-xs">
+    <div className="flex items-center gap-0.5 text-[10px]">
       {LANGUAGES.map((lang) => (
         <button
           key={lang.code}
           onClick={() => setLanguage(lang.code)}
-          className={`px-1.5 py-0.5 rounded font-medium transition-colors ${
+          className={`px-1.5 py-0.5 rounded font-medium transition-all duration-300 ${
             language === lang.code
-              ? "bg-primary/10 text-primary"
-              : "text-muted hover:text-foreground"
+              ? "text-primary-foreground"
+              : "text-primary-foreground/50 hover:text-primary-foreground"
           }`}
           aria-label={lang.code === "da" ? "Skift til dansk" : "Switch to English"}
           aria-pressed={language === lang.code}

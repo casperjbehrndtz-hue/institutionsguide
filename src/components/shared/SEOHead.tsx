@@ -1,0 +1,72 @@
+import { useEffect } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+interface SEOHeadProps {
+  title: string;
+  description: string;
+  path?: string;
+  noIndex?: boolean;
+}
+
+const BASE_URL = "https://institutionsguide.dk";
+
+export default function SEOHead({ title, description, path = "", noIndex }: SEOHeadProps) {
+  const { language } = useLanguage();
+  const fullTitle = title.includes("Institutionsguide") ? title : `${title} | Institutionsguide`;
+  const url = `${BASE_URL}${path}`;
+
+  useEffect(() => {
+    document.title = fullTitle;
+
+    const setMeta = (attr: string, key: string, content: string) => {
+      let el = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    setMeta("name", "description", description);
+    setMeta("property", "og:title", fullTitle);
+    setMeta("property", "og:description", description);
+    setMeta("property", "og:url", url);
+
+    if (noIndex) {
+      setMeta("name", "robots", "noindex, nofollow");
+    } else {
+      setMeta("name", "robots", "index, follow");
+    }
+
+    // hreflang
+    const setLink = (hreflang: string, href: string) => {
+      let el = document.querySelector(`link[hreflang="${hreflang}"]`);
+      if (!el) {
+        el = document.createElement("link");
+        el.setAttribute("rel", "alternate");
+        el.setAttribute("hreflang", hreflang);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("href", href);
+    };
+
+    setLink("da", url);
+    setLink("en", url);
+    setLink("x-default", url);
+
+    // Canonical
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", url);
+
+    // lang attribute
+    document.documentElement.lang = language;
+  }, [fullTitle, description, url, noIndex, language]);
+
+  return null;
+}

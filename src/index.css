@@ -1,17 +1,21 @@
 @import "tailwindcss";
+@import "leaflet.markercluster/dist/MarkerCluster.css";
+@import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* ParFinans-aligned design system — warm, professional, light */
   --color-primary: #1B3A5C;        /* dark navy — same family as ParFinans */
   --color-primary-light: #2D5F8A;
   --color-primary-foreground: #F5F0E8;
-  --color-accent: #0E7490;          /* teal — Institutionsguide's own accent */
-  --color-accent-light: #22D3EE;
+  --color-accent: #B8642E;          /* copper — aligned with ParFinans suite */
+  --color-accent-light: #D4944A;
 
-  --color-bg: #FAF8F5;             /* warm white — matches ParFinans */
+  --color-bg: #FFFFFF;             /* clean white — modern feel */
   --color-bg-card: #FFFFFF;
   --color-foreground: #1A2632;
-  --color-muted: #6B7B8D;
+  --color-muted: #596A7B;          /* bumped darker for WCAG AA contrast on light bg */
   --color-border: #E8E2D9;
   --color-success: #1B8F5F;
   --color-warning: #D4A017;
@@ -22,6 +26,23 @@
   --font-mono: "DM Mono", ui-monospace, Consolas, monospace;
 }
 
+/* ── Dark mode color overrides ── */
+.dark {
+  --color-bg: #1A1F2E;
+  --color-bg-card: #232836;
+  --color-foreground: #E8E2D9;
+  --color-muted: #8B95A5;
+  --color-border: #2E3440;
+  --color-primary: #4A90D9;
+  --color-primary-light: #2A4A6E;
+  --color-primary-foreground: #F5F0E8;
+  --color-accent: #D4944A;
+  --color-accent-light: #E8B06A;
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-destructive: #F87171;
+}
+
 /* Base styles */
 body {
   margin: 0;
@@ -30,6 +51,7 @@ body {
   color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -45,17 +67,38 @@ h1, h2, h3, h4, h5, h6 {
   font-variant-numeric: tabular-nums;
 }
 
-/* Card — clean white with subtle border, NO glass effect */
+/* Card — luxury shadows aligned with ParFinans */
 .card {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px hsl(215 80% 22% / 0.04), 0 6px 24px hsl(215 80% 22% / 0.06);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px hsl(215 80% 22% / 0.1), 0 24px 60px hsl(215 80% 22% / 0.08);
+  transform: translateY(-2px);
+}
+
+/* Card dark mode — subtle border instead of shadow */
+.dark .card {
+  box-shadow: none;
+  border-color: var(--color-border);
+}
+.dark .card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Glass navbar — matches ParFinans */
+.glass-subtle {
+  background: hsl(0 0% 100% / 0.75);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+}
+
+.dark .glass-subtle {
+  background: hsl(220 20% 12% / 0.8);
 }
 
 /* Luxury divider — matches ParFinans */
@@ -93,6 +136,70 @@ h1, h2, h3, h4, h5, h6 {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Slide in from left (detail panel over map) */
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out forwards;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Scroll-triggered animations */
+.scroll-fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-fade-in {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+.scroll-fade-in.visible {
+  opacity: 1;
+}
+
+/* Staggered children animation */
+.stagger-children.visible > * {
+  animation: staggerIn 0.4s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-border) 25%, #f0ece5 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, var(--color-border) 25%, #2E3440 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* Focus ring */
 *:focus-visible {
   outline: 2px solid var(--color-accent);
@@ -112,4 +219,207 @@ h1, h2, h3, h4, h5, h6 {
 }
 .link-hover:hover {
   color: var(--color-accent);
+}
+
+/* ── Marker cluster overrides ── */
+.marker-cluster {
+  background-clip: padding-box;
+  border-radius: 50%;
+}
+
+.marker-cluster span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+}
+
+.marker-cluster-small {
+  background: rgba(184, 100, 46, 0.25);
+}
+.marker-cluster-small span {
+  background-color: var(--color-accent);
+}
+
+.marker-cluster-medium {
+  background: rgba(27, 58, 92, 0.25);
+}
+.marker-cluster-medium span {
+  background-color: var(--color-primary-light);
+}
+
+.marker-cluster-large {
+  background: rgba(27, 58, 92, 0.3);
+}
+.marker-cluster-large span {
+  background-color: var(--color-primary);
+}
+
+/* ── Pill-shaped cluster icons ── */
+.marker-cluster-pill {
+  background: none !important;
+  border: none !important;
+}
+
+.marker-cluster-pill .cluster-label {
+  display: inline-block;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  color: #fff;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.marker-cluster-pill .cluster-label strong {
+  font-weight: 700;
+}
+
+.marker-cluster-pill-small .cluster-label {
+  background: rgba(184, 100, 46, 0.88);
+  font-size: 11px;
+  padding: 3px 8px;
+}
+
+.marker-cluster-pill-medium .cluster-label {
+  background: rgba(27, 58, 92, 0.88);
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+.marker-cluster-pill-large .cluster-label {
+  background: rgba(27, 58, 92, 0.92);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 12px;
+}
+
+/* Remove default div-icon background */
+.custom-circle-marker {
+  background: none !important;
+  border: none !important;
+}
+
+/* Price marker pill */
+.price-marker {
+  overflow: visible !important;
+}
+
+/* Pulse ring animation for highlighted markers */
+.marker-pulse-ring {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  opacity: 0;
+  animation: markerPulse 1.5s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes markerPulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+/* ── Dark mode: Leaflet popups ── */
+.dark .leaflet-popup-content-wrapper {
+  background-color: var(--color-bg-card) !important;
+  color: var(--color-foreground) !important;
+}
+.dark .leaflet-popup-tip {
+  background-color: var(--color-bg-card) !important;
+}
+
+/* ── Dark mode: Cookie consent readability ── */
+.dark [data-cookie-consent] {
+  background-color: var(--color-bg-card);
+  border-color: var(--color-border);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Dark mode: Scrollbar ── */
+.dark ::-webkit-scrollbar-thumb {
+  background: #3B4252;
+}
+
+/* ── Print styles ── */
+@media print {
+  /* Print header */
+  body::before {
+    content: "Institutionsguide — Sammenligning";
+    display: block;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    padding: 12px 0 8px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 16px;
+  }
+
+  /* Hide chrome */
+  nav,
+  footer,
+  [data-suite-bar],
+  [data-cookie-consent],
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Clean cards */
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    break-inside: avoid;
+  }
+
+  /* Full-width content */
+  main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  section {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* Table rows should not split */
+  tr, td, th {
+    break-inside: avoid;
+  }
+
+  /* Charts: hide (they render poorly in print) */
+  .recharts-wrapper {
+    display: none !important;
+  }
+
+  /* Background colors for badges */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove gradient backgrounds */
+  [class*="bg-gradient"] {
+    background: none !important;
+  }
 }

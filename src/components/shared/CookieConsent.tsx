@@ -1,18 +1,34 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { loadAnalytics, removeAnalytics, hasConsent } from "@/lib/initAnalytics";
+
+function getInitialVisibility(): boolean {
+  try {
+    return !localStorage.getItem("cookie-consent");
+  } catch {
+    return true;
+  }
+}
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(getInitialVisibility);
   const { t } = useLanguage();
 
+  // Load analytics on mount if user previously gave consent
   useEffect(() => {
-    const choice = localStorage.getItem("cookie-consent");
-    if (!choice) setVisible(true);
+    if (hasConsent()) {
+      loadAnalytics();
+    }
   }, []);
 
   function handleChoice(accepted: boolean) {
     localStorage.setItem("cookie-consent", accepted ? "accepted" : "declined");
+    if (accepted) {
+      loadAnalytics();
+    } else {
+      removeAnalytics();
+    }
     setVisible(false);
   }
 
@@ -20,9 +36,11 @@ export default function CookieConsent() {
 
   return (
     <div
+      data-cookie-consent
       className="fixed bottom-0 inset-x-0 z-50 bg-bg-card border-t border-border p-4 sm:p-5 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
-      role="dialog"
+      role="alertdialog"
       aria-label="Cookie-samtykke"
+      aria-modal="false"
     >
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
         <p className="text-sm text-foreground flex-1">

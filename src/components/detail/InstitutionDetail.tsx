@@ -1,18 +1,16 @@
-import { X, MapPin, ExternalLink, Mail, Phone, Plus, Star } from "lucide-react";
+import { useRef, useEffect } from "react";
+import { X, MapPin, ExternalLink, Mail, Phone, Plus, Star, Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFavorites } from "@/hooks/useFavorites";
 import type { UnifiedInstitution } from "@/lib/types";
-import { formatDKK as _formatDKK } from "@/lib/format";
+import { formatDKK } from "@/lib/format";
 import FripladsCalculator from "./FripladsCalculator";
+import ShareButton from "@/components/shared/ShareButton";
 
 interface Props {
   institution: UnifiedInstitution;
   onClose: () => void;
   onCompare?: (inst: UnifiedInstitution) => void;
-}
-
-function formatDKK(val: number | null): string {
-  if (val === null) return "–";
-  return _formatDKK(val);
 }
 
 function QualityDot({ value, max = 5 }: { value: number | undefined; max?: number }) {
@@ -29,7 +27,14 @@ function QualityDot({ value, max = 5 }: { value: number | undefined; max?: numbe
 
 export default function InstitutionDetail({ institution: inst, onClose, onCompare }: Props) {
   const { t } = useLanguage();
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const panelRef = useRef<HTMLDivElement>(null);
   const q = inst.quality;
+
+  // Move focus into the detail panel when it mounts
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, [inst.id]);
 
   const categoryLabels: Record<string, string> = {
     vuggestue: t.categories.vuggestue, boernehave: t.categories.boernehave,
@@ -49,7 +54,13 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
   }
 
   return (
-    <div className="card p-5 sm:p-6 animate-fade-in overflow-y-auto max-h-[90vh]">
+    <div
+      ref={panelRef}
+      role="region"
+      aria-label={inst.name}
+      tabIndex={-1}
+      className="card p-5 sm:p-6 animate-fade-in overflow-y-auto max-h-[90vh] focus:outline-none"
+    >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
@@ -74,13 +85,23 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
             )}
           </div>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 rounded-lg hover:bg-border/50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label={t.common.close}
-        >
-          <X className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <ShareButton title={inst.name} url={`/institution/${inst.id}`} />
+          <button
+            onClick={() => toggleFavorite(inst.id)}
+            className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
+          >
+            <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
+          </button>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-border/50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            aria-label={t.common.close}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Address */}
@@ -148,14 +169,14 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
 
       {/* Rates */}
       <div className="flex gap-4 mb-5">
-        <div className="bg-white border border-border rounded-lg p-3 flex-1 text-center">
+        <div className="bg-bg-card border border-border rounded-lg p-3 flex-1 text-center">
           <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
           <p className="font-mono text-lg font-bold text-primary">
             {formatDKK(inst.monthlyRate)}
           </p>
           <p className="text-[10px] text-muted">{t.common.advisory}</p>
         </div>
-        <div className="bg-white border border-border rounded-lg p-3 flex-1 text-center">
+        <div className="bg-bg-card border border-border rounded-lg p-3 flex-1 text-center">
           <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
           <p className="font-mono text-lg font-bold text-foreground">
             {formatDKK(inst.annualRate)}
@@ -187,9 +208,7 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
             <ExternalLink className="w-4 h-4" /> {t.detail.website}
           </a>
         )}
-        {inst.leader && (
-          <p className="text-sm text-muted">{t.detail.leader}: {inst.leader}</p>
-        )}
+        {/* Leader name removed — no GDPR legal basis to display personal names */}
       </div>
 
       {/* Compare button */}

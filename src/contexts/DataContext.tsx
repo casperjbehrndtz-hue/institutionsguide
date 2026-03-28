@@ -158,7 +158,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         // Børnehaver (compact format) — forced category "boernehave"
         for (const d of boernehaveData.i) {
-          const id = `bh-${d.id}`;
           const u = compactDagtilbudToUnified(d, "bh");
           if (u && !seen.has(u.id)) {
             u.category = "boernehave";

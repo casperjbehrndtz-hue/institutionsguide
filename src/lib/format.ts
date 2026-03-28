@@ -1,4 +1,5 @@
-export function formatDKK(n: number): string {
+export function formatDKK(n: number | null): string {
+  if (n === null) return "–";
   return n.toLocaleString("da-DK", { maximumFractionDigits: 0 }) + " kr.";
 }
 

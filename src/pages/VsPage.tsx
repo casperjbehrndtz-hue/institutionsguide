@@ -1,0 +1,404 @@
+import { useMemo } from "react";
+import { useParams, Link } from "react-router-dom";
+import { useData } from "@/contexts/DataContext";
+import SEOHead from "@/components/shared/SEOHead";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { formatDKK } from "@/lib/format";
+import {
+  buildSlugMap,
+  CATEGORY_LABELS_DA,
+  CATEGORY_SINGULAR_DA,
+  CATEGORY_SLUGS,
+  toSlug,
+  type CategorySlug,
+} from "@/lib/slugs";
+import type { UnifiedInstitution } from "@/lib/types";
+
+interface CategoryStats {
+  count: number;
+  withPrice: number;
+  avgPrice: number | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  cheapest: UnifiedInstitution | null;
+  ownerships: Record<string, number>;
+}
+
+function computeStats(items: UnifiedInstitution[]): CategoryStats {
+  const withPrice = items.filter((i) => i.monthlyRate !== null && i.monthlyRate > 0);
+  const prices = withPrice.map((i) => i.monthlyRate!);
+  const ownerships: Record<string, number> = {};
+  for (const i of items) {
+    const ow = i.ownership || i.subtype || "ukendt";
+    ownerships[ow] = (ownerships[ow] || 0) + 1;
+  }
+  const minP = prices.length > 0 ? Math.min(...prices) : null;
+  return {
+    count: items.length,
+    withPrice: withPrice.length,
+    avgPrice:
+      prices.length > 0
+        ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length)
+        : null,
+    minPrice: minP,
+    maxPrice: prices.length > 0 ? Math.max(...prices) : null,
+    cheapest: minP !== null ? withPrice.find((i) => i.monthlyRate === minP) ?? null : null,
+    ownerships,
+  };
+}
+
+const VS_DESCRIPTIONS: Record<string, { da: string }> = {
+  "vuggestue-vs-dagpleje": {
+    da: "Vuggestue og dagpleje er begge pasningsmuligheder for børn i alderen 0-2 år. Dagpleje foregår typisk i dagplejerens private hjem med en lille gruppe børn (op til 4), mens vuggestuer er større institutioner med flere ansatte. Dagpleje tilbyder ofte en mere hjemlig atmosfære, mens vuggestuer typisk har flere pædagogiske ressourcer og aktiviteter.",
+  },
+  "vuggestue-vs-boernehave": {
+    da: "Vuggestue er for de yngste børn (0-2 år), mens børnehave er for børn i alderen 3-5 år. Mange familier starter i vuggestue og skifter til børnehave, men nogle aldersintegrerede institutioner dækker hele aldersgruppen 0-5 år. Priserne varierer typisk, da vuggestuer ofte er dyrere pga. lavere normering (færre børn pr. voksen).",
+  },
+  "boernehave-vs-sfo": {
+    da: "Børnehave er for børn i alderen 3-5 år, mens SFO (skolefritidsordning) er for skolebørn fra 6 år. Overgangen fra børnehave til SFO sker typisk, når barnet starter i skole. SFO er ofte billigere end børnehave, men tilbyder pasning før og efter skoletid samt i ferier.",
+  },
+};
+
+export default function VsPage() {
+  const { comparison, municipality: munSlug } = useParams<{
+    comparison: string;
+    municipality: string;
+  }>();
+  const { institutions, municipalities, loading } = useData();
+
+  const slugMap = useMemo(
+    () => buildSlugMap(municipalities.map((m) => m.municipality)),
+    [municipalities]
+  );
+  const munName = munSlug ? slugMap.get(munSlug) ?? "" : "";
+
+  // Parse "vuggestue-vs-dagpleje" into [catA, catB]
+  const [catA, catB] = useMemo(() => {
+    if (!comparison) return [null, null];
+    const parts = comparison.split("-vs-");
+    if (parts.length !== 2) return [null, null];
+    const a = parts[0] as CategorySlug;
+    const b = parts[1] as CategorySlug;
+    if (
+      !(CATEGORY_SLUGS as readonly string[]).includes(a) ||
+      !(CATEGORY_SLUGS as readonly string[]).includes(b)
+    )
+      return [null, null];
+    return [a, b] as [CategorySlug, CategorySlug];
+  }, [comparison]);
+
+  const itemsA = useMemo(
+    () =>
+      catA
+        ? institutions.filter(
+            (i) => i.category === catA && i.municipality === munName
+          )
+        : [],
+    [institutions, catA, munName]
+  );
+
+  const itemsB = useMemo(
+    () =>
+      catB
+        ? institutions.filter(
+            (i) => i.category === catB && i.municipality === munName
+          )
+        : [],
+    [institutions, catB, munName]
+  );
+
+  const statsA = useMemo(() => computeStats(itemsA), [itemsA]);
+  const statsB = useMemo(() => computeStats(itemsB), [itemsB]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!catA || !catB || !munName || (itemsA.length === 0 && itemsB.length === 0)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">Side ikke fundet</h1>
+          <p className="text-muted mb-6">
+            Vi kunne ikke finde data for denne sammenligning.
+          </p>
+          <Link to="/" className="text-primary hover:underline font-medium">
+            Gå til forsiden
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const labelA = CATEGORY_LABELS_DA[catA];
+  const labelB = CATEGORY_LABELS_DA[catB];
+  const singA = CATEGORY_SINGULAR_DA[catA];
+  const singB = CATEGORY_SINGULAR_DA[catB];
+  const vsKey = `${catA}-vs-${catB}`;
+  const descText = VS_DESCRIPTIONS[vsKey]?.da ?? "";
+
+  const pageTitle = `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB} i ${munName} 2026 — Pris og forskelle`;
+  const pageDesc = `Sammenlign ${singA} og ${singB} i ${munName}. ${statsA.count} ${labelA.toLowerCase()} vs. ${statsB.count} ${labelB.toLowerCase()}. Se priser, antal og forskelle.`;
+
+  return (
+    <>
+      <SEOHead
+        title={pageTitle}
+        description={pageDesc}
+        path={`/sammenlign/${comparison}/${munSlug}`}
+      />
+
+      <Breadcrumbs
+        items={[
+          { label: "Forside", href: "/" },
+          { label: munName, href: `/kommune/${encodeURIComponent(munName)}` },
+          { label: `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB}` },
+        ]}
+      />
+
+      {/* Header */}
+      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+          {singA.charAt(0).toUpperCase() + singA.slice(1)} vs {singB} i {munName}
+        </h1>
+        <p className="text-muted text-base max-w-2xl mx-auto">
+          En sammenligning af {singA} og {singB} i {munName} Kommune baseret
+          på pris, antal og ejerskab.
+        </p>
+      </section>
+
+      {/* Side-by-side comparison */}
+      <section className="max-w-4xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <ComparisonCard label={labelA} stats={statsA} cat={catA} munName={munName} munSlug={munSlug!} />
+          <ComparisonCard label={labelB} stats={statsB} cat={catB} munName={munName} munSlug={munSlug!} />
+        </div>
+      </section>
+
+      {/* Comparison table */}
+      <section className="max-w-3xl mx-auto px-4 py-6">
+        <h2 className="font-display text-xl font-bold text-foreground mb-4">
+          Sammenligning — {singA} vs {singB}
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b">
+                <th className="py-2 pr-4 text-left text-muted font-medium"></th>
+                <th className="py-2 px-4 text-center text-muted font-medium">{labelA}</th>
+                <th className="py-2 pl-4 text-center text-muted font-medium">{labelB}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <CompareRow label="Antal" a={String(statsA.count)} b={String(statsB.count)} />
+              <CompareRow
+                label="Gennemsnitspris"
+                a={statsA.avgPrice ? formatDKK(statsA.avgPrice) + "/md" : "–"}
+                b={statsB.avgPrice ? formatDKK(statsB.avgPrice) + "/md" : "–"}
+                highlightLower
+                aNum={statsA.avgPrice}
+                bNum={statsB.avgPrice}
+              />
+              <CompareRow
+                label="Billigste"
+                a={statsA.minPrice ? formatDKK(statsA.minPrice) + "/md" : "–"}
+                b={statsB.minPrice ? formatDKK(statsB.minPrice) + "/md" : "–"}
+                highlightLower
+                aNum={statsA.minPrice}
+                bNum={statsB.minPrice}
+              />
+              <CompareRow
+                label="Dyreste"
+                a={statsA.maxPrice ? formatDKK(statsA.maxPrice) + "/md" : "–"}
+                b={statsB.maxPrice ? formatDKK(statsB.maxPrice) + "/md" : "–"}
+              />
+              <CompareRow
+                label="Med prisoplysninger"
+                a={`${statsA.withPrice} af ${statsA.count}`}
+                b={`${statsB.withPrice} af ${statsB.count}`}
+              />
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Description */}
+      {descText && (
+        <section className="max-w-3xl mx-auto px-4 py-6">
+          <h2 className="font-display text-xl font-bold text-foreground mb-3">
+            Forskellen mellem {singA} og {singB}
+          </h2>
+          <p className="text-muted text-sm leading-relaxed">{descText}</p>
+        </section>
+      )}
+
+      {/* Price winner */}
+      {statsA.avgPrice && statsB.avgPrice && (
+        <section className="max-w-3xl mx-auto px-4 py-6">
+          <div className="card p-5 bg-green-50 border-green-200 text-center">
+            <p className="text-green-800 font-semibold">
+              {statsA.avgPrice < statsB.avgPrice ? (
+                <>
+                  {labelA} er i gennemsnit{" "}
+                  <strong>{formatDKK(statsB.avgPrice - statsA.avgPrice)}/md billigere</strong>{" "}
+                  end {labelB.toLowerCase()} i {munName}.
+                </>
+              ) : statsB.avgPrice < statsA.avgPrice ? (
+                <>
+                  {labelB} er i gennemsnit{" "}
+                  <strong>{formatDKK(statsA.avgPrice - statsB.avgPrice)}/md billigere</strong>{" "}
+                  end {labelA.toLowerCase()} i {munName}.
+                </>
+              ) : (
+                <>
+                  {labelA} og {labelB.toLowerCase()} koster i gennemsnit det samme i{" "}
+                  {munName}.
+                </>
+              )}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* Related links */}
+      <section className="max-w-4xl mx-auto px-4 py-8">
+        <h2 className="font-display text-lg font-bold text-foreground mb-3">
+          Se også
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to={`/${catA}/${toSlug(munName)}`}
+            className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
+          >
+            Alle {labelA.toLowerCase()} i {munName}
+          </Link>
+          <Link
+            to={`/${catB}/${toSlug(munName)}`}
+            className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
+          >
+            Alle {labelB.toLowerCase()} i {munName}
+          </Link>
+          <Link
+            to={`/kommune/${encodeURIComponent(munName)}`}
+            className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
+          >
+            Alle institutioner i {munName}
+          </Link>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function ComparisonCard({
+  label,
+  stats,
+  cat,
+  munName,
+  munSlug,
+}: {
+  label: string;
+  stats: CategoryStats;
+  cat: CategorySlug;
+  munName: string;
+  munSlug: string;
+}) {
+  return (
+    <div className="card p-5">
+      <h3 className="font-display text-lg font-bold text-foreground mb-3">
+        {label}
+      </h3>
+      <dl className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <dt className="text-muted">Antal</dt>
+          <dd className="font-mono font-semibold">{stats.count}</dd>
+        </div>
+        <div className="flex justify-between">
+          <dt className="text-muted">Gennemsnitspris</dt>
+          <dd className="font-mono font-semibold">
+            {stats.avgPrice ? formatDKK(stats.avgPrice) + "/md" : "–"}
+          </dd>
+        </div>
+        <div className="flex justify-between">
+          <dt className="text-muted">Billigste</dt>
+          <dd className="font-mono text-green-600">
+            {stats.minPrice ? formatDKK(stats.minPrice) + "/md" : "–"}
+          </dd>
+        </div>
+        {stats.cheapest && (
+          <div className="flex justify-between">
+            <dt className="text-muted text-xs">Billigste institution</dt>
+            <dd className="text-xs text-primary truncate max-w-[150px]">
+              {stats.cheapest.name}
+            </dd>
+          </div>
+        )}
+        <div className="flex justify-between">
+          <dt className="text-muted">Dyreste</dt>
+          <dd className="font-mono text-red-500">
+            {stats.maxPrice ? formatDKK(stats.maxPrice) + "/md" : "–"}
+          </dd>
+        </div>
+        {Object.keys(stats.ownerships).length > 0 && (
+          <div className="pt-2 border-t">
+            <dt className="text-muted mb-1">Ejerskab</dt>
+            <dd className="flex flex-wrap gap-1">
+              {Object.entries(stats.ownerships).map(([ow, count]) => (
+                <span
+                  key={ow}
+                  className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded capitalize"
+                >
+                  {ow}: {count}
+                </span>
+              ))}
+            </dd>
+          </div>
+        )}
+      </dl>
+      <Link
+        to={`/${cat}/${munSlug}`}
+        className="block mt-4 text-center text-sm text-primary hover:underline"
+      >
+        Se alle {label.toLowerCase()} i {munName}
+      </Link>
+    </div>
+  );
+}
+
+function CompareRow({
+  label,
+  a,
+  b,
+  highlightLower = false,
+  aNum,
+  bNum,
+}: {
+  label: string;
+  a: string;
+  b: string;
+  highlightLower?: boolean;
+  aNum?: number | null;
+  bNum?: number | null;
+}) {
+  let aClass = "";
+  let bClass = "";
+  if (highlightLower && aNum != null && bNum != null) {
+    if (aNum < bNum) {
+      aClass = "text-green-600 font-semibold";
+    } else if (bNum < aNum) {
+      bClass = "text-green-600 font-semibold";
+    }
+  }
+
+  return (
+    <tr className="border-b">
+      <td className="py-3 pr-4 text-muted">{label}</td>
+      <td className={`py-3 px-4 text-center font-mono ${aClass}`}>{a}</td>
+      <td className={`py-3 pl-4 text-center font-mono ${bClass}`}>{b}</td>
+    </tr>
+  );
+}

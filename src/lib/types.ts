@@ -90,4 +90,25 @@ export interface UnifiedInstitution {
 }
 
 export type InstitutionCategory = "alle" | "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
-export type SortKey = "name" | "price" | "municipality" | "rating" | "grades" | "absence";
+export type AgeGroup = "" | "0-2" | "3-5" | "6-9" | "10-16";
+export type SortKey = "name" | "price" | "municipality" | "rating" | "grades" | "absence" | "distance";
+
+// Reviews
+export interface Review {
+  id: string;
+  institutionId: string;
+  rating: number; // 1-5
+  title: string;
+  body: string;
+  authorName: string; // display name only
+  relationship: 'parent' | 'employee' | 'student' | 'other';
+  createdAt: string;
+  helpful: number;
+  verified: boolean;
+}
+
+export interface ReviewSummary {
+  averageRating: number;
+  totalReviews: number;
+  distribution: Record<1 | 2 | 3 | 4 | 5, number>;
+}

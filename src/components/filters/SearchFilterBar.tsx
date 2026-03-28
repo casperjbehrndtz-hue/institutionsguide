@@ -1,12 +1,21 @@
-import { Search, SlidersHorizontal, MapPin } from "lucide-react";
+import { useMemo } from "react";
+import { Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { InstitutionCategory, SortKey } from "@/lib/types";
+import type { InstitutionCategory, AgeGroup, SortKey } from "@/lib/types";
+
+/** Daycare categories where school-specific sort options don't apply */
+const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo"];
+
+/** School-only sort keys that should be hidden for daycare categories */
+const SCHOOL_ONLY_SORT_KEYS: SortKey[] = ["rating", "grades", "absence"];
 
 interface Props {
   search: string;
   onSearchChange: (value: string) => void;
   category: InstitutionCategory;
   onCategoryChange: (cat: InstitutionCategory) => void;
+  ageGroup: AgeGroup;
+  onAgeGroupChange: (age: AgeGroup) => void;
   municipality: string;
   onMunicipalityChange: (value: string) => void;
   qualityFilter: string;
@@ -17,6 +26,8 @@ interface Props {
   municipalities: string[];
   onNearMe?: () => void;
   nearMeLoading?: boolean;
+  onClearAll?: () => void;
+  hasActiveFilters?: boolean;
 }
 
 const POPULAR_MUNICIPALITIES = [
@@ -29,6 +40,8 @@ export default function SearchFilterBar({
   onSearchChange,
   category,
   onCategoryChange,
+  ageGroup,
+  onAgeGroupChange,
   municipality,
   onMunicipalityChange,
   qualityFilter,
@@ -39,8 +52,42 @@ export default function SearchFilterBar({
   municipalities,
   onNearMe,
   nearMeLoading,
+  onClearAll,
+  hasActiveFilters,
 }: Props) {
   const { t } = useLanguage();
+
+  const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
+    { value: "", label: t.ageFilter.allAges },
+    { value: "0-2", label: t.ageFilter.age0to2 },
+    { value: "3-5", label: t.ageFilter.age3to5 },
+    { value: "6-9", label: t.ageFilter.age6to9 },
+    { value: "10-16", label: t.ageFilter.age10to16 },
+  ];
+
+  function handleAgeGroupChange(age: AgeGroup) {
+    onAgeGroupChange(age);
+    // Auto-set category to match
+    if (age === "") {
+      onCategoryChange("alle");
+    } else if (age === "0-2") {
+      onCategoryChange("alle"); // shows vuggestue + dagpleje via ageGroup filter
+    } else if (age === "3-5") {
+      onCategoryChange("alle");
+    } else if (age === "6-9") {
+      onCategoryChange("alle");
+    } else if (age === "10-16") {
+      onCategoryChange("alle");
+    }
+  }
+
+  function handleCategoryChange(cat: InstitutionCategory) {
+    onCategoryChange(cat);
+    // Clear age group when manually selecting a category
+    if (ageGroup) {
+      onAgeGroupChange("");
+    }
+  }
 
   const CATEGORIES: { value: InstitutionCategory; label: string }[] = [
     { value: "alle", label: t.categories.alle },
@@ -51,7 +98,8 @@ export default function SearchFilterBar({
     { value: "sfo", label: t.categories.sfo },
   ];
 
-  const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  // Context-aware sort options: hide school-specific sorts for daycare categories
+  const ALL_SORT_OPTIONS: { value: SortKey; label: string }[] = [
     { value: "name", label: t.sort.name },
     { value: "price", label: t.sort.price },
     { value: "municipality", label: t.sort.municipality },
@@ -59,6 +107,15 @@ export default function SearchFilterBar({
     { value: "grades", label: t.sort.grades },
     { value: "absence", label: t.sort.absence },
   ];
+
+  const sortOptions = useMemo(() => {
+    const isDaycareOnly = DAYCARE_CATEGORIES.includes(category);
+    if (isDaycareOnly) {
+      return ALL_SORT_OPTIONS.filter((opt) => !SCHOOL_ONLY_SORT_KEYS.includes(opt.value));
+    }
+    return ALL_SORT_OPTIONS;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, t]);
 
   const otherMunicipalities = municipalities.filter(
     (m) => !POPULAR_MUNICIPALITIES.includes(m)
@@ -70,17 +127,17 @@ export default function SearchFilterBar({
         {/* Search */}
         <div className="relative">
           <label htmlFor="search-input" className="sr-only">
-            {t.common.search}
+            {t.common.searchPlaceholder}
           </label>
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
           <input
             id="search-input"
             type="text"
-            placeholder={t.common.search}
+            placeholder={t.common.searchPlaceholder}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-10 pr-24 py-3 rounded-xl border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
-            aria-label={t.common.search}
+            aria-label={t.common.searchPlaceholder}
           />
           {onNearMe && (
             <button
@@ -102,17 +159,36 @@ export default function SearchFilterBar({
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
-                onClick={() => onCategoryChange(cat.value)}
+                onClick={() => handleCategoryChange(cat.value)}
                 className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[44px] ${
-                  category === cat.value
+                  category === cat.value && !ageGroup
                     ? "bg-primary text-primary-foreground"
                     : "bg-border/40 text-muted hover:bg-border/70"
                 }`}
-                aria-pressed={category === cat.value}
+                aria-pressed={category === cat.value && !ageGroup}
               >
                 {cat.label}
               </button>
             ))}
+          </div>
+
+          {/* Age group dropdown */}
+          <div className="flex items-center gap-1.5">
+            <label htmlFor="age-group-select" className="sr-only">
+              {t.ageFilter.allAges}
+            </label>
+            <select
+              id="age-group-select"
+              value={ageGroup}
+              onChange={(e) => handleAgeGroupChange(e.target.value as AgeGroup)}
+              className={`px-3 py-1.5 rounded-xl border border-border bg-bg-card text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
+                ageGroup ? "text-primary font-medium border-primary" : "text-foreground"
+              }`}
+            >
+              {AGE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
           </div>
 
           {/* Municipality dropdown */}
@@ -172,11 +248,22 @@ export default function SearchFilterBar({
               onChange={(e) => onSortChange(e.target.value as SortKey)}
               className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              {SORT_OPTIONS.map((opt) => (
+              {sortOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>
+
+          {/* Clear all filters button - only shown when filters are active */}
+          {hasActiveFilters && onClearAll && (
+            <button
+              onClick={onClearAll}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition-colors min-h-[44px]"
+            >
+              <X className="w-3.5 h-3.5" />
+              {t.common.resetFilters}
+            </button>
+          )}
         </div>
 
         {/* Result count */}

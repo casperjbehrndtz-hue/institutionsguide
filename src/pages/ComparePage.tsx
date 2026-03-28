@@ -1,22 +1,23 @@
 import { useLocation, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCompare } from "@/contexts/CompareContext";
 import type { UnifiedInstitution } from "@/lib/types";
 import { ComparisonTable } from "@/components/compare/CompareBar";
-import { formatDKK as _formatDKK } from "@/lib/format";
-
-function formatDKK(val: number | null): string {
-  if (val === null) return "–";
-  return _formatDKK(val);
-}
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import SEOHead from "@/components/shared/SEOHead";
+import { formatDKK } from "@/lib/format";
 
 const COLORS = ["#0E7490", "#1B8F5F", "#F4B82C", "#D73C3C"];
 
 export default function ComparePage() {
   const location = useLocation();
-  const { t } = useLanguage();
-  const institutions: UnifiedInstitution[] = (location.state as { institutions?: UnifiedInstitution[] })?.institutions || [];
+  const { t, language } = useLanguage();
+  const { compareList } = useCompare();
+  // Backwards compat: prefer context, fall back to location.state
+  const locationInstitutions: UnifiedInstitution[] = (location.state as { institutions?: UnifiedInstitution[] })?.institutions || [];
+  const institutions = compareList.length >= 2 ? compareList : locationInstitutions;
 
   if (institutions.length < 2) {
     return (
@@ -57,6 +58,18 @@ export default function ComparePage() {
 
   return (
     <>
+      <SEOHead
+        title={t.compare.title}
+        description={`${t.compare.title} — ${institutions.map(i => i.name).join(", ")}`}
+        path="/sammenlign"
+        noIndex
+      />
+
+      <Breadcrumbs items={[
+        { label: language === "da" ? "Forside" : "Home", href: "/" },
+        { label: language === "da" ? "Sammenlign" : "Compare" },
+      ]} />
+
       {/* Header */}
       <section className="px-4 py-10 sm:py-14 bg-gradient-to-b from-primary/5 to-transparent">
         <div className="max-w-5xl mx-auto">
@@ -67,9 +80,18 @@ export default function ComparePage() {
             <ArrowLeft className="w-4 h-4" />
             {t.compare.backToSearch}
           </Link>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
-            {t.compare.title}
-          </h1>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+              {t.compare.title}
+            </h1>
+            <button
+              onClick={() => window.print()}
+              className="print:hidden inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
+            >
+              <Printer className="w-4 h-4" />
+              {t.compare.print}
+            </button>
+          </div>
           <p className="text-muted">
             {institutions.length} {t.common.institutions}
           </p>

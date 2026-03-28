@@ -19,14 +19,24 @@ export interface TranslationStrings {
     of: string;
     results: string;
     useFilters: string;
+    resetFilters: string;
+    showMore: string;
     nearMe: string;
     seeFullProfile: string;
     advisory: string;
     partOfFamily: string;
     noJsMessage: string;
+    noResults: string;
+    noResultsHint: string;
+    activeFilters: string;
+    clearAllFilters: string;
+    tryClearFilter: string;
+    searchPlaceholder: string;
   };
   nav: {
     skipToContent: string;
+    lightMode: string;
+    darkMode: string;
   };
   categories: {
     vuggestue: string;
@@ -51,12 +61,38 @@ export interface TranslationStrings {
     sfo: string;
   };
   home: {
+    heroTagline: string;
     heroTitle: string;
     heroSubtitle: string;
+    heroSearchPlaceholder: string;
+    heroCta: string;
+    heroSearchHint: string;
+    trustLine: string;
+    sectionTitle: string;
+    sectionSubtitle: string;
     municipalityOverview: string;
     moreTools: string;
     moreToolsSubtitle: string;
     faq: string;
+    listView: string;
+    mapView: string;
+    showFilters: string;
+    hideFilters: string;
+    howItWorks: string;
+    step1Title: string;
+    step1Desc: string;
+    step2Title: string;
+    step2Desc: string;
+    step3Title: string;
+    step3Desc: string;
+    allInstitutions: string;
+    locationPromptTitle: string;
+    locationPromptUseLocation: string;
+    locationPromptPostalPlaceholder: string;
+    locationPromptSubtitle: string;
+    summaryWithin: string;
+    summaryCheapest: string;
+    summaryInstitutions: string;
   };
   detail: {
     prices: string;
@@ -105,6 +141,7 @@ export interface TranslationStrings {
     rating: string;
     grades: string;
     absence: string;
+    distance: string;
   };
   municipality: {
     institutionsIn: string;
@@ -123,6 +160,22 @@ export interface TranslationStrings {
     category: string;
     address: string;
     type: string;
+    print: string;
+    barTitle: string;
+    clear: string;
+    show: string;
+    removeAriaLabel: string;
+    clearAriaLabel: string;
+    barAriaLabel: string;
+    municipality: string;
+    monthlyRate: string;
+    annualRate: string;
+    wellbeing: string;
+    gradeAvg: string;
+    absencePercent: string;
+    competenceCoverage: string;
+    studentCount: string;
+    classSize: string;
   };
   footer: {
     categories: string;
@@ -145,6 +198,7 @@ export interface TranslationStrings {
     goHome: string;
     somethingWrong: string;
     unexpectedError: string;
+    tryAgain: string;
     reload: string;
   };
   suiteProducts: {
@@ -163,5 +217,139 @@ export interface TranslationStrings {
     title: string;
     description: string;
   };
+  favorites: {
+    title: string;
+    clearAll: string;
+    emptyTitle: string;
+    emptyMessage: string;
+    backToHome: string;
+    addFavorite: string;
+    removeFavorite: string;
+    maxReached: string;
+  };
+  ageFilter: {
+    allAges: string;
+    age0to2: string;
+    age3to5: string;
+    age6to9: string;
+    age10to16: string;
+  };
+  share: {
+    share: string;
+    linkCopied: string;
+  };
+  reviews: {
+    title: string;
+    reviewCount: string;
+    writeReview: string;
+    yourRating: string;
+    reviewTitle: string;
+    titlePlaceholder: string;
+    reviewBody: string;
+    bodyPlaceholder: string;
+    relationship: string;
+    displayName: string;
+    namePlaceholder: string;
+    submit: string;
+    helpful: string;
+    sortBy: string;
+    sortNewest: string;
+    sortHighest: string;
+    sortLowest: string;
+    sortHelpful: string;
+    empty: string;
+    remaining: string;
+    comingSoon: string;
+    comingSoonMessage: string;
+    parentReviewsComingSoon: string;
+    parentReviewsComingSoonMessage: string;
+    getNotified: string;
+    errorRating: string;
+    errorTitle: string;
+    errorBody: string;
+    errorName: string;
+  };
+  emailCapture: {
+    headline: string;
+    subtitle: string;
+    placeholder: string;
+    subscribe: string;
+    success: string;
+  };
   popular: string;
+  map: {
+    scrollZoomGuard: string;
+    legendAriaLabel: string;
+    mapAriaLabel: string;
+    seeDetails: string;
+    legendVuggestue: string;
+    legendBoernehave: string;
+    legendDagpleje: string;
+    legendSkole: string;
+    legendSfo: string;
+    addToCompare: string;
+    saveFavorite: string;
+    removeFavorite: string;
+    kmAway: string;
+    showAll: string;
+    clickToFilter: string;
+    radiusShowWithin: string;
+    radiusKm: string;
+    radiusActivateLocation: string;
+    radiusClear: string;
+  };
+  privacy: {
+    englishBanner: string;
+  };
+  quiz: {
+    title: string;
+    subtitle: string;
+    step1Title: string;
+    step1Desc: string;
+    step2Title: string;
+    step2Desc: string;
+    step3Title: string;
+    step3Desc: string;
+    step4Title: string;
+    step4Desc: string;
+    step5Title: string;
+    step5Desc: string;
+    resultsTitle: string;
+    resultsSubtitle: string;
+    matchScore: string;
+    adjustFilters: string;
+    startOver: string;
+    next: string;
+    back: string;
+    seeAll: string;
+    noPreference: string;
+    ageRanges: {
+      baby: string;
+      toddler: string;
+      preschool: string;
+      youngSchool: string;
+      olderSchool: string;
+    };
+    priorities: {
+      lowPrice: string;
+      proximity: string;
+      quality: string;
+      smallGroups: string;
+      flexibleHours: string;
+    };
+    typeOptions: {
+      municipal: string;
+      private: string;
+      childminder: string;
+      noPreference: string;
+    };
+    budgetLabel: string;
+    perMonth: string;
+    ctaTitle: string;
+    ctaSubtitle: string;
+    ctaButton: string;
+    pickTwo: string;
+    selected: string;
+    topMatches: string;
+  };
 }

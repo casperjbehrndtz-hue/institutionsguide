@@ -5,14 +5,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import InstitutionMap from "@/components/map/InstitutionMap";
 import InstitutionDetail from "@/components/detail/InstitutionDetail";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
+import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
+import { breadcrumbSchema } from "@/lib/schema";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import type { UnifiedInstitution } from "@/lib/types";
 import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
-import { formatDKK as _formatDKK } from "@/lib/format";
-
-function formatDKK(val: number | null): string {
-  if (val === null) return "–";
-  return _formatDKK(val);
-}
+import { formatDKK } from "@/lib/format";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo"] as const;
 
@@ -100,6 +99,22 @@ export default function KommunePage() {
 
   return (
     <>
+      <SEOHead
+        title={`${decodedName} — Institutioner og børnepasning`}
+        description={`Se alle ${munInstitutions.length} institutioner i ${decodedName} kommune. Vuggestuer, børnehaver, dagplejere, skoler og SFO med priser og kontaktinfo.`}
+        path={`/kommune/${encodeURIComponent(decodedName)}`}
+      />
+      <JsonLd data={breadcrumbSchema([
+        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguide.dk/" },
+        { name: `${decodedName} Kommune`, url: `https://institutionsguide.dk/kommune/${encodeURIComponent(decodedName)}` },
+      ])} />
+
+      <Breadcrumbs items={[
+        { label: language === "da" ? "Forside" : "Home", href: "/" },
+        { label: language === "da" ? "Kommuner" : "Municipalities", href: "/" },
+        { label: decodedName },
+      ]} />
+
       {/* Header */}
       <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">

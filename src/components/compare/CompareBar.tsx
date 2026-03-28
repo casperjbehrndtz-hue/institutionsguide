@@ -1,38 +1,28 @@
 import { X, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { UnifiedInstitution } from "@/lib/types";
-import { formatDKK as _formatDKK } from "@/lib/format";
+import { useCompare } from "@/contexts/CompareContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatDKK } from "@/lib/format";
 
-interface Props {
-  selected: UnifiedInstitution[];
-  onRemove: (id: string) => void;
-  onClear: () => void;
+// Props kept for backwards compatibility — CompareBar now reads from CompareContext
+interface LegacyProps {
+  selected?: UnifiedInstitution[];
+  onRemove?: (id: string) => void;
+  onClear?: () => void;
 }
 
-function formatDKK(val: number | null): string {
-  if (val === null) return "–";
-  return _formatDKK(val);
-}
+export default function CompareBar(_props?: LegacyProps) {
+  const { compareList: selected, removeFromCompare: onRemove, clearCompare: onClear } = useCompare();
+  const { t } = useLanguage();
 
-function categoryLabel(cat: string): string {
-  const labels: Record<string, string> = {
-    vuggestue: "Vuggestue",
-    boernehave: "Børnehave",
-    dagpleje: "Dagpleje",
-    skole: "Skole",
-    sfo: "SFO",
-  };
-  return labels[cat] || cat;
-}
-
-export default function CompareBar({ selected, onRemove, onClear }: Props) {
   if (selected.length === 0) return null;
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 bg-bg-card border-t border-border p-4 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+    <div className="fixed bottom-0 inset-x-0 z-40 bg-bg-card border-t border-border p-4 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" role="region" aria-label={t.compare.barAriaLabel} aria-live="polite">
       <div className="max-w-7xl mx-auto flex items-center gap-3 flex-wrap">
         <span className="text-sm text-muted shrink-0">
-          Sammenlign ({selected.length}/4):
+          {t.compare.barTitle.replace("{count}", String(selected.length))}
         </span>
 
         <div className="flex flex-wrap gap-2 flex-1">
@@ -45,7 +35,7 @@ export default function CompareBar({ selected, onRemove, onClear }: Props) {
               <button
                 onClick={() => onRemove(inst.id)}
                 className="p-0.5 hover:bg-primary/20 rounded-full min-w-[28px] min-h-[28px] flex items-center justify-center"
-                aria-label={`Fjern ${inst.name} fra sammenligning`}
+                aria-label={t.compare.removeAriaLabel.replace("{name}", inst.name)}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -57,18 +47,18 @@ export default function CompareBar({ selected, onRemove, onClear }: Props) {
           <button
             onClick={onClear}
             className="px-3 py-2 text-sm border border-border rounded-lg text-muted hover:bg-border/30 transition-colors min-h-[44px]"
-            aria-label="Ryd sammenligning"
+            aria-label={t.compare.clearAriaLabel}
           >
-            Ryd
+            {t.compare.clear}
           </button>
           {selected.length >= 2 && (
             <Link
               to="/sammenlign"
               state={{ institutions: selected }}
               className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-light transition-colors flex items-center gap-2 min-h-[44px]"
-              aria-label="Vis sammenligning"
+              aria-label={t.compare.show}
             >
-              Vis sammenligning
+              {t.compare.show}
               <ArrowRight className="w-4 h-4" />
             </Link>
           )}
@@ -80,12 +70,19 @@ export default function CompareBar({ selected, onRemove, onClear }: Props) {
 
 // Comparison table for full page
 export function ComparisonTable({ institutions }: { institutions: UnifiedInstitution[] }) {
+  const { t } = useLanguage();
+
+  function categoryLabel(cat: string): string {
+    const key = cat as keyof typeof t.categories;
+    return t.categories[key] || cat;
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm" role="table">
         <thead>
           <tr className="border-b border-border">
-            <th className="text-left py-3 px-4 text-muted font-medium" scope="col">Egenskab</th>
+            <th className="text-left py-3 px-4 text-muted font-medium" scope="col">{t.compare.property}</th>
             {institutions.map((inst) => (
               <th key={inst.id} className="text-left py-3 px-4 font-semibold text-foreground min-w-[200px]" scope="col">
                 {inst.name}
@@ -95,53 +92,53 @@ export function ComparisonTable({ institutions }: { institutions: UnifiedInstitu
         </thead>
         <tbody>
           <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">Kategori</td>
+            <td className="py-2 px-4 text-muted">{t.compare.category}</td>
             {institutions.map((i) => <td key={i.id} className="py-2 px-4">{categoryLabel(i.category)}</td>)}
           </tr>
           <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">Kommune</td>
+            <td className="py-2 px-4 text-muted">{t.compare.municipality}</td>
             {institutions.map((i) => <td key={i.id} className="py-2 px-4">{i.municipality}</td>)}
           </tr>
           <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">Adresse</td>
+            <td className="py-2 px-4 text-muted">{t.compare.address}</td>
             {institutions.map((i) => <td key={i.id} className="py-2 px-4 text-xs">{i.address}, {i.postalCode} {i.city}</td>)}
           </tr>
           <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">Månedlig takst</td>
+            <td className="py-2 px-4 text-muted">{t.compare.monthlyRate}</td>
             {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono font-medium">{formatDKK(i.monthlyRate)}</td>)}
           </tr>
           <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">Årlig takst</td>
+            <td className="py-2 px-4 text-muted">{t.compare.annualRate}</td>
             {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{formatDKK(i.annualRate)}</td>)}
           </tr>
           <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">Type</td>
+            <td className="py-2 px-4 text-muted">{t.compare.type}</td>
             {institutions.map((i) => <td key={i.id} className="py-2 px-4">{i.subtype}</td>)}
           </tr>
           {institutions.some((i) => i.quality) && (
             <>
               <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">Trivsel</td>
+                <td className="py-2 px-4 text-muted">{t.compare.wellbeing}</td>
                 {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.ts?.toLocaleString("da-DK") || "–"}</td>)}
               </tr>
               <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">Karaktersnit</td>
+                <td className="py-2 px-4 text-muted">{t.compare.gradeAvg}</td>
                 {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.k?.toLocaleString("da-DK") || "–"}</td>)}
               </tr>
               <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">Fravær %</td>
+                <td className="py-2 px-4 text-muted">{t.compare.absencePercent}</td>
                 {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.fp?.toLocaleString("da-DK") || "–"}%</td>)}
               </tr>
               <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">Kompetencedækning</td>
+                <td className="py-2 px-4 text-muted">{t.compare.competenceCoverage}</td>
                 {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.kp?.toLocaleString("da-DK") || "–"}%</td>)}
               </tr>
               <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">Elevtal</td>
+                <td className="py-2 px-4 text-muted">{t.compare.studentCount}</td>
                 {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.el?.toLocaleString("da-DK") || "–"}</td>)}
               </tr>
               <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">Klassekvotient</td>
+                <td className="py-2 px-4 text-muted">{t.compare.classSize}</td>
                 {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.kv?.toLocaleString("da-DK") || "–"}</td>)}
               </tr>
             </>
