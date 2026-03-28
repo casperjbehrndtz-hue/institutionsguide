@@ -53,9 +53,9 @@ function createPriceIcon(color: string, price: number | null, highlighted: boole
   return L.divIcon({
     className: "custom-circle-marker price-marker",
     html: `${ring}<span style="background:${color};color:#fff;font-size:11px;font-weight:600;font-family:Inter,system-ui,sans-serif;padding:2px 7px;border-radius:10px;white-space:nowrap;display:inline-block;border:1.5px solid #fff;line-height:1.3;${scale}transition:transform 0.2s ease;">${label}</span>`,
-    iconSize: [0, 0],
-    iconAnchor: [0, 10],
-    popupAnchor: [0, -12],
+    iconSize: [60, 24],
+    iconAnchor: [30, 12],
+    popupAnchor: [0, -14],
   });
 }
 
@@ -86,8 +86,8 @@ export default function MarkerClusterGroup({
         return L.divIcon({
           html: `<span class="cluster-label">${count}</span>`,
           className: `marker-cluster-pill marker-cluster-pill-${size}`,
-          iconSize: L.point(0, 0),
-          iconAnchor: L.point(0, 16),
+          iconSize: L.point(40, 32),
+          iconAnchor: L.point(20, 16),
         });
       },
     });

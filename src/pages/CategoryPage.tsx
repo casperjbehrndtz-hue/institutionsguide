@@ -493,8 +493,8 @@ export default function CategoryPage({ category }: Props) {
               className={`card hover:scale-[1.01] transition-all block ${
                 hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
               }`}
-              onMouseEnter={() => setHoveredId(inst.id)}
-              onMouseLeave={() => setHoveredId(null)}
+              onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(inst.id); }}
+              onMouseLeave={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(null); }}
             >
               <div className="p-4">
                 {/* Row 1: Name + badge + price */}
