@@ -180,6 +180,7 @@ export const da: TranslationStrings = {
   },
   footer: {
     categories: "Kategorier",
+    tools: "Værktøjer",
     seeAlso: "Se også",
     legal: "Juridisk",
     privacy: "Privatlivspolitik",

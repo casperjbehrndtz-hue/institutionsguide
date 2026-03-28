@@ -1,11 +1,45 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFamily } from "@/contexts/FamilyContext";
 
-const suiteProducts = [
-  { name: "ParFinans", href: "https://parfinans.dk", descKey: "parfinans" as const },
-  { name: "NemtBudget", href: "https://nemtbudget.nu", descKey: "nemtbudget" as const },
-  { name: "Børneskat", href: "https://børneskat.dk", descKey: "boerneskat" as const },
-];
+interface SuiteProduct {
+  name: string;
+  href: string;
+  descKey: "parfinans" | "nemtbudget" | "boerneskat";
+}
+
+function useSuiteProducts(): SuiteProduct[] {
+  const { profile } = useFamily();
+
+  return useMemo(() => {
+    function withParams(base: string, params: Record<string, string | number | boolean | null | undefined>): string {
+      const url = new URL(base);
+      for (const [key, value] of Object.entries(params)) {
+        if (value != null && value !== "") {
+          url.searchParams.set(key, String(value));
+        }
+      }
+      return url.toString();
+    }
+
+    const familyParams = profile
+      ? {
+          income: profile.income,
+          children: profile.childCount,
+          single: profile.singleParent ? "true" : undefined,
+        }
+      : {};
+
+    const sharedParams = { ...familyParams, source: "institutionsguide" };
+
+    return [
+      { name: "ParFinans", href: withParams("https://parfinans.dk", sharedParams), descKey: "parfinans" as const },
+      { name: "NemtBudget", href: withParams("https://nemtbudget.nu", sharedParams), descKey: "nemtbudget" as const },
+      { name: "Børneskat", href: withParams("https://xn--brneskat-d6a.dk", sharedParams), descKey: "boerneskat" as const },
+    ];
+  }, [profile]);
+}
 
 const dataSources = [
   "Dagtilbudsregisteret (STIL)",
@@ -16,11 +50,12 @@ const dataSources = [
 
 export default function Footer() {
   const { t } = useLanguage();
+  const suiteProducts = useSuiteProducts();
 
   return (
     <footer className="border-t border-border/50 mt-auto bg-bg">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-2">
             <span className="font-display font-bold text-lg text-foreground">Institutionsguide</span>
@@ -38,6 +73,15 @@ export default function Footer() {
               <li><Link to="/dagpleje" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.dagpleje}</Link></li>
               <li><Link to="/skole" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.skole}</Link></li>
               <li><Link to="/sfo" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.sfo}</Link></li>
+            </ul>
+          </div>
+
+          {/* Værktøjer / Tools */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-foreground uppercase tracking-widest mb-3">{t.footer.tools}</h4>
+            <ul className="space-y-1.5">
+              <li><Link to="/friplads" className="text-xs text-muted hover:text-primary transition-colors">{t.friplads.title}</Link></li>
+              <li><Link to="/normering" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.normering}</Link></li>
               <li><Link to="/sammenlign" className="text-xs text-muted hover:text-primary transition-colors">{t.common.compare}</Link></li>
             </ul>
           </div>

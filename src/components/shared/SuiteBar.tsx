@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFamily } from "@/contexts/FamilyContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 function useTheme() {
@@ -24,16 +25,73 @@ function useTheme() {
   return { dark, toggle: () => setDark((d) => !d) };
 }
 
-const SUITE_LINKS = [
-  { label: "NemtBudget", href: "https://nemtbudget.nu" },
-  { label: "ParFinans", href: "https://parfinans.dk" },
-  { label: "Børneskat", href: "https://børneskat.dk" },
-  { label: "Institutionsguide", href: "/", current: true },
-];
+interface SuiteLink {
+  label: string;
+  href: string;
+  current?: boolean;
+}
+
+/**
+ * Build outbound suite links with cross-product URL params.
+ * - NemtBudget: append family profile so their budget tool can include childcare costs
+ * - ParFinans: append income/children for financial planning context
+ * - Børneskat: append family profile for savings calculations
+ */
+function useSuiteLinks(): SuiteLink[] {
+  const { profile } = useFamily();
+
+  return useMemo(() => {
+    /** Append params to a base URL, skipping null/undefined values. */
+    function withParams(base: string, params: Record<string, string | number | boolean | null | undefined>): string {
+      const url = new URL(base);
+      for (const [key, value] of Object.entries(params)) {
+        if (value != null && value !== "") {
+          url.searchParams.set(key, String(value));
+        }
+      }
+      return url.toString();
+    }
+
+    // Shared family params for outbound links
+    const familyParams = profile
+      ? {
+          income: profile.income,
+          children: profile.childCount,
+          single: profile.singleParent ? "true" : undefined,
+        }
+      : {};
+
+    return [
+      {
+        label: "NemtBudget",
+        href: withParams("https://nemtbudget.nu", {
+          ...familyParams,
+          source: "institutionsguide",
+        }),
+      },
+      {
+        label: "ParFinans",
+        href: withParams("https://parfinans.dk", {
+          ...familyParams,
+          source: "institutionsguide",
+        }),
+      },
+      {
+        label: "Børneskat",
+        href: withParams("https://xn--brneskat-d6a.dk", {
+          ...familyParams,
+          source: "institutionsguide",
+        }),
+      },
+      { label: "Institutionsguide", href: "/", current: true },
+    ];
+  }, [profile]);
+}
 
 export default function SuiteBar() {
   const { t } = useLanguage();
   const { dark, toggle: toggleTheme } = useTheme();
+  const suiteLinks = useSuiteLinks();
 
   return (
     <div data-suite-bar className="bg-primary/90 text-primary-foreground text-[10px]">
@@ -41,7 +99,7 @@ export default function SuiteBar() {
         <span className="text-primary-foreground/70 hidden sm:inline">
           {t.common.partOfFamily}
         </span>
-        {SUITE_LINKS.map((link, i) => (
+        {suiteLinks.map((link, i) => (
           <span key={link.label} className="inline-flex items-center gap-3">
             {i > 0 && <span className="text-primary-foreground/40">·</span>}
             {link.current ? (

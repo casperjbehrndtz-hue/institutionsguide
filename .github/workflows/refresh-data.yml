@@ -1,0 +1,83 @@
+# Weekly Data Refresh
+# Fetches latest normering data from BUVM API, rebuilds derived data files,
+# and commits any changes back to the repo so the next deploy picks them up.
+
+name: Weekly Data Refresh
+
+on:
+  schedule:
+    # Every Monday at 03:00 UTC
+    - cron: "0 3 * * 1"
+  workflow_dispatch: # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    env:
+      # Supabase credentials (used by app build if needed)
+      VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      # BUVM API key for fetching normering data
+      BUVM_API_KEY: ${{ secrets.BUVM_API_KEY }}
+
+    steps:
+      # --- Checkout ---
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- Node.js setup ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # --- Install dependencies ---
+      - name: Install dependencies
+        run: npm ci
+
+      # --- Fetch fresh normering data from BUVM API ---
+      # Requires BUVM_API_KEY secret. Writes to scripts/output/normering-kommune-all.json
+      # This step is non-critical: if the API is down we still rebuild from cached data.
+      - name: Fetch normering data from BUVM API
+        continue-on-error: true
+        run: node scripts/fetch-normering.mjs
+
+      # --- Transform raw normering JSON into compact app-ready format ---
+      # Reads scripts/output/normering-kommune-all.json → writes public/data/normering-data.json
+      - name: Build normering data
+        continue-on-error: true
+        run: node scripts/build-normering-data.mjs
+
+      # --- Compact institution data files (short keys, smaller payload) ---
+      - name: Compact data files
+        continue-on-error: true
+        run: node scripts/compact-data.mjs
+
+      # --- Full build (prebuild generates sitemap, then tsc + vite, then prerender) ---
+      - name: Build site
+        run: npm run build
+
+      # --- Commit and push any changed data files ---
+      - name: Commit updated data files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stage only data-related files that may have changed
+          git add -A public/data/ public/sitemap.xml scripts/output/ || true
+
+          # Check if there are staged changes
+          if git diff --cached --quiet; then
+            echo "No data changes detected — nothing to commit."
+          else
+            git commit -m "chore: refresh data (automated weekly)"
+            git push
+            echo "Data changes committed and pushed."
+          fi
+
+      # --- Optional: trigger Vercel redeploy via deploy hook ---
+      # Uncomment and add VERCEL_DEPLOY_HOOK secret when ready:
+      # - name: Trigger Vercel redeploy
+      #   if: success()
+      #   run: curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"

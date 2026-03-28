@@ -180,6 +180,7 @@ export interface TranslationStrings {
   };
   footer: {
     categories: string;
+    tools: string;
     seeAlso: string;
     legal: string;
     privacy: string;

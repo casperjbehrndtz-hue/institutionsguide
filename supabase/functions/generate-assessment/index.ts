@@ -6,10 +6,18 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = new Set([
+  "https://institutionsguide.vercel.app",
+  "https://institutionsguide.dk",
+]);
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  return {
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.has(origin) ? origin : "",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 interface InstitutionContext {
   institution_id: string;
@@ -36,11 +44,32 @@ interface InstitutionContext {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
+    // Auth check: require anon key as Bearer token
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ") || authHeader.slice(7) !== SUPABASE_ANON_KEY) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Content-Length check: reject requests > 50KB
+    const contentLength = parseInt(req.headers.get("Content-Length") ?? "0", 10);
+    if (contentLength > 50 * 1024) {
+      return new Response(JSON.stringify({ error: "Request too large" }), {
+        status: 413,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const ctx: InstitutionContext = await req.json();
 
     // 1. Check cache
@@ -61,21 +90,35 @@ Deno.serve(async (req) => {
     const systemPrompt = buildSystemPrompt(ctx);
     const userPrompt = buildUserPrompt(ctx);
 
-    // 3. Call Claude API
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1200,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-      }),
-    });
+    // 3. Call Claude API with 30s timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30_000);
+
+    let response: Response;
+    try {
+      response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1200,
+          system: systemPrompt,
+          messages: [{ role: "user", content: userPrompt }],
+        }),
+        signal: controller.signal,
+      });
+    } catch (fetchErr) {
+      if ((fetchErr as Error).name === "AbortError") {
+        throw new Error("Claude API timeout after 30s");
+      }
+      throw fetchErr;
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!response.ok) {
       const errText = await response.text();

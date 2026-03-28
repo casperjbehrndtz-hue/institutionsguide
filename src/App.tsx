@@ -23,6 +23,7 @@ const BestSchoolPage = lazy(() => import("@/pages/BestSchoolPage"));
 const VsPage = lazy(() => import("@/pages/VsPage"));
 const NormeringPage = lazy(() => import("@/pages/NormeringPage"));
 const NormeringKommunePage = lazy(() => import("@/pages/NormeringKommunePage"));
+const FripladsPage = lazy(() => import("@/pages/FripladsPage"));
 
 function Loading() {
   return (
@@ -58,6 +59,8 @@ export default function App() {
               {/* Normering pages */}
               <Route path="/normering" element={<NormeringPage />} />
               <Route path="/normering/:kommune" element={<NormeringKommunePage />} />
+              {/* Friplads calculator */}
+              <Route path="/friplads" element={<FripladsPage />} />
               {/* Programmatic SEO pages */}
               <Route path="/bedste-skole/:municipality" element={<BestSchoolPage />} />
               <Route path="/billigste-:category/:municipality" element={<CheapestPage />} />
