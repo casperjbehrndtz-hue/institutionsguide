@@ -12,14 +12,19 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import type { UnifiedInstitution } from "@/lib/types";
 import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
 import { formatDKK } from "@/lib/format";
+import NormeringChart from "@/components/charts/NormeringChart";
+import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
+import DagplejeVsVuggestue from "@/components/insights/DagplejeVsVuggestue";
+import { useFamily } from "@/contexts/FamilyContext";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo"] as const;
 
 export default function KommunePage() {
   const { name } = useParams<{ name: string }>();
   const decodedName = decodeURIComponent(name || "");
-  const { institutions, municipalities, loading, error } = useData();
+  const { institutions, municipalities, normering, loading, error } = useData();
   const { t, language } = useLanguage();
+  const { profile } = useFamily();
   const [selected, setSelected] = useState<UnifiedInstitution | null>(null);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
 
@@ -38,6 +43,21 @@ export default function KommunePage() {
 
   const munSummary = municipalities.find((m) => m.municipality === decodedName);
   const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === decodedName);
+
+  const munNormering = useMemo(
+    () => normering.filter((n) => n.municipality === decodedName),
+    [normering, decodedName]
+  );
+
+  // Avg prices for dagpleje vs vuggestue comparison
+  const dagplejeAvg = useMemo(() => {
+    const prices = munInstitutions.filter((i) => i.category === "dagpleje" && i.monthlyRate).map((i) => i.monthlyRate!);
+    return prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : null;
+  }, [munInstitutions]);
+  const vuggestueAvg = useMemo(() => {
+    const prices = munInstitutions.filter((i) => i.category === "vuggestue" && i.monthlyRate).map((i) => i.monthlyRate!);
+    return prices.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : null;
+  }, [munInstitutions]);
 
   const center = useMemo(() => {
     if (munInstitutions.length === 0) return null;
@@ -189,6 +209,28 @@ export default function KommunePage() {
         </div>
       </section>
 
+      {/* Normering chart */}
+      {munNormering.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 py-6">
+          <NormeringChart
+            municipality={decodedName}
+            data={munNormering}
+          />
+        </section>
+      )}
+
+      {/* Dagpleje vs Vuggestue comparison */}
+      {dagplejeAvg && vuggestueAvg && (
+        <section className="max-w-4xl mx-auto px-4 py-6">
+          <DagplejeVsVuggestue
+            municipality={decodedName}
+            dagplejeAvgPrice={dagplejeAvg}
+            vuggestueAvgPrice={vuggestueAvg}
+            profile={profile}
+          />
+        </section>
+      )}
+
       {/* Institution lists by category */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         {CATEGORIES.map((cat) => {
@@ -220,6 +262,11 @@ export default function KommunePage() {
             </div>
           );
         })}
+      </section>
+
+      {/* Price alert signup */}
+      <section className="max-w-4xl mx-auto px-4 py-6">
+        <PriceAlertSignup municipality={decodedName} compact />
       </section>
 
       {/* Nearby municipalities */}

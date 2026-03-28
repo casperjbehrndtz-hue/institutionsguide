@@ -44,27 +44,33 @@
 }
 
 /* Base styles */
-body {
-  margin: 0;
-  font-family: var(--font-body);
-  background-color: var(--color-bg);
-  color: var(--color-foreground);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.2s, color 0.2s;
+@layer base {
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s, color 0.2s;
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--color-foreground);
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-foreground);
+  }
 }
 
-/* Monospace numbers */
-.font-mono, [class*="tabular"] {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
+@layer base {
+  /* Monospace numbers */
+  .font-mono, [class*="tabular"] {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 /* Card — luxury shadows aligned with ParFinans */

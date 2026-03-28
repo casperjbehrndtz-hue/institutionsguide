@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { DataProvider } from "@/contexts/DataContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CompareProvider } from "@/contexts/CompareContext";
+import { FamilyProvider } from "@/contexts/FamilyContext";
 import Layout from "@/components/shared/Layout";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
@@ -20,6 +21,8 @@ const CategoryMunicipalityPage = lazy(() => import("@/pages/CategoryMunicipality
 const CheapestPage = lazy(() => import("@/pages/CheapestPage"));
 const BestSchoolPage = lazy(() => import("@/pages/BestSchoolPage"));
 const VsPage = lazy(() => import("@/pages/VsPage"));
+const NormeringPage = lazy(() => import("@/pages/NormeringPage"));
+const NormeringKommunePage = lazy(() => import("@/pages/NormeringKommunePage"));
 
 function Loading() {
   return (
@@ -34,6 +37,7 @@ export default function App() {
     <ErrorBoundary>
       <LanguageProvider>
       <CompareProvider>
+      <FamilyProvider>
       <DataProvider>
         <ScrollToTop />
         <Layout>
@@ -51,6 +55,9 @@ export default function App() {
               <Route path="/privatliv" element={<PrivacyPage />} />
               <Route path="/vilkaar" element={<TermsPage />} />
               <Route path="/favoritter" element={<FavoritesPage />} />
+              {/* Normering pages */}
+              <Route path="/normering" element={<NormeringPage />} />
+              <Route path="/normering/:kommune" element={<NormeringKommunePage />} />
               {/* Programmatic SEO pages */}
               <Route path="/bedste-skole/:municipality" element={<BestSchoolPage />} />
               <Route path="/billigste-:category/:municipality" element={<CheapestPage />} />
@@ -61,6 +68,7 @@ export default function App() {
           </Suspense>
         </Layout>
       </DataProvider>
+      </FamilyProvider>
       </CompareProvider>
       </LanguageProvider>
     </ErrorBoundary>

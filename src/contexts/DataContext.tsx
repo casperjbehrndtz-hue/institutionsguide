@@ -3,6 +3,7 @@ import type {
   UnifiedInstitution,
   CompactSchool,
   MunicipalitySummary,
+  NormeringEntry,
 } from "@/lib/types";
 import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
 
@@ -33,9 +34,18 @@ interface CompactDagtilbudData {
   i: CompactDagtilbud[];
 }
 
+/** Compact normering record from normering-data.json */
+interface CompactNormering {
+  m: string;  // municipality
+  ag: string; // ageGroup
+  y: number;  // year
+  r: number;  // ratio
+}
+
 interface DataContextValue {
   institutions: UnifiedInstitution[];
   municipalities: MunicipalitySummary[];
+  normering: NormeringEntry[];
   loading: boolean;
   error: string | null;
   nationalAverages: { trivsel: number; karakterer: number; fravaer: number };
@@ -107,6 +117,7 @@ function compactDagtilbudToUnified(d: CompactDagtilbud, prefix: string): Unified
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const [institutions, setInstitutions] = useState<UnifiedInstitution[]>([]);
+  const [normering, setNormering] = useState<NormeringEntry[]>([]);
   const [nationalAverages, setNationalAverages] = useState({ trivsel: 3.6, karakterer: 7.4, fravaer: 7.4 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -114,12 +125,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function loadData() {
       try {
-        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes] = await Promise.all([
+        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes, normeringRes] = await Promise.all([
           fetch("/data/skole-data.json"),
           fetch("/data/vuggestue-data.json"),
           fetch("/data/boernehave-data.json"),
           fetch("/data/dagpleje-data.json"),
           fetch("/data/sfo-data.json"),
+          fetch("/data/normering-data.json").catch(() => null),
         ]);
 
         if (!skoleRes.ok || !vuggestueRes.ok || !boernehaveRes.ok || !dagplejeRes.ok) {
@@ -185,6 +197,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         }
 
+        // Load normering data
+        if (normeringRes && normeringRes.ok) {
+          const normeringRaw: CompactNormering[] = await normeringRes.json();
+          setNormering(normeringRaw.map((n) => ({
+            municipality: n.m,
+            ageGroup: n.ag,
+            year: n.y,
+            ratio: n.r,
+          })));
+        }
+
         setInstitutions(unified);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Ukendt fejl ved indlæsning af data.");
@@ -241,6 +264,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const value: DataContextValue = {
     institutions,
     municipalities,
+    normering,
     loading,
     error,
     nationalAverages,

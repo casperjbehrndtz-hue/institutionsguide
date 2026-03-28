@@ -4,6 +4,9 @@ import { MapPin, Mail, Phone, ExternalLink, Star, ArrowLeft, ChevronRight, Heart
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
+import NormeringBadge from "@/components/charts/NormeringBadge";
+import PriceHistoryChart from "@/components/charts/PriceHistoryChart";
+import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
 import InstitutionMap from "@/components/map/InstitutionMap";
 import StaticMapThumb from "@/components/shared/StaticMapThumb";
@@ -18,7 +21,13 @@ import { generateFlags, generatePercentileProfile, generateNearbyComparison } fr
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/contexts/CompareContext";
 import CompareBar from "@/components/compare/CompareBar";
-import ReviewSummaryComponent from "@/components/reviews/ReviewSummary";
+import ReviewSummaryV2 from "@/components/reviews/ReviewSummaryV2";
+import ReviewListV2 from "@/components/reviews/ReviewListV2";
+import ReviewFormV2 from "@/components/reviews/ReviewFormV2";
+import TilsynSection from "@/components/tilsyn/TilsynSection";
+import InstitutionReport from "@/components/report/InstitutionReport";
+import { computeScore } from "@/lib/institutionScore";
+import { useAssessment } from "@/hooks/useAssessment";
 
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
@@ -42,7 +51,7 @@ function QualityDot({ value, max = 5 }: { value: number | undefined; max?: numbe
 
 export default function InstitutionPage() {
   const { id } = useParams<{ id: string }>();
-  const { institutions, loading, nationalAverages } = useData();
+  const { institutions, normering, loading, nationalAverages } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
@@ -82,6 +91,33 @@ export default function InstitutionPage() {
       .sort((a, b) => a.dist - b.dist)
       .slice(0, 6);
   }, [institutions, inst]);
+
+  const municipalityAvgPrice = useMemo(() => {
+    if (!inst) return null;
+    const sameCategory = institutions.filter((i) => i.municipality === inst.municipality && i.category === inst.category && i.id !== inst.id);
+    const prices = sameCategory.map((i) => i.monthlyRate).filter((p): p is number => p != null && p > 0);
+    return prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : null;
+  }, [inst, institutions]);
+
+  const scoreResult = useMemo(() => {
+    if (!inst) return null;
+    return computeScore(inst, nearby, normering, municipalityAvgPrice);
+  }, [inst, nearby, normering, municipalityAvgPrice]);
+
+  const { assessment: aiAssessment, state: aiState } = useAssessment(
+    inst, scoreResult, nearby, normering, municipalityAvgPrice,
+  );
+
+  const nearbyScores = useMemo(() => {
+    if (!inst) return [];
+    return nearby.slice(0, 3).map((n) => {
+      const sameCategory = institutions.filter((i) => i.municipality === n.municipality && i.category === n.category && i.id !== n.id);
+      const prices = sameCategory.map((i) => i.monthlyRate).filter((p): p is number => p != null && p > 0);
+      const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : null;
+      const s = computeScore(n, [], normering, avgPrice);
+      return { id: n.id, overall: s.overall };
+    });
+  }, [inst, nearby, institutions, normering]);
 
   if (loading) {
     return (
@@ -361,6 +397,33 @@ export default function InstitutionPage() {
           {inst.annualRate && inst.annualRate > 0 && (
             <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
           )}
+
+          {/* Normering badge (dagtilbud only) */}
+          {inst.category !== "skole" && (() => {
+            const ageGroupMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
+            const ag = ageGroupMap[inst.category];
+            const latest = normering
+              .filter((n) => n.municipality === inst.municipality && n.ageGroup === ag)
+              .sort((a, b) => b.year - a.year);
+            if (latest.length === 0) return null;
+            const current = latest[0];
+            const prev = latest.length > 1 ? latest[1] : undefined;
+            return (
+              <NormeringBadge
+                municipality={inst.municipality}
+                ageGroup={current.ageGroup}
+                ratio={current.ratio}
+                year={current.year}
+                previousRatio={prev?.ratio}
+              />
+            );
+          })()}
+
+          {/* Price history chart */}
+          <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
+
+          {/* Price alert */}
+          <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
         </div>
 
         {/* Right column: map + contact + nearby */}
@@ -425,13 +488,36 @@ export default function InstitutionPage() {
         </div>
       </section>
 
-      {/* Reviews section — coming soon */}
+      {/* Områdevurdering */}
+      {scoreResult && (
+        <section className="max-w-5xl mx-auto px-4 pb-8">
+          <InstitutionReport
+            score={scoreResult}
+            institutionName={inst.name}
+            category={inst.category}
+            municipality={inst.municipality}
+            language={language}
+            nearby={nearby}
+            nearbyScores={nearbyScores}
+            aiAssessment={aiAssessment}
+            aiLoading={aiState === "loading"}
+          />
+        </section>
+      )}
+
+      {/* Tilsyn section */}
+      <section className="max-w-5xl mx-auto px-4 pb-8">
+        <div className="lg:max-w-[calc(66.666%-0.75rem)]">
+          <TilsynSection institutionId={inst.id} institutionName={inst.name} />
+        </div>
+      </section>
+
+      {/* Reviews section */}
       <section className="max-w-5xl mx-auto px-4 pb-12">
         <div className="lg:max-w-[calc(66.666%-0.75rem)] space-y-6">
-          <ReviewSummaryComponent
-            summary={{ averageRating: 0, totalReviews: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } }}
-            onWriteReview={() => {}}
-          />
+          <ReviewSummaryV2 institutionId={inst.id} />
+          <ReviewListV2 institutionId={inst.id} />
+          <ReviewFormV2 institutionId={inst.id} />
         </div>
       </section>
 

@@ -1,0 +1,31 @@
+name: Monthly Price Snapshot
+
+on:
+  schedule:
+    - cron: "0 6 1 * *" # 1st of every month at 06:00 UTC
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run price snapshot seed
+        run: node seed-price-history.mjs
+
+      - name: Upload SQL artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: price-snapshot-${{ github.run_id }}
+          path: "*.sql"
+          retention-days: 90

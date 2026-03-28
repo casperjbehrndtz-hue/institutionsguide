@@ -45,6 +45,7 @@ export interface TranslationStrings {
     skole: string;
     sfo: string;
     alle: string;
+    normering: string;
   };
   categoryDescriptions: {
     vuggestue: string;
@@ -300,56 +301,5 @@ export interface TranslationStrings {
   };
   privacy: {
     englishBanner: string;
-  };
-  quiz: {
-    title: string;
-    subtitle: string;
-    step1Title: string;
-    step1Desc: string;
-    step2Title: string;
-    step2Desc: string;
-    step3Title: string;
-    step3Desc: string;
-    step4Title: string;
-    step4Desc: string;
-    step5Title: string;
-    step5Desc: string;
-    resultsTitle: string;
-    resultsSubtitle: string;
-    matchScore: string;
-    adjustFilters: string;
-    startOver: string;
-    next: string;
-    back: string;
-    seeAll: string;
-    noPreference: string;
-    ageRanges: {
-      baby: string;
-      toddler: string;
-      preschool: string;
-      youngSchool: string;
-      olderSchool: string;
-    };
-    priorities: {
-      lowPrice: string;
-      proximity: string;
-      quality: string;
-      smallGroups: string;
-      flexibleHours: string;
-    };
-    typeOptions: {
-      municipal: string;
-      private: string;
-      childminder: string;
-      noPreference: string;
-    };
-    budgetLabel: string;
-    perMonth: string;
-    ctaTitle: string;
-    ctaSubtitle: string;
-    ctaButton: string;
-    pickTwo: string;
-    selected: string;
-    topMatches: string;
   };
 }

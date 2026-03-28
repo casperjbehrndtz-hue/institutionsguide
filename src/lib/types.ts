@@ -89,6 +89,14 @@ export interface UnifiedInstitution {
   quality?: SchoolQuality;
 }
 
+// Normering (children-per-staff ratio) — from BUVM API
+export interface NormeringEntry {
+  municipality: string;
+  ageGroup: string; // "dagpleje" | "0-2" | "3-5"
+  year: number;
+  ratio: number;
+}
+
 export type InstitutionCategory = "alle" | "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
 export type AgeGroup = "" | "0-2" | "3-5" | "6-9" | "10-16";
 export type SortKey = "name" | "price" | "municipality" | "rating" | "grades" | "absence" | "distance";

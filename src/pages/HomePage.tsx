@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Heart, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, CheckCircle, BarChart3, Star, X } from "lucide-react";
+import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Heart, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, CheckCircle, BarChart3, Star, X, ShieldCheck } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
@@ -107,7 +107,13 @@ const FAQ_ITEMS_EN = [
   },
 ];
 
+const HERO_VIDEOS = [
+  "/hero-1.mp4",
+  "/hero-2.mp4",
+];
+
 export default function HomePage() {
+  const [heroVideo] = useState(() => HERO_VIDEOS[Math.floor(Math.random() * HERO_VIDEOS.length)]);
   const { institutions, municipalities, loading, error } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -125,6 +131,14 @@ export default function HomePage() {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearMeLoading, setNearMeLoading] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Force video play — some browsers block autoPlay even with muted
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.play().catch(() => {});
+  }, []);
   const mobileView = view === "kort" ? "map" : "list";
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -217,11 +231,11 @@ export default function HomePage() {
   }
 
   const CATEGORY_CARDS = [
-    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, color: "text-success", href: "/vuggestue", desc: t.ageGroups.vuggestue },
-    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, color: "text-primary", href: "/boernehave", desc: t.ageGroups.boernehave },
-    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, color: "text-warning", href: "/dagpleje", desc: t.ageGroups.dagpleje },
-    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, color: "text-blue-500", href: "/skole", desc: t.ageGroups.skole },
-    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, color: "text-purple-500", href: "/sfo", desc: t.ageGroups.sfo },
+    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100", href: "/vuggestue", desc: t.ageGroups.vuggestue },
+    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100", href: "/boernehave", desc: t.ageGroups.boernehave },
+    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100", href: "/dagpleje", desc: t.ageGroups.dagpleje },
+    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100", href: "/skole", desc: t.ageGroups.skole },
+    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100", href: "/sfo", desc: t.ageGroups.sfo },
   ];
 
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
@@ -239,14 +253,13 @@ export default function HomePage() {
     return { count, cheapest };
   }, [hasActiveFilter, radiusFiltered]);
 
-  // Postal code input state for location prompt
-  const [postalInput, setPostalInput] = useState("");
-  const handlePostalSubmit = useCallback(() => {
-    if (postalInput.trim()) {
-      setSearch(postalInput.trim());
-      setPostalInput("");
-    }
-  }, [postalInput, setSearch]);
+  // Municipality search for explore section
+  const [municipalitySearch, setMunicipalitySearch] = useState("");
+  const filteredMunicipalities = useMemo(() => {
+    if (!municipalitySearch.trim()) return municipalities.slice(0, 12);
+    const q = municipalitySearch.toLowerCase();
+    return municipalities.filter((m) => m.municipality.toLowerCase().includes(q));
+  }, [municipalities, municipalitySearch]);
 
   if (loading) {
     return (
@@ -289,18 +302,35 @@ export default function HomePage() {
       <JsonLd data={websiteSchema("https://institutionsguide.dk")} />
       <JsonLd data={faqSchema(FAQ_ITEMS)} />
 
-      {/* Hero — search is THE element */}
+      {/* Hero — video + search */}
       <section className="relative overflow-hidden bg-primary">
-        <div className="relative max-w-2xl mx-auto px-4 pt-10 pb-10 sm:pt-14 sm:pb-12 text-center">
+        {/* Background video */}
+        <div className="absolute inset-0 z-0">
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          >
+            <source src={heroVideo} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-primary/50" />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-14 pb-10 sm:pt-20 sm:pb-14 text-center">
           <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-2">
             {t.home.heroTitle}
           </h1>
-          <p className="text-white/70 text-sm sm:text-base max-w-lg mx-auto mb-6">
+          <p className="text-white/80 text-sm sm:text-base max-w-lg mx-auto mb-6">
             {institutions.length.toLocaleString("da-DK")}+ {language === "da" ? "institutioner i alle 98 kommuner" : "institutions across all 98 municipalities"}
           </p>
 
-          {/* THE search bar — unmissable */}
-          <div className="max-w-lg mx-auto mb-3">
+          {/* Search bar */}
+          <div className="max-w-lg mx-auto mb-4">
             <div className="relative">
               <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
               <input
@@ -314,27 +344,28 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* Near me */}
           <button
             onClick={handleNearMe}
             disabled={nearMeLoading}
-            className="inline-flex items-center gap-2 text-sm text-primary-foreground/80 font-medium hover:text-primary-foreground transition-colors disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white font-medium text-sm hover:bg-white/30 transition-all disabled:opacity-60"
           >
             {nearMeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
             {t.home.heroCta}
           </button>
 
-          <p className="text-[11px] text-primary-foreground/40 mt-6">
-            {language === "da" ? "Data fra Undervisningsministeriet · Altid gratis" : "Data from the Danish Ministry of Education · Always free"}
-          </p>
+          {/* Trust signal */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <ShieldCheck className="w-4 h-4 text-white/70" />
+            <p className="text-xs sm:text-sm text-white/70 font-medium">
+              {language === "da" ? "Officielle data fra Undervisningsministeriet · Altid gratis" : "Official data from the Danish Ministry of Education · Always free"}
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Category cards — warmer, with clear "get started" framing */}
-      <section className="max-w-4xl mx-auto px-4 pb-8">
-        <div className="text-center mb-6">
-          <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground">{t.home.sectionTitle}</h2>
-          <p className="text-sm text-muted mt-1">{t.home.sectionSubtitle}</p>
-        </div>
+      {/* Category cards — solid white, below hero */}
+      <section className="max-w-4xl mx-auto px-4 -mt-6 relative z-20 mb-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {CATEGORY_CARDS.map((card) => {
             const count = institutions.filter((i) => i.category === card.category).length;
@@ -342,14 +373,16 @@ export default function HomePage() {
               <Link
                 key={card.category}
                 to={card.href}
-                className="group card p-4 text-center hover:border-primary/30 transition-all min-h-[44px]"
+                className="group rounded-xl bg-white border border-border/50 shadow-sm p-4 text-center hover:shadow-md hover:border-primary/20 transition-all min-h-[44px]"
                 aria-label={`${t.common.show} ${card.label}`}
               >
-                <card.icon className={`w-7 h-7 mx-auto mb-2 ${card.color} group-hover:scale-110 transition-transform`} />
+                <div className={`w-12 h-12 mx-auto mb-2 rounded-xl flex items-center justify-center ${card.bgColor}`}>
+                  <card.icon className={`w-6 h-6 ${card.iconColor}`} />
+                </div>
                 <p className="font-semibold text-foreground text-sm">{card.label}</p>
                 <p className="text-[11px] text-muted">{card.desc}</p>
-                <p className="font-mono text-xs text-primary mt-1.5 flex items-center justify-center gap-1">
-                  {count.toLocaleString("da-DK")} <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <p className="font-mono text-xs text-muted mt-1.5 flex items-center justify-center gap-1">
+                  {count.toLocaleString("da-DK")} <ArrowRight className="w-3 h-3 text-primary group-hover:translate-x-0.5 transition-transform" />
                 </p>
               </Link>
             );
@@ -357,42 +390,7 @@ export default function HomePage() {
         </div>
       </section>
 
-
-
-      {/* Location prompt — shown when no filter is active */}
-      {!hasActiveFilter && (
-        <section className="max-w-lg mx-auto px-4 py-10">
-          <div className="card p-6 sm:p-8 text-center space-y-5">
-            <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground">
-              {t.home.locationPromptTitle}
-            </h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button
-                onClick={handleNearMe}
-                disabled={nearMeLoading}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary-light transition-colors disabled:opacity-60 min-h-[44px]"
-              >
-                {nearMeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
-                {t.home.locationPromptUseLocation}
-              </button>
-              <span className="text-muted text-sm hidden sm:inline">{language === "da" ? "eller" : "or"}</span>
-              <div className="relative w-full sm:w-auto">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={postalInput}
-                  onChange={(e) => setPostalInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handlePostalSubmit(); }}
-                  placeholder={t.home.locationPromptPostalPlaceholder}
-                  className="w-full sm:w-48 py-3 px-4 rounded-xl border border-border bg-bg-card text-foreground text-sm placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/40 min-h-[44px]"
-                />
-              </div>
-            </div>
-            <p className="text-sm text-muted">{t.home.locationPromptSubtitle}</p>
-          </div>
-        </section>
-      )}
+      {/* Location prompt removed — hero search + near-me button covers this */}
 
       {/* Filter bar — only when user has actively filtered */}
       {hasActiveFilter && <div className="sticky top-14 z-30 bg-bg-card border-b border-border">
@@ -648,30 +646,44 @@ export default function HomePage() {
 
       </>}
 
-      {/* Popular municipalities — visual cards, not a boring table */}
+      {/* Popular municipalities */}
       <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-12">
         <h2 className="font-display text-2xl font-bold text-foreground mb-2 text-center">
           {language === "da" ? "Udforsk din kommune" : "Explore your municipality"}
         </h2>
-        <p className="text-sm text-muted text-center mb-8">
+        <p className="text-sm text-muted text-center mb-6">
           {language === "da" ? "Se priser og institutioner i de største kommuner" : "See prices and institutions in the largest municipalities"}
         </p>
+        {/* Municipality search */}
+        <div className="max-w-sm mx-auto mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
+            <input
+              type="text"
+              value={municipalitySearch}
+              onChange={(e) => setMunicipalitySearch(e.target.value)}
+              placeholder={language === "da" ? "Søg kommune..." : "Search municipality..."}
+              className="w-full py-2.5 pl-10 pr-4 text-sm rounded-lg border border-border bg-bg-card text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {municipalities.slice(0, 12).map((m) => {
+          {filteredMunicipalities.map((m) => {
             const total = m.vuggestueCount + m.boernehaveCount + m.dagplejeCount + m.folkeskoleCount + m.friskoleCount + m.sfoCount;
             const cheapest = Math.min(
               ...[m.rates.dagpleje, m.rates.vuggestue, m.rates.boernehave, m.rates.sfo].filter((r): r is number => r !== null)
             );
+            const priceColor = cheapest <= 2000 ? "text-success" : cheapest <= 3500 ? "text-warning" : "text-destructive";
             return (
               <Link
                 key={m.municipality}
                 to={`/kommune/${encodeURIComponent(m.municipality)}`}
-                className="group card p-4 hover:border-primary/30 transition-all"
+                className="group card p-4 hover:border-primary/30 hover:shadow-sm transition-all"
               >
                 <p className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{m.municipality}</p>
                 <p className="text-xs text-muted mt-1">{total} {total === 1 ? (language === "da" ? "institution" : "institution") : t.common.institutions}</p>
                 {cheapest !== Infinity && (
-                  <p className="font-mono text-xs text-primary mt-2">
+                  <p className={`font-mono text-sm font-medium mt-2 ${priceColor}`}>
                     {language === "da" ? "fra" : "from"} {formatDKK(cheapest)}{t.common.perMonth}
                   </p>
                 )}
@@ -679,13 +691,20 @@ export default function HomePage() {
             );
           })}
         </div>
-        <div className="text-center mt-6">
-          <p className="text-sm text-muted">
-            {language === "da"
-              ? `+ ${municipalities.length - 12} andre kommuner — søg ovenfor for at finde din`
-              : `+ ${municipalities.length - 12} other municipalities — search above to find yours`}
+        {filteredMunicipalities.length === 0 && (
+          <p className="text-center text-sm text-muted py-6">
+            {language === "da" ? "Ingen kommuner matcher din søgning" : "No municipalities match your search"}
           </p>
-        </div>
+        )}
+        {!municipalitySearch && municipalities.length > 12 && (
+          <div className="text-center mt-6">
+            <p className="text-sm text-muted">
+              {language === "da"
+                ? `+ ${municipalities.length - 12} andre kommuner — søg ovenfor for at finde din`
+                : `+ ${municipalities.length - 12} other municipalities — search above to find yours`}
+            </p>
+          </div>
+        )}
       </section></ScrollReveal>
 
       {/* FAQ */}

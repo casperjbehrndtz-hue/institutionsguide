@@ -1,0 +1,390 @@
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useData } from "@/contexts/DataContext";
+import SEOHead from "@/components/shared/SEOHead";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import JsonLd from "@/components/shared/JsonLd";
+import { toSlug } from "@/lib/slugs";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
+type SortKey = "municipality" | "dagpleje" | "0-2" | "3-5";
+type SortDir = "asc" | "desc";
+
+interface NormeringEntry {
+  municipality: string;
+  ageGroup: string;
+  year: number;
+  ratio: number;
+}
+
+interface KommuneRow {
+  municipality: string;
+  dagpleje: number | null;
+  "0-2": number | null;
+  "3-5": number | null;
+}
+
+const AGE_GROUPS = ["dagpleje", "0-2", "3-5"] as const;
+const AGE_GROUP_LABELS: Record<string, string> = {
+  dagpleje: "Dagpleje",
+  "0-2": "0-2 år",
+  "3-5": "3-5 år",
+};
+const AGE_GROUP_COLORS: Record<string, string> = {
+  dagpleje: "#f59e0b",
+  "0-2": "#22c55e",
+  "3-5": "#3b82f6",
+};
+
+function ratioColor(value: number | null, ageGroup: string): string {
+  if (value === null) return "";
+  if (ageGroup === "0-2") {
+    if (value < 3) return "text-green-600 dark:text-green-400";
+    if (value < 3.5) return "text-amber-600 dark:text-amber-400";
+    return "text-red-600 dark:text-red-400";
+  }
+  if (ageGroup === "dagpleje") {
+    if (value < 3.5) return "text-green-600 dark:text-green-400";
+    if (value < 4) return "text-amber-600 dark:text-amber-400";
+    return "text-red-600 dark:text-red-400";
+  }
+  // 3-5
+  if (value < 6) return "text-green-600 dark:text-green-400";
+  if (value < 6.5) return "text-amber-600 dark:text-amber-400";
+  return "text-red-600 dark:text-red-400";
+}
+
+function formatRatio(v: number | null): string {
+  if (v === null) return "—";
+  return v.toFixed(1).replace(".", ",");
+}
+
+export default function NormeringPage() {
+  const { normering, loading } = useData() as ReturnType<typeof useData> & {
+    normering: NormeringEntry[];
+  };
+  const [sortKey, setSortKey] = useState<SortKey>("0-2");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const normeringData: NormeringEntry[] = normering ?? [];
+
+  const latestYear = useMemo(() => {
+    if (normeringData.length === 0) return 2023;
+    return Math.max(...normeringData.map((d) => d.year));
+  }, [normeringData]);
+
+  // National averages per age group (latest year)
+  const nationalAvg = useMemo(() => {
+    const avgs: Record<string, { sum: number; count: number }> = {};
+    for (const d of normeringData) {
+      if (d.year !== latestYear) continue;
+      if (!avgs[d.ageGroup]) avgs[d.ageGroup] = { sum: 0, count: 0 };
+      avgs[d.ageGroup].sum += d.ratio;
+      avgs[d.ageGroup].count++;
+    }
+    const result: Record<string, number | null> = {};
+    for (const ag of AGE_GROUPS) {
+      result[ag] = avgs[ag] ? avgs[ag].sum / avgs[ag].count : null;
+    }
+    return result;
+  }, [normeringData, latestYear]);
+
+  // Kommune rows for latest year
+  const kommuneRows = useMemo(() => {
+    const map = new Map<string, KommuneRow>();
+    for (const d of normeringData) {
+      if (d.year !== latestYear) continue;
+      let row = map.get(d.municipality);
+      if (!row) {
+        row = { municipality: d.municipality, dagpleje: null, "0-2": null, "3-5": null };
+        map.set(d.municipality, row);
+      }
+      if (d.ageGroup === "dagpleje") row.dagpleje = d.ratio;
+      else if (d.ageGroup === "0-2") row["0-2"] = d.ratio;
+      else if (d.ageGroup === "3-5") row["3-5"] = d.ratio;
+    }
+    return Array.from(map.values());
+  }, [normeringData, latestYear]);
+
+  // Sorted rows
+  const sortedRows = useMemo(() => {
+    const rows = [...kommuneRows];
+    rows.sort((a, b) => {
+      if (sortKey === "municipality") {
+        const cmp = a.municipality.localeCompare(b.municipality, "da");
+        return sortDir === "asc" ? cmp : -cmp;
+      }
+      const av = a[sortKey];
+      const bv = b[sortKey];
+      if (av === null && bv === null) return 0;
+      if (av === null) return 1;
+      if (bv === null) return -1;
+      const cmp = av - bv;
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return rows;
+  }, [kommuneRows, sortKey, sortDir]);
+
+  // National trend chart data (2017-2023)
+  const trendData = useMemo(() => {
+    const byYear: Record<number, Record<string, { sum: number; count: number }>> = {};
+    for (const d of normeringData) {
+      if (!byYear[d.year]) byYear[d.year] = {};
+      if (!byYear[d.year][d.ageGroup]) byYear[d.year][d.ageGroup] = { sum: 0, count: 0 };
+      byYear[d.year][d.ageGroup].sum += d.ratio;
+      byYear[d.year][d.ageGroup].count++;
+    }
+    return Object.keys(byYear)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map((year) => {
+        const entry: Record<string, number> = { year };
+        for (const ag of AGE_GROUPS) {
+          const v = byYear[year][ag];
+          if (v) entry[ag] = +(v.sum / v.count).toFixed(2);
+        }
+        return entry;
+      });
+  }, [normeringData]);
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortIndicator = (key: SortKey) => {
+    if (sortKey !== key) return "";
+    return sortDir === "asc" ? " ▲" : " ▼";
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (normeringData.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">Normeringsdata ikke tilgængelig</h1>
+          <p className="text-muted mb-6">
+            Vi kunne ikke indlæse normeringsdata. Prøv igen senere.
+          </p>
+          <Link to="/" className="text-primary hover:underline font-medium">
+            Gå til forsiden
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const pageTitle = "Normering i danske dagtilbud — Kommune-ranking";
+  const pageDesc = `Se normering (børn per voksen) i alle 98 kommuner for dagpleje, vuggestue (0-2 år) og børnehave (3-5 år). Sammenlign kommuner og find de bedste normeringer i Danmark.`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: pageTitle,
+    description: pageDesc,
+    url: "https://institutionsguide.dk/normering",
+    publisher: {
+      "@type": "Organization",
+      name: "Institutionsguide.dk",
+      url: "https://institutionsguide.dk",
+    },
+  };
+
+  return (
+    <>
+      <SEOHead title={pageTitle} description={pageDesc} path="/normering" />
+      <JsonLd data={jsonLd} />
+
+      <Breadcrumbs
+        items={[
+          { label: "Forside", href: "/" },
+          { label: "Normering" },
+        ]}
+      />
+
+      {/* Header */}
+      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+          Normering i danske dagtilbud
+        </h1>
+        <p className="text-muted text-base max-w-2xl mx-auto">
+          Oversigt over normering (børn per voksen) i alle {kommuneRows.length} kommuner.
+          Lavere tal = bedre normering. Data for {latestYear}.
+        </p>
+      </section>
+
+      {/* National averages */}
+      <section className="max-w-4xl mx-auto px-4 py-6">
+        <h2 className="font-display text-xl font-bold text-foreground mb-4">
+          Landsgennemsnit {latestYear}
+        </h2>
+        <div className="grid grid-cols-3 gap-3">
+          {AGE_GROUPS.map((ag) => (
+            <div key={ag} className="card p-4 text-center">
+              <p className="text-xs text-muted mb-1">{AGE_GROUP_LABELS[ag]}</p>
+              <p className={`font-mono text-lg font-bold ${ratioColor(nationalAvg[ag], ag)}`}>
+                {formatRatio(nationalAvg[ag])}
+              </p>
+              <p className="text-xs text-muted mt-1">børn/voksen</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* National trend chart */}
+      {trendData.length > 1 && (
+        <section className="max-w-4xl mx-auto px-4 py-6">
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">
+            Udvikling i normering på landsplan
+          </h2>
+          <div className="card p-4">
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={trendData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
+                <XAxis dataKey="year" className="text-muted-foreground" tick={{ fontSize: 12 }} />
+                <YAxis
+                  label={{
+                    value: "børn/voksen",
+                    angle: -90,
+                    position: "insideLeft",
+                    style: { fontSize: 12 },
+                  }}
+                  className="text-muted-foreground"
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--popover))",
+                    borderColor: "hsl(var(--border))",
+                    color: "hsl(var(--popover-foreground))",
+                    borderRadius: "0.5rem",
+                    fontSize: 13,
+                  }}
+                  formatter={(value: any, name: any) => [
+                    Number(value).toFixed(1).replace(".", ","),
+                    AGE_GROUP_LABELS[name as string] ?? name,
+                  ]}
+                />
+                <Legend formatter={(value: any) => AGE_GROUP_LABELS[value as string] ?? value} />
+                {AGE_GROUPS.map((ag) => (
+                  <Line
+                    key={ag}
+                    type="monotone"
+                    dataKey={ag}
+                    stroke={AGE_GROUP_COLORS[ag]}
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 5 }}
+                    connectNulls
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      )}
+
+      {/* Kommune ranking table */}
+      <section className="max-w-5xl mx-auto px-4 py-8">
+        <h2 className="font-display text-xl font-bold text-foreground mb-4">
+          Kommune-ranking {latestYear}
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-3 px-2 font-medium text-muted">
+                  <button
+                    onClick={() => handleSort("municipality")}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Kommune{sortIndicator("municipality")}
+                  </button>
+                </th>
+                {AGE_GROUPS.map((ag) => (
+                  <th key={ag} className="text-right py-3 px-2 font-medium text-muted">
+                    <button
+                      onClick={() => handleSort(ag)}
+                      className="hover:text-foreground transition-colors"
+                    >
+                      {AGE_GROUP_LABELS[ag]}{sortIndicator(ag)}
+                    </button>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedRows.map((row) => (
+                <tr
+                  key={row.municipality}
+                  className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                >
+                  <td className="py-2 px-2">
+                    <Link
+                      to={`/normering/${toSlug(row.municipality)}`}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {row.municipality}
+                    </Link>
+                  </td>
+                  {AGE_GROUPS.map((ag) => (
+                    <td
+                      key={ag}
+                      className={`text-right py-2 px-2 font-mono ${ratioColor(row[ag], ag)}`}
+                    >
+                      {formatRatio(row[ag])}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* FAQ section */}
+      <section className="max-w-3xl mx-auto px-4 py-8">
+        <h2 className="font-display text-xl font-bold text-foreground mb-4">
+          Om normering i dagtilbud
+        </h2>
+        <div className="space-y-4 text-sm text-muted">
+          <p>
+            <strong className="text-foreground">Hvad er normering?</strong><br />
+            Normering angiver forholdet mellem antal børn og antal voksne i et dagtilbud.
+            Et lavere tal betyder færre børn per voksen og dermed bedre normering.
+          </p>
+          <p>
+            <strong className="text-foreground">Hvad er minimumsnormering?</strong><br />
+            Minimumsnormeringen kræver mindst 1 voksen per 3 børn i vuggestuer (0-2 år)
+            og mindst 1 voksen per 6 børn i børnehaver (3-5 år).
+          </p>
+          <p>
+            <strong className="text-foreground">Hvornår trådte minimumsnormeringen i kraft?</strong><br />
+            Lovkravet om minimumsnormering trådte i kraft den 1. januar 2024.
+            Kommunerne havde frem til da til at indfase normeringen gradvist.
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}

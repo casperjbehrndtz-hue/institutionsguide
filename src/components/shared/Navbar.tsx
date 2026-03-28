@@ -3,17 +3,18 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const NAV_LINKS = [
-  { href: "/vuggestue", key: "vuggestue" as const },
-  { href: "/boernehave", key: "boernehave" as const },
-  { href: "/dagpleje", key: "dagpleje" as const },
-  { href: "/skole", key: "skole" as const },
-  { href: "/sfo", key: "sfo" as const },
+const NAV_LINKS: { href: string; key: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "normering"; labelOverride?: Record<string, string> }[] = [
+  { href: "/vuggestue", key: "vuggestue" },
+  { href: "/boernehave", key: "boernehave" },
+  { href: "/dagpleje", key: "dagpleje" },
+  { href: "/skole", key: "skole" },
+  { href: "/sfo", key: "sfo" },
+  { href: "/normering", key: "normering", labelOverride: { da: "Børn pr. voksen", en: "Children per adult" } },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const location = useLocation();
 
   const closeMenu = useCallback(() => setOpen(false), []);
@@ -57,7 +58,7 @@ export default function Navbar() {
                     : "text-muted hover:text-foreground hover:bg-border/30"
                 }`}
               >
-                {t.categories[link.key]}
+                {link.labelOverride?.[language] ?? t.categories[link.key]}
               </Link>
             );
           })}
@@ -100,7 +101,7 @@ export default function Navbar() {
                       : "text-muted hover:text-foreground hover:bg-border/30"
                   }`}
                 >
-                  {t.categories[link.key]}
+                  {link.labelOverride?.[language] ?? t.categories[link.key]}
                 </Link>
               );
             })}
