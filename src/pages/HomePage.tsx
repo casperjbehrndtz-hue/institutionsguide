@@ -431,6 +431,7 @@ export default function HomePage() {
             onSortChange={setSortKey}
             resultCount={filtered.length}
             municipalities={municipalityNames}
+            institutions={institutions}
             onNearMe={handleNearMe}
             nearMeLoading={nearMeLoading}
           />

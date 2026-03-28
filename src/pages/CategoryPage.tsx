@@ -403,6 +403,7 @@ export default function CategoryPage({ category }: Props) {
             onSortChange={setSortKey}
             resultCount={filtered.length}
             municipalities={municipalityNames}
+            institutions={institutions}
             onNearMe={handleNearMe}
             nearMeLoading={nearMeLoading}
           />

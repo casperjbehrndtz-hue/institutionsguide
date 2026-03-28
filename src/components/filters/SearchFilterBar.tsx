@@ -1,13 +1,22 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { InstitutionCategory, AgeGroup, SortKey } from "@/lib/types";
+import type { InstitutionCategory, AgeGroup, SortKey, UnifiedInstitution } from "@/lib/types";
 
 /** Daycare categories where school-specific sort options don't apply */
 const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo"];
 
 /** School-only sort keys that should be hidden for daycare categories */
 const SCHOOL_ONLY_SORT_KEYS: SortKey[] = ["rating", "grades", "absence"];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  vuggestue: "Vuggestue",
+  boernehave: "Børnehave",
+  dagpleje: "Dagpleje",
+  skole: "Skole",
+  sfo: "SFO",
+};
 
 interface Props {
   search: string;
@@ -24,6 +33,7 @@ interface Props {
   onSortChange: (key: SortKey) => void;
   resultCount: number;
   municipalities: string[];
+  institutions?: UnifiedInstitution[];
   onNearMe?: () => void;
   nearMeLoading?: boolean;
   onClearAll?: () => void;
@@ -163,12 +173,71 @@ export default function SearchFilterBar({
   onSortChange,
   resultCount,
   municipalities,
+  institutions,
   onNearMe,
   nearMeLoading,
   onClearAll,
   hasActiveFilters,
 }: Props) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [highlightIdx, setHighlightIdx] = useState(-1);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const suggestions = useMemo(() => {
+    if (!institutions || search.trim().length < 2) return [];
+    const q = search.toLowerCase().trim();
+    const matches: UnifiedInstitution[] = [];
+    // Prioritize name-starts-with, then name-includes, then city/address
+    for (const inst of institutions) {
+      if (matches.length >= 8) break;
+      if (inst.name.toLowerCase().startsWith(q)) matches.push(inst);
+    }
+    for (const inst of institutions) {
+      if (matches.length >= 8) break;
+      if (!matches.includes(inst) && inst.name.toLowerCase().includes(q)) matches.push(inst);
+    }
+    for (const inst of institutions) {
+      if (matches.length >= 8) break;
+      if (!matches.includes(inst) && (inst.city.toLowerCase().includes(q) || inst.address.toLowerCase().includes(q))) matches.push(inst);
+    }
+    return matches;
+  }, [institutions, search]);
+
+  useEffect(() => {
+    setHighlightIdx(-1);
+    setShowSuggestions(suggestions.length > 0);
+  }, [suggestions]);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowSuggestions(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const selectSuggestion = useCallback((inst: UnifiedInstitution) => {
+    setShowSuggestions(false);
+    navigate(`/institution/${inst.id}`);
+  }, [navigate]);
+
+  function handleSearchKeyDown(e: React.KeyboardEvent) {
+    if (!showSuggestions || suggestions.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIdx((prev) => Math.min(prev + 1, suggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIdx((prev) => Math.max(prev - 1, -1));
+    } else if (e.key === "Enter" && highlightIdx >= 0) {
+      e.preventDefault();
+      selectSuggestion(suggestions[highlightIdx]);
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
+    }
+  }
 
   const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
     { value: "", label: t.ageFilter.allAges },
@@ -237,8 +306,8 @@ export default function SearchFilterBar({
   return (
     <div className="sticky top-0 z-30 bg-bg/95 backdrop-blur-sm border-b border-border py-3 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto space-y-3">
-        {/* Search */}
-        <div className="relative">
+        {/* Search with autocomplete */}
+        <div className="relative" ref={searchRef}>
           <label htmlFor="search-input" className="sr-only">
             {t.common.searchPlaceholder}
           </label>
@@ -249,8 +318,16 @@ export default function SearchFilterBar({
             placeholder={t.common.searchPlaceholder}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+            onKeyDown={handleSearchKeyDown}
             className="w-full pl-10 pr-24 py-3 rounded-xl border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
             aria-label={t.common.searchPlaceholder}
+            role="combobox"
+            aria-expanded={showSuggestions}
+            aria-haspopup="listbox"
+            aria-controls={showSuggestions ? "search-suggestions" : undefined}
+            aria-activedescendant={showSuggestions && highlightIdx >= 0 ? `suggestion-${highlightIdx}` : undefined}
+            autoComplete="off"
           />
           {onNearMe && (
             <button
@@ -262,6 +339,30 @@ export default function SearchFilterBar({
               <MapPin className={`w-3.5 h-3.5 ${nearMeLoading ? "animate-pulse" : ""}`} />
               {t.common.nearMe}
             </button>
+          )}
+          {showSuggestions && suggestions.length > 0 && (
+            <div id="search-suggestions" role="listbox" className="absolute top-full left-0 right-0 mt-1 bg-bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+              {suggestions.map((inst, i) => (
+                <button
+                  key={inst.id}
+                  id={`suggestion-${i}`}
+                  role="option"
+                  aria-selected={highlightIdx === i}
+                  onMouseDown={() => selectSuggestion(inst)}
+                  className={`w-full text-left px-4 py-2.5 flex items-center gap-3 text-sm hover:bg-primary/5 transition-colors ${
+                    highlightIdx === i ? "bg-primary/10" : ""
+                  }`}
+                >
+                  <span className="flex-1 truncate">
+                    <span className="font-medium text-foreground">{inst.name}</span>
+                    <span className="text-muted ml-1.5">{inst.city}, {inst.municipality}</span>
+                  </span>
+                  <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium bg-border/50 text-muted">
+                    {CATEGORY_LABELS[inst.category] || inst.category}
+                  </span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
 

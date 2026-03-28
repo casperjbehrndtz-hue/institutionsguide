@@ -9,8 +9,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
 import { useFavorites } from "@/hooks/useFavorites";
 
-const ALL_CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo"] as const;
-
 interface Props {
   institutions: UnifiedInstitution[];
   onSelect?: (institution: UnifiedInstitution) => void;
@@ -31,8 +29,6 @@ interface Props {
   initialZoom?: number;
   /** Called on moveend with new center and zoom for URL sync */
   onViewChange?: (center: { lat: number; lng: number }, zoom: number) => void;
-  /** Called when category toggles change, for optional parent sync */
-  onCategoryToggle?: (activeCategories: string[]) => void;
   /** Center point for radius filter circle */
   radiusCenter?: { lat: number; lng: number } | null;
   /** Active radius in km */
@@ -246,7 +242,6 @@ export default function InstitutionMap({
   initialCenter,
   initialZoom,
   onViewChange,
-  onCategoryToggle,
   radiusCenter,
   radiusKm,
   onRadiusChange,
@@ -268,36 +263,6 @@ export default function InstitutionMap({
 
   const [zoom, setZoom] = useState(mapZoom);
   const [showSearchArea, setShowSearchArea] = useState(false);
-  const [activeCategories, setActiveCategories] = useState<Set<string>>(
-    () => new Set(ALL_CATEGORIES)
-  );
-
-  const allActive = activeCategories.size === ALL_CATEGORIES.length;
-
-  const handleCategoryToggle = useCallback(
-    (category: string) => {
-      setActiveCategories((prev) => {
-        const next = new Set(prev);
-        if (next.has(category)) {
-          // Don't allow disabling all — keep at least one
-          if (next.size <= 1) return prev;
-          next.delete(category);
-        } else {
-          next.add(category);
-        }
-        onCategoryToggle?.(Array.from(next));
-        return next;
-      });
-    },
-    [onCategoryToggle]
-  );
-
-  const handleShowAll = useCallback(() => {
-    const all = new Set<string>(ALL_CATEGORIES);
-    setActiveCategories(all);
-    onCategoryToggle?.(Array.from(all));
-  }, [onCategoryToggle]);
-
   const handleZoomChange = useCallback((z: number) => setZoom(z), []);
   const handleFlyStart = useCallback(() => {
     isProgrammaticRef.current = true;
@@ -407,15 +372,6 @@ export default function InstitutionMap({
     [institutions, t, isFavorite, isInCompare, isDark]
   );
 
-  const filteredMarkerData = useMemo(() => {
-    if (allActive) return markerData;
-    // Build a set of visible institution IDs based on active categories
-    const visibleIds = new Set<string>();
-    institutions.forEach((inst) => {
-      if (activeCategories.has(inst.category)) visibleIds.add(inst.id);
-    });
-    return markerData.filter((m) => visibleIds.has(m.id));
-  }, [markerData, activeCategories, allActive, institutions]);
 
   const handleSearchArea = useCallback(() => {
     if (!mapInstanceRef.current || !onBoundsChange) return;
@@ -459,7 +415,7 @@ export default function InstitutionMap({
           <ViewChangeTracker onViewChange={onViewChange} isProgrammaticRef={isProgrammaticRef} />
         )}
         <MarkerClusterGroup
-          markers={filteredMarkerData}
+          markers={markerData}
           showPrices={showPrices}
           highlightedId={highlightedId}
           onMarkerHover={onMarkerHover}
@@ -511,48 +467,17 @@ export default function InstitutionMap({
         />
       )}
 
-      {/* Legend with category toggles */}
+      {/* Legend (color key only — category filtering is in the filter bar) */}
       <div className="absolute bottom-4 left-4 z-[1000] card p-3 text-xs select-none" role="region" aria-label={t.map.legendAriaLabel}>
-        {legendItems.map((item) => {
-          const isActive = activeCategories.has(item.category);
-          return (
-            <button
-              key={item.category}
-              type="button"
-              onClick={() => handleCategoryToggle(item.category)}
-              className="flex items-center gap-2 mb-1 last:mb-0 w-full text-left cursor-pointer rounded px-1 py-0.5 transition-colors hover:bg-black/5 dark:hover:bg-white/10"
-              role="checkbox"
-              aria-checked={isActive}
-              aria-label={`${item.label} — ${isActive ? "synlig" : "skjult"}`}
-            >
-              <span
-                className="w-3 h-3 rounded-full inline-block shrink-0 transition-opacity duration-200"
-                style={{
-                  backgroundColor: isActive ? item.color : "#9CA3AF",
-                  opacity: isActive ? 1 : 0.4,
-                }}
-              />
-              <span
-                className="transition-opacity duration-200"
-                style={{
-                  opacity: isActive ? 1 : 0.45,
-                  textDecoration: isActive ? "none" : "line-through",
-                }}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-        {!allActive && (
-          <button
-            type="button"
-            onClick={handleShowAll}
-            className="mt-1 text-[11px] text-primary/80 hover:text-primary cursor-pointer transition-colors"
-          >
-            {t.map.showAll}
-          </button>
-        )}
+        {legendItems.map((item) => (
+          <div key={item.category} className="flex items-center gap-2 mb-1 last:mb-0 px-1 py-0.5">
+            <span
+              className="w-3 h-3 rounded-full inline-block shrink-0"
+              style={{ backgroundColor: item.color }}
+            />
+            <span>{item.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

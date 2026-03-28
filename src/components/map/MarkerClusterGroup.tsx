@@ -76,8 +76,8 @@ export default function MarkerClusterGroup({
   const onMarkerHoverRef = useRef(onMarkerHover);
   onMarkerHoverRef.current = onMarkerHover;
 
-  // Create / recreate cluster when markers or showPrices change
-  // NOTE: highlightedId is NOT in deps — we handle highlights separately below
+  // Create / recreate cluster only when markers change
+  // NOTE: highlightedId and showPrices are NOT in deps — we handle those separately below
   useEffect(() => {
     const cluster = L.markerClusterGroup({
       chunkedLoading: true,
@@ -104,7 +104,8 @@ export default function MarkerClusterGroup({
     const newDataMap = new Map<string, MarkerData>();
 
     markers.forEach((m) => {
-      const icon = showPrices
+      const sp = showPricesRef.current;
+      const icon = sp
         ? createPriceIcon(m.color, m.price, false)
         : createDotIcon(m.color, false);
 
@@ -134,27 +135,25 @@ export default function MarkerClusterGroup({
       markerMapRef.current = new Map();
       markerDataRef.current = new Map();
     };
-  }, [map, markers, showPrices]);
+  }, [map, markers]);
 
-  // Update highlighted marker icon WITHOUT recreating the cluster
+  // Update icons in-place when showPrices or highlightedId changes (without recreating the cluster)
   useEffect(() => {
     const markerMap = markerMapRef.current;
     const dataMap = markerDataRef.current;
-    const sp = showPricesRef.current;
 
-    // Update all markers: set highlighted state for the matching one, reset others
     markerMap.forEach((marker, id) => {
       const data = dataMap.get(id);
       if (!data) return;
       const isHighlighted = id === highlightedId;
-      const icon = sp
+      const icon = showPrices
         ? createPriceIcon(data.color, data.price, isHighlighted)
         : createDotIcon(data.color, isHighlighted);
       marker.setIcon(icon);
       if (isHighlighted) marker.setZIndexOffset(1000);
       else marker.setZIndexOffset(0);
     });
-  }, [highlightedId]);
+  }, [highlightedId, showPrices]);
 
   return null;
 }
