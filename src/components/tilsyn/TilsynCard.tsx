@@ -47,13 +47,13 @@ export default function TilsynCard({ report }: Props) {
           <div className="flex items-center gap-2 flex-wrap">
             <TilsynBadge rating={report.rating} />
             <span
-              className="text-xs text-muted-foreground"
+              className="text-xs text-muted"
               title={tl.en}
             >
               {tl.da}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted">
             {formatDate(report.date)}
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function TilsynCard({ report }: Props) {
           >
             Styrker
           </h4>
-          <ul className="list-disc list-inside text-sm space-y-0.5 text-muted-foreground">
+          <ul className="list-disc list-inside text-sm space-y-0.5 text-muted">
             {report.strengths.map((s, i) => (
               <li key={i}>{s}</li>
             ))}
@@ -102,7 +102,7 @@ export default function TilsynCard({ report }: Props) {
           >
             Udviklingsområder
           </h4>
-          <ul className="list-disc list-inside text-sm space-y-0.5 text-muted-foreground">
+          <ul className="list-disc list-inside text-sm space-y-0.5 text-muted">
             {report.improvements.map((s, i) => (
               <li key={i}>{s}</li>
             ))}

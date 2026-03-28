@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
 /**
@@ -133,6 +133,13 @@ export function useMapParams(): MapParams {
     },
     [setSearchParams]
   );
+
+  // Cleanup debounce timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
   const hasMapParams =
     rawLat !== null || rawLng !== null || rawZoom !== null || rawView !== null || rawRadius !== null;

@@ -47,6 +47,13 @@ export function usePriceHistory(institutionId: string): UsePriceHistoryResult {
           );
         }
         setLoading(false);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Network error");
+          setData([]);
+          setLoading(false);
+        }
       });
 
     return () => {

@@ -367,8 +367,8 @@ export default function NormeringKommunePage() {
           <div className="card p-4">
             <ResponsiveContainer width="100%" height={320}>
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
-                <XAxis dataKey="year" className="text-muted-foreground" tick={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/20" />
+                <XAxis dataKey="year" className="text-muted" tick={{ fontSize: 12 }} />
                 <YAxis
                   label={{
                     value: "børn/voksen",
@@ -376,14 +376,14 @@ export default function NormeringKommunePage() {
                     position: "insideLeft",
                     style: { fontSize: 12 },
                   }}
-                  className="text-muted-foreground"
+                  className="text-muted"
                   tick={{ fontSize: 12 }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--popover))",
-                    borderColor: "hsl(var(--border))",
-                    color: "hsl(var(--popover-foreground))",
+                    backgroundColor: "var(--color-bg-card)",
+                    borderColor: "var(--color-border)",
+                    color: "var(--color-foreground)",
                     borderRadius: "0.5rem",
                     fontSize: 13,
                   }}

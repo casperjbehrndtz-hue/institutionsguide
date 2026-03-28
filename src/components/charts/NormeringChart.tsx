@@ -66,11 +66,11 @@ export default function NormeringChart({
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            className="stroke-muted-foreground/20"
+            className="stroke-muted/20"
           />
           <XAxis
             dataKey="year"
-            className="text-muted-foreground"
+            className="text-muted"
             tick={{ fontSize: 12 }}
           />
           <YAxis
@@ -80,14 +80,14 @@ export default function NormeringChart({
               position: "insideLeft",
               style: { fontSize: 12 },
             }}
-            className="text-muted-foreground"
+            className="text-muted"
             tick={{ fontSize: 12 }}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "hsl(var(--popover))",
-              borderColor: "hsl(var(--border))",
-              color: "hsl(var(--popover-foreground))",
+              backgroundColor: "var(--color-bg-card)",
+              borderColor: "var(--color-border)",
+              color: "var(--color-foreground)",
               borderRadius: "0.5rem",
               fontSize: 13,
             }}

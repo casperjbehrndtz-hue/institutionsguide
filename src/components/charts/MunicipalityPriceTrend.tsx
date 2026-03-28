@@ -71,26 +71,26 @@ export default function MunicipalityPriceTrend({
           </defs>
           <CartesianGrid
             strokeDasharray="3 3"
-            className="stroke-muted-foreground/20"
+            className="stroke-muted/20"
           />
           <XAxis
             dataKey="date"
             tickFormatter={formatDate}
-            className="text-muted-foreground"
+            className="text-muted"
             tick={{ fontSize: 12 }}
           />
           <YAxis
             domain={["dataMin - 200", "dataMax + 200"]}
             tickFormatter={(v: number) => `${v.toLocaleString("da-DK")} kr`}
-            className="text-muted-foreground"
+            className="text-muted"
             tick={{ fontSize: 12 }}
             width={80}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "hsl(var(--popover))",
-              borderColor: "hsl(var(--border))",
-              color: "hsl(var(--popover-foreground))",
+              backgroundColor: "var(--color-bg-card)",
+              borderColor: "var(--color-border)",
+              color: "var(--color-foreground)",
               borderRadius: "0.5rem",
               fontSize: 13,
             }}

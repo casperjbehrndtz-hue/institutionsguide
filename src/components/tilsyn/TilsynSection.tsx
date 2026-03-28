@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/contexts/LanguageContext";
 import TilsynCard from "./TilsynCard";
 import type { TilsynReport } from "./TilsynCard";
 
@@ -22,6 +23,8 @@ interface TilsynRow {
 type LoadState = "loading" | "loaded" | "empty" | "error";
 
 export default function TilsynSection({ institutionId, institutionName }: Props) {
+  const { language } = useLanguage();
+  const isDa = language === "da";
   const [reports, setReports] = useState<TilsynReport[]>([]);
   const [state, setState] = useState<LoadState>("loading");
 
@@ -83,38 +86,37 @@ export default function TilsynSection({ institutionId, institutionName }: Props)
 
   return (
     <section className="space-y-3">
-      <h3 className="text-base font-semibold" title="Inspection reports">
-        Tilsynsrapporter
+      <h3 className="text-base font-semibold">
+        {isDa ? "Tilsynsrapporter" : "Inspection reports"}
       </h3>
 
       {state === "loading" && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-muted">
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          Henter tilsynsdata...
+          {isDa ? "Henter tilsynsdata..." : "Loading inspection data..."}
         </div>
       )}
 
       {state === "empty" && (
         <div className="rounded-lg border border-dashed border-border p-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            Tilsynsdata for{" "}
+          <p className="text-sm text-muted">
+            {isDa ? "Tilsynsdata for" : "Inspection data for"}{" "}
             <span className="font-medium text-foreground">
               {institutionName}
             </span>{" "}
-            kommer snart.
+            {isDa ? "kommer snart." : "coming soon."}
           </p>
-          <p
-            className="text-xs text-muted-foreground mt-1"
-            title="Inspection data coming soon"
-          >
-            Vi arbejder på at indsamle tilsynsrapporter fra kommunerne.
+          <p className="text-xs text-muted mt-1">
+            {isDa
+              ? "Vi arbejder på at indsamle tilsynsrapporter fra kommunerne."
+              : "We are working on collecting inspection reports from municipalities."}
           </p>
         </div>
       )}
 
       {state === "error" && (
         <p className="text-sm text-destructive">
-          Kunne ikke hente tilsynsdata. Prøv igen senere.
+          {isDa ? "Kunne ikke hente tilsynsdata. Prøv igen senere." : "Could not load inspection data. Try again later."}
         </p>
       )}
 

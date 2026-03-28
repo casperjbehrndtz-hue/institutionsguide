@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { usePriceHistory } from "../../hooks/usePriceHistory";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PriceHistoryChartProps {
   institutionId: string;
@@ -19,6 +20,8 @@ export default function PriceHistoryChart({
   institutionName,
 }: PriceHistoryChartProps) {
   const { data, loading, error } = usePriceHistory(institutionId);
+  const { language } = useLanguage();
+  const isDa = language === "da";
 
   if (loading) {
     return (
@@ -36,8 +39,8 @@ export default function PriceHistoryChart({
   if (data.length === 0) {
     return (
       <div className="w-full rounded-lg border border-border bg-card p-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          Prishistorik kommer snart
+        <p className="text-sm text-muted">
+          {isDa ? "Prishistorik kommer snart" : "Price history coming soon"}
         </p>
       </div>
     );
@@ -46,13 +49,13 @@ export default function PriceHistoryChart({
   if (data.length === 1) {
     return (
       <div className="w-full rounded-lg border border-border bg-card p-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          Prishistorik begynder her — vi tracker prisudviklingen
+        <p className="text-sm text-muted">
+          {isDa ? "Prishistorik begynder her — vi tracker prisudviklingen" : "Price history starts here — we track price changes"}
         </p>
         <p className="mt-2 text-lg font-semibold text-foreground">
           {data[0].monthlyRate.toLocaleString("da-DK")} kr/md
         </p>
-        <p className="text-xs text-muted-foreground">{data[0].date}</p>
+        <p className="text-xs text-muted">{data[0].date}</p>
       </div>
     );
   }
@@ -69,7 +72,7 @@ export default function PriceHistoryChart({
   return (
     <div className="w-full">
       <h3 className="text-lg font-semibold mb-4 text-foreground">
-        Prisudvikling{institutionName ? ` — ${institutionName}` : ""}
+        {isDa ? "Prisudvikling" : "Price history"}{institutionName ? ` — ${institutionName}` : ""}
       </h3>
       <ResponsiveContainer width="100%" height={280}>
         <AreaChart
@@ -84,26 +87,26 @@ export default function PriceHistoryChart({
           </defs>
           <CartesianGrid
             strokeDasharray="3 3"
-            className="stroke-muted-foreground/20"
+            className="stroke-muted/20"
           />
           <XAxis
             dataKey="date"
             tickFormatter={formatDate}
-            className="text-muted-foreground"
+            className="text-muted"
             tick={{ fontSize: 12 }}
           />
           <YAxis
             domain={["dataMin - 100", "dataMax + 100"]}
             tickFormatter={(v: number) => `${v.toLocaleString("da-DK")} kr`}
-            className="text-muted-foreground"
+            className="text-muted"
             tick={{ fontSize: 12 }}
             width={80}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "hsl(var(--popover))",
-              borderColor: "hsl(var(--border))",
-              color: "hsl(var(--popover-foreground))",
+              backgroundColor: "var(--color-bg-card)",
+              borderColor: "var(--color-border)",
+              color: "var(--color-foreground)",
               borderRadius: "0.5rem",
               fontSize: 13,
             }}

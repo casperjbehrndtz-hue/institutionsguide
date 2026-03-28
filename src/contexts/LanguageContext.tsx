@@ -28,7 +28,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem(STORAGE_KEY, lang);
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch { /* private browsing */ }
     document.documentElement.lang = lang;
   }, []);
 
