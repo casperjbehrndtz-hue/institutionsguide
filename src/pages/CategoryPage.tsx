@@ -17,6 +17,7 @@ import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import { useFavorites } from "@/hooks/useFavorites";
 import NoResults from "@/components/filters/NoResults";
+import StreetViewImage from "@/components/shared/StreetViewImage";
 import type { UnifiedInstitution } from "@/lib/types";
 
 /** Haversine distance in km between two lat/lng points */
@@ -436,10 +437,19 @@ export default function CategoryPage({ category }: Props) {
                 onClick={() => handleSelect(inst)}
                 className="w-full text-left p-4 min-h-[44px]"
               >
-                <div className="flex justify-between items-start">
-                  <div>
+                <div className="flex gap-3 items-start">
+                  <StreetViewImage
+                    lat={inst.lat}
+                    lng={inst.lng}
+                    width={120}
+                    height={80}
+                    alt={inst.name}
+                    className="w-[60px] h-[44px] rounded-lg shrink-0 mt-0.5"
+                  />
+                  <div className="flex justify-between items-start flex-1 min-w-0">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-foreground">{inst.name}</p>
+                      <p className="font-semibold text-foreground truncate">{inst.name}</p>
                       {showCategoryBadge && (
                         <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[inst.category] || ""}`}>
                           {t.categories[inst.category]}
@@ -470,6 +480,7 @@ export default function CategoryPage({ category }: Props) {
                     <p className="font-mono text-sm font-medium text-primary">{formatDKK(inst.monthlyRate)}</p>
                     <span className="text-xs text-muted">{t.common.perMonth}</span>
                   </div>
+                </div>
                 </div>
               </button>
               <div className="flex items-center justify-between px-4 pb-3">

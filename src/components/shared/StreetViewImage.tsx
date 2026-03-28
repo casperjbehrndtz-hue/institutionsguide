@@ -34,7 +34,7 @@ export default function StreetViewImage({
     );
   }
 
-  const src = `https://maps.googleapis.com/maps/api/streetview?size=${width}x${height}&location=${lat},${lng}&fov=90&pitch=10&key=${API_KEY}`;
+  const src = `https://maps.googleapis.com/maps/api/streetview?size=${width}x${height}&location=${lat},${lng}&fov=80&pitch=0&key=${API_KEY}`;
 
   return (
     <img
