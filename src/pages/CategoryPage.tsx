@@ -496,12 +496,12 @@ export default function CategoryPage({ category }: Props) {
               onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(inst.id); }}
               onMouseLeave={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(null); }}
             >
-              <div className="p-4">
+              <div className="p-3 sm:p-4">
                 {/* Row 1: Name + badge + price */}
                 <div className="flex justify-between items-start gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-foreground truncate">{inst.name}</p>
+                      <p className="font-semibold text-foreground text-sm sm:text-base truncate">{inst.name}</p>
                       {badge && (
                         <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-md ${badge.className}`}>
                           {badge.label}
@@ -524,32 +524,32 @@ export default function CategoryPage({ category }: Props) {
                       )}
                     </div>
                   </div>
-                  <div className="text-right shrink-0 ml-2">
-                    <p className="font-mono text-sm font-bold tabular-nums text-primary">{formatDKK(inst.monthlyRate)}</p>
+                  <div className="text-right shrink-0">
+                    <p className="font-mono text-xs sm:text-sm font-bold tabular-nums text-primary">{formatDKK(inst.monthlyRate)}</p>
                     <span className="text-[10px] text-muted">{t.common.perMonth}</span>
                   </div>
                 </div>
                 {/* Row 3: Key metrics strip */}
-                <div className="flex items-center gap-3 mt-2 pt-2 border-t border-border/40 text-[11px] text-muted">
+                <div className="flex items-center gap-2 sm:gap-3 mt-2 pt-2 border-t border-border/40 text-[11px] text-muted overflow-x-auto no-scrollbar">
                   {norm != null && (
-                    <span>{language === "da" ? "Normering" : "Ratio"} <strong className="text-foreground font-mono">{norm.toFixed(1).replace(".", ",")}</strong></span>
+                    <span className="shrink-0">{language === "da" ? "Normering" : "Ratio"} <strong className="text-foreground font-mono">{norm.toFixed(1).replace(".", ",")}</strong></span>
                   )}
                   {inst.quality?.el != null && (
-                    <span>{inst.quality.el.toLocaleString("da-DK")} {language === "da" ? "elever" : "students"}</span>
+                    <span className="shrink-0">{inst.quality.el.toLocaleString("da-DK")} {language === "da" ? "elever" : "students"}</span>
                   )}
                   {inst.quality?.kv != null && (
-                    <span>{language === "da" ? "Klasse" : "Class"} <strong className="text-foreground font-mono">{inst.quality.kv.toLocaleString("da-DK")}</strong></span>
+                    <span className="shrink-0">{language === "da" ? "Klasse" : "Class"} <strong className="text-foreground font-mono">{inst.quality.kv.toLocaleString("da-DK")}</strong></span>
                   )}
-                  <span>{subtypeLabels[inst.subtype] || inst.subtype}</span>
+                  <span className="shrink-0">{subtypeLabels[inst.subtype] || inst.subtype}</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between px-4 pb-3 pt-0">
+              <div className="flex items-center justify-between px-3 sm:px-4 pb-2.5 sm:pb-3 pt-0">
                 <span className="text-xs text-primary font-medium">
                   {t.common.seeFullProfile} &rarr;
                 </span>
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
-                  className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
                 >
                   <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
@@ -578,7 +578,7 @@ export default function CategoryPage({ category }: Props) {
           )}
         </div>
 
-        <div className={`h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
+        <div className={`h-[calc(100vh-200px)] sm:h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <InstitutionMap
             institutions={boundsFiltered}
             onSelect={handleSelect}

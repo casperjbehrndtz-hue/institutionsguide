@@ -106,7 +106,7 @@ function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: 
         onFocus={() => { setOpen(true); setQuery(""); setHighlightIndex(-1); }}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); setHighlightIndex(-1); }}
         onKeyDown={handleKeyDown}
-        className={`w-[180px] px-3 py-1.5 rounded-xl border bg-bg-card text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
+        className={`w-full sm:w-[180px] px-3 py-1.5 rounded-xl border bg-bg-card text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
           value ? "border-primary text-primary font-medium" : "border-border text-foreground"
         }`}
         role="combobox"
@@ -126,7 +126,7 @@ function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: 
         </button>
       )}
       {open && (
-        <div id={listboxId} role="listbox" className="absolute top-full left-0 mt-1 w-[220px] max-h-[280px] overflow-y-auto bg-bg-card border border-border rounded-xl shadow-lg z-50">
+        <div id={listboxId} role="listbox" className="absolute top-full left-0 mt-1 w-full sm:w-[220px] max-h-[50vh] sm:max-h-[280px] overflow-y-auto bg-bg-card border border-border rounded-xl shadow-lg z-50">
           <button
             role="option"
             aria-selected={!value}
@@ -320,7 +320,7 @@ export default function SearchFilterBar({
             onChange={(e) => onSearchChange(e.target.value)}
             onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
             onKeyDown={handleSearchKeyDown}
-            className="w-full pl-10 pr-24 py-3 rounded-xl border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
+            className="w-full pl-10 pr-12 sm:pr-24 py-3 rounded-xl border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px] text-base sm:text-sm"
             aria-label={t.common.searchPlaceholder}
             role="combobox"
             aria-expanded={showSuggestions}
@@ -333,15 +333,15 @@ export default function SearchFilterBar({
             <button
               onClick={onNearMe}
               disabled={nearMeLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary-light transition-colors disabled:opacity-60"
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary-light transition-colors disabled:opacity-60"
               aria-label={t.common.nearMe}
             >
               <MapPin className={`w-3.5 h-3.5 ${nearMeLoading ? "animate-pulse" : ""}`} />
-              {t.common.nearMe}
+              <span className="hidden sm:inline">{t.common.nearMe}</span>
             </button>
           )}
           {showSuggestions && suggestions.length > 0 && (
-            <div id="search-suggestions" role="listbox" className="absolute top-full left-0 right-0 mt-1 bg-bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+            <div id="search-suggestions" role="listbox" className="absolute top-full left-0 right-0 mt-1 bg-bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden max-h-[60vh] overflow-y-auto">
               {suggestions.map((inst, i) => (
                 <button
                   key={inst.id}
@@ -349,13 +349,13 @@ export default function SearchFilterBar({
                   role="option"
                   aria-selected={highlightIdx === i}
                   onMouseDown={() => selectSuggestion(inst)}
-                  className={`w-full text-left px-4 py-2.5 flex items-center gap-3 text-sm hover:bg-primary/5 transition-colors ${
+                  className={`w-full text-left px-3 sm:px-4 py-3 sm:py-2.5 flex items-center gap-2 sm:gap-3 text-sm hover:bg-primary/5 transition-colors ${
                     highlightIdx === i ? "bg-primary/10" : ""
                   }`}
                 >
-                  <span className="flex-1 truncate">
-                    <span className="font-medium text-foreground">{inst.name}</span>
-                    <span className="text-muted ml-1.5">{inst.city}, {inst.municipality}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="font-medium text-foreground block sm:inline truncate">{inst.name}</span>
+                    <span className="text-muted text-xs sm:text-sm sm:ml-1.5 block sm:inline truncate">{inst.city}, {inst.municipality}</span>
                   </span>
                   <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium bg-border/50 text-muted">
                     {CATEGORY_LABELS[inst.category] || inst.category}
@@ -367,35 +367,36 @@ export default function SearchFilterBar({
         </div>
 
         {/* Filters row */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Category pills */}
-          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Kategori-filter">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                onClick={() => handleCategoryChange(cat.value)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[44px] ${
-                  category === cat.value && !ageGroup
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-border/40 text-muted hover:bg-border/70"
-                }`}
-                aria-pressed={category === cat.value && !ageGroup}
-              >
-                {cat.label}
-              </button>
-            ))}
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          {/* Category pills — horizontal scroll on mobile */}
+          <div className="w-full sm:w-auto overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
+            <div className="flex gap-1.5 sm:flex-wrap" role="group" aria-label="Kategori-filter">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => handleCategoryChange(cat.value)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[36px] sm:min-h-[44px] whitespace-nowrap shrink-0 ${
+                    category === cat.value && !ageGroup
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-border/40 text-muted hover:bg-border/70"
+                  }`}
+                  aria-pressed={category === cat.value && !ageGroup}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Age group dropdown */}
-          <div className="flex items-center gap-1.5">
-            <label htmlFor="age-group-select" className="sr-only">
-              {t.ageFilter.allAges}
-            </label>
+          {/* Secondary filters — wrap on mobile */}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+            {/* Age group dropdown */}
             <select
               id="age-group-select"
               value={ageGroup}
               onChange={(e) => handleAgeGroupChange(e.target.value as AgeGroup)}
-              className={`px-3 py-1.5 rounded-xl border border-border bg-bg-card text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
+              aria-label={t.ageFilter.allAges}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-xl border border-border bg-bg-card text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
                 ageGroup ? "text-primary font-medium border-primary" : "text-foreground"
               }`}
             >
@@ -403,59 +404,53 @@ export default function SearchFilterBar({
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-          </div>
 
-          {/* Municipality searchable combobox */}
-          <MunicipalityCombobox
-            value={municipality}
-            onChange={onMunicipalityChange}
-            municipalities={municipalities}
-            placeholder={t.common.allMunicipalities}
-          />
+            {/* Municipality searchable combobox */}
+            <MunicipalityCombobox
+              value={municipality}
+              onChange={onMunicipalityChange}
+              municipalities={municipalities}
+              placeholder={t.common.allMunicipalities}
+            />
 
-          {/* Quality filter (for schools) */}
-          {(category === "alle" || category === "skole") && (
-            <div className="flex items-center gap-1.5">
-              <label htmlFor="quality-select" className="sr-only">
-                {t.common.allRatings}
-              </label>
+            {/* Quality filter (for schools) */}
+            {(category === "alle" || category === "skole") && (
               <select
                 id="quality-select"
                 value={qualityFilter}
                 onChange={(e) => onQualityFilterChange(e.target.value)}
-                className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
+                aria-label={t.common.allRatings}
+                className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">{t.common.allRatings}</option>
                 <option value="1">{t.detail.aboveAvg}</option>
                 <option value="0">{t.detail.average}</option>
                 <option value="-1">{t.detail.belowAvg}</option>
               </select>
-            </div>
-          )}
+            )}
 
-          {/* Sort */}
-          <div className="flex items-center gap-1.5 ml-auto">
-            <SlidersHorizontal className="w-4 h-4 text-muted" />
-            <label htmlFor="sort-select" className="sr-only">
-              Sort
-            </label>
-            <select
-              id="sort-select"
-              value={sortKey}
-              onChange={(e) => onSortChange(e.target.value as SortKey)}
-              className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+            {/* Sort */}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <SlidersHorizontal className="w-4 h-4 text-muted hidden sm:block" />
+              <select
+                id="sort-select"
+                value={sortKey}
+                onChange={(e) => onSortChange(e.target.value as SortKey)}
+                aria-label="Sort"
+                className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {sortOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Clear all filters button - only shown when filters are active */}
+          {/* Clear all filters button */}
           {hasActiveFilters && onClearAll && (
             <button
               onClick={onClearAll}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition-colors min-h-[44px]"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 transition-colors min-h-[36px] sm:min-h-[44px]"
             >
               <X className="w-3.5 h-3.5" />
               {t.common.resetFilters}
@@ -464,8 +459,8 @@ export default function SearchFilterBar({
         </div>
 
         {/* Result count + active filter pills */}
-        <div className="flex items-center gap-3 flex-wrap">
-          <p className="text-sm text-muted" aria-live="polite">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <p className="text-xs sm:text-sm text-muted" aria-live="polite">
             <span className="font-mono font-medium text-foreground">
               {resultCount.toLocaleString("da-DK")}
             </span>{" "}

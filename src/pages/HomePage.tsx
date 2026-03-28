@@ -558,11 +558,11 @@ export default function HomePage() {
                 onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(inst.id); }}
                 onMouseLeave={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(null); }}
               >
-                <div className="p-4">
-                  <div className="flex justify-between items-start">
+                <div className="p-3 sm:p-4">
+                  <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-foreground">{inst.name}</p>
+                        <p className="font-semibold text-foreground text-sm sm:text-base">{inst.name}</p>
                         {category === "alle" && (
                           <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[inst.category] || ""}`}>
                             {t.categories[inst.category]}
@@ -570,9 +570,9 @@ export default function HomePage() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>
+                        <p className="text-xs text-muted truncate">{inst.address}, {inst.postalCode} {inst.city}</p>
                         {userLocation && (
-                          <span className="inline-flex items-center gap-0.5 text-xs text-primary/70">
+                          <span className="inline-flex items-center gap-0.5 text-xs text-primary/70 shrink-0">
                             <MapPin className="w-3 h-3" />
                             {formatDistance(haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng))}
                           </span>
@@ -580,13 +580,13 @@ export default function HomePage() {
                       </div>
                       <p className="text-xs text-muted">{inst.municipality}</p>
                     </div>
-                    <div className="flex items-center gap-3 shrink-0 ml-3">
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                       {inst.monthlyRate ? (
                         <div className="text-right">
-                          <p className="font-mono text-sm font-medium text-primary">
+                          <p className="font-mono text-xs sm:text-sm font-medium text-primary">
                             {formatDKK(inst.monthlyRate)}
                           </p>
-                          <span className="text-xs text-muted">{t.common.perMonth}</span>
+                          <span className="text-[10px] sm:text-xs text-muted">{t.common.perMonth}</span>
                         </div>
                       ) : inst.category === "skole" ? (
                         <span className="text-xs text-muted">{language === "da" ? "Folkeskole" : "Public school"}</span>
@@ -594,20 +594,20 @@ export default function HomePage() {
                         <span className="text-xs text-muted">{language === "da" ? "Se pris" : "See price"}</span>
                       )}
                       {listScore != null && (
-                        <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${scoreColor}`}>
-                          <span className="font-mono text-sm font-medium">{listScore.toFixed(1)}</span>
+                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${scoreColor}`}>
+                          <span className="font-mono text-xs sm:text-sm font-medium">{listScore.toFixed(1)}</span>
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between px-4 pb-3 pt-0">
+                <div className="flex items-center justify-between px-3 sm:px-4 pb-2.5 sm:pb-3 pt-0">
                   <span className="text-xs text-primary font-medium">
                     {t.common.seeFullProfile} &rarr;
                   </span>
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
-                    className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    className="p-1.5 sm:p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                     aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
                   >
                     <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
@@ -637,7 +637,7 @@ export default function HomePage() {
         </div>
 
         {/* Map */}
-        <div className={`h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
+        <div className={`h-[calc(100vh-200px)] sm:h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <InstitutionMap
             institutions={boundsFiltered}
             onSelect={handleSelect}
