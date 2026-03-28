@@ -75,6 +75,8 @@ export default function MarkerClusterGroup({
       chunkedLoading: true,
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
+      spiderfyDistanceMultiplier: 2,
+      disableClusteringAtZoom: 18,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
       iconCreateFunction(clusterObj) {

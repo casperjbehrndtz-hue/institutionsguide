@@ -204,6 +204,7 @@ export default function HomePage() {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setUserLocation(loc);
         setFlyTo({ ...loc, zoom: 13 });
+        setRadiusKm(5); // Auto-set 5km radius for useful results
         setNearMeLoading(false);
       },
       () => {
