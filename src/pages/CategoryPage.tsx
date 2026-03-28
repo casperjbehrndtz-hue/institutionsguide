@@ -555,7 +555,7 @@ export default function CategoryPage({ category }: Props) {
               <div className="flex items-center justify-end px-4 pb-2">
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(inst.id); }}
-                  className="p-1.5 rounded-lg hover:bg-red-50 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
+                  className="p-1.5 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
                 >
                   <Heart className={`w-4 h-4 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />

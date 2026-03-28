@@ -247,14 +247,26 @@ export default function FripladsPage() {
               </div>
             </div>
 
-            {/* Income slider - prominent */}
+            {/* Income slider + text input */}
             <div>
               <label htmlFor="friplads-income" className="block text-sm font-medium text-foreground mb-1.5">
                 {t.friplads.householdIncome}
               </label>
-              <p className="text-right font-mono text-2xl text-foreground font-bold mb-2">
-                {income.toLocaleString("da-DK")} kr.
-              </p>
+              <div className="flex items-center justify-end gap-2 mb-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={income.toLocaleString("da-DK")}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, "");
+                    const num = Number(raw);
+                    if (!isNaN(num)) setIncome(Math.min(num, 1_200_000));
+                  }}
+                  className="font-mono text-2xl text-foreground font-bold text-right bg-transparent border-b-2 border-border focus:border-primary outline-none w-40 transition-colors"
+                  aria-label={t.friplads.householdIncome}
+                />
+                <span className="font-mono text-2xl text-foreground font-bold">kr.</span>
+              </div>
               <div className="relative">
                 <input
                   id="friplads-income"

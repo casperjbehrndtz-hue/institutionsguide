@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ChevronDown } from "lucide-react";
+import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -206,7 +206,6 @@ export default function InstitutionPage() {
   }
 
   const q = inst.quality;
-  const [showMore, setShowMore] = useState(false);
 
   return (
     <>
@@ -335,147 +334,106 @@ export default function InstitutionPage() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          PREVIEW + EXPANDABLE: More details
+          FULL DETAILS — always visible
           ═══════════════════════════════════════════ */}
-      <section className="max-w-[640px] mx-auto px-4 pb-12">
-        {/* Quick info preview cards */}
-        {!showMore && (
-          <div className="grid grid-cols-3 gap-2.5 mb-4">
-            {inst.monthlyRate != null && inst.monthlyRate > 0 && (
-              <button onClick={() => setShowMore(true)} className="rounded-lg bg-bg-card p-3 text-left hover:bg-border/20 transition-colors">
-                <p className="text-[11px] text-muted uppercase tracking-wide">{language === "da" ? "Pris" : "Price"}</p>
-                <p className="font-mono text-base font-medium text-primary mt-0.5">{formatDKK(inst.monthlyRate)}</p>
-                <p className="text-[11px] text-muted">{t.common.perMonth}</p>
-              </button>
-            )}
-            {inst.quality?.ts != null && (
-              <button onClick={() => setShowMore(true)} className="rounded-lg bg-bg-card p-3 text-left hover:bg-border/20 transition-colors">
-                <p className="text-[11px] text-muted uppercase tracking-wide">{t.detail.wellbeing}</p>
-                <p className="font-mono text-base font-medium text-foreground mt-0.5">{inst.quality.ts.toLocaleString("da-DK")}</p>
-                <p className="text-[11px] text-muted">{t.detail.nationalAvg} {nationalAverages.trivsel.toLocaleString("da-DK")}</p>
-              </button>
-            )}
-            {inst.quality?.k != null && (
-              <button onClick={() => setShowMore(true)} className="rounded-lg bg-bg-card p-3 text-left hover:bg-border/20 transition-colors">
-                <p className="text-[11px] text-muted uppercase tracking-wide">{t.detail.grades}</p>
-                <p className="font-mono text-base font-medium text-foreground mt-0.5">{inst.quality.k.toLocaleString("da-DK")}</p>
-                <p className="text-[11px] text-muted">{t.detail.nationalAvg} {nationalAverages.karakterer.toLocaleString("da-DK")}</p>
-              </button>
-            )}
-          </div>
-        )}
-
-        <button
-          onClick={() => setShowMore(!showMore)}
-          className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg border border-border/50 transition-colors"
-        >
-          {showMore
-            ? (language === "da" ? "Skjul detaljer" : "Hide details")
-            : (language === "da" ? "Priser, kvalitetsdata og mere" : "Prices, quality data and more")}
-          <ChevronDown className={`w-4 h-4 transition-transform ${showMore ? "rotate-180" : ""}`} />
-        </button>
-
-        {showMore && (
-          <div className="mt-6 space-y-6">
-            {/* Prices */}
-            {inst.monthlyRate != null && (
-              <div className="card p-5">
-                <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                    <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
-                    <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
-                    <p className="text-[10px] text-muted mt-1">{t.common.advisory}</p>
-                  </div>
-                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                    <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
-                    <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
-                  </div>
-                </div>
+      <section className="max-w-[640px] mx-auto px-4 pb-12 space-y-6">
+        {/* Prices */}
+        {inst.monthlyRate != null && (
+          <div className="card p-5">
+            <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
+                <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
+                <p className="text-[10px] text-muted mt-1">{t.common.advisory}</p>
               </div>
-            )}
-
-            {/* Friplads calculator */}
-            {inst.annualRate && inst.annualRate > 0 && (
-              <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
-            )}
-
-            {/* Quality data — percentile bars (schools only) */}
-            {percentiles && percentiles.length > 0 && (
-              <div className="card p-5">
-                <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
-                <div className="space-y-3">
-                  {percentiles.map((p) => (
-                    <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
-                  ))}
-                </div>
-                {/* Legend */}
-                <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
-                </div>
-                {q?.sr && (
-                  <div className="mt-3 text-xs text-muted">
-                    {t.detail.teachingEffect}: <strong className="text-foreground">{q.sr}</strong>
-                  </div>
-                )}
-                {q?.el != null && (
-                  <div className="text-xs text-muted mt-1">
-                    {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
-                  </div>
-                )}
-                <p className="text-[10px] text-muted mt-3">{t.detail.dataSource}</p>
+              <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
+                <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
               </div>
-            )}
-
-            {/* Normering badge (dagtilbud only) */}
-            {inst.category !== "skole" && (() => {
-              const ageGroupMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
-              const ag = ageGroupMap[inst.category];
-              const latest = normering
-                .filter((n) => n.municipality === inst.municipality && n.ageGroup === ag)
-                .sort((a, b) => b.year - a.year);
-              if (latest.length === 0) return null;
-              const current = latest[0];
-              const prev = latest.length > 1 ? latest[1] : undefined;
-              return (
-                <NormeringBadge
-                  municipality={inst.municipality}
-                  ageGroup={current.ageGroup}
-                  ratio={current.ratio}
-                  year={current.year}
-                  previousRatio={prev?.ratio}
-                />
-              );
-            })()}
-
-            {/* Price history chart */}
-            <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
-
-            {/* Price alert */}
-            <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
-
-            {/* Map */}
-            <div className="h-[250px] rounded-xl overflow-hidden border border-border">
-              <InstitutionMap
-                institutions={[inst, ...nearby]}
-                onSelect={() => {}}
-                flyTo={{ lat: inst.lat, lng: inst.lng, zoom: 14 }}
-              />
-            </div>
-
-            {/* Tilsyn */}
-            <TilsynSection institutionId={inst.id} institutionName={inst.name} />
-
-            {/* Reviews */}
-            <div className="space-y-6">
-              <ReviewSummaryV2 institutionId={inst.id} />
-              <ReviewListV2 institutionId={inst.id} />
-              <ReviewFormV2 institutionId={inst.id} />
             </div>
           </div>
         )}
+
+        {/* Friplads calculator */}
+        {inst.annualRate && inst.annualRate > 0 && (
+          <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
+        )}
+
+        {/* Quality data — percentile bars (schools only) */}
+        {percentiles && percentiles.length > 0 && (
+          <div className="card p-5">
+            <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
+            <div className="space-y-3">
+              {percentiles.map((p) => (
+                <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
+              ))}
+            </div>
+            {/* Legend */}
+            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
+            </div>
+            {q?.sr && (
+              <div className="mt-3 text-xs text-muted">
+                {t.detail.teachingEffect}: <strong className="text-foreground">{q.sr}</strong>
+              </div>
+            )}
+            {q?.el != null && (
+              <div className="text-xs text-muted mt-1">
+                {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
+              </div>
+            )}
+            <p className="text-[10px] text-muted mt-3">{t.detail.dataSource}</p>
+          </div>
+        )}
+
+        {/* Normering badge (dagtilbud only) */}
+        {inst.category !== "skole" && (() => {
+          const ageGroupMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
+          const ag = ageGroupMap[inst.category];
+          const latest = normering
+            .filter((n) => n.municipality === inst.municipality && n.ageGroup === ag)
+            .sort((a, b) => b.year - a.year);
+          if (latest.length === 0) return null;
+          const current = latest[0];
+          const prev = latest.length > 1 ? latest[1] : undefined;
+          return (
+            <NormeringBadge
+              municipality={inst.municipality}
+              ageGroup={current.ageGroup}
+              ratio={current.ratio}
+              year={current.year}
+              previousRatio={prev?.ratio}
+            />
+          );
+        })()}
+
+        {/* Price history chart */}
+        <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
+
+        {/* Price alert */}
+        <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
+
+        {/* Map */}
+        <div className="h-[250px] rounded-xl overflow-hidden border border-border">
+          <InstitutionMap
+            institutions={[inst, ...nearby]}
+            onSelect={() => {}}
+            flyTo={{ lat: inst.lat, lng: inst.lng, zoom: 14 }}
+          />
+        </div>
+
+        {/* Tilsyn */}
+        <TilsynSection institutionId={inst.id} institutionName={inst.name} />
+
+        {/* Reviews */}
+        <div className="space-y-6">
+          <ReviewSummaryV2 institutionId={inst.id} />
+          <ReviewListV2 institutionId={inst.id} />
+          <ReviewFormV2 institutionId={inst.id} />
+        </div>
       </section>
 
       <CompareBar />

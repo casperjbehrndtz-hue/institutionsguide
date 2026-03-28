@@ -15,7 +15,7 @@ const NAV_LINKS: { href: string; key: "vuggestue" | "boernehave" | "dagpleje" | 
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { t, language } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const location = useLocation();
 
   const closeMenu = useCallback(() => setOpen(false), []);
@@ -45,7 +45,7 @@ export default function Navbar() {
           Institutionsguide
         </Link>
 
-        {/* Desktop nav — just categories */}
+        {/* Desktop nav — categories + language toggle */}
         <div className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map((link) => {
             const active = location.pathname === link.href;
@@ -63,6 +63,13 @@ export default function Navbar() {
               </Link>
             );
           })}
+          <button
+            onClick={() => setLanguage(language === "da" ? "en" : "da")}
+            className="ml-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-border text-muted hover:text-foreground hover:bg-border/30 transition-colors min-h-[36px]"
+            aria-label={language === "da" ? "Switch to English" : "Skift til dansk"}
+          >
+            {language === "da" ? "EN" : "DA"}
+          </button>
         </div>
 
         {/* Mobile hamburger */}
@@ -106,6 +113,12 @@ export default function Navbar() {
                 </Link>
               );
             })}
+            <button
+              onClick={() => { setLanguage(language === "da" ? "en" : "da"); setOpen(false); }}
+              className="block w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
+            >
+              {language === "da" ? "English" : "Dansk"}
+            </button>
           </div>
         </div>
       )}
