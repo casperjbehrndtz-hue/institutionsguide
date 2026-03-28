@@ -91,13 +91,13 @@ export default function NormeringChart({
               borderRadius: "0.5rem",
               fontSize: 13,
             }}
-            formatter={(value: any, name: any) => [
+            formatter={(value, name) => [
               Number(value).toFixed(1).replace(".", ","),
               AGE_GROUP_CONFIG[name as string]?.label ?? name,
             ]}
           />
           <Legend
-            formatter={(value: any) =>
+            formatter={(value) =>
               AGE_GROUP_CONFIG[value as string]?.label ?? value
             }
           />

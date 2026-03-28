@@ -43,7 +43,7 @@ export function useMunicipalityPriceTrend(
       query = query.eq("category", category);
     }
 
-    query.then(({ data: rows, error: err }) => {
+    Promise.resolve(query).then(({ data: rows, error: err }) => {
       if (cancelled) return;
       if (err) {
         setError(err.message);
@@ -64,6 +64,7 @@ export function useMunicipalityPriceTrend(
         .sort()
         .map((date) => {
           const rates = byDate[date];
+          if (rates.length === 0) return null;
           const sum = rates.reduce((a, b) => a + b, 0);
           return {
             date,
@@ -71,10 +72,17 @@ export function useMunicipalityPriceTrend(
             min: Math.min(...rates),
             max: Math.max(...rates),
           };
-        });
+        })
+        .filter((p): p is TrendPoint => p !== null);
 
       setData(trend);
       setLoading(false);
+    }).catch((e: unknown) => {
+      if (!cancelled) {
+        setError(e instanceof Error ? e.message : "Unknown error");
+        setData([]);
+        setLoading(false);
+      }
     });
 
     return () => {

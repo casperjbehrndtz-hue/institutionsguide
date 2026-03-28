@@ -94,7 +94,7 @@ export default function MunicipalityPriceTrend({
               borderRadius: "0.5rem",
               fontSize: 13,
             }}
-            formatter={(value: any, name: any) => {
+            formatter={(value, name) => {
               const labels: Record<string, string> = {
                 avg: "Gennemsnit",
                 min: "Minimum",
@@ -102,10 +102,10 @@ export default function MunicipalityPriceTrend({
               };
               return [`${Number(value).toLocaleString("da-DK")} kr/md`, labels[name as string] ?? name];
             }}
-            labelFormatter={(label: any) => formatDate(String(label))}
+            labelFormatter={(label) => formatDate(String(label))}
           />
           <Legend
-            formatter={(value: any) => {
+            formatter={(value) => {
               const labels: Record<string, string> = {
                 avg: "Gennemsnit",
                 min: "Minimum",

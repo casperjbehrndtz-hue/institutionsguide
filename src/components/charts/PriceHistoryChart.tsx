@@ -107,11 +107,11 @@ export default function PriceHistoryChart({
               borderRadius: "0.5rem",
               fontSize: 13,
             }}
-            formatter={(value: any) => [
+            formatter={(value) => [
               `${Number(value).toLocaleString("da-DK")} kr/md`,
               "Pris",
             ]}
-            labelFormatter={(label: any) => formatDate(String(label))}
+            labelFormatter={(label) => formatDate(String(label))}
           />
           <Area
             type="monotone"

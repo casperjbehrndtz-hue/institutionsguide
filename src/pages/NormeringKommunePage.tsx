@@ -387,12 +387,12 @@ export default function NormeringKommunePage() {
                     borderRadius: "0.5rem",
                     fontSize: 13,
                   }}
-                  formatter={(value: any, name: any) => [
+                  formatter={(value, name) => [
                     Number(value).toFixed(1).replace(".", ","),
                     AGE_GROUP_LABELS[name as string] ?? name,
                   ]}
                 />
-                <Legend formatter={(value: any) => AGE_GROUP_LABELS[value as string] ?? value} />
+                <Legend formatter={(value) => AGE_GROUP_LABELS[value as string] ?? value} />
                 {activeAgeGroups.map((ag) => (
                   <Line
                     key={ag}

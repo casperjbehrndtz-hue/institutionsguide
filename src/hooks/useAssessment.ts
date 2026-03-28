@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { ScoreResult, LocalizedText } from "@/lib/institutionScore";
 import type { UnifiedInstitution, NormeringEntry } from "@/lib/types";
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 export interface Assessment {
   headline: LocalizedText;
@@ -28,11 +36,19 @@ export function useAssessment(
 ): { assessment: Assessment | null; state: State } {
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [state, setState] = useState<State>("idle");
+  // Use refs to avoid re-triggering effect when these change (we only refetch on inst change)
+  const nearbyRef = useRef(nearby);
+  const normeringRef = useRef(normering);
+  const avgPriceRef = useRef(municipalityAvgPrice);
+  const scoreRef = useRef(scoreResult);
+  nearbyRef.current = nearby;
+  normeringRef.current = normering;
+  avgPriceRef.current = municipalityAvgPrice;
+  scoreRef.current = scoreResult;
 
   useEffect(() => {
-    if (!inst || !scoreResult) return;
+    if (!inst || !scoreRef.current) return;
     if (!supabase) {
-      // No Supabase configured — stay with deterministic fallback
       setState("idle");
       return;
     }
@@ -41,6 +57,10 @@ export function useAssessment(
 
     async function fetchAssessment() {
       setState("loading");
+      const sr = scoreRef.current!;
+      const nr = nearbyRef.current;
+      const norm = normeringRef.current;
+      const avgPrice = avgPriceRef.current;
 
       try {
         // 1. Check cache
@@ -69,7 +89,7 @@ export function useAssessment(
         const ageGroup =
           inst!.category === "vuggestue" || inst!.category === "dagpleje"
             ? "0-2" : "3-5";
-        const entries = normering.filter(
+        const entries = norm.filter(
           (n) => n.municipality.toLowerCase() === inst!.municipality.toLowerCase() && n.ageGroup === ageGroup,
         );
         const latest = entries.sort((a, b) => b.year - a.year)[0];
@@ -80,7 +100,7 @@ export function useAssessment(
           category: inst!.category,
           municipality: inst!.municipality,
           monthly_rate: inst!.monthlyRate ?? null,
-          municipality_avg_price: municipalityAvgPrice,
+          municipality_avg_price: avgPrice,
           ownership: inst!.ownership ?? null,
           normering_ratio: latest?.ratio ?? null,
           normering_age_group: latest ? ageGroup : null,
@@ -90,11 +110,11 @@ export function useAssessment(
           kompetencedaekning_pct: inst!.quality?.kp ?? null,
           klassestorrelse: inst!.quality?.kv ?? null,
           undervisningseffekt: inst!.quality?.sr ?? null,
-          score: scoreResult!.overall,
-          grade: scoreResult!.grade,
-          nearby: nearby.slice(0, 5).map((n) => ({
+          score: sr.overall,
+          grade: sr.grade,
+          nearby: nr.slice(0, 5).map((n) => ({
             name: n.name,
-            distance_km: Math.hypot(n.lat - inst!.lat, n.lng - inst!.lng) * 111,
+            distance_km: haversineKm(inst!.lat, inst!.lng, n.lat, n.lng),
             category: n.category,
             monthly_rate: n.monthlyRate ?? null,
           })),
@@ -127,7 +147,7 @@ export function useAssessment(
 
     fetchAssessment();
     return () => { cancelled = true; };
-  }, [inst?.id]); // Only re-fetch when institution changes
+  }, [inst?.id]);
 
   return { assessment, state };
 }

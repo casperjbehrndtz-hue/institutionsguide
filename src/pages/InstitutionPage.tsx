@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ChevronDown } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -86,6 +86,12 @@ export default function InstitutionPage() {
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const [compareToast, setCompareToast] = useState<string | false>(false);
+
+  useEffect(() => {
+    if (!compareToast) return;
+    const timer = setTimeout(() => setCompareToast(false), 2500);
+    return () => clearTimeout(timer);
+  }, [compareToast]);
 
   const categoryLabels: Record<string, string> = {
     vuggestue: t.categories.vuggestue, boernehave: t.categories.boernehave,
@@ -249,7 +255,6 @@ export default function InstitutionPage() {
                 const msg = language === "da" ? "Tilføjet til sammenligning" : "Added to comparison";
                 setCompareToast(msg);
               }
-              setTimeout(() => setCompareToast(false), 2500);
             }}
             className={`p-2 rounded-lg hover:bg-primary/10 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${isInCompare(inst.id) ? "bg-primary/10" : ""}`}
             aria-label={language === "da" ? "Sammenlign" : "Compare"}
