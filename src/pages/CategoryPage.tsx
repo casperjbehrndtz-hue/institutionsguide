@@ -486,19 +486,17 @@ export default function CategoryPage({ category }: Props) {
             const badge = getInstQualityBadge(inst);
             const norm = getInstNormering(inst);
             return (
-            <div
+            <Link
               key={inst.id}
+              to={`/institution/${inst.id}`}
               data-inst-id={inst.id}
-              className={`card hover:scale-[1.01] transition-all ${
-                selected?.id === inst.id ? "ring-2 ring-primary" : ""
-              } ${hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""}`}
+              className={`card hover:scale-[1.01] transition-all block ${
+                hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
+              }`}
               onMouseEnter={() => setHoveredId(inst.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              <button
-                onClick={() => handleSelect(inst)}
-                className="w-full text-left p-4 min-h-[44px]"
-              >
+              <div className="p-4">
                 {/* Row 1: Name + badge + price */}
                 <div className="flex justify-between items-start gap-2">
                   <div className="min-w-0 flex-1">
@@ -543,25 +541,21 @@ export default function CategoryPage({ category }: Props) {
                     <span>{language === "da" ? "Klasse" : "Class"} <strong className="text-foreground font-mono">{inst.quality.kv.toLocaleString("da-DK")}</strong></span>
                   )}
                   <span>{subtypeLabels[inst.subtype] || inst.subtype}</span>
-                  <Link
-                    to={`/institution/${inst.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="ml-auto text-primary hover:underline"
-                  >
-                    {language === "da" ? "Se profil" : "Profile"} &rarr;
-                  </Link>
                 </div>
-              </button>
-              <div className="flex items-center justify-end px-4 pb-2">
+              </div>
+              <div className="flex items-center justify-between px-4 pb-3 pt-0">
+                <span className="text-xs text-primary font-medium">
+                  {t.common.seeFullProfile} &rarr;
+                </span>
                 <button
-                  onClick={(e) => { e.stopPropagation(); toggleFavorite(inst.id); }}
-                  className="p-1.5 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
+                  className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
                 >
-                  <Heart className={`w-4 h-4 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
+                  <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
                 </button>
               </div>
-            </div>
+            </Link>
             );
           })}
           {boundsFiltered.length > visibleCount && (
