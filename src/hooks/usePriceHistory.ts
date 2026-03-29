@@ -28,11 +28,11 @@ export function usePriceHistory(institutionId: string): UsePriceHistoryResult {
     setLoading(true);
     setError(null);
 
-    supabase
+    Promise.resolve(supabase
       .from("price_snapshots")
       .select("snapshot_date, monthly_rate")
       .eq("institution_id", institutionId)
-      .order("snapshot_date", { ascending: true })
+      .order("snapshot_date", { ascending: true }))
       .then(({ data: rows, error: err }) => {
         if (cancelled) return;
         if (err) {

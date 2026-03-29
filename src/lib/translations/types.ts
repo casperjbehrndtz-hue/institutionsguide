@@ -299,6 +299,9 @@ export interface TranslationStrings {
     radiusKm: string;
     radiusActivateLocation: string;
     radiusClear: string;
+    searchArea: string;
+    enterFullscreen: string;
+    exitFullscreen: string;
   };
   privacy: {
     englishBanner: string;
