@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { handleCorsPreflightOrGetHeaders } from "../_shared/cors.ts";
-import { getAIConfig, resolveModel, fetchAI } from "../_shared/ai-client.ts";
+import { getAIConfig, resolveModel, fetchAI, extractJSON } from "../_shared/ai-client.ts";
 
 // Module → page path mapping for internal links / CTAs
 const MODULE_PATHS: Record<string, { path: string; label: string }> = {
@@ -393,28 +393,16 @@ VIGTIGT:
     const aiResult = await aiResponse.json();
     const rawContent = aiResult.content?.[0]?.text ?? "";
 
-    // Extract JSON
+    // Extract JSON — Claude sometimes wraps JSON in markdown or text
     let articleJson: Record<string, unknown>;
     try {
-      articleJson = JSON.parse(rawContent);
+      articleJson = extractJSON(rawContent);
     } catch {
-      const jsonMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)```/) || rawContent.match(/(\{[\s\S]*\})/);
-      if (!jsonMatch) {
-        await supabase
-          .from("seo_keywords")
-          .update({ status: "failed", error_message: "AI did not return valid JSON", processed_at: new Date().toISOString() })
-          .eq("id", keywordRow.id);
-        throw new Error("AI did not return valid JSON");
-      }
-      try {
-        articleJson = JSON.parse(jsonMatch[1] || jsonMatch[0]);
-      } catch {
-        await supabase
-          .from("seo_keywords")
-          .update({ status: "failed", error_message: "AI returned malformed JSON", processed_at: new Date().toISOString() })
-          .eq("id", keywordRow.id);
-        throw new Error("AI returned malformed JSON");
-      }
+      await supabase
+        .from("seo_keywords")
+        .update({ status: "failed", error_message: "AI did not return valid JSON", processed_at: new Date().toISOString() })
+        .eq("id", keywordRow.id);
+      throw new Error("AI did not return valid JSON");
     }
 
     if (!articleJson.title || !articleJson.content_html) {
@@ -493,12 +481,110 @@ VIGTIGT:
       await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
     } catch { /* non-critical */ }
 
+    // === STEP 8: AI keyword expansion — self-sustaining queue ===
+    let newKeywords: string[] = [];
+    try {
+      const expansionResponse = await fetchAI(ai.url, {
+        method: "POST",
+        headers: ai.headers,
+        body: JSON.stringify({
+          model: resolveModel(),
+          system: `Du er en dansk SEO-ekspert for børnepasning, skoler og dagtilbud. Generer nye long-tail søgeord som danske forældre ville søge på Google. Fokuser på:
+- Spørgsmål forældre stiller (hvad, hvordan, hvornår, hvor meget)
+- Sammenligninger (X vs Y)
+- Lokale søgninger (bedste X i Y kommune)
+- Prisrelaterede søgninger
+- Aktuelle regler og satser (2026)
+
+Cross-suite emner er også velkomne:
+- Familieøkonomi (relevant for ParFinans/NemtBudget)
+- Børneopsparing og skat (relevant for Børneskat)
+- Budgettering med børn
+
+Returner KUN et JSON-array med 5 keyword-strenge. Ingen duplikater af: "${keywordRow.keyword}"`,
+          messages: [{ role: "user", content: `Jeg har lige skrevet en artikel om: "${keywordRow.keyword}" (modul: ${keywordRow.module}).
+
+Giv mig 5 nye relaterede søgeord som danske forældre ville søge, og som vi endnu ikke har dækket. Mix mellem informational og transactional intent. Mindst 1 skal være cross-suite (familieøkonomi/børneopsparing).
+
+Returner KUN: ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]` }],
+          max_tokens: 300,
+        }),
+      });
+
+      if (expansionResponse.ok) {
+        const expResult = await expansionResponse.json();
+        const expRaw = expResult.content?.[0]?.text ?? "";
+        const match = expRaw.match(/\[[\s\S]*?\]/);
+        if (match) {
+          const parsed = JSON.parse(match[0]);
+          if (Array.isArray(parsed)) newKeywords = parsed.filter((k: unknown) => typeof k === "string" && k.length > 5);
+        }
+      }
+    } catch { /* non-critical — don't fail the article publish */ }
+
+    // Insert discovered keywords into queue
+    if (newKeywords.length > 0) {
+      const MODULE_GUESS: Record<string, string> = {
+        børnehave: "dagtilbud", vuggestue: "dagtilbud", dagpleje: "dagtilbud",
+        skole: "skole", folkeskole: "skole", privatskole: "skole", sfo: "skole",
+        normering: "normering", "børn per": "normering", "børn pr": "normering",
+        friplads: "friplads", fripladstilskud: "friplads", søskenderabat: "friplads",
+        budget: "generel", opsparing: "generel", økonomi: "generel", skat: "generel",
+      };
+
+      const keywordsToInsert = newKeywords.map((kw: string) => {
+        const kwLower = kw.toLowerCase();
+        let module = "generel";
+        for (const [term, mod] of Object.entries(MODULE_GUESS)) {
+          if (kwLower.includes(term)) { module = mod; break; }
+        }
+        const intent = kwLower.includes("bedste") || kwLower.includes("billigste") || kwLower.includes("beregn")
+          ? "transactional" : "informational";
+        return { keyword: kw, module, intent, source_urls: [] as string[] };
+      });
+
+      await supabase
+        .from("seo_keywords")
+        .upsert(keywordsToInsert, { onConflict: "keyword,locale", ignoreDuplicates: true });
+    }
+
+    // === STEP 9: Auto-generate Google autocomplete keywords ===
+    let autocompleteKeywords: string[] = [];
+    try {
+      const baseTerms = keywordRow.keyword.split(" ").slice(0, 3).join(" ");
+      const acResponse = await fetch(
+        `https://suggestqueries.google.com/complete/search?client=firefox&hl=da&gl=dk&q=${encodeURIComponent(baseTerms)}`,
+        { signal: AbortSignal.timeout(5000) }
+      );
+      if (acResponse.ok) {
+        const acData = await acResponse.json();
+        if (Array.isArray(acData[1])) {
+          autocompleteKeywords = (acData[1] as string[])
+            .filter((s: string) => s !== keywordRow.keyword && s.length > 10)
+            .slice(0, 5);
+        }
+      }
+    } catch { /* non-critical */ }
+
+    if (autocompleteKeywords.length > 0) {
+      const acInserts = autocompleteKeywords.map((kw: string) => ({
+        keyword: kw,
+        module: keywordRow.module,
+        intent: "informational" as const,
+        source_urls: [] as string[],
+      }));
+      await supabase
+        .from("seo_keywords")
+        .upsert(acInserts, { onConflict: "keyword,locale", ignoreDuplicates: true });
+    }
+
     return new Response(
       JSON.stringify({
         ok: true,
         keyword: keywordRow.keyword,
         url: articleUrl,
         slug: blogResult.slug,
+        new_keywords_queued: newKeywords.length + autocompleteKeywords.length,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
