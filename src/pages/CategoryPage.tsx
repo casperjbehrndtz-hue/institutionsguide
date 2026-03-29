@@ -406,6 +406,7 @@ export default function CategoryPage({ category }: Props) {
             institutions={institutions}
             onNearMe={handleNearMe}
             nearMeLoading={nearMeLoading}
+            hideCategoryPills
           />
         </div>
       </div>

@@ -38,6 +38,7 @@ interface Props {
   nearMeLoading?: boolean;
   onClearAll?: () => void;
   hasActiveFilters?: boolean;
+  hideCategoryPills?: boolean;
 }
 
 const POPULAR_MUNICIPALITIES = [
@@ -180,6 +181,7 @@ export default function SearchFilterBar({
   nearMeLoading,
   onClearAll,
   hasActiveFilters,
+  hideCategoryPills,
 }: Props) {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -370,7 +372,8 @@ export default function SearchFilterBar({
 
         {/* Filters row */}
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          {/* Category pills — horizontal scroll on mobile */}
+          {/* Category pills — hidden on dedicated category pages */}
+          {!hideCategoryPills && (
           <div className="w-full sm:w-auto overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
             <div className="flex gap-1.5 sm:flex-wrap" role="group" aria-label="Kategori-filter">
               {CATEGORIES.map((cat) => (
@@ -389,6 +392,7 @@ export default function SearchFilterBar({
               ))}
             </div>
           </div>
+          )}
 
           {/* Secondary filters — wrap on mobile */}
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
