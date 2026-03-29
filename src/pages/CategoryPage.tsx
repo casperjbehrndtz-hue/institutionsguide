@@ -48,7 +48,7 @@ export default function CategoryPage({ category }: Props) {
     defaultCategory: category,
     defaultSortKey: category === "skole" ? "rating" : "price",
   });
-  const { lat, lng, zoom: mapZoom, view, setMapView, setView } = useMapParams();
+  const { lat, lng, zoom: mapZoom, view, setMapView, setView, radius: radiusKm, setRadius: setRadiusKm } = useMapParams();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const mobileView = view === "kort" ? "map" : "list";
   const [showFilters, setShowFilters] = useState(false);
@@ -57,13 +57,12 @@ export default function CategoryPage({ category }: Props) {
   const handleMarkerHover = useCallback((id: string | null) => setHoveredId(id), []);
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
-  const [radiusKm, setRadiusKm] = useState<number | null>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
 
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 13 });
     setRadiusKm(5);
-  }, []));
+  }, [setRadiusKm]));
 
   const categoryTitles: Record<string, string> = {
     vuggestue: language === "en" ? "Nurseries in Denmark" : "Vuggestuer i Danmark",
@@ -348,7 +347,7 @@ export default function CategoryPage({ category }: Props) {
       )}
 
       {/* Filter bar with mobile collapse */}
-      <div className="sticky top-0 z-30 bg-bg-card border-b border-border">
+      <div className="sticky top-14 z-30 bg-bg-card border-b border-border">
         {/* Mobile: search + filter toggle */}
         <div className="sm:hidden px-4 py-3 flex items-center gap-2">
           <div className="relative flex-1">
