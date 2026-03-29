@@ -8,7 +8,6 @@ import RadiusFilter, { RadiusCircle } from "./RadiusFilter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
 import { useFavorites } from "@/hooks/useFavorites";
-import { qualityBadgeInlineColors } from "@/lib/badges";
 
 interface Props {
   institutions: UnifiedInstitution[];
@@ -61,27 +60,6 @@ function getColor(inst: UnifiedInstitution): string {
 function formatRate(rate: number | null, unknownLabel: string, perMonthLabel: string): string {
   if (rate === null) return unknownLabel;
   return rate.toLocaleString("da-DK") + " kr" + perMonthLabel;
-}
-
-const CATEGORY_LABEL_KEYS: Record<string, "legendVuggestue" | "legendBoernehave" | "legendDagpleje" | "legendSkole" | "legendSfo"> = {
-  vuggestue: "legendVuggestue",
-  boernehave: "legendBoernehave",
-  dagpleje: "legendDagpleje",
-  skole: "legendSkole",
-  sfo: "legendSfo",
-};
-
-function qualityBadgeHtml(quality: UnifiedInstitution["quality"], t: { aboveAvg: string; average: string; belowAvg: string }): string {
-  if (!quality || quality.o === undefined) return "";
-  const colors = qualityBadgeInlineColors(quality.o);
-  if (!colors) return "";
-  const label = quality.o === 1 ? t.aboveAvg : quality.o === 0 ? t.average : t.belowAvg;
-  return `<span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:9999px;background:${colors.bg};color:${colors.text};margin-right:4px;">${escapeHtml(label)}</span>`;
-}
-
-function categoryBadgeHtml(category: string, color: string, label: string): string {
-  // Use a lighter tint of the category color for background
-  return `<span style="display:inline-block;font-size:11px;font-weight:500;padding:2px 7px;border-radius:9999px;background:${color}18;color:${color};border:1px solid ${color}40;margin-right:4px;">${escapeHtml(label)}</span>`;
 }
 
 function escapeHtml(str: string): string {
@@ -337,20 +315,7 @@ function InstitutionMap({
   const markerData = useMemo(
     () =>
       institutions.map((inst) => {
-        const catColor = CATEGORY_COLORS[inst.category] || "#6B7280";
-        const catLabelKey = CATEGORY_LABEL_KEYS[inst.category];
-        const catLabel = catLabelKey ? t.map[catLabelKey] : inst.category;
-        const catBadge = categoryBadgeHtml(inst.category, catColor, catLabel);
-        const qualBadge = inst.category === "skole" ? qualityBadgeHtml(inst.quality, t.detail) : "";
-        const favHeart = isFavorite(inst.id) ? "&#9829;" : "&#9825;";
-        const favColor = isFavorite(inst.id) ? "#EF4444" : "#9CA3AF";
-        const inCompare = isInCompare(inst.id);
-
         const textSecondary = isDark ? "#94A3B8" : "#596A7B";
-        const textPrimary = isDark ? "#F1F5F9" : "#1A2632";
-        const borderColor = isDark ? "#334155" : "#E5E7EB";
-        const priceBg = isDark ? "#0F172A" : "#F9FAFB";
-        const btnBg = isDark ? "#334155" : "#F3F4F6";
         const linkColor = isDark ? "#D4944A" : "#B8642E";
 
         return {

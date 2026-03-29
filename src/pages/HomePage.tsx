@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Heart, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCompare } from "@/contexts/CompareContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
 import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
@@ -100,7 +99,6 @@ export default function HomePage() {
   const { institutions, municipalities, loading, error } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const {
     search, setSearch,
     category, setCategory,
@@ -184,13 +182,6 @@ export default function HomePage() {
     navigate(`/institution/${inst.id}`);
   }
 
-  function handleCompare(inst: UnifiedInstitution) {
-    if (isInCompare(inst.id)) {
-      removeFromCompare(inst.id);
-    } else {
-      addToCompare(inst);
-    }
-  }
 
   const CATEGORY_CARDS = [
     { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100 dark:bg-green-900/30", href: "/vuggestue", desc: t.ageGroups.vuggestue },

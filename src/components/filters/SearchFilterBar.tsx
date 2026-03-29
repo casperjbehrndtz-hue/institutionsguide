@@ -303,10 +303,6 @@ export default function SearchFilterBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, t]);
 
-  const otherMunicipalities = municipalities.filter(
-    (m) => !POPULAR_MUNICIPALITIES.includes(m)
-  );
-
   return (
     <div className="sticky top-0 z-30 bg-bg/95 backdrop-blur-sm border-b border-border py-3 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto space-y-3">

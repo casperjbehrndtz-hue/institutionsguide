@@ -16,7 +16,6 @@ import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import JsonLd from "@/components/shared/JsonLd";
 import { toSlug } from "@/lib/slugs";
-import { formatDKK } from "@/lib/format";
 import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
@@ -290,8 +289,8 @@ export default function PrissammenligningPage() {
                   tick={{ fill: "#4F5F6F" }}
                 />
                 <Tooltip
-                  formatter={(value: number) => [
-                    `${value.toLocaleString("da-DK")} kr/md`,
+                  formatter={(value) => [
+                    `${typeof value === 'number' ? value.toLocaleString("da-DK") : value} kr/md`,
                     RATE_LABELS[activeRateKey],
                   ]}
                   contentStyle={{

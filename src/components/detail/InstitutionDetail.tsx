@@ -6,7 +6,6 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/contexts/CompareContext";
 import type { UnifiedInstitution } from "@/lib/types";
 import { formatDKK } from "@/lib/format";
-import ShareButton from "@/components/shared/ShareButton";
 import StreetViewImage from "@/components/shared/StreetViewImage";
 
 interface Props {
@@ -18,7 +17,7 @@ interface Props {
 export default function InstitutionDetail({ institution: inst, onClose, onCompare }: Props) {
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCompare, isInCompare } = useCompare();
+  const { addToCompare: _addToCompare, isInCompare } = useCompare();
   const panelRef = useRef<HTMLDivElement>(null);
   const q = inst.quality;
 

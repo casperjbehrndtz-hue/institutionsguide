@@ -13,7 +13,6 @@ import {
   type CategorySlug,
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
-import type { UnifiedInstitution } from "@/lib/types";
 
 export default function CheapestPage() {
   const { category: rawCat, municipality: munSlug } = useParams<{

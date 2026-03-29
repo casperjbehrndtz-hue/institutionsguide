@@ -1,9 +1,8 @@
-import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { lazy, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCompare } from "@/contexts/CompareContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
 import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
@@ -36,7 +35,6 @@ export default function CategoryPage({ category }: Props) {
   const { institutions, municipalities, normering, loading, error } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const {
     search, setSearch,
     category: catFilter, setCategory: setCatFilter,
@@ -205,13 +203,6 @@ export default function CategoryPage({ category }: Props) {
     navigate(`/institution/${inst.id}`);
   }
 
-  function handleCompare(inst: UnifiedInstitution) {
-    if (isInCompare(inst.id)) {
-      removeFromCompare(inst.id);
-    } else {
-      addToCompare(inst);
-    }
-  }
 
   if (loading) {
     return (

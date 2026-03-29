@@ -29,7 +29,7 @@ const AGE_GROUP_CONFIG: Record<string, { color: string; label: string }> = {
 };
 
 export default function NormeringChart({
-  municipality,
+  municipality: _municipality,
   data,
   title,
 }: NormeringChartProps) {

@@ -82,7 +82,7 @@ export function localBusinessSchema(inst: {
   web?: string;
   category: string;
   monthlyRate?: number | null;
-}, siteUrl: string) {
+}, _siteUrl: string) {
   const typeMap: Record<string, string> = {
     vuggestue: "ChildCare",
     boernehave: "ChildCare",

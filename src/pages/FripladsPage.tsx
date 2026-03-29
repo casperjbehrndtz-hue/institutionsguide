@@ -7,7 +7,7 @@ import ScrollReveal from "@/components/shared/ScrollReveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFamily } from "@/contexts/FamilyContext";
 import { calculateFriplads, FRIPLADS_CONSTANTS } from "@/lib/childcare/friplads";
-import { CHILDCARE_RATES_2025, getAllMunicipalities, getChildcareRates } from "@/lib/childcare/rates";
+import { getAllMunicipalities, getChildcareRates } from "@/lib/childcare/rates";
 import { formatDKK } from "@/lib/format";
 import type { InstitutionType } from "@/lib/childcare/types";
 
