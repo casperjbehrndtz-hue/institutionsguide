@@ -4,6 +4,8 @@ import type {
   CompactSchool,
   MunicipalitySummary,
   NormeringEntry,
+  InstitutionStats,
+  KommuneStats,
 } from "@/lib/types";
 import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
 
@@ -46,6 +48,8 @@ interface DataContextValue {
   institutions: UnifiedInstitution[];
   municipalities: MunicipalitySummary[];
   normering: NormeringEntry[];
+  institutionStats: Record<string, InstitutionStats>;
+  kommuneStats: Record<string, KommuneStats>;
   loading: boolean;
   error: string | null;
   nationalAverages: { trivsel: number; karakterer: number; fravaer: number };
@@ -118,6 +122,8 @@ function compactDagtilbudToUnified(d: CompactDagtilbud, prefix: string): Unified
 export function DataProvider({ children }: { children: ReactNode }) {
   const [institutions, setInstitutions] = useState<UnifiedInstitution[]>([]);
   const [normering, setNormering] = useState<NormeringEntry[]>([]);
+  const [institutionStats, setInstitutionStats] = useState<Record<string, InstitutionStats>>({});
+  const [kommuneStats, setKommuneStats] = useState<Record<string, KommuneStats>>({});
   const [nationalAverages, setNationalAverages] = useState({ trivsel: 3.6, karakterer: 7.4, fravaer: 7.4 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,13 +131,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function loadData() {
       try {
-        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes, normeringRes] = await Promise.all([
+        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes, normeringRes, instStatsRes, komStatsRes] = await Promise.all([
           fetch("/data/skole-data.json"),
           fetch("/data/vuggestue-data.json"),
           fetch("/data/boernehave-data.json"),
           fetch("/data/dagpleje-data.json"),
           fetch("/data/sfo-data.json"),
           fetch("/data/normering-data.json").catch(() => null),
+          fetch("/data/institution-stats.json").catch(() => null),
+          fetch("/data/kommune-stats.json").catch(() => null),
         ]);
 
         if (!skoleRes.ok || !vuggestueRes.ok || !boernehaveRes.ok || !dagplejeRes.ok) {
@@ -236,6 +244,43 @@ export function DataProvider({ children }: { children: ReactNode }) {
           })));
         }
 
+        // Load per-institution stats (normering per inst, staff education)
+        const mergedInstStats: Record<string, InstitutionStats> = {};
+        if (instStatsRes && instStatsRes.ok) {
+          const instData = await instStatsRes.json();
+          for (const [id, s] of Object.entries(instData.institutions ?? {})) {
+            mergedInstStats[id] = s as InstitutionStats;
+          }
+        }
+
+        // Load parent satisfaction data and merge into institution stats
+        const parentSatRes = await fetch("/data/parent-satisfaction.json").catch(() => null);
+        if (parentSatRes && parentSatRes.ok) {
+          const satData = await parentSatRes.json();
+          for (const [id, s] of Object.entries(satData.institutions ?? {} as Record<string, { overallSatisfaction?: number; kommuneSatisfaction?: number }>)) {
+            const sat = s as { overallSatisfaction?: number; kommuneSatisfaction?: number };
+            if (!mergedInstStats[id]) {
+              mergedInstStats[id] = {
+                normering02: null, normering35: null,
+                pctPaedagoger: null, pctPaedAssistenter: null, pctUdenPaedUdd: null,
+                antalBoern: null,
+                parentSatisfaction: sat.overallSatisfaction ?? null,
+                parentSatisfactionYear: 2022,
+              };
+            } else {
+              mergedInstStats[id].parentSatisfaction = sat.overallSatisfaction ?? null;
+              mergedInstStats[id].parentSatisfactionYear = 2022;
+            }
+          }
+        }
+        setInstitutionStats(mergedInstStats);
+
+        // Load kommune-level stats (sygefravær, expenditure, sprogvurdering)
+        if (komStatsRes && komStatsRes.ok) {
+          const komData = await komStatsRes.json();
+          setKommuneStats(komData.kommuner ?? {});
+        }
+
         setInstitutions(unified);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Ukendt fejl ved indlæsning af data.");
@@ -293,10 +338,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     institutions,
     municipalities,
     normering,
+    institutionStats,
+    kommuneStats,
     loading,
     error,
     nationalAverages,
-  }), [institutions, municipalities, normering, loading, error, nationalAverages]);
+  }), [institutions, municipalities, normering, institutionStats, kommuneStats, loading, error, nationalAverages]);
 
   return <DataContext value={value}>{children}</DataContext>;
 }

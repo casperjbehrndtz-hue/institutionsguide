@@ -97,6 +97,43 @@ export interface NormeringEntry {
   ratio: number;
 }
 
+// Per-institution extended quality data (from Uddannelsesstatistik API + BTU)
+export interface InstitutionStats {
+  normering02: number | null;     // children per adult, 0-2 year olds
+  normering35: number | null;     // children per adult, 3-5 year olds
+  pctPaedagoger: number | null;   // % staff with pædagoguddannelse
+  pctPaedAssistenter: number | null; // % staff with pædagogisk assistentuddannelse
+  pctUdenPaedUdd: number | null;  // % staff without pedagogical education
+  antalBoern: number | null;      // enrolled children
+  parentSatisfaction: number | null; // 1-5 BTU score
+  parentSatisfactionYear: number | null;
+}
+
+// Arbejdstilsynet inspection decision
+export interface ArbejdstilsynDecision {
+  date: string;
+  decisionType: string;    // 'strakspåbud', 'påbud', etc.
+  problemArea: string;     // 'Psykisk arbejdsmiljø', etc.
+  description: string;
+  status: string;          // 'aktiv', 'efterkommet', 'frafaldet'
+}
+
+// Kommune-level context data (from DST, KRL, etc.)
+export interface KommuneStats {
+  code: string;
+  avgSygefravaerDage: number | null;
+  pctPaedagogerKommune: number | null;
+  pctMedhjaelpereKommune: number | null;
+  udgiftPrBarn: number | null;
+  sprogvurderingPctUdfordret: number | null;
+  dagplejeTakst: number | null;
+  vuggestueTakst: number | null;
+  boernehaveTakst: number | null;
+  sfoTakst: number | null;
+  antalBoern02: number | null;
+  antalBoern35: number | null;
+}
+
 export type InstitutionCategory = "alle" | "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
 export type AgeGroup = "" | "0-2" | "3-5" | "6-9" | "10-16";
 export type SortKey = "name" | "price" | "municipality" | "rating" | "grades" | "absence" | "distance";

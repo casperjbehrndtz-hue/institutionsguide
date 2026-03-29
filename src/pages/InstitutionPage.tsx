@@ -24,6 +24,8 @@ import ReviewFormV2 from "@/components/reviews/ReviewFormV2";
 import { useReviews } from "@/hooks/useReviews";
 import TilsynSection from "@/components/tilsyn/TilsynSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
+import InstitutionQualitySection from "@/components/detail/InstitutionQualitySection";
+import ArbejdstilsynSection from "@/components/detail/ArbejdstilsynSection";
 import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
 import StreetViewImage from "@/components/shared/StreetViewImage";
@@ -87,7 +89,7 @@ function PercentileBar({ label, percentile, value, lang = "da" }: {
 
 export default function InstitutionPage() {
   const { id } = useParams<{ id: string }>();
-  const { institutions, normering, loading, nationalAverages } = useData();
+  const { institutions, normering, institutionStats, kommuneStats, loading, nationalAverages } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
@@ -153,8 +155,12 @@ export default function InstitutionPage() {
 
   const scoreResult = useMemo(() => {
     if (!inst) return null;
-    return computeScore(inst, nearby, normering, municipalityAvgPrice);
-  }, [inst, nearby, normering, municipalityAvgPrice]);
+    return computeScore(inst, nearby, normering, municipalityAvgPrice, instStats);
+  }, [inst, nearby, normering, municipalityAvgPrice, instStats]);
+
+  // Look up extended quality data for this institution
+  const instStats = inst ? institutionStats[inst.id.replace(/^(vug|bh|dag|sfo)-/, "")] : undefined;
+  const komStats = inst ? kommuneStats[inst.municipality] : undefined;
 
   const { assessment: aiAssessment, state: aiState } = useAssessment(
     inst, scoreResult, nearby, normering, municipalityAvgPrice,
@@ -456,6 +462,17 @@ export default function InstitutionPage() {
             </Suspense>
           );
         })()}
+
+        {/* Quality data — per institution stats (normering, staff education, parent satisfaction) */}
+        <InstitutionQualitySection
+          stats={instStats}
+          kommuneStats={komStats}
+          municipality={inst.municipality}
+          category={inst.category}
+        />
+
+        {/* Arbejdstilsyn — work environment inspections */}
+        <ArbejdstilsynSection institutionId={inst.id} institutionName={inst.name} />
 
         {/* Price history chart */}
         <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>

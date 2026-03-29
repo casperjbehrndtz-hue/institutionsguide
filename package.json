@@ -13,7 +13,11 @@
     "test": "vitest",
     "test:run": "vitest run",
     "assessments": "node scripts/batch-assessments.mjs",
-    "assessments:dry": "node scripts/batch-assessments.mjs --dry-run"
+    "assessments:dry": "node scripts/batch-assessments.mjs --dry-run",
+    "fetch:inst-stats": "node scripts/fetch-institution-stats.mjs",
+    "fetch:kommune-stats": "node scripts/fetch-dst-kommune-stats.mjs",
+    "fetch:arbejdstilsyn": "node scripts/fetch-arbejdstilsyn.mjs",
+    "fetch:all-data": "npm run fetch:inst-stats && npm run fetch:kommune-stats"
   },
   "dependencies": {
     "@sentry/react": "^10.46.0",

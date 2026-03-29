@@ -2,6 +2,7 @@ import type {
   UnifiedInstitution,
   NormeringEntry,
   SchoolQuality,
+  InstitutionStats,
 } from "@/lib/types";
 
 export interface LocalizedText {
@@ -178,6 +179,7 @@ function scoreDagtilbud(
   inst: UnifiedInstitution,
   normering: NormeringEntry[],
   municipalityAvgPrice: number | null,
+  instStats?: InstitutionStats,
 ): { metrics: MetricScore[]; overall: number } {
   const available: WeightedMetric[] = [];
 
@@ -187,35 +189,70 @@ function scoreDagtilbud(
     available.push({
       key: "pris",
       label: { da: "Pris", en: "Price" },
-      weight: 0.35,
+      weight: 0.25,
       score,
       value: `${Math.round(inst.monthlyRate).toLocaleString("da-DK")} kr./md.`,
       icon: "💰",
     });
   }
 
+  // Prefer per-institution normering from instStats, fall back to kommune-level
   const ageGroup =
     inst.category === "vuggestue" || inst.category === "dagpleje"
       ? "0-2"
       : "3-5";
-  const entries = normering.filter(
-    (n) =>
-      n.municipality.toLowerCase() === inst.municipality.toLowerCase() &&
-      n.ageGroup === ageGroup,
-  );
-  const latest = entries.sort((a, b) => b.year - a.year)[0];
+  const instNormering = instStats
+    ? (ageGroup === "0-2" ? instStats.normering02 : instStats.normering35)
+    : null;
 
-  if (latest) {
+  const normeringRatio = (() => {
+    if (instNormering != null) return instNormering;
+    const entries = normering.filter(
+      (n) =>
+        n.municipality.toLowerCase() === inst.municipality.toLowerCase() &&
+        n.ageGroup === ageGroup,
+    );
+    const latest = entries.sort((a, b) => b.year - a.year)[0];
+    return latest?.ratio ?? null;
+  })();
+
+  if (normeringRatio != null) {
     const goodRatio = ageGroup === "0-2" ? 3.0 : 6.0;
     const badRatio = ageGroup === "0-2" ? 4.5 : 9.0;
-    const score = linearMap(latest.ratio, badRatio, goodRatio);
+    const score = linearMap(normeringRatio, badRatio, goodRatio);
     available.push({
       key: "normering",
       label: { da: "Normering", en: "Staff ratio" },
-      weight: 0.35,
+      weight: 0.25,
       score,
-      value: `${fmt(latest.ratio)} børn/voksen`,
+      value: `${fmt(normeringRatio)} børn/voksen`,
       icon: "👶",
+    });
+  }
+
+  // Staff education level (per institution)
+  if (instStats?.pctPaedagoger != null) {
+    const score = linearMap(instStats.pctPaedagoger, 35, 80);
+    available.push({
+      key: "uddannelse",
+      label: { da: "Personaleuddannelse", en: "Staff education" },
+      weight: 0.2,
+      score,
+      value: `${instStats.pctPaedagoger.toFixed(0)}% pædagoger`,
+      icon: "🎓",
+    });
+  }
+
+  // Parent satisfaction (BTU)
+  if (instStats?.parentSatisfaction != null) {
+    const score = linearMap(instStats.parentSatisfaction, 3.0, 5.0);
+    available.push({
+      key: "tilfredshed",
+      label: { da: "Forældretilfredshed", en: "Parent satisfaction" },
+      weight: 0.2,
+      score,
+      value: `${fmt(instStats.parentSatisfaction)} / 5`,
+      icon: "❤️",
     });
   }
 
@@ -230,26 +267,12 @@ function scoreDagtilbud(
     available.push({
       key: "ejerskab",
       label: { da: "Ejerskab", en: "Ownership" },
-      weight: 0.15,
+      weight: 0.1,
       score,
       value: inst.ownership,
       icon: "🏛️",
     });
   }
-
-  const hasEmail = !!inst.email;
-  const hasPhone = !!inst.phone;
-  const hasWeb = !!inst.web;
-  const contactCount = [hasEmail, hasPhone, hasWeb].filter(Boolean).length;
-  const dataScore = contactCount === 3 ? 100 : contactCount >= 1 ? 50 : 20;
-  available.push({
-    key: "data",
-    label: { da: "Kontaktdata", en: "Contact data" },
-    weight: 0.15,
-    score: dataScore,
-    value: `${contactCount}/3`,
-    icon: "📋",
-  });
 
   if (available.length === 0) {
     return { metrics: [], overall: 50 };
@@ -369,6 +392,7 @@ function dagtilbudProsAndCons(
   inst: UnifiedInstitution,
   normering: NormeringEntry[],
   municipalityAvgPrice: number | null,
+  instStats?: InstitutionStats,
 ): { pros: LocalizedText[]; cons: LocalizedText[] } {
   const pros: LocalizedText[] = [];
   const cons: LocalizedText[] = [];
@@ -389,28 +413,65 @@ function dagtilbudProsAndCons(
     }
   }
 
+  // Normering — prefer per-institution, fallback to kommune
   const ageGroup =
     inst.category === "vuggestue" || inst.category === "dagpleje"
       ? "0-2"
       : "3-5";
-  const entries = normering.filter(
-    (n) =>
-      n.municipality.toLowerCase() === inst.municipality.toLowerCase() &&
-      n.ageGroup === ageGroup,
-  );
-  const latest = entries.sort((a, b) => b.year - a.year)[0];
+  const instNormering = instStats
+    ? (ageGroup === "0-2" ? instStats.normering02 : instStats.normering35)
+    : null;
+  const ratio = (() => {
+    if (instNormering != null) return instNormering;
+    const entries = normering.filter(
+      (n) =>
+        n.municipality.toLowerCase() === inst.municipality.toLowerCase() &&
+        n.ageGroup === ageGroup,
+    );
+    return entries.sort((a, b) => b.year - a.year)[0]?.ratio ?? null;
+  })();
 
-  if (latest) {
+  if (ratio != null) {
     const recommended = ageGroup === "0-2" ? 3.0 : 6.0;
-    if (latest.ratio <= recommended) {
+    if (ratio <= recommended) {
       pros.push({
-        da: `God normering (${fmt(latest.ratio)} børn/voksen)`,
-        en: `Good staff ratio (${fmt(latest.ratio)} children/adult)`,
+        da: `God normering (${fmt(ratio)} børn/voksen)`,
+        en: `Good staff ratio (${fmt(ratio)} children/adult)`,
       });
-    } else if (latest.ratio > recommended * 1.15) {
+    } else if (ratio > recommended * 1.15) {
       cons.push({
-        da: `Normering ${fmt(latest.ratio)} børn/voksen — over anbefalet niveau`,
-        en: `Staff ratio ${fmt(latest.ratio)} children/adult — above recommended level`,
+        da: `Normering ${fmt(ratio)} børn/voksen — over anbefalet niveau`,
+        en: `Staff ratio ${fmt(ratio)} children/adult — above recommended level`,
+      });
+    }
+  }
+
+  // Staff education
+  if (instStats?.pctPaedagoger != null) {
+    if (instStats.pctPaedagoger >= 65) {
+      pros.push({
+        da: `Høj andel uddannede pædagoger (${instStats.pctPaedagoger.toFixed(0)}%)`,
+        en: `High share of qualified pedagogues (${instStats.pctPaedagoger.toFixed(0)}%)`,
+      });
+    } else if (instStats.pctPaedagoger < 45) {
+      cons.push({
+        da: `Lav andel uddannede pædagoger (${instStats.pctPaedagoger.toFixed(0)}%)`,
+        en: `Low share of qualified pedagogues (${instStats.pctPaedagoger.toFixed(0)}%)`,
+      });
+    }
+  }
+
+  // Parent satisfaction
+  if (instStats?.parentSatisfaction != null) {
+    if (instStats.parentSatisfaction >= 4.2) {
+      pros.push({
+        da: `Høj forældretilfredshed (${fmt(instStats.parentSatisfaction)} / 5)`,
+        en: `High parent satisfaction (${fmt(instStats.parentSatisfaction)} / 5)`,
+      });
+    } else if (instStats.parentSatisfaction < 3.5) {
+      cons.push({
+        da: `Lavere forældretilfredshed (${fmt(instStats.parentSatisfaction)} / 5)`,
+        en: `Lower parent satisfaction (${fmt(instStats.parentSatisfaction)} / 5)`,
       });
     }
   }
@@ -428,22 +489,6 @@ function dagtilbudProsAndCons(
         en: "Municipal institution — municipal oversight",
       });
     }
-  }
-
-  const hasEmail = !!inst.email;
-  const hasPhone = !!inst.phone;
-  const hasWeb = !!inst.web;
-  const contactCount = [hasEmail, hasPhone, hasWeb].filter(Boolean).length;
-  if (contactCount === 3) {
-    pros.push({
-      da: "Alle kontaktoplysninger tilgængelige",
-      en: "All contact information available",
-    });
-  } else if (contactCount === 0) {
-    cons.push({
-      da: "Ingen kontaktoplysninger tilgængelige",
-      en: "No contact information available",
-    });
   }
 
   return { pros: pros.slice(0, 4), cons: cons.slice(0, 3) };
@@ -570,6 +615,7 @@ export function computeScore(
   _nearby: UnifiedInstitution[],
   normering: NormeringEntry[],
   municipalityAvgPrice: number | null,
+  instStats?: InstitutionStats,
 ): ScoreResult {
   const isSchool = inst.category === "skole";
 
@@ -581,8 +627,8 @@ export function computeScore(
   }
 
   if (DAGTILBUD_CATEGORIES.has(inst.category)) {
-    const { metrics, overall } = scoreDagtilbud(inst, normering, municipalityAvgPrice);
-    const { pros, cons } = dagtilbudProsAndCons(inst, normering, municipalityAvgPrice);
+    const { metrics, overall } = scoreDagtilbud(inst, normering, municipalityAvgPrice, instStats);
+    const { pros, cons } = dagtilbudProsAndCons(inst, normering, municipalityAvgPrice, instStats);
     const recommendation = dagtilbudRecommendation(overall, inst, normering, municipalityAvgPrice);
     return { overall, grade: toGrade(overall), metrics, pros, cons, recommendation };
   }
