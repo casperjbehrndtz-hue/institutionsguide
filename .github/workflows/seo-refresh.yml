@@ -1,0 +1,19 @@
+name: SEO Refresh Underperformers
+on:
+  schedule:
+    - cron: "0 8 * * 1" # Mondays at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Auto-refresh articles
+        run: |
+          curl -sf -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/seo-refresh" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SEO_GENERATE_SECRET }}" \
+            -d '{"action": "auto_refresh"}' \
+            | jq .

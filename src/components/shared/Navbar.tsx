@@ -3,12 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const NAV_LINKS: { href: string; key: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "friplads" | "normering"; labelOverride?: Record<string, string> }[] = [
-  { href: "/vuggestue", key: "vuggestue" },
-  { href: "/boernehave", key: "boernehave" },
-  { href: "/dagpleje", key: "dagpleje" },
-  { href: "/skole", key: "skole" },
-  { href: "/sfo", key: "sfo" },
+const NAV_LINKS: { href: string; key: "friplads" | "normering"; labelOverride?: Record<string, string> }[] = [
   { href: "/friplads", key: "friplads", labelOverride: { da: "Friplads", en: "Subsidy" } },
   { href: "/normering", key: "normering", labelOverride: { da: "Børn pr. voksen", en: "Children per adult" } },
 ];
@@ -95,7 +90,7 @@ export default function Navbar() {
 
       {open && (
         <div className="md:hidden border-t border-border bg-bg animate-fade-in relative z-40">
-          <div className="px-4 py-2 grid grid-cols-2 gap-1">
+          <div className="px-4 py-2 flex flex-wrap gap-1">
             {NAV_LINKS.map((link) => {
               const active = location.pathname === link.href;
               return (

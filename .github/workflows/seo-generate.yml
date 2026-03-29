@@ -1,0 +1,19 @@
+name: SEO Generate Article
+on:
+  schedule:
+    - cron: "0 8 */2 * *" # Every 2 days at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Generate SEO article
+        run: |
+          curl -sf -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/seo-generate" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SEO_GENERATE_SECRET }}" \
+            -d '{"mode": "auto"}' \
+            | jq .

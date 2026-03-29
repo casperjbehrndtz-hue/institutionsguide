@@ -1,0 +1,19 @@
+name: SEO Retroactive Linking
+on:
+  schedule:
+    - cron: "30 6 * * 3" # Wednesdays at 06:30 UTC
+  workflow_dispatch:
+
+jobs:
+  link:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Auto-inject internal links
+        run: |
+          curl -sf -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/seo-retrolink" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SEO_GENERATE_SECRET }}" \
+            -d '{"action": "auto_link"}' \
+            | jq .

@@ -1,0 +1,19 @@
+name: SEO Analytics (GSC Sync)
+on:
+  schedule:
+    - cron: "0 7 * * 0" # Sundays at 07:00 UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Sync GSC data
+        run: |
+          curl -sf -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/seo-analytics" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SEO_GENERATE_SECRET }}" \
+            -d '{"action": "full_sync"}' \
+            | jq .
