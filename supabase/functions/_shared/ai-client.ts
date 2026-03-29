@@ -1,36 +1,30 @@
-// Shared AI client config — supports Google Gemini direct
+// Shared AI client config — uses Anthropic Claude API
 // All edge functions use this instead of calling the API directly
 
-const GEMINI_DIRECT_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-
-const DEFAULT_TIMEOUT_MS = 30_000;
-
-type Provider = "google";
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+const DEFAULT_TIMEOUT_MS = 60_000;
 
 interface AIConfig {
   url: string;
   headers: Record<string, string>;
-  provider: Provider;
 }
 
 export function getAIConfig(): AIConfig {
-  const googleKey = Deno.env.get("GOOGLE_API_KEY");
-  if (googleKey) {
-    return {
-      url: GEMINI_DIRECT_URL,
-      headers: {
-        Authorization: `Bearer ${googleKey}`,
-        "Content-Type": "application/json",
-      },
-      provider: "google",
-    };
-  }
+  const key = Deno.env.get("ANTHROPIC_API_KEY");
+  if (!key) throw new Error("No ANTHROPIC_API_KEY configured");
 
-  throw new Error("No AI API key configured (set GOOGLE_API_KEY)");
+  return {
+    url: ANTHROPIC_URL,
+    headers: {
+      "x-api-key": key,
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    },
+  };
 }
 
-export function resolveModel(model: string): string {
-  return model.replace(/^google\//, "");
+export function resolveModel(): string {
+  return "claude-sonnet-4-6";
 }
 
 // Fetch with timeout — prevents edge functions from hanging indefinitely

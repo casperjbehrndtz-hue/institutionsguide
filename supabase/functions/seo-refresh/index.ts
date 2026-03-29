@@ -130,17 +130,16 @@ Returner JSON: {"titles": ["...", ...], "descriptions": ["...", ...]}`;
               method: "POST",
               headers: ai.headers,
               body: JSON.stringify({
-                model: resolveModel("google/gemini-2.5-flash-lite"),
+                model: resolveModel(),
                 messages: [{ role: "user", content: prompt }],
                 max_tokens: 1000,
-                response_format: { type: "json_object" },
               }),
             });
 
             if (!aiResponse.ok) { results.push({ slug, reason, action_taken: `ai_error: ${aiResponse.status}` }); continue; }
 
             const aiData = await aiResponse.json();
-            const raw = aiData.choices?.[0]?.message?.content ?? "";
+            const raw = aiData.content?.[0]?.text ?? "";
             const parsed = extractJSON(raw) as { titles?: string[]; descriptions?: string[] };
 
             const newTitle = parsed.titles?.[0]?.slice(0, 60);
@@ -192,17 +191,16 @@ Returner JSON: {"section_html": "<h2>...</h2><p>...</p>"}`;
               method: "POST",
               headers: ai.headers,
               body: JSON.stringify({
-                model: resolveModel("google/gemini-2.5-flash-lite"),
+                model: resolveModel(),
                 messages: [{ role: "user", content: prompt }],
                 max_tokens: 1500,
-                response_format: { type: "json_object" },
               }),
             });
 
             if (!aiResponse.ok) { results.push({ slug, reason, action_taken: `ai_error: ${aiResponse.status}` }); continue; }
 
             const aiData = await aiResponse.json();
-            const raw = aiData.choices?.[0]?.message?.content ?? "";
+            const raw = aiData.content?.[0]?.text ?? "";
             const parsed = extractJSON(raw) as { section_html?: string };
 
             if (parsed.section_html) {
@@ -243,17 +241,16 @@ Returner JSON: {"content_html": "...opdateret HTML"}`;
               method: "POST",
               headers: ai.headers,
               body: JSON.stringify({
-                model: resolveModel("google/gemini-2.5-flash-lite"),
+                model: resolveModel(),
                 messages: [{ role: "user", content: prompt }],
-                max_tokens: 4000,
-                response_format: { type: "json_object" },
+                max_tokens: 4096,
               }),
             });
 
             if (!aiResponse.ok) { results.push({ slug, reason, action_taken: `ai_error: ${aiResponse.status}` }); continue; }
 
             const aiData = await aiResponse.json();
-            const raw = aiData.choices?.[0]?.message?.content ?? "";
+            const raw = aiData.content?.[0]?.text ?? "";
             const parsed = extractJSON(raw) as { content_html?: string };
 
             if (parsed.content_html) {

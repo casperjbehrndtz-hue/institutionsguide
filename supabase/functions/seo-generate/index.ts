@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
   try {
     ai = getAIConfig();
   } catch {
-    return new Response(JSON.stringify({ error: "GOOGLE_API_KEY not configured" }), {
+    return new Response(JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -368,13 +368,12 @@ VIGTIGT:
       method: "POST",
       headers: ai.headers,
       body: JSON.stringify({
-        model: resolveModel("google/gemini-2.5-flash-lite"),
+        model: resolveModel(),
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        max_tokens: 4000,
-        response_format: { type: "json_object" },
+        max_tokens: 4096,
       }),
     });
 
@@ -392,7 +391,7 @@ VIGTIGT:
     }
 
     const aiResult = await aiResponse.json();
-    const rawContent = aiResult.choices?.[0]?.message?.content ?? "";
+    const rawContent = aiResult.content?.[0]?.text ?? "";
 
     // Extract JSON
     let articleJson: Record<string, unknown>;
