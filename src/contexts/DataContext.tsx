@@ -234,7 +234,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
 
         // Load normering data
-        if (normeringRes && normeringRes.ok) {
+        if (normeringRes && normeringRes.ok && normeringRes.headers.get("content-type")?.includes("json")) {
           const normeringRaw: CompactNormering[] = await normeringRes.json();
           setNormering(normeringRaw.map((n) => ({
             municipality: n.m,
@@ -246,7 +246,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         // Load per-institution stats (normering per inst, staff education)
         const mergedInstStats: Record<string, InstitutionStats> = {};
-        if (instStatsRes && instStatsRes.ok) {
+        if (instStatsRes && instStatsRes.ok && instStatsRes.headers.get("content-type")?.includes("json")) {
           const instData = await instStatsRes.json();
           for (const [id, s] of Object.entries(instData.institutions ?? {})) {
             mergedInstStats[id] = s as InstitutionStats;
@@ -255,7 +255,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         // Load parent satisfaction data and merge into institution stats
         const parentSatRes = await fetch("/data/parent-satisfaction.json").catch(() => null);
-        if (parentSatRes && parentSatRes.ok) {
+        if (parentSatRes && parentSatRes.ok && parentSatRes.headers.get("content-type")?.includes("json")) {
           const satData = await parentSatRes.json();
           for (const [id, s] of Object.entries(satData.institutions ?? {} as Record<string, { overallSatisfaction?: number; kommuneSatisfaction?: number }>)) {
             const sat = s as { overallSatisfaction?: number; kommuneSatisfaction?: number };
@@ -276,7 +276,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setInstitutionStats(mergedInstStats);
 
         // Load kommune-level stats (sygefravær, expenditure, sprogvurdering)
-        if (komStatsRes && komStatsRes.ok) {
+        if (komStatsRes && komStatsRes.ok && komStatsRes.headers.get("content-type")?.includes("json")) {
           const komData = await komStatsRes.json();
           setKommuneStats(komData.kommuner ?? {});
         }
