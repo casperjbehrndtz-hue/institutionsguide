@@ -19,6 +19,7 @@ import { toSlug } from "@/lib/slugs";
 import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import { dataVersions } from "@/lib/dataVersions";
 
 type RateKey = "vuggestue" | "boernehave" | "dagpleje" | "sfo";
 type SortKey = "municipality" | RateKey;
@@ -428,7 +429,7 @@ export default function PrissammenligningPage() {
           <p>
             <strong className="text-foreground">Hvor kommer priserne fra?</strong><br />
             Taksterne er baseret på data fra Danmarks Statistik (StatBank RES88) og viser de
-            kommunale takster for 2025. Priserne er omregnet til månedlige beløb.
+            kommunale takster for {dataVersions.prices.year}. Priserne er omregnet til månedlige beløb.
           </p>
           <p>
             <strong className="text-foreground">Hvorfor varierer priserne?</strong><br />

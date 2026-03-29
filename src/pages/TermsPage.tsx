@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 
 export default function TermsPage() {
   return (
@@ -25,7 +26,7 @@ export default function TermsPage() {
           </h2>
           <p>
             Informationen på denne side udgør ikke finansiel, juridisk eller skattemæssig rådgivning.
-            Fripladstilskudsberegningen er vejledende og baseret på 2025-satser. Søg altid
+            Fripladstilskudsberegningen er vejledende og baseret på {dataVersions.friplads.year}-satser. Søg altid
             professionel rådgivning ved behov.
           </p>
         </div>
@@ -64,7 +65,7 @@ export default function TermsPage() {
         </div>
 
         <p className="text-xs text-muted pt-4 border-t border-border">
-          Sidst opdateret: marts 2026
+          Sidst opdateret: {formatDataDate(dataVersions.legal.lastUpdated, "da")}
         </p>
       </div>
 

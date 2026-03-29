@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 
 export default function PrivacyPage() {
   const { t, language } = useLanguage();
@@ -170,7 +171,7 @@ export default function PrivacyPage() {
         </div>
 
         <p className="text-xs text-muted pt-4 border-t border-border">
-          Sidst opdateret: marts 2026
+          Sidst opdateret: {formatDataDate(dataVersions.legal.lastUpdated, "da")}
         </p>
       </div>
 

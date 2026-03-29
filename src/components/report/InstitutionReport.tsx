@@ -4,6 +4,7 @@ import type { UnifiedInstitution } from "@/lib/types";
 import { Link } from "react-router-dom";
 import { formatDKK } from "@/lib/format";
 import { scoreBadgeInlineColors } from "@/lib/badges";
+import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 
 interface Props {
   score: ScoreResult;
@@ -65,11 +66,7 @@ export default function InstitutionReport({
   const recommendation: string = aiAssessment?.recommendation?.[lang]
     ?? score.recommendation[lang];
 
-  const now = new Date();
-  const months = lang === "da"
-    ? ["januar","februar","marts","april","maj","juni","juli","august","september","oktober","november","december"]
-    : ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const dateStr = `${lang === "da" ? "Opdateret" : "Updated"} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const dateStr = `${lang === "da" ? "Opdateret" : "Updated"} ${formatDataDate(dataVersions.overall.lastUpdated, lang)}`;
 
   return (
     <div className="max-w-[640px] mx-auto">

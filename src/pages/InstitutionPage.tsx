@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
+import { dataVersions } from "@/lib/dataVersions";
 
 const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
 const PriceHistoryChart = lazy(() => import("@/components/charts/PriceHistoryChart"));
@@ -89,6 +90,7 @@ function PercentileBar({ label, percentile, value, lang = "da" }: {
 
 export default function InstitutionPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { institutions, normering, institutionStats, kommuneStats, loading } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -263,10 +265,21 @@ export default function InstitutionPage() {
 
       {/* Compact action bar */}
       <div className="max-w-[640px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
-        <Link to={categoryPath(inst.category)} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+        <button
+          onClick={() => {
+            // If there's browser history (user came from search results), go back to preserve filters/scroll.
+            // Otherwise fall back to the category listing page.
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              navigate(categoryPath(inst.category));
+            }
+          }}
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer bg-transparent border-none p-0"
+        >
           <ArrowLeft className="w-4 h-4" />
           {language === "da" ? `Alle ${(categoryLabels[inst.category] || "").toLowerCase()}` : `All ${(categoryLabels[inst.category] || "").toLowerCase()}`}
-        </Link>
+        </button>
         <div className="flex items-center gap-1">
           <button
             onClick={() => {
@@ -378,7 +391,7 @@ export default function InstitutionPage() {
               </div>
             </div>
             <p className="text-[10px] text-muted mt-3 text-center">
-              {language === "da" ? "Priser fra 2025 \u2014 kan afvige fra aktuelle takster" : "Prices from 2025 \u2014 may differ from current rates"}
+              {language === "da" ? `Priser fra ${dataVersions.prices.year} \u2014 kan afvige fra aktuelle takster` : `Prices from ${dataVersions.prices.year} \u2014 may differ from current rates`}
             </p>
           </div>
         )}
@@ -485,14 +498,30 @@ export default function InstitutionPage() {
         <TilsynSection institutionId={inst.id} institutionName={inst.name} />
 
         {/* Reviews */}
-        <div className="space-y-6">
-          <ReviewSummaryV2 institutionId={inst.id} />
-          <ReviewListV2 institutionId={inst.id} />
-          <ReviewFormV2 institutionId={inst.id} />
-        </div>
+        <ReviewSection institutionId={inst.id} />
       </section>
 
       <CompareBar />
     </>
+  );
+}
+
+function ReviewSection({ institutionId }: { institutionId: string }) {
+  const [showForm, setShowForm] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      <ReviewSummaryV2
+        institutionId={institutionId}
+        onWriteReview={() => setShowForm((v) => !v)}
+      />
+      {showForm && (
+        <ReviewFormV2
+          institutionId={institutionId}
+          onClose={() => setShowForm(false)}
+        />
+      )}
+      <ReviewListV2 institutionId={institutionId} />
+    </div>
   );
 }

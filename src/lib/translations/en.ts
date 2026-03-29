@@ -1,4 +1,5 @@
 import type { TranslationStrings } from "./types";
+import { dataVersions, formatDataDate, formatSchoolYear } from "@/lib/dataVersions";
 
 export const en: TranslationStrings = {
   common: {
@@ -124,7 +125,7 @@ export const en: TranslationStrings = {
     aboveAvg: "Above average",
     average: "Average",
     belowAvg: "Below average",
-    dataSource: "Data from the Danish Ministry of Education (Education Statistics), school year 2024/2025.",
+    dataSource: `Data from the Danish Ministry of Education (Education Statistics), school year ${formatSchoolYear()}.`,
   },
   friplads: {
     title: "Calculate childcare subsidy",
@@ -139,7 +140,7 @@ export const en: TranslationStrings = {
     youPay: "You pay (mo.)",
     annualSavings: "Annual savings",
     savingsPercent: "You save {pct}% with childcare subsidy",
-    disclaimer: "Advisory calculation based on 2025 rates. Does not constitute advice.",
+    disclaimer: `Advisory calculation based on ${dataVersions.friplads.year} rates. Does not constitute advice.`,
   },
   sort: {
     name: "Name",
@@ -193,7 +194,7 @@ export const en: TranslationStrings = {
     privacy: "Privacy policy",
     terms: "Terms",
     dataSources: "Data sources",
-    dataUpdated: "Data updated: 2025/2026",
+    dataUpdated: `Data updated: ${formatDataDate(dataVersions.overall.lastUpdated, "en")}`,
     disclaimer: "All prices and quality data are advisory. Contact the individual municipality or institution for current information. Does not constitute advice.",
     priceComparison: "Price comparison",
     bestValue: "Best value",
@@ -202,6 +203,7 @@ export const en: TranslationStrings = {
     compareInstitutions: "Compare institutions",
     methodology: "Methodology & data sources",
     blog: "Blog",
+    about: "About us",
   },
   cookie: {
     message: "We use cookies to improve your experience. Read more in our",
@@ -242,7 +244,7 @@ export const en: TranslationStrings = {
   },
   schoolInfo: {
     title: "About quality data",
-    description: "Quality data for schools includes well-being surveys, grade averages at the final exam, absence, competence coverage and teaching effectiveness (socio-economic reference). Data comes from the Danish Ministry of Education and covers the 2024/2025 school year. Schools marked \"Above average\" perform better than expected based on students' socio-economic background.",
+    description: `Quality data for schools includes well-being surveys, grade averages at the final exam, absence, competence coverage and teaching effectiveness (socio-economic reference). Data comes from the Danish Ministry of Education and covers the ${formatSchoolYear()} school year. Schools marked "Above average" perform better than expected based on students' socio-economic background.`,
   },
   favorites: {
     title: "My favorites",

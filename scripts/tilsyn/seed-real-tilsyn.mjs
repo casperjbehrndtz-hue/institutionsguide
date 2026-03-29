@@ -42,21 +42,28 @@ function loadTilsynFiles() {
       const reports = data.reports || [];
 
       for (const r of reports) {
-        if (!r.institutionId && !r.ourInstitutionId) continue; // skip unmatched
+        // Support both KBH format (institutionId) and kommune scraper format (matched_institution_id)
+        const instId = r.institutionId || r.ourInstitutionId || r.matched_institution_id;
+        if (!instId) continue; // skip unmatched
+
+        const year = r.reportYear || r.report_year || 2025;
+        const reportUrl = r.kkorgnr
+          ? `https://iwtilsynpdf.kk.dk/pdf/${r.kkorgnr}.pdf`
+          : r.reportUrl || r.pdf_url || null;
 
         allReports.push({
-          institution_id: r.institutionId || r.ourInstitutionId,
+          institution_id: instId,
           municipality,
-          report_date: r.reportYear ? `${r.reportYear}-01-01` : null,
-          report_year: r.reportYear || 2025,
-          report_url: r.kkorgnr
-            ? `https://iwtilsynpdf.kk.dk/pdf/${r.kkorgnr}.pdf`
-            : r.reportUrl || null,
-          report_type: r.reportType === "light" ? "anmeldt" : "anmeldt",
-          overall_rating: "godkendt", // default for parsed reports
+          report_date: r.report_date || (year ? `${year}-01-01` : null),
+          report_year: year,
+          report_url: reportUrl,
+          report_type: r.report_type || (r.reportType === "light" ? "anmeldt" : "anmeldt"),
+          overall_rating: r.overall_rating || "godkendt",
           summary: null,
-          strengths: r.strengths?.length > 0 ? r.strengths : null,
-          areas_for_improvement: r.areasForImprovement?.length > 0 ? r.areasForImprovement : null,
+          strengths: (r.strengths?.length > 0 ? r.strengths : null),
+          areas_for_improvement: (r.areas_for_improvement || r.areasForImprovement || []).length > 0
+            ? (r.areas_for_improvement || r.areasForImprovement)
+            : null,
           raw_text: null, // don't store full text in DB to save space
           source: "scraper_v3",
         });

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubmitReview } from "@/hooks/useReviews";
-import { supabase } from "@/lib/supabase";
 
 interface ReviewFormV2Props {
   institutionId: string;
@@ -52,8 +51,6 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
       errorRating: "Vælg en vurdering",
       errorName: "Indtast dit navn",
       errorBody: "Skriv din anmeldelse",
-      comingSoonTitle: "Anmeldelser kommer snart",
-      comingSoonMessage: "Vi arbejder på at gøre anmeldelser tilgængelige. Kom tilbage snart!",
     },
     en: {
       writeReview: "Write a review",
@@ -77,28 +74,10 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
       errorRating: "Select a rating",
       errorName: "Enter your name",
       errorBody: "Write your review",
-      comingSoonTitle: "Reviews coming soon",
-      comingSoonMessage: "We're working on making reviews available. Check back soon!",
     },
   };
 
   const l = labels[language as keyof typeof labels] || labels.da;
-
-  // If Supabase is not configured, show coming soon
-  if (!supabase) {
-    return (
-      <div className="card p-6 text-center">
-        <p className="text-lg font-semibold mb-2">{l.comingSoonTitle}</p>
-        <p className="text-sm text-muted mb-4">{l.comingSoonMessage}</p>
-        <button
-          onClick={() => onClose?.()}
-          className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
-          {l.close}
-        </button>
-      </div>
-    );
-  }
 
   if (submitted) {
     return (

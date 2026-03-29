@@ -1,4 +1,5 @@
 import type { TranslationStrings } from "./types";
+import { dataVersions, formatDataDate, formatSchoolYear } from "@/lib/dataVersions";
 
 export const da: TranslationStrings = {
   common: {
@@ -124,7 +125,7 @@ export const da: TranslationStrings = {
     aboveAvg: "Over middel",
     average: "Middel",
     belowAvg: "Under middel",
-    dataSource: "Data fra Undervisningsministeriet (Uddannelsesstatistik), skoleåret 2024/2025.",
+    dataSource: `Data fra Undervisningsministeriet (Uddannelsesstatistik), skoleåret ${formatSchoolYear()}.`,
   },
   friplads: {
     title: "Beregn fripladstilskud",
@@ -139,7 +140,7 @@ export const da: TranslationStrings = {
     youPay: "Du betaler (md.)",
     annualSavings: "Årlig besparelse",
     savingsPercent: "Du sparer {pct}% med fripladstilskud",
-    disclaimer: "Vejledende beregning baseret på 2025-satser. Udgør ikke rådgivning.",
+    disclaimer: `Vejledende beregning baseret på ${dataVersions.friplads.year}-satser. Udgør ikke rådgivning.`,
   },
   sort: {
     name: "Navn",
@@ -193,7 +194,7 @@ export const da: TranslationStrings = {
     privacy: "Privatlivspolitik",
     terms: "Vilkår",
     dataSources: "Datakilder",
-    dataUpdated: "Data opdateret: 2025/2026",
+    dataUpdated: `Data opdateret: ${formatDataDate(dataVersions.overall.lastUpdated, "da")}`,
     disclaimer: "Alle priser og kvalitetsdata er vejledende. Kontakt den enkelte kommune eller institution for aktuelle oplysninger. Udgør ikke rådgivning.",
     priceComparison: "Prissammenligning",
     bestValue: "Bedste værdi",
@@ -202,6 +203,7 @@ export const da: TranslationStrings = {
     compareInstitutions: "Sammenlign institutioner",
     methodology: "Metode & datakilder",
     blog: "Blog",
+    about: "Om os",
   },
   cookie: {
     message: "Vi bruger cookies til at forbedre din oplevelse. Læs mere i vores",
@@ -242,7 +244,7 @@ export const da: TranslationStrings = {
   },
   schoolInfo: {
     title: "Om kvalitetsdata",
-    description: "Kvalitetsdata for skoler inkluderer trivselsmålinger, karaktergennemsnit ved afgangsprøven, fravær, kompetencedækning og undervisningseffekt (socioøkonomisk reference). Data stammer fra Undervisningsministeriet og dækker skoleåret 2024/2025. Skoler markeret \"Over middel\" klarer sig bedre end forventet ud fra elevernes socioøkonomiske baggrund.",
+    description: `Kvalitetsdata for skoler inkluderer trivselsmålinger, karaktergennemsnit ved afgangsprøven, fravær, kompetencedækning og undervisningseffekt (socioøkonomisk reference). Data stammer fra Undervisningsministeriet og dækker skoleåret ${formatSchoolYear()}. Skoler markeret "Over middel" klarer sig bedre end forventet ud fra elevernes socioøkonomiske baggrund.`,
   },
   favorites: {
     title: "Mine favoritter",

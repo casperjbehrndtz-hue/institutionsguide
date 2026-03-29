@@ -8,6 +8,7 @@ import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
+import { dataVersions } from "@/lib/dataVersions";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 
@@ -41,7 +42,7 @@ const FAQ_ITEMS_DA = [
   },
   {
     q: "Er priserne opdaterede?",
-    a: "Priserne er baseret på data fra Danmarks Statistik (2025-tal) og Dagtilbudsregisteret. Kommunerne regulerer typisk taksterne årligt, så der kan forekomme mindre afvigelser.",
+    a: `Priserne er baseret på data fra Danmarks Statistik (${dataVersions.prices.year}-tal) og Dagtilbudsregisteret. Kommunerne regulerer typisk taksterne årligt, så der kan forekomme mindre afvigelser.`,
   },
   {
     q: "Hvornår skal jeg skrive mit barn op til vuggestue eller børnehave?",
@@ -72,7 +73,7 @@ const FAQ_ITEMS_EN = [
   },
   {
     q: "Are the prices up to date?",
-    a: "Prices are based on data from Statistics Denmark (2025 figures) and the Daycare Registry. Municipalities typically adjust rates annually, so minor deviations may occur.",
+    a: `Prices are based on data from Statistics Denmark (${dataVersions.prices.year} figures) and the Daycare Registry. Municipalities typically adjust rates annually, so minor deviations may occur.`,
   },
   {
     q: "When should I sign up my child for daycare?",

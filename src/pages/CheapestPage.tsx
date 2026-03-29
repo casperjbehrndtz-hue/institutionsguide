@@ -13,6 +13,7 @@ import {
   type CategorySlug,
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
+import { dataVersions } from "@/lib/dataVersions";
 
 export default function CheapestPage() {
   const { category: rawCat, municipality: munSlug } = useParams<{
@@ -134,7 +135,7 @@ export default function CheapestPage() {
       <section className="max-w-3xl mx-auto px-4 py-4">
         <div className="card p-4 bg-blue-50 border-blue-200">
           <p className="text-sm text-blue-800">
-            <strong>Tip:</strong> Har du en husstandsindkomst under 609.700 kr. (2025),
+            <strong>Tip:</strong> Har du en husstandsindkomst under 609.700 kr. ({dataVersions.friplads.year}),
             kan du søge om fripladstilskud og få reduceret prisen yderligere.{" "}
             <Link
               to={`/kommune/${encodeURIComponent(munName)}`}

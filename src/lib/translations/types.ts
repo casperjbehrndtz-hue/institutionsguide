@@ -202,6 +202,7 @@ export interface TranslationStrings {
     compareInstitutions: string;
     methodology: string;
     blog: string;
+    about: string;
   };
   cookie: {
     message: string;

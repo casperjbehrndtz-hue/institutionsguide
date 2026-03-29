@@ -96,6 +96,7 @@ export default function Footer() {
               <li><Link to="/blog" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.blog}</Link></li>
               <li><Link to="/privatliv" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.privacy}</Link></li>
               <li><Link to="/vilkaar" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.terms}</Link></li>
+              <li><Link to="/om" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.about}</Link></li>
             </ul>
           </div>
 

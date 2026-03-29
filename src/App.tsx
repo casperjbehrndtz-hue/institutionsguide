@@ -29,6 +29,7 @@ const BestValuePage = lazy(() => import("@/pages/BestValuePage"));
 const BlogIndex = lazy(() => import("@/pages/BlogIndex"));
 const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const PrissammenligningPage = lazy(() => import("@/pages/PrissammenligningPage"));
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 function Loading() {
   return (
@@ -60,6 +61,7 @@ export default function App() {
               <Route path="/sammenlign" element={<ComparePage />} />
               <Route path="/privatliv" element={<PrivacyPage />} />
               <Route path="/vilkaar" element={<TermsPage />} />
+              <Route path="/om" element={<AboutPage />} />
               <Route path="/favoritter" element={<FavoritesPage />} />
               {/* Normering pages */}
               <Route path="/normering" element={<NormeringPage />} />
