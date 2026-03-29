@@ -2,7 +2,7 @@
 // All edge functions use this instead of calling the API directly
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-const DEFAULT_TIMEOUT_MS = 60_000;
+const DEFAULT_TIMEOUT_MS = 120_000;
 
 interface AIConfig {
   url: string;
