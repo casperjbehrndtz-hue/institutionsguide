@@ -51,6 +51,11 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Auto-reload on chunk load failures (stale deploy cache)
+    if (error.message?.includes("dynamically imported module") || error.message?.includes("Loading chunk")) {
+      window.location.reload();
+      return;
+    }
     captureException(error, {
       componentStack: errorInfo.componentStack ?? undefined,
     });
