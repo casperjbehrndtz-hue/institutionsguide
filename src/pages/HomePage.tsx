@@ -7,6 +7,8 @@ import { useCompare } from "@/contexts/CompareContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
 import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 import InstitutionMap from "@/components/map/InstitutionMap";
@@ -114,9 +116,12 @@ export default function HomePage() {
   } = useFilterParams();
   const { lat, lng, zoom: mapZoom, view, setMapView, setView } = useMapParams();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [nearMeLoading, setNearMeLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const geo = useGeolocation(useCallback((loc) => {
+    setFlyTo({ ...loc, zoom: 13 });
+    setRadiusKm(5);
+  }, []));
 
   // Force video play — some browsers block autoPlay even with muted
   useEffect(() => {
@@ -139,23 +144,23 @@ export default function HomePage() {
   const [visibleCount, setVisibleCount] = useState(50);
 
   const distanceSorted = useMemo(() => {
-    if (!userLocation) return filtered;
-    const loc = userLocation;
+    if (!geo.userLocation) return filtered;
+    const loc = geo.userLocation;
     const cosLat = Math.cos(loc.lat * Math.PI / 180);
     return [...filtered].sort((a, b) => {
       const distA = Math.hypot(a.lat - loc.lat, (a.lng - loc.lng) * cosLat);
       const distB = Math.hypot(b.lat - loc.lat, (b.lng - loc.lng) * cosLat);
       return distA - distB;
     });
-  }, [filtered, userLocation]);
+  }, [filtered, geo.userLocation]);
 
   // Filter by radius when active
   const radiusFiltered = useMemo(() => {
-    if (!radiusKm || !userLocation) return distanceSorted;
+    if (!radiusKm || !geo.userLocation) return distanceSorted;
     return distanceSorted.filter((inst) =>
-      haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng) <= radiusKm
+      haversineKm(geo.userLocation!.lat, geo.userLocation!.lng, inst.lat, inst.lng) <= radiusKm
     );
-  }, [distanceSorted, radiusKm, userLocation]);
+  }, [distanceSorted, radiusKm, geo.userLocation]);
 
   // Reset visible count and clear map bounds when filters change
   useEffect(() => { setVisibleCount(50); setMapBounds(null); }, [filtered]);
@@ -178,90 +183,7 @@ export default function HomePage() {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [hoveredId]);
 
-  const [geoConsented, setGeoConsented] = useState(false);
-  const [showGeoModal, setShowGeoModal] = useState(false);
-  const [geoError, setGeoError] = useState<string | null>(null);
-
-  const requestGeolocation = useCallback(() => {
-    setNearMeLoading(true);
-    setGeoError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setUserLocation(loc);
-        setFlyTo({ ...loc, zoom: 13 });
-        setRadiusKm(5); // Auto-set 5km radius for useful results
-        setNearMeLoading(false);
-      },
-      (err) => {
-        setNearMeLoading(false);
-        if (err.code === 1) {
-          // PERMISSION_DENIED
-          setGeoError(
-            language === "da"
-              ? "Placeringstilladelse nægtet. Gå til din browsers indstillinger og tillad placering for denne side."
-              : "Location permission denied. Go to your browser settings and allow location for this site."
-          );
-        } else if (err.code === 3) {
-          // TIMEOUT
-          setGeoError(
-            language === "da"
-              ? "Det tog for lang tid at finde din placering. Prøv igen udendørs eller med bedre signal."
-              : "Finding your location took too long. Try again outdoors or with better signal."
-          );
-        } else {
-          setGeoError(
-            language === "da"
-              ? "Kunne ikke hente din placering. Tjek din browsers tilladelser."
-              : "Could not get your location. Check your browser permissions."
-          );
-        }
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
-    );
-  }, [language]);
-
-  const handleNearMe = useCallback(() => {
-    if (!("geolocation" in navigator)) {
-      setGeoError(
-        language === "da"
-          ? "Din browser understøtter ikke placering. Prøv en nyere browser."
-          : "Your browser does not support geolocation. Try a newer browser."
-      );
-      return;
-    }
-    // Check if permission is already permanently denied (async, non-blocking)
-    if ("permissions" in navigator) {
-      navigator.permissions.query({ name: "geolocation" }).then((result) => {
-        if (result.state === "denied") {
-          setGeoError(
-            language === "da"
-              ? "Placering er blokeret for denne side. Åbn browserindstillinger → Webstedsindstillinger → Placering, og tillad adgang."
-              : "Location is blocked for this site. Open browser settings → Site settings → Location, and allow access."
-          );
-          return;
-        }
-        if (!geoConsented) {
-          setShowGeoModal(true);
-          return;
-        }
-        requestGeolocation();
-      }).catch(() => {
-        // permissions API not supported, fall through
-        if (!geoConsented) {
-          setShowGeoModal(true);
-          return;
-        }
-        requestGeolocation();
-      });
-      return;
-    }
-    if (!geoConsented) {
-      setShowGeoModal(true);
-      return;
-    }
-    requestGeolocation();
-  }, [geoConsented, requestGeolocation, language]);
+  // Geolocation handled by useGeolocation hook (geo.*)
 
   function handleSelect(inst: UnifiedInstitution) {
     navigate(`/institution/${inst.id}`);
@@ -286,7 +208,7 @@ export default function HomePage() {
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
 
   // Show filter bar + list/map when user has actively filtered
-  const hasActiveFilter = !!(search || municipality || userLocation || category !== "alle");
+  const hasActiveFilter = !!(search || municipality || geo.userLocation || category !== "alle");
 
   // Summary stats for the active filter
   const summaryStats = useMemo(() => {
@@ -395,11 +317,11 @@ export default function HomePage() {
 
           {/* Near me */}
           <button
-            onClick={handleNearMe}
-            disabled={nearMeLoading}
+            onClick={geo.handleNearMe}
+            disabled={geo.nearMeLoading}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white font-medium text-sm hover:bg-white/30 transition-all disabled:opacity-60"
           >
-            {nearMeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
+            {geo.nearMeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
             {language === "da" ? "Find tæt på mig" : "Find near me"}
           </button>
 
@@ -468,8 +390,8 @@ export default function HomePage() {
             resultCount={filtered.length}
             municipalities={municipalityNames}
             institutions={institutions}
-            onNearMe={handleNearMe}
-            nearMeLoading={nearMeLoading}
+            onNearMe={geo.handleNearMe}
+            nearMeLoading={geo.nearMeLoading}
           />
         </div>
       </div>}
@@ -484,7 +406,7 @@ export default function HomePage() {
             <BarChart3 className="w-4 h-4 text-primary shrink-0" />
             <span className="text-foreground font-medium">
               {summaryStats.count.toLocaleString("da-DK")} {t.home.summaryInstitutions}
-              {userLocation && radiusKm ? ` ${t.home.summaryWithin} ${radiusKm} km` : ""}
+              {geo.userLocation && radiusKm ? ` ${t.home.summaryWithin} ${radiusKm} km` : ""}
               {summaryStats.cheapest ? ` — ${t.home.summaryCheapest}: ${formatDKK(summaryStats.cheapest)}${t.common.perMonth}` : ""}
             </span>
           </div>
@@ -528,7 +450,7 @@ export default function HomePage() {
             initialCenter={{ lat, lng }}
             initialZoom={mapZoom}
             onViewChange={setMapView}
-            radiusCenter={userLocation}
+            radiusCenter={geo.userLocation}
             radiusKm={radiusKm}
             onRadiusChange={setRadiusKm}
           />
@@ -605,10 +527,10 @@ export default function HomePage() {
                       </div>
                       <p className="text-xs text-muted truncate mt-0.5">
                         {inst.address}, {inst.postalCode} {inst.city}
-                        {userLocation && (
+                        {geo.userLocation && (
                           <span className="inline-flex items-center gap-0.5 text-primary/70 ml-1.5">
                             <MapPin className="w-3 h-3 inline" />
-                            {formatDistance(haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng))}
+                            {formatDistance(haversineKm(geo.userLocation.lat, geo.userLocation.lng, inst.lat, inst.lng))}
                           </span>
                         )}
                       </p>
@@ -676,7 +598,7 @@ export default function HomePage() {
             initialCenter={{ lat, lng }}
             initialZoom={mapZoom}
             onViewChange={setMapView}
-            radiusCenter={userLocation}
+            radiusCenter={geo.userLocation}
             radiusKm={radiusKm}
             onRadiusChange={setRadiusKm}
           />
@@ -815,46 +737,13 @@ export default function HomePage() {
       </section>
 
       {/* Geolocation consent modal */}
-      {showGeoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowGeoModal(false)}>
-          <div className="bg-bg-card rounded-xl shadow-xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                <MapPin className="w-5 h-5 text-primary" />
-              </div>
-              <p className="text-foreground font-medium">
-                {language === "da" ? "Find institutioner nær dig" : "Find institutions near you"}
-              </p>
-            </div>
-            <p className="text-sm text-muted mb-5 leading-relaxed">
-              {language === "da"
-                ? "Din placering behandles kun lokalt i din browser og sendes ikke til vores servere. Vi bruger den udelukkende til at vise afstand til institutioner."
-                : "Your location is processed locally in your browser only and is not sent to our servers. We use it solely to show distance to institutions."}
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowGeoModal(false)}
-                className="px-4 py-2 text-sm rounded-lg border border-border text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
-              >
-                {language === "da" ? "Nej tak" : "No thanks"}
-              </button>
-              <button
-                onClick={() => { setGeoConsented(true); setShowGeoModal(false); requestGeolocation(); }}
-                className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-              >
-                {language === "da" ? "Tillad placering" : "Allow location"}
-              </button>
-            </div>
-          </div>
-        </div>
+      {geo.showGeoModal && (
+        <GeoModal onAccept={geo.acceptConsent} onDismiss={geo.dismissModal} />
       )}
 
       {/* Geolocation error toast */}
-      {geoError && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-destructive text-white px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4">
-          {geoError}
-          <button onClick={() => setGeoError(null)} className="ml-3 underline">OK</button>
-        </div>
+      {geo.geoError && (
+        <GeoErrorToast message={geo.geoError} onDismiss={geo.dismissError} onRetry={geo.retryGeolocation} />
       )}
 
       {/* Compare bar */}
