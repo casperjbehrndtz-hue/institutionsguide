@@ -3,7 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const NAV_LINKS: { href: string; key: "friplads" | "normering"; labelOverride?: Record<string, string> }[] = [
+const NAV_LINKS: { href: string; key: string; labelOverride?: Record<string, string> }[] = [
+  { href: "/vuggestue", key: "vuggestue", labelOverride: { da: "Vuggestuer", en: "Nurseries" } },
+  { href: "/boernehave", key: "boernehave", labelOverride: { da: "Børnehaver", en: "Kindergartens" } },
+  { href: "/dagpleje", key: "dagpleje", labelOverride: { da: "Dagplejere", en: "Childminders" } },
+  { href: "/skole", key: "skole", labelOverride: { da: "Skoler", en: "Schools" } },
+  { href: "/sfo", key: "sfo", labelOverride: { da: "SFO", en: "After-school" } },
   { href: "/friplads", key: "friplads", labelOverride: { da: "Friplads", en: "Subsidy" } },
   { href: "/normering", key: "normering", labelOverride: { da: "Børn pr. voksen", en: "Children per adult" } },
 ];
