@@ -17,21 +17,7 @@ import { formatDKK } from "@/lib/format";
 import { useFavorites } from "@/hooks/useFavorites";
 import NoResults from "@/components/filters/NoResults";
 import type { UnifiedInstitution } from "@/lib/types";
-
-/** Haversine distance in km between two lat/lng points */
-function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-/** Format distance: "1,2 km" for < 10 km, "12 km" for >= 10 km */
-function formatDistance(km: number): string {
-  if (km < 10) return km.toFixed(1).replace(".", ",") + " km";
-  return Math.round(km) + " km";
-}
+import { haversineKm, formatDistance } from "@/lib/geo";
 
 interface Props {
   category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
@@ -206,26 +192,71 @@ export default function CategoryPage({ category }: Props) {
         setRadiusKm(5); // Auto-set 5km radius for useful results
         setNearMeLoading(false);
       },
-      () => {
+      (err) => {
         setNearMeLoading(false);
-        setGeoError(
-          language === "da"
-            ? "Kunne ikke hente din placering. Tjek din browsers tilladelser."
-            : "Could not get your location. Check your browser permissions."
-        );
+        if (err.code === 1) {
+          setGeoError(
+            language === "da"
+              ? "Placeringstilladelse nægtet. Gå til din browsers indstillinger og tillad placering for denne side."
+              : "Location permission denied. Go to your browser settings and allow location for this site."
+          );
+        } else if (err.code === 3) {
+          setGeoError(
+            language === "da"
+              ? "Det tog for lang tid at finde din placering. Prøv igen udendørs eller med bedre signal."
+              : "Finding your location took too long. Try again outdoors or with better signal."
+          );
+        } else {
+          setGeoError(
+            language === "da"
+              ? "Kunne ikke hente din placering. Tjek din browsers tilladelser."
+              : "Could not get your location. Check your browser permissions."
+          );
+        }
       },
-      { enableHighAccuracy: false, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
     );
   }, [language]);
 
   const handleNearMe = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!("geolocation" in navigator)) {
+      setGeoError(
+        language === "da"
+          ? "Din browser understøtter ikke placering. Prøv en nyere browser."
+          : "Your browser does not support geolocation. Try a newer browser."
+      );
+      return;
+    }
+    if ("permissions" in navigator) {
+      navigator.permissions.query({ name: "geolocation" }).then((result) => {
+        if (result.state === "denied") {
+          setGeoError(
+            language === "da"
+              ? "Placering er blokeret for denne side. Åbn browserindstillinger → Webstedsindstillinger → Placering, og tillad adgang."
+              : "Location is blocked for this site. Open browser settings → Site settings → Location, and allow access."
+          );
+          return;
+        }
+        if (!geoConsented) {
+          setShowGeoModal(true);
+          return;
+        }
+        requestGeolocation();
+      }).catch(() => {
+        if (!geoConsented) {
+          setShowGeoModal(true);
+          return;
+        }
+        requestGeolocation();
+      });
+      return;
+    }
     if (!geoConsented) {
       setShowGeoModal(true);
       return;
     }
     requestGeolocation();
-  }, [geoConsented, requestGeolocation]);
+  }, [geoConsented, requestGeolocation, language]);
 
   const catMunicipalities = useMemo(() => {
     return municipalities

@@ -478,7 +478,8 @@ VIGTIGT:
     // === STEP 7: Ping IndexNow ===
     const articleUrl = `https://institutionsguide.dk/blog/${blogResult.slug}`;
     try {
-      await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
+      const indexNowKey = Deno.env.get("INDEXNOW_KEY") || "";
+      await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${indexNowKey}`);
     } catch { /* non-critical */ }
 
     // === STEP 8: AI keyword expansion — self-sustaining queue ===

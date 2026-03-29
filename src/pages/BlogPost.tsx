@@ -121,7 +121,10 @@ export default function BlogPost() {
 
   const moduleLink = post.module ? MODULE_LINKS[post.module.toLowerCase()] : null;
   const readTime = estimateReadTime(post.content_html);
-  const cleanHtml = DOMPurify.sanitize(post.content_html);
+  const cleanHtml = DOMPurify.sanitize(post.content_html, {
+    ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 'br', 'span', 'blockquote', 'img', 'figure', 'figcaption', 'div', 'sup', 'sub'],
+    ALLOWED_ATTR: ['class', 'href', 'target', 'rel', 'src', 'alt', 'width', 'height', 'id']
+  });
 
   return (
     <>

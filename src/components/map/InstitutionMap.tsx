@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { Maximize2, Minimize2 } from "lucide-react";
 import type { UnifiedInstitution } from "@/lib/types";
@@ -234,7 +234,7 @@ function useDarkMode(): boolean {
   return dark;
 }
 
-export default function InstitutionMap({
+function InstitutionMap({
   institutions,
   onSelect,
   selectedInstitution,
@@ -489,3 +489,5 @@ export default function InstitutionMap({
     </div>
   );
 }
+
+export default React.memo(InstitutionMap);
