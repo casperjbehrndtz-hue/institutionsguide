@@ -359,20 +359,10 @@ function InstitutionMap({
           color: getColor(inst),
           id: inst.id,
           price: inst.monthlyRate,
-          popupHtml: `<div style="font-size:14px;line-height:1.5;max-width:280px;font-family:system-ui,-apple-system,sans-serif;">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-    <p style="font-weight:600;margin:0;font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.name)}</p>
-    <button data-favorite-id="${escapeHtml(inst.id)}" style="background:none;border:none;font-size:18px;cursor:pointer;color:${favColor};padding:0;line-height:1;flex-shrink:0;" aria-label="${escapeHtml(isFavorite(inst.id) ? t.map.removeFavorite : t.map.saveFavorite)}">${favHeart}</button>
-  </div>
-  <p style="color:${textSecondary};font-size:12px;margin:3px 0 0;">${escapeHtml(inst.address)}, ${escapeHtml(String(inst.postalCode))} ${escapeHtml(inst.city)}</p>
-  <div style="margin:8px 0 6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;">${catBadge}${qualBadge}</div>
-  <div style="background:${priceBg};border-radius:8px;padding:6px 10px;margin:0 0 8px;border:1px solid ${borderColor};">
-    <span style="font-family:ui-monospace,monospace;font-size:13px;font-weight:600;">${formatRate(inst.monthlyRate, t.common.unknown, t.common.perMonth)}</span>
-  </div>
-  <div style="display:flex;gap:6px;align-items:center;">
-    <a data-select-id="${escapeHtml(inst.id)}" href="#" style="flex:1;display:inline-block;text-align:center;padding:6px 0;background:${linkColor};color:#fff;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;border-radius:6px;">${escapeHtml(t.map.seeDetails)} &rarr;</a>
-    <button data-compare-id="${escapeHtml(inst.id)}" style="padding:6px 10px;font-size:12px;font-weight:500;background:${btnBg};color:${inCompare ? "#9CA3AF" : textPrimary};border:1px solid ${borderColor};border-radius:6px;cursor:${inCompare ? "default" : "pointer"};opacity:${inCompare ? "0.6" : "1"};white-space:nowrap;">${inCompare ? "\u2713" : escapeHtml(t.map.addToCompare)}</button>
-  </div>
+          popupHtml: `<div style="font-size:13px;line-height:1.4;max-width:200px;font-family:system-ui,-apple-system,sans-serif;">
+  <p style="font-weight:600;margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.name)}</p>
+  <p style="color:${textSecondary};font-size:11px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.city)} · ${formatRate(inst.monthlyRate, t.common.unknown, t.common.perMonth)}</p>
+  <a data-select-id="${escapeHtml(inst.id)}" href="#" style="display:block;text-align:center;padding:5px 0;background:${linkColor};color:#fff;font-size:11px;font-weight:600;text-decoration:none;cursor:pointer;border-radius:5px;">${escapeHtml(t.map.seeDetails)} &rarr;</a>
 </div>`,
         };
       }),
