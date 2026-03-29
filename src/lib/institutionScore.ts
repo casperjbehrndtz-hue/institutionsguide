@@ -551,7 +551,7 @@ function schoolRecommendation(
 function dagtilbudRecommendation(
   overall: number,
   inst: UnifiedInstitution,
-  normering: NormeringEntry[],
+  _normering: NormeringEntry[],
   municipalityAvgPrice: number | null,
 ): LocalizedText {
   const grade = toGrade(overall);

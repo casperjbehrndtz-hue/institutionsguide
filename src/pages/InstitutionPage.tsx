@@ -89,7 +89,7 @@ function PercentileBar({ label, percentile, value, lang = "da" }: {
 
 export default function InstitutionPage() {
   const { id } = useParams<{ id: string }>();
-  const { institutions, normering, institutionStats, kommuneStats, loading, nationalAverages } = useData();
+  const { institutions, normering, institutionStats, kommuneStats, loading } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
@@ -116,18 +116,6 @@ export default function InstitutionPage() {
     dagpleje: t.categories.dagpleje, skole: t.categories.skole, sfo: t.categories.sfo,
   };
 
-  const subtypeLabels: Record<string, string> = {
-    folkeskole: "Folkeskole", friskole: "Friskole", efterskole: "Efterskole",
-    kommunal: "Kommunal", selvejende: "Selvejende", privat: "Privat",
-  };
-
-  function overallLabel(o: number | undefined): string {
-    if (o === 1) return t.detail.aboveAvg;
-    if (o === 0) return t.detail.average;
-    if (o === -1) return t.detail.belowAvg;
-    return "";
-  }
-
   const inst = useMemo(
     () => institutions.find((i) => i.id === id),
     [institutions, id]
@@ -153,14 +141,14 @@ export default function InstitutionPage() {
     return prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : null;
   }, [inst, institutions]);
 
+  // Look up extended quality data for this institution
+  const instStats = inst ? institutionStats[inst.id.replace(/^(vug|bh|dag|sfo)-/, "")] : undefined;
+  const komStats = inst ? kommuneStats[inst.municipality] : undefined;
+
   const scoreResult = useMemo(() => {
     if (!inst) return null;
     return computeScore(inst, nearby, normering, municipalityAvgPrice, instStats);
   }, [inst, nearby, normering, municipalityAvgPrice, instStats]);
-
-  // Look up extended quality data for this institution
-  const instStats = inst ? institutionStats[inst.id.replace(/^(vug|bh|dag|sfo)-/, "")] : undefined;
-  const komStats = inst ? kommuneStats[inst.municipality] : undefined;
 
   const { assessment: aiAssessment, state: aiState } = useAssessment(
     inst, scoreResult, nearby, normering, municipalityAvgPrice,

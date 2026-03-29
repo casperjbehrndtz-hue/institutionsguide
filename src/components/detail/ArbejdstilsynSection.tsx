@@ -22,14 +22,7 @@ const STATUS_COLORS: Record<string, string> = {
   frafaldet: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
 };
 
-const DECISION_ICONS: Record<string, string> = {
-  strakspåbud: "!",
-  påbud: "!",
-  rådgivningspåbud: "?",
-  "afgørelse uden påbud": "ok",
-};
-
-export default function ArbejdstilsynSection({ institutionId, institutionName }: Props) {
+export default function ArbejdstilsynSection({ institutionId }: Props) {
   const { language: lang } = useLanguage();
   const [decisions, setDecisions] = useState<ATDecision[]>([]);
   const [loading, setLoading] = useState(true);

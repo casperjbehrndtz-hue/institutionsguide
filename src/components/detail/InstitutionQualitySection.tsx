@@ -1,6 +1,6 @@
 import type { InstitutionStats, KommuneStats } from "@/lib/types";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { GraduationCap, Users, Heart, TrendingUp, TrendingDown, Minus, AlertTriangle, ThumbsUp } from "lucide-react";
+import { GraduationCap, Users, Heart } from "lucide-react";
 
 interface Props {
   stats: InstitutionStats | undefined;
@@ -35,21 +35,6 @@ function StatCard({ icon, label, value, subtext, color }: {
   );
 }
 
-function TrendIndicator({ current, average, inverted = false }: {
-  current: number;
-  average: number;
-  inverted?: boolean; // true = lower is better (e.g., normering ratio)
-}) {
-  const diff = current - average;
-  const better = inverted ? diff < 0 : diff > 0;
-  const worse = inverted ? diff > 0 : diff < 0;
-
-  if (Math.abs(diff) < 0.1) return <Minus className="w-3.5 h-3.5 text-amber-500" />;
-  if (better) return <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />;
-  if (worse) return <TrendingDown className="w-3.5 h-3.5 text-red-500" />;
-  return null;
-}
-
 function normeringColor(ratio: number | null, ageGroup: "0-2" | "3-5"): "green" | "amber" | "red" | "neutral" {
   if (ratio == null) return "neutral";
   const good = ageGroup === "0-2" ? 3.0 : 6.0;
@@ -74,7 +59,7 @@ function satisfactionColor(score: number | null): "green" | "amber" | "red" | "n
 }
 
 export default function InstitutionQualitySection({ stats, kommuneStats, municipality, category }: Props) {
-  const { t, language: lang } = useLanguage();
+  const { language: lang } = useLanguage();
 
   const hasInstData = stats && (stats.normering02 != null || stats.normering35 != null || stats.pctPaedagoger != null || stats.parentSatisfaction != null);
   const hasKomData = kommuneStats && (kommuneStats.avgSygefravaerDage != null || kommuneStats.udgiftPrBarn != null);
