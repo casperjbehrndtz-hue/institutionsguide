@@ -7,15 +7,19 @@ import InstitutionDetail from "@/components/detail/InstitutionDetail";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
-import { breadcrumbSchema } from "@/lib/schema";
+import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import type { UnifiedInstitution } from "@/lib/types";
 import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
 import { formatDKK } from "@/lib/format";
+import { toSlug } from "@/lib/slugs";
 import NormeringChart from "@/components/charts/NormeringChart";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import DagplejeVsVuggestue from "@/components/insights/DagplejeVsVuggestue";
+import RelatedSearches from "@/components/shared/RelatedSearches";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 import { useFamily } from "@/contexts/FamilyContext";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo"] as const;
 
@@ -91,23 +95,47 @@ export default function KommunePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen">
+        <SkeletonHero />
+        <SkeletonCardGrid count={6} />
       </div>
     );
   }
 
-  if (error || munInstitutions.length === 0) {
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="card p-8 text-center max-w-md">
           <h1 className="font-display text-2xl font-bold mb-4">
-            {language === "da" ? "Kommune ikke fundet" : "Municipality not found"}
+            {language === "da" ? "Kunne ikke indlæse data" : "Could not load data"}
           </h1>
           <p className="text-muted mb-6">
             {language === "da"
-              ? `Vi kunne ikke finde data for "${decodedName}".`
-              : `Could not find data for "${decodedName}".`}
+              ? "Kunne ikke indlæse data. Prøv igen."
+              : "Could not load data. Please try again."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
+          >
+            {language === "da" ? "Prøv igen" : "Try again"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (munInstitutions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">
+            {language === "da" ? "Ingen institutioner fundet" : "No institutions found"}
+          </h1>
+          <p className="text-muted mb-6">
+            {language === "da"
+              ? "Ingen institutioner fundet i denne kommune."
+              : "No institutions found in this municipality."}
           </p>
           <Link to="/" className="text-primary hover:underline font-medium">
             {t.errors.goHome}
@@ -128,6 +156,14 @@ export default function KommunePage() {
         { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguide.dk/" },
         { name: `${decodedName} Kommune`, url: `https://institutionsguide.dk/kommune/${encodeURIComponent(decodedName)}` },
       ])} />
+      <JsonLd data={itemListSchema(
+        munInstitutions.slice(0, 10).map((inst) => ({
+          name: inst.name,
+          url: `/institution/${inst.id}`,
+        })),
+        "https://institutionsguide.dk",
+        `${language === "da" ? "Institutioner i" : "Institutions in"} ${decodedName}`,
+      )} />
 
       <Breadcrumbs items={[
         { label: language === "da" ? "Forside" : "Home", href: "/" },
@@ -136,7 +172,7 @@ export default function KommunePage() {
       ]} />
 
       {/* Header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {decodedName}
         </h1>
@@ -146,12 +182,12 @@ export default function KommunePage() {
         <p className="font-mono text-primary text-lg font-semibold">
           {munInstitutions.length.toLocaleString("da-DK")} {t.common.institutions}
         </p>
-      </section>
+      </section></ScrollReveal>
 
       {/* Rates overview */}
       {munSummary && (
-        <section className="max-w-4xl mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
+          <ScrollReveal stagger className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">{t.categories.dagpleje}{t.common.perMonth}</p>
               <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.dagpleje)}</p>
@@ -168,8 +204,8 @@ export default function KommunePage() {
               <p className="text-xs text-muted mb-1">{t.categories.sfo}{t.common.perMonth}</p>
               <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.sfo)}</p>
             </div>
-          </div>
-        </section>
+          </ScrollReveal>
+        </section></ScrollReveal>
       )}
 
       {/* Map */}
@@ -211,28 +247,28 @@ export default function KommunePage() {
 
       {/* Normering chart */}
       {munNormering.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 py-6">
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
           <NormeringChart
             municipality={decodedName}
             data={munNormering}
           />
-        </section>
+        </section></ScrollReveal>
       )}
 
       {/* Dagpleje vs Vuggestue comparison */}
       {dagplejeAvg && vuggestueAvg && (
-        <section className="max-w-4xl mx-auto px-4 py-6">
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
           <DagplejeVsVuggestue
             municipality={decodedName}
             dagplejeAvgPrice={dagplejeAvg}
             vuggestueAvgPrice={vuggestueAvg}
             profile={profile}
           />
-        </section>
+        </section></ScrollReveal>
       )}
 
       {/* Institution lists by category */}
-      <section className="max-w-7xl mx-auto px-4 py-8">
+      <ScrollReveal><section className="max-w-7xl mx-auto px-4 py-8">
         {CATEGORIES.map((cat) => {
           const list = grouped[cat];
           if (list.length === 0) return null;
@@ -246,7 +282,7 @@ export default function KommunePage() {
                   <button
                     key={inst.id}
                     onClick={() => handleSelect(inst)}
-                    className="text-left card p-4 hover:scale-[1.01] transition-transform min-h-[44px]"
+                    className="text-left card p-4 transition-transform min-h-[44px]"
                   >
                     <p className="font-semibold text-foreground text-sm">{inst.name}</p>
                     <p className="text-xs text-muted">{inst.address}</p>
@@ -255,14 +291,17 @@ export default function KommunePage() {
                 ))}
               </div>
               {list.length > 12 && (
-                <p className="text-sm text-muted mt-3">
-                  {language === "da" ? "Og" : "And"} {list.length - 12} {t.municipality.andMore} {CATEGORY_LABELS[cat].toLowerCase()}...
-                </p>
+                <Link
+                  to={`/${cat}/${toSlug(decodedName)}`}
+                  className="inline-block text-sm text-primary hover:underline font-medium mt-3"
+                >
+                  {language === "da" ? "Og" : "And"} {list.length - 12} {t.municipality.andMore} {CATEGORY_LABELS[cat].toLowerCase()} &rarr;
+                </Link>
               )}
             </div>
           );
         })}
-      </section>
+      </section></ScrollReveal>
 
       {/* Price alert signup */}
       <section className="max-w-4xl mx-auto px-4 py-6">
@@ -271,7 +310,7 @@ export default function KommunePage() {
 
       {/* Nearby municipalities */}
       {nearbyMunicipalities.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 py-8">
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">
             {t.municipality.seeOtherMunicipalities}
           </h2>
@@ -286,8 +325,11 @@ export default function KommunePage() {
               </Link>
             ))}
           </div>
-        </section>
+        </section></ScrollReveal>
       )}
+
+      {/* Related searches */}
+      <RelatedSearches municipality={decodedName} />
     </>
   );
 }

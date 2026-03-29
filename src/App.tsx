@@ -24,8 +24,11 @@ const VsPage = lazy(() => import("@/pages/VsPage"));
 const NormeringPage = lazy(() => import("@/pages/NormeringPage"));
 const NormeringKommunePage = lazy(() => import("@/pages/NormeringKommunePage"));
 const FripladsPage = lazy(() => import("@/pages/FripladsPage"));
+const MetodePage = lazy(() => import("@/pages/MetodePage"));
+const BestValuePage = lazy(() => import("@/pages/BestValuePage"));
 const BlogIndex = lazy(() => import("@/pages/BlogIndex"));
 const BlogPost = lazy(() => import("@/pages/BlogPost"));
+const PrissammenligningPage = lazy(() => import("@/pages/PrissammenligningPage"));
 
 function Loading() {
   return (
@@ -63,10 +66,15 @@ export default function App() {
               <Route path="/normering/:kommune" element={<NormeringKommunePage />} />
               {/* Friplads calculator */}
               <Route path="/friplads" element={<FripladsPage />} />
+              {/* Prissammenligning */}
+              <Route path="/prissammenligning" element={<PrissammenligningPage />} />
+              {/* Metode */}
+              <Route path="/metode" element={<MetodePage />} />
               {/* Blog */}
               <Route path="/blog" element={<BlogIndex />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               {/* Programmatic SEO pages — specific routes BEFORE /:category/:municipality catch-all */}
+              <Route path="/bedste-vaerdi" element={<BestValuePage />} />
               <Route path="/bedste-skole/:municipality" element={<BestSchoolPage />} />
               <Route path="/billigste-:category/:municipality" element={<CheapestPage />} />
               <Route path="/sammenlign/:comparison/:municipality" element={<VsPage />} />

@@ -1,5 +1,6 @@
 import { MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface GeoModalProps {
   onAccept: () => void;
@@ -8,12 +9,17 @@ interface GeoModalProps {
 
 export function GeoModal({ onAccept, onDismiss }: GeoModalProps) {
   const { language } = useLanguage();
+  const trapRef = useFocusTrap<HTMLDivElement>();
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="geo-modal-title"
       onClick={onDismiss}
     >
       <div
+        ref={trapRef}
         className="bg-bg-card rounded-xl shadow-xl p-6 max-w-sm w-full"
         onClick={(e) => e.stopPropagation()}
       >
@@ -21,7 +27,7 @@ export function GeoModal({ onAccept, onDismiss }: GeoModalProps) {
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <MapPin className="w-5 h-5 text-primary" />
           </div>
-          <p className="text-foreground font-medium">
+          <p id="geo-modal-title" className="text-foreground font-medium">
             {language === "da" ? "Find institutioner nær dig" : "Find institutions near you"}
           </p>
         </div>
@@ -33,6 +39,7 @@ export function GeoModal({ onAccept, onDismiss }: GeoModalProps) {
         <div className="flex gap-3 justify-end">
           <button
             onClick={onDismiss}
+            data-dismiss
             className="px-4 py-2 text-sm rounded-lg border border-border text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
           >
             {language === "da" ? "Nej tak" : "No thanks"}

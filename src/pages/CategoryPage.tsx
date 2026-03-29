@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -8,30 +8,28 @@ import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
 import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
-import InstitutionMap from "@/components/map/InstitutionMap";
+import ScrollReveal from "@/components/shared/ScrollReveal";
+
+const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import CompareBar from "@/components/compare/CompareBar";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
-import { breadcrumbSchema } from "@/lib/schema";
+import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import { useFavorites } from "@/hooks/useFavorites";
 import NoResults from "@/components/filters/NoResults";
+import RelatedSearches from "@/components/shared/RelatedSearches";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import type { UnifiedInstitution } from "@/lib/types";
 import { haversineKm, formatDistance } from "@/lib/geo";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
+import DataFreshness from "@/components/shared/DataFreshness";
+import { qualityLevelBadge, CATEGORY_BADGE_COLORS } from "@/lib/badges";
 
 interface Props {
   category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
 }
-
-const CATEGORY_BADGE_COLORS: Record<string, string> = {
-  vuggestue: "bg-green-100 text-green-700",
-  boernehave: "bg-blue-100 text-blue-700",
-  dagpleje: "bg-amber-100 text-amber-700",
-  skole: "bg-indigo-100 text-indigo-700",
-  sfo: "bg-purple-100 text-purple-700",
-};
 
 export default function CategoryPage({ category }: Props) {
   const navigate = useNavigate();
@@ -55,6 +53,7 @@ export default function CategoryPage({ category }: Props) {
   const mobileView = view === "kort" ? "map" : "list";
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const savedScrollY = useRef(0);
   const handleMarkerHover = useCallback((id: string | null) => setHoveredId(id), []);
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
@@ -116,11 +115,10 @@ export default function CategoryPage({ category }: Props) {
   }
 
   function getInstQualityBadge(inst: UnifiedInstitution): { label: string; className: string } | null {
+    const lang = language as "da" | "en";
     // Schools: use existing overall quality
     if (inst.category === "skole" && inst.quality?.o !== undefined) {
-      if (inst.quality.o === 1) return { label: language === "da" ? "Over middel" : "Above avg", className: "bg-[#E1F5EE] text-[#085041]" };
-      if (inst.quality.o === 0) return { label: language === "da" ? "Middel" : "Average", className: "bg-[#FAEEDA] text-[#633806]" };
-      return { label: language === "da" ? "Under middel" : "Below avg", className: "bg-[#FCEBEB] text-[#791F1F]" };
+      return qualityLevelBadge(inst.quality.o, lang);
     }
     // Dagtilbud: compare normering to national average
     const agMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
@@ -130,9 +128,9 @@ export default function CategoryPage({ category }: Props) {
     const natAvg = normeringMap.get(`__national__|${ag}`);
     if (ratio == null || natAvg == null) return null;
     // Lower ratio = better (fewer children per adult)
-    if (ratio < natAvg - 0.2) return { label: language === "da" ? "Over middel" : "Above avg", className: "bg-[#E1F5EE] text-[#085041]" };
-    if (ratio > natAvg + 0.3) return { label: language === "da" ? "Under middel" : "Below avg", className: "bg-[#FCEBEB] text-[#791F1F]" };
-    return { label: language === "da" ? "Middel" : "Average", className: "bg-[#FAEEDA] text-[#633806]" };
+    if (ratio < natAvg - 0.2) return qualityLevelBadge(1, lang);
+    if (ratio > natAvg + 0.3) return qualityLevelBadge(-1, lang);
+    return qualityLevelBadge(0, lang);
   }
 
   const subtypeLabels: Record<string, string> = {
@@ -141,6 +139,7 @@ export default function CategoryPage({ category }: Props) {
   };
 
   const [visibleCount, setVisibleCount] = useState(50);
+  const [showAllMunicipalities, setShowAllMunicipalities] = useState(false);
 
   const distanceSorted = useMemo(() => {
     if (!geo.userLocation) return filtered;
@@ -217,8 +216,9 @@ export default function CategoryPage({ category }: Props) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen">
+        <SkeletonHero />
+        <SkeletonCardGrid count={6} />
       </div>
     );
   }
@@ -259,6 +259,17 @@ export default function CategoryPage({ category }: Props) {
   // Determine if we should show category badges (when catFilter is "alle")
   const showCategoryBadge = catFilter === "alle";
 
+  // Count active filters for mobile badge
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (search) count++;
+    if (municipalityFilter) count++;
+    if (ageGroup) count++;
+    if (qualityFilter) count++;
+    if (sortKey !== (category === "skole" ? "rating" : "price")) count++;
+    return count;
+  }, [search, municipalityFilter, ageGroup, qualityFilter, sortKey, category]);
+
   return (
     <>
       <SEOHead
@@ -270,9 +281,17 @@ export default function CategoryPage({ category }: Props) {
         { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguide.dk/" },
         { name: categoryTitles[category], url: `https://institutionsguide.dk${categoryPaths[category]}` },
       ])} />
+      <JsonLd data={itemListSchema(
+        filtered.slice(0, 10).map((inst) => ({
+          name: inst.name,
+          url: `/institution/${inst.id}`,
+        })),
+        "https://institutionsguide.dk",
+        categoryTitles[category],
+      )} />
 
       {/* Category header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {categoryTitles[category]}
         </h1>
@@ -282,7 +301,11 @@ export default function CategoryPage({ category }: Props) {
         <p className="font-mono text-primary text-lg font-semibold">
           {filtered.length.toLocaleString("da-DK")} {t.common.institutions}
         </p>
-      </section>
+        <DataFreshness />
+        <Link to="/metode" className="inline-block mt-2 text-xs text-muted hover:text-primary hover:underline transition-colors">
+          {language === "da" ? "Hvordan beregnes dette?" : "How is this calculated?"}
+        </Link>
+      </section></ScrollReveal>
 
       {/* Dagpleje info box */}
       {category === "dagpleje" && (
@@ -317,6 +340,9 @@ export default function CategoryPage({ category }: Props) {
           <div className="card p-6">
             <h2 className="font-display text-xl font-bold mb-3">{t.schoolInfo.title}</h2>
             <p className="text-sm text-muted leading-relaxed">{t.schoolInfo.description}</p>
+            <Link to="/metode" className="inline-block mt-3 text-sm text-primary hover:underline">
+              {language === "da" ? "Hvordan beregnes dette?" : "How is this calculated?"} &rarr;
+            </Link>
           </div>
         </section>
       )}
@@ -337,11 +363,22 @@ export default function CategoryPage({ category }: Props) {
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
+            className="relative shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-border text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
           >
             <SlidersHorizontal className="w-4 h-4" />
             {showFilters ? t.home.hideFilters : t.home.showFilters}
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-accent text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
+          {/* Persistent result count when filters collapsed */}
+          {!showFilters && (
+            <span className="text-xs text-muted whitespace-nowrap">
+              <span className="font-mono font-medium text-foreground">{boundsFiltered.length.toLocaleString("da-DK")}</span> institutioner
+            </span>
+          )}
         </div>
         {/* Full filter bar: always visible on sm+, toggle on mobile */}
         <div className={`${showFilters ? "block" : "hidden"} sm:block`}>
@@ -372,7 +409,13 @@ export default function CategoryPage({ category }: Props) {
       <div className="lg:hidden flex justify-center py-3 px-4">
         <div className="inline-flex rounded-lg border border-border overflow-hidden">
           <button
-            onClick={() => setView("liste")}
+            onClick={() => {
+              if (mobileView !== "list") {
+                setView("liste");
+                // Restore scroll position after switching back to list
+                requestAnimationFrame(() => window.scrollTo(0, savedScrollY.current));
+              }
+            }}
             className={`px-5 py-2 text-sm font-medium transition-colors min-h-[44px] ${
               mobileView === "list" ? "bg-primary text-primary-foreground" : "bg-bg-card text-foreground hover:bg-primary/5"
             }`}
@@ -380,7 +423,12 @@ export default function CategoryPage({ category }: Props) {
             {t.home.listView}
           </button>
           <button
-            onClick={() => setView("kort")}
+            onClick={() => {
+              if (mobileView !== "map") {
+                savedScrollY.current = window.scrollY;
+                setView("kort");
+              }
+            }}
             className={`px-5 py-2 text-sm font-medium transition-colors min-h-[44px] ${
               mobileView === "map" ? "bg-primary text-primary-foreground" : "bg-bg-card text-foreground hover:bg-primary/5"
             }`}
@@ -448,7 +496,7 @@ export default function CategoryPage({ category }: Props) {
               key={inst.id}
               to={`/institution/${inst.id}`}
               data-inst-id={inst.id}
-              className={`card hover:scale-[1.01] transition-all block ${
+              className={`card transition-all block ${
                 hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
               }`}
               onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(inst.id); }}
@@ -557,7 +605,7 @@ export default function CategoryPage({ category }: Props) {
       </section>
 
       {/* Municipality ranking for this category */}
-      <section className="max-w-5xl mx-auto px-4 py-12">
+      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-12">
         <h2 className="font-display text-2xl font-bold text-foreground mb-6">
           {language === "da" ? "Kommuner" : "Municipalities"} — {categoryTitles[category]?.split(" ")[0]}
         </h2>
@@ -577,7 +625,7 @@ export default function CategoryPage({ category }: Props) {
               </tr>
             </thead>
             <tbody>
-              {catMunicipalities.slice(0, 30).map((m) => (
+              {(showAllMunicipalities ? catMunicipalities : catMunicipalities.slice(0, 30)).map((m) => (
                 <tr key={m.municipality} className="border-b border-border/50 hover:bg-primary/5 transition-colors">
                   <td className="py-2 px-3">
                     <Link to={`/kommune/${encodeURIComponent(m.municipality)}`} className="text-primary hover:underline font-medium">
@@ -593,7 +641,20 @@ export default function CategoryPage({ category }: Props) {
             </tbody>
           </table>
         </div>
-      </section>
+        {!showAllMunicipalities && catMunicipalities.length > 30 && (
+          <div className="text-center mt-4">
+            <button
+              onClick={() => setShowAllMunicipalities(true)}
+              className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
+            >
+              {language === "da" ? `Vis alle ${catMunicipalities.length} kommuner` : `Show all ${catMunicipalities.length} municipalities`}
+            </button>
+          </div>
+        )}
+      </section></ScrollReveal>
+
+      {/* Related searches */}
+      <RelatedSearches category={category} />
 
       {/* Geolocation consent modal */}
       {geo.showGeoModal && (

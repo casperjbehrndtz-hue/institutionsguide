@@ -37,6 +37,7 @@ export const en: TranslationStrings = {
     skipToContent: "Skip to content",
     lightMode: "Switch to light mode",
     darkMode: "Switch to dark mode",
+    tools: "Tools",
   },
   categories: {
     vuggestue: "Nurseries",
@@ -63,7 +64,7 @@ export const en: TranslationStrings = {
   },
   home: {
     heroTagline: "Denmark's most complete institution overview",
-    heroTitle: "Find the right place for your child",
+    heroTitle: "Find the best childcare for your family",
     heroSubtitle: "See prices, quality and distance for {count}+ daycares and schools. Calculate your childcare subsidy and compare — completely free.",
     heroSearchPlaceholder: "Where do you live? Type address, postal code or city...",
     heroCta: "or find institutions near you",
@@ -186,12 +187,21 @@ export const en: TranslationStrings = {
   footer: {
     categories: "Categories",
     tools: "Tools",
+    information: "Information",
     seeAlso: "See also",
     legal: "Legal",
     privacy: "Privacy policy",
     terms: "Terms",
     dataSources: "Data sources",
+    dataUpdated: "Data updated: 2025/2026",
     disclaimer: "All prices and quality data are advisory. Contact the individual municipality or institution for current information. Does not constitute advice.",
+    priceComparison: "Price comparison",
+    bestValue: "Best value",
+    subsidyCalc: "Subsidy calculator",
+    staffRatio: "Children per adult",
+    compareInstitutions: "Compare institutions",
+    methodology: "Methodology & data sources",
+    blog: "Blog",
   },
   cookie: {
     message: "We use cookies to improve your experience. Read more in our",

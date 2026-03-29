@@ -42,10 +42,10 @@ function useSuiteProducts(): SuiteProduct[] {
 }
 
 const dataSources = [
-  "Dagtilbudsregisteret (STIL)",
-  "Institutionsregisteret",
-  "Uddannelsesstatistik API",
-  "Danmarks Statistik (RES88)",
+  { name: "Dagtilbudsregisteret (STIL)", href: "https://www.stil.dk" },
+  { name: "Institutionsregisteret", href: "https://www.uvm.dk" },
+  { name: "Uddannelsesstatistik API", href: "https://www.uvm.dk" },
+  { name: "Danmarks Statistik (RES88)", href: "https://www.dst.dk" },
 ];
 
 export default function Footer() {
@@ -55,7 +55,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border/50 mt-auto bg-bg">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-2">
             <span className="font-display font-bold text-lg text-foreground">Institutionsguide</span>
@@ -80,9 +80,22 @@ export default function Footer() {
           <div className="space-y-2">
             <h4 className="text-xs font-semibold text-foreground uppercase tracking-widest mb-3">{t.footer.tools}</h4>
             <ul className="space-y-1.5">
-              <li><Link to="/friplads" className="text-xs text-muted hover:text-primary transition-colors">{t.friplads.title}</Link></li>
-              <li><Link to="/normering" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.normering}</Link></li>
-              <li><Link to="/sammenlign" className="text-xs text-muted hover:text-primary transition-colors">{t.common.compare}</Link></li>
+              <li><Link to="/prissammenligning" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.priceComparison}</Link></li>
+              <li><Link to="/bedste-vaerdi" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.bestValue}</Link></li>
+              <li><Link to="/friplads" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.subsidyCalc}</Link></li>
+              <li><Link to="/normering" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.staffRatio}</Link></li>
+              <li><Link to="/sammenlign" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.compareInstitutions}</Link></li>
+            </ul>
+          </div>
+
+          {/* Information */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-semibold text-foreground uppercase tracking-widest mb-3">{t.footer.information}</h4>
+            <ul className="space-y-1.5">
+              <li><Link to="/metode" className="text-xs text-primary font-medium hover:text-primary/80 transition-colors">{t.footer.methodology}</Link></li>
+              <li><Link to="/blog" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.blog}</Link></li>
+              <li><Link to="/privatliv" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.privacy}</Link></li>
+              <li><Link to="/vilkaar" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.terms}</Link></li>
             </ul>
           </div>
 
@@ -106,19 +119,19 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal + Data */}
+          {/* Data sources */}
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold text-foreground uppercase tracking-widest mb-3">{t.footer.legal}</h4>
-            <ul className="space-y-1.5 mb-4">
-              <li><Link to="/privatliv" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.privacy}</Link></li>
-              <li><Link to="/vilkaar" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.terms}</Link></li>
-            </ul>
-            <h4 className="text-xs font-semibold text-foreground uppercase tracking-widest mb-2">{t.footer.dataSources}</h4>
+            <h4 className="text-xs font-semibold text-foreground uppercase tracking-widest mb-3">{t.footer.dataSources}</h4>
             <ul className="space-y-1 text-[10px] text-muted">
               {dataSources.map((source) => (
-                <li key={source}>{source}</li>
+                <li key={source.name}>
+                  <a href={source.href} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                    {source.name}
+                  </a>
+                </li>
               ))}
             </ul>
+            <p className="text-[10px] text-muted/70 mt-2">{t.footer.dataUpdated}</p>
           </div>
         </div>
 

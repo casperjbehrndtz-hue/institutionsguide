@@ -8,6 +8,7 @@ import RadiusFilter, { RadiusCircle } from "./RadiusFilter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
 import { useFavorites } from "@/hooks/useFavorites";
+import { qualityBadgeInlineColors } from "@/lib/badges";
 
 interface Props {
   institutions: UnifiedInstitution[];
@@ -72,11 +73,10 @@ const CATEGORY_LABEL_KEYS: Record<string, "legendVuggestue" | "legendBoernehave"
 
 function qualityBadgeHtml(quality: UnifiedInstitution["quality"], t: { aboveAvg: string; average: string; belowAvg: string }): string {
   if (!quality || quality.o === undefined) return "";
-  let bg: string, text: string, label: string;
-  if (quality.o === 1) { bg = "#DEF7EC"; text = "#03543F"; label = t.aboveAvg; }
-  else if (quality.o === 0) { bg = "#FEF3C7"; text = "#92400E"; label = t.average; }
-  else { bg = "#FDE8E8"; text = "#9B1C1C"; label = t.belowAvg; }
-  return `<span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:9999px;background:${bg};color:${text};margin-right:4px;">${escapeHtml(label)}</span>`;
+  const colors = qualityBadgeInlineColors(quality.o);
+  if (!colors) return "";
+  const label = quality.o === 1 ? t.aboveAvg : quality.o === 0 ? t.average : t.belowAvg;
+  return `<span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:9999px;background:${colors.bg};color:${colors.text};margin-right:4px;">${escapeHtml(label)}</span>`;
 }
 
 function categoryBadgeHtml(category: string, color: string, label: string): string {

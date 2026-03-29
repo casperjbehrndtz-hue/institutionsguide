@@ -1,33 +1,43 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const NAV_LINKS: { href: string; key: string; labelOverride?: Record<string, string> }[] = [
+const CATEGORY_LINKS: { href: string; key: string; labelOverride?: Record<string, string> }[] = [
   { href: "/vuggestue", key: "vuggestue", labelOverride: { da: "Vuggestuer", en: "Nurseries" } },
   { href: "/boernehave", key: "boernehave", labelOverride: { da: "Børnehaver", en: "Kindergartens" } },
   { href: "/dagpleje", key: "dagpleje", labelOverride: { da: "Dagplejere", en: "Childminders" } },
   { href: "/skole", key: "skole", labelOverride: { da: "Skoler", en: "Schools" } },
   { href: "/sfo", key: "sfo", labelOverride: { da: "SFO", en: "After-school" } },
-  { href: "/friplads", key: "friplads", labelOverride: { da: "Friplads", en: "Subsidy" } },
-  { href: "/normering", key: "normering", labelOverride: { da: "Børn pr. voksen", en: "Children per adult" } },
+];
+
+const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = [
+  { href: "/prissammenligning", labelOverride: { da: "Prissammenligning", en: "Price comparison" } },
+  { href: "/bedste-vaerdi", labelOverride: { da: "Bedste værdi", en: "Best value" } },
+  { href: "/friplads", labelOverride: { da: "Fripladsberegner", en: "Subsidy calculator" } },
+  { href: "/normering", labelOverride: { da: "Børn pr. voksen", en: "Children per adult" } },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const { t, language, setLanguage } = useLanguage();
   const location = useLocation();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const closeMenu = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open && !toolsOpen) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeMenu();
+      if (e.key === "Escape") {
+        closeMenu();
+        setToolsOpen(false);
+      }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [open, closeMenu]);
+  }, [open, toolsOpen, closeMenu]);
 
   useEffect(() => {
     if (open) {
@@ -38,6 +48,26 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  // Close tools dropdown when clicking outside
+  useEffect(() => {
+    if (!toolsOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setToolsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [toolsOpen]);
+
+  // Close dropdown on route change
+  useEffect(() => {
+    setToolsOpen(false);
+  }, [location.pathname]);
+
+  const toolPaths = TOOL_LINKS.map((l) => l.href);
+  const toolsActive = toolPaths.includes(location.pathname);
+
   return (
     <nav className="sticky top-0 z-40 glass-subtle border-b border-border/50" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
@@ -45,9 +75,9 @@ export default function Navbar() {
           Institutionsguide
         </Link>
 
-        {/* Desktop nav — categories + language toggle */}
+        {/* Desktop nav — categories + tools dropdown + language toggle */}
         <div className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map((link) => {
+          {CATEGORY_LINKS.map((link) => {
             const active = location.pathname === link.href;
             return (
               <Link
@@ -63,6 +93,44 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          {/* Tools dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setToolsOpen(!toolsOpen)}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                toolsActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted hover:text-foreground hover:bg-border/30"
+              }`}
+              aria-expanded={toolsOpen}
+              aria-haspopup="true"
+            >
+              {t.nav.tools}
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
+            </button>
+            {toolsOpen && (
+              <div className="absolute right-0 mt-1 w-52 rounded-xl border border-border bg-bg shadow-lg py-1 animate-fade-in z-50">
+                {TOOL_LINKS.map((link) => {
+                  const active = location.pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className={`block px-4 py-2.5 text-sm transition-colors ${
+                        active
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted hover:text-foreground hover:bg-border/30"
+                      }`}
+                    >
+                      {link.labelOverride[language]}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => setLanguage(language === "da" ? "en" : "da")}
             className="ml-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-border text-muted hover:text-foreground hover:bg-border/30 transition-colors min-h-[36px]"
@@ -96,7 +164,7 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden border-t border-border bg-bg animate-fade-in relative z-40">
           <div className="px-4 py-2 flex flex-wrap gap-1">
-            {NAV_LINKS.map((link) => {
+            {CATEGORY_LINKS.map((link) => {
               const active = location.pathname === link.href;
               return (
                 <Link
@@ -113,6 +181,30 @@ export default function Navbar() {
                 </Link>
               );
             })}
+          </div>
+          <div className="px-4 pb-2">
+            <p className="px-3 pt-2 pb-1 text-[10px] font-semibold text-muted uppercase tracking-widest">{t.nav.tools}</p>
+            <div className="flex flex-wrap gap-1">
+              {TOOL_LINKS.map((link) => {
+                const active = location.pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    onClick={() => setOpen(false)}
+                    className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted hover:text-foreground hover:bg-border/30"
+                    }`}
+                  >
+                    {link.labelOverride[language]}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+          <div className="px-4 pb-2">
             <button
               onClick={() => { setLanguage(language === "da" ? "en" : "da"); setOpen(false); }}
               className="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors"

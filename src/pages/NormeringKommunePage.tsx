@@ -417,7 +417,7 @@ export default function NormeringKommunePage() {
           Ofte stillede spørgsmål
         </h2>
         <div className="space-y-4">
-          <details className="card p-4 group" open>
+          <details className="card card-static p-4 group" open>
             <summary className="font-medium text-foreground cursor-pointer list-none flex items-center justify-between">
               Hvad er normering?
               <span className="text-muted group-open:rotate-180 transition-transform">▼</span>
@@ -429,7 +429,7 @@ export default function NormeringKommunePage() {
               per voksen ({latestYear}).
             </p>
           </details>
-          <details className="card p-4 group">
+          <details className="card card-static p-4 group">
             <summary className="font-medium text-foreground cursor-pointer list-none flex items-center justify-between">
               Hvad er minimumsnormering?
               <span className="text-muted group-open:rotate-180 transition-transform">▼</span>
@@ -440,7 +440,7 @@ export default function NormeringKommunePage() {
               henholdsvis 3,0 og 6,0.
             </p>
           </details>
-          <details className="card p-4 group">
+          <details className="card card-static p-4 group">
             <summary className="font-medium text-foreground cursor-pointer list-none flex items-center justify-between">
               Hvornår trådte minimumsnormeringen i kraft?
               <span className="text-muted group-open:rotate-180 transition-transform">▼</span>

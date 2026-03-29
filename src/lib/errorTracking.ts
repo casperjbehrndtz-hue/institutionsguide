@@ -1,36 +1,35 @@
-/**
- * Sentry-ready error tracking utility.
- *
- * Currently logs to the console. When you're ready to enable Sentry,
- * install the SDK and replace the implementations below:
- *
- *   npm install @sentry/react
- *
- *   import * as Sentry from "@sentry/react";
- *
- *   Sentry.init({ dsn: "https://<key>@sentry.io/<project>" });
- *
- *   export function captureException(error: Error, context?: Record<string, unknown>) {
- *     Sentry.captureException(error, { extra: context });
- *   }
- *
- *   export function captureMessage(message: string, level?: "info" | "warning" | "error") {
- *     Sentry.captureMessage(message, level);
- *   }
- */
+import * as Sentry from "@sentry/react";
+
+let initialized = false;
+
+export function initErrorTracking() {
+  if (initialized) return;
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  if (!dsn) return;
+
+  Sentry.init({
+    dsn,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: 0.1,
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 0.5,
+  });
+  initialized = true;
+}
 
 export function captureException(
   error: Error,
   context?: Record<string, unknown>,
-): void {
-  // eslint-disable-next-line no-console
-  console.error("[errorTracking] captureException", error, context);
+) {
+  console.error("[error]", error, context);
+  if (context) Sentry.setContext("extra", context);
+  Sentry.captureException(error);
 }
 
 export function captureMessage(
   message: string,
   level: "info" | "warning" | "error" = "info",
-): void {
+) {
   const logFn =
     level === "error"
       ? console.error
@@ -38,6 +37,10 @@ export function captureMessage(
         ? console.warn
         : console.info;
 
-  // eslint-disable-next-line no-console
   logFn(`[errorTracking] ${level}:`, message);
+  Sentry.captureMessage(message, level);
+}
+
+export function setUser(id: string) {
+  Sentry.setUser({ id });
 }

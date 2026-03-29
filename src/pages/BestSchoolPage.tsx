@@ -4,15 +4,12 @@ import { useData } from "@/contexts/DataContext";
 import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { buildSlugMap, toSlug } from "@/lib/slugs";
+import RelatedSearches from "@/components/shared/RelatedSearches";
 import type { UnifiedInstitution } from "@/lib/types";
-
-function qualityBadge(score: number | undefined): { label: string; color: string } | null {
-  if (score === undefined) return null;
-  if (score >= 4) return { label: "Fremragende", color: "bg-green-100 text-green-700" };
-  if (score >= 3) return { label: "God", color: "bg-blue-100 text-blue-700" };
-  if (score >= 2) return { label: "Middel", color: "bg-yellow-100 text-yellow-700" };
-  return { label: "Under middel", color: "bg-red-100 text-red-700" };
-}
+import DataFreshness from "@/components/shared/DataFreshness";
+import ScrollReveal from "@/components/shared/ScrollReveal";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
+import { qualityBadge } from "@/lib/badges";
 
 function formatPct(v: number | undefined): string {
   if (v === undefined) return "–";
@@ -70,8 +67,9 @@ export default function BestSchoolPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen">
+        <SkeletonHero />
+        <SkeletonCardGrid count={6} />
       </div>
     );
   }
@@ -115,7 +113,7 @@ export default function BestSchoolPage() {
       />
 
       {/* Header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           Bedste skoler i {munName}
         </h1>
@@ -124,10 +122,11 @@ export default function BestSchoolPage() {
           kvalitetsdata fra Undervisningsministeriet. {schools.length} ud af{" "}
           {totalSchools} skoler har kvalitetsvurdering.
         </p>
-      </section>
+        <DataFreshness />
+      </section></ScrollReveal>
 
       {/* Top 5 highlight */}
-      <section className="max-w-4xl mx-auto px-4 py-6">
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           Top {top5.length} skoler i {munName}
         </h2>
@@ -169,10 +168,10 @@ export default function BestSchoolPage() {
             );
           })}
         </div>
-      </section>
+      </section></ScrollReveal>
 
       {/* Full table */}
-      <section className="max-w-5xl mx-auto px-4 py-8">
+      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           Alle {schools.length} skoler med kvalitetsdata
         </h2>
@@ -201,11 +200,11 @@ export default function BestSchoolPage() {
             </tbody>
           </table>
         </div>
-      </section>
+      </section></ScrollReveal>
 
       {/* Methodology note */}
       <section className="max-w-3xl mx-auto px-4 py-6">
-        <div className="card p-4 bg-gray-50">
+        <div className="card card-static p-4 bg-[var(--color-bg)] dark:bg-[var(--color-bg-card)]">
           <h3 className="font-semibold text-sm mb-2">Om kvalitetsvurderingen</h3>
           <p className="text-xs text-muted">
             Kvalitetsscoren er baseret på officielle data fra Undervisningsministeriet og
@@ -237,6 +236,9 @@ export default function BestSchoolPage() {
           </div>
         </section>
       )}
+
+      {/* Related searches */}
+      <RelatedSearches municipality={munName} category="skole" />
     </>
   );
 }

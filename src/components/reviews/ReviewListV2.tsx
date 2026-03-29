@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReviews, type SupabaseReview } from "@/hooks/useReviews";
 import StarRating from "@/components/shared/StarRating";
@@ -39,7 +40,8 @@ function ReviewCardV2({ review }: { review: SupabaseReview }) {
             </span>
           )}
           {review.verified && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-success/10 text-success">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-success/10 text-success">
+              <ShieldCheck className="w-3 h-3" />
               {language === "da" ? "Verificeret" : "Verified"}
             </span>
           )}

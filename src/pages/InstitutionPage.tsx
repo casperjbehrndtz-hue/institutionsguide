@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
-import NormeringBadge from "@/components/charts/NormeringBadge";
-import PriceHistoryChart from "@/components/charts/PriceHistoryChart";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
-import InstitutionMap from "@/components/map/InstitutionMap";
+
+const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
+const PriceHistoryChart = lazy(() => import("@/components/charts/PriceHistoryChart"));
+const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import { institutionSchema, breadcrumbSchema } from "@/lib/schema";
@@ -17,13 +18,16 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/contexts/CompareContext";
 import CompareBar from "@/components/compare/CompareBar";
 import ReviewSummaryV2 from "@/components/reviews/ReviewSummaryV2";
+import { SkeletonDetail } from "@/components/shared/Skeletons";
 import ReviewListV2 from "@/components/reviews/ReviewListV2";
 import ReviewFormV2 from "@/components/reviews/ReviewFormV2";
+import { useReviews } from "@/hooks/useReviews";
 import TilsynSection from "@/components/tilsyn/TilsynSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
 import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
 import StreetViewImage from "@/components/shared/StreetViewImage";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
@@ -87,7 +91,17 @@ export default function InstitutionPage() {
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
+  const { reviews } = useReviews(id || "");
   const [compareToast, setCompareToast] = useState<string | false>(false);
+
+  const reviewSummary = useMemo(() => {
+    if (reviews.length === 0) return undefined;
+    const sum = reviews.reduce((s, r) => s + r.rating, 0);
+    return {
+      averageRating: Math.round((sum / reviews.length) * 10) / 10,
+      totalReviews: reviews.length,
+    };
+  }, [reviews]);
 
   useEffect(() => {
     if (!compareToast) return;
@@ -198,8 +212,8 @@ export default function InstitutionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen">
+        <SkeletonDetail />
       </div>
     );
   }
@@ -228,7 +242,7 @@ export default function InstitutionPage() {
         path={`/institution/${inst.id}`}
       />
 
-      <JsonLd data={institutionSchema(inst, "https://institutionsguide.dk")} />
+      <JsonLd data={institutionSchema(inst, "https://institutionsguide.dk", reviewSummary)} />
       <JsonLd data={breadcrumbSchema([
         { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguide.dk/" },
         { name: categoryLabels[inst.category], url: `https://institutionsguide.dk${categoryPath(inst.category)}` },
@@ -248,6 +262,10 @@ export default function InstitutionPage() {
           <li className="text-foreground font-medium truncate max-w-[200px]">{inst.name}</li>
         </ol>
       </nav>
+
+      <div className="max-w-[640px] mx-auto px-4">
+        <DataFreshness />
+      </div>
 
       {/* Compact action bar */}
       <div className="max-w-[640px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
@@ -365,6 +383,9 @@ export default function InstitutionPage() {
                 <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
               </div>
             </div>
+            <p className="text-[10px] text-muted mt-3 text-center">
+              {language === "da" ? "Priser fra 2025 \u2014 kan afvige fra aktuelle takster" : "Prices from 2025 \u2014 may differ from current rates"}
+            </p>
           </div>
         )}
 
@@ -404,7 +425,12 @@ export default function InstitutionPage() {
                 {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
               </div>
             )}
-            <p className="text-[10px] text-muted mt-3">{t.detail.dataSource}</p>
+            <div className="flex items-center justify-between mt-3 gap-2">
+              <p className="text-[10px] text-muted">{t.detail.dataSource}</p>
+              <Link to="/metode" className="text-[10px] text-primary hover:underline shrink-0">
+                {language === "da" ? "Se metode" : "See method"} &rarr;
+              </Link>
+            </div>
           </div>
         )}
 
@@ -419,30 +445,36 @@ export default function InstitutionPage() {
           const current = latest[0];
           const prev = latest.length > 1 ? latest[1] : undefined;
           return (
-            <NormeringBadge
-              municipality={inst.municipality}
-              ageGroup={current.ageGroup}
-              ratio={current.ratio}
-              year={current.year}
-              previousRatio={prev?.ratio}
-            />
+            <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+              <NormeringBadge
+                municipality={inst.municipality}
+                ageGroup={current.ageGroup}
+                ratio={current.ratio}
+                year={current.year}
+                previousRatio={prev?.ratio}
+              />
+            </Suspense>
           );
         })()}
 
         {/* Price history chart */}
-        <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
+        <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+          <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
+        </Suspense>
 
         {/* Price alert */}
         <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
 
         {/* Map */}
-        <div className="h-[250px] rounded-xl overflow-hidden border border-border">
-          <InstitutionMap
-            institutions={[inst, ...nearby]}
-            onSelect={() => {}}
-            flyTo={{ lat: inst.lat, lng: inst.lng, zoom: 14 }}
-          />
-        </div>
+        <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+          <div className="h-[250px] rounded-xl overflow-hidden border border-border">
+            <InstitutionMap
+              institutions={[inst, ...nearby]}
+              onSelect={() => {}}
+              flyTo={{ lat: inst.lat, lng: inst.lng, zoom: 14 }}
+            />
+          </div>
+        </Suspense>
 
         {/* Tilsyn */}
         <TilsynSection institutionId={inst.id} institutionName={inst.name} />

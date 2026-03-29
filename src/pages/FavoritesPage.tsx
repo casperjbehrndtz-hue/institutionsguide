@@ -83,7 +83,7 @@ export default function FavoritesPage() {
         ) : (
           <div className="space-y-3">
             {favoriteInstitutions.map((inst) => (
-              <div key={inst.id} className="card hover:scale-[1.01] transition-transform">
+              <div key={inst.id} className="card transition-transform">
                 <div className="flex items-start p-4 gap-3">
                   <button
                     onClick={() => toggleFavorite(inst.id)}

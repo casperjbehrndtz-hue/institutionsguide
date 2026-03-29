@@ -585,7 +585,7 @@ export default function FripladsPage() {
                 <Link
                   key={cat}
                   to={`/${CATEGORY_URL_MAP[cat]}/${municipality.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="inline-flex items-center gap-1.5 bg-white border border-border px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors min-h-[44px]"
+                  className="inline-flex items-center gap-1.5 bg-[var(--color-bg-card)] border border-border px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors min-h-[44px]"
                 >
                   {categoryLabels[cat].split(" (")[0]}
                   <ArrowRight className="w-3.5 h-3.5" />

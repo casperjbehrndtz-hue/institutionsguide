@@ -3,6 +3,7 @@ import type { Assessment } from "@/hooks/useAssessment";
 import type { UnifiedInstitution } from "@/lib/types";
 import { Link } from "react-router-dom";
 import { formatDKK } from "@/lib/format";
+import { scoreBadgeInlineColors } from "@/lib/badges";
 
 interface Props {
   score: ScoreResult;
@@ -191,11 +192,7 @@ export default function InstitutionReport({
             {nearby.slice(0, 5).map((n) => {
               const ns = nearbyScores.find((s) => s.id === n.id);
               const isSchool = n.category === "skole";
-              const badgeColor = ns
-                ? ns.overall >= 65 ? { bg: "#E1F5EE", text: "#085041" }
-                  : ns.overall >= 45 ? { bg: "#FAEEDA", text: "#633806" }
-                  : { bg: "#FCEBEB", text: "#791F1F" }
-                : null;
+              const badgeColor = ns ? scoreBadgeInlineColors(ns.overall) : null;
               return (
                 <Link
                   key={n.id}

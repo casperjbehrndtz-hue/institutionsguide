@@ -1,0 +1,16 @@
+{
+  "name": "Institutionsguide \u2014 Find den bedste b\u00f8rnepasning",
+  "short_name": "Institutionsguide",
+  "description": "Find og sammenlign vuggestuer, b\u00f8rnehaver, dagplejere, skoler og SFO i Danmark",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#1B3A5C",
+  "lang": "da",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

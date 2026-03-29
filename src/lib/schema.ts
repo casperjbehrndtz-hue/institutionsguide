@@ -1,6 +1,10 @@
 import type { UnifiedInstitution } from "./types";
 
-export function institutionSchema(inst: UnifiedInstitution, siteUrl: string): object {
+export function institutionSchema(
+  inst: UnifiedInstitution,
+  siteUrl: string,
+  reviewData?: { averageRating: number; totalReviews: number },
+): object {
   return {
     "@context": "https://schema.org",
     "@type": inst.category === "skole" ? "School" : "ChildCare",
@@ -24,6 +28,15 @@ export function institutionSchema(inst: UnifiedInstitution, siteUrl: string): ob
     ...(inst.web && { sameAs: inst.web.startsWith("http") ? inst.web : `https://${inst.web}` }),
     ...(inst.monthlyRate && {
       priceRange: `${inst.monthlyRate} DKK/md`,
+    }),
+    ...(reviewData && reviewData.totalReviews > 0 && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: reviewData.averageRating,
+        bestRating: 5,
+        worstRating: 1,
+        ratingCount: reviewData.totalReviews,
+      },
     }),
   };
 }
@@ -56,6 +69,54 @@ export function breadcrumbSchema(items: { name: string; url: string }[]): object
   };
 }
 
+export function localBusinessSchema(inst: {
+  name: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  municipality: string;
+  lat: number;
+  lng: number;
+  phone?: string;
+  email?: string;
+  web?: string;
+  category: string;
+  monthlyRate?: number | null;
+}, siteUrl: string) {
+  const typeMap: Record<string, string> = {
+    vuggestue: "ChildCare",
+    boernehave: "ChildCare",
+    dagpleje: "ChildCare",
+    sfo: "ChildCare",
+    skole: "School",
+  };
+
+  return {
+    "@context": "https://schema.org",
+    "@type": typeMap[inst.category] || "EducationalOrganization",
+    name: inst.name,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: inst.address,
+      postalCode: inst.postalCode,
+      addressLocality: inst.city,
+      addressRegion: inst.municipality,
+      addressCountry: "DK",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: inst.lat,
+      longitude: inst.lng,
+    },
+    ...(inst.phone && { telephone: inst.phone }),
+    ...(inst.email && { email: inst.email }),
+    ...(inst.web && { url: inst.web.startsWith("http") ? inst.web : `https://${inst.web}` }),
+    ...(inst.monthlyRate && {
+      priceRange: `${inst.monthlyRate} DKK/md`,
+    }),
+  };
+}
+
 export function websiteSchema(siteUrl: string): object {
   return {
     "@context": "https://schema.org",
@@ -67,5 +128,24 @@ export function websiteSchema(siteUrl: string): object {
       target: `${siteUrl}/?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
+  };
+}
+
+export function itemListSchema(
+  items: { name: string; url: string }[],
+  siteUrl: string,
+  listName?: string,
+): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    ...(listName && { name: listName }),
+    numberOfItems: items.length,
+    itemListElement: items.slice(0, 10).map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      url: item.url.startsWith("http") ? item.url : `${siteUrl}${item.url}`,
+    })),
   };
 }

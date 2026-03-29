@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <SuiteBar />
         <Navbar />
       </header>
-      <main id="main-content" className={`flex-1 ${hasCompareItems ? "pb-24" : ""}`}>{children}</main>
+      <main id="main-content" className={`flex-1 page-fade-in ${hasCompareItems ? "pb-24" : ""}`}>{children}</main>
       <Footer />
       <CookieConsent />
     </div>

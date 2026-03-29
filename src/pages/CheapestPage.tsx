@@ -12,6 +12,7 @@ import {
   toSlug,
   type CategorySlug,
 } from "@/lib/slugs";
+import RelatedSearches from "@/components/shared/RelatedSearches";
 import type { UnifiedInstitution } from "@/lib/types";
 
 export default function CheapestPage() {
@@ -236,6 +237,9 @@ export default function CheapestPage() {
           ))}
         </div>
       </section>
+
+      {/* Related searches */}
+      <RelatedSearches municipality={munName} category={cat} />
     </>
   );
 }

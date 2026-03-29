@@ -37,6 +37,7 @@ export interface TranslationStrings {
     skipToContent: string;
     lightMode: string;
     darkMode: string;
+    tools: string;
   };
   categories: {
     vuggestue: string;
@@ -186,12 +187,21 @@ export interface TranslationStrings {
   footer: {
     categories: string;
     tools: string;
+    information: string;
     seeAlso: string;
     legal: string;
     privacy: string;
     terms: string;
     dataSources: string;
+    dataUpdated: string;
     disclaimer: string;
+    priceComparison: string;
+    bestValue: string;
+    subsidyCalc: string;
+    staffRatio: string;
+    compareInstitutions: string;
+    methodology: string;
+    blog: string;
   };
   cookie: {
     message: string;

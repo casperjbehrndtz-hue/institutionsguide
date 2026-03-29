@@ -1,0 +1,418 @@
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
+import {
+  ScatterChart,
+  Scatter,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+  Cell,
+  ZAxis,
+} from "recharts";
+import { useData } from "@/contexts/DataContext";
+import SEOHead from "@/components/shared/SEOHead";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { toSlug } from "@/lib/slugs";
+import { formatDKK, formatDecimal } from "@/lib/format";
+import type { UnifiedInstitution } from "@/lib/types";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
+import RelatedSearches from "@/components/shared/RelatedSearches";
+import ScrollReveal from "@/components/shared/ScrollReveal";
+import { qualityBadge } from "@/lib/badges";
+
+interface RankedSchool {
+  school: UnifiedInstitution;
+  valueScore: number;
+}
+
+export default function BestValuePage() {
+  const { institutions, loading } = useData();
+
+  const ranked = useMemo(() => {
+    const withBoth = institutions
+      .filter(
+        (i) =>
+          i.category === "skole" &&
+          i.quality?.r !== undefined &&
+          i.monthlyRate !== null &&
+          i.monthlyRate > 0
+      )
+      .map((school) => ({
+        school,
+        valueScore: school.quality!.r! / (school.monthlyRate! / 1000),
+      }))
+      .sort((a, b) => b.valueScore - a.valueScore);
+
+    return withBoth.slice(0, 25);
+  }, [institutions]);
+
+  const stats = useMemo(() => {
+    if (ranked.length === 0) return null;
+    const avgQuality =
+      ranked.reduce((s, r) => s + r.school.quality!.r!, 0) / ranked.length;
+    const avgPrice =
+      ranked.reduce((s, r) => s + r.school.monthlyRate!, 0) / ranked.length;
+    const best = ranked[0];
+    return { avgQuality, avgPrice, best };
+  }, [ranked]);
+
+  // Scatter chart data
+  const scatterData = useMemo(() => {
+    return ranked.map((r, idx) => ({
+      name: r.school.name,
+      price: r.school.monthlyRate!,
+      quality: r.school.quality!.r!,
+      isTop5: idx < 5,
+    }));
+  }, [ranked]);
+
+  const scatterAvgs = useMemo(() => {
+    if (scatterData.length === 0) return { avgPrice: 0, avgQuality: 0 };
+    const avgPrice = scatterData.reduce((s, d) => s + d.price, 0) / scatterData.length;
+    const avgQuality = scatterData.reduce((s, d) => s + d.quality, 0) / scatterData.length;
+    return { avgPrice, avgQuality };
+  }, [scatterData]);
+
+  // Unique municipalities represented in top 25
+  const representedMunicipalities = useMemo(() => {
+    const set = new Set(ranked.map((r) => r.school.municipality));
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "da"));
+  }, [ranked]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <SkeletonHero />
+        <SkeletonCardGrid count={6} />
+      </div>
+    );
+  }
+
+  if (ranked.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">Ingen data tilgængelig</h1>
+          <p className="text-muted mb-6">
+            Vi har ikke tilstrækkeligt data til at beregne værdi-for-pengene lige nu.
+          </p>
+          <Link to="/" className="text-primary hover:underline font-medium">
+            Gå til forsiden
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const pageTitle = "Bedste værdi for pengene — Skoler med mest kvalitet per krone 2026";
+  const pageDesc = `Top 25 skoler i Danmark rangeret efter kvalitet i forhold til SFO-pris. ${ranked[0].school.name} giver mest kvalitet per krone med en score på ${formatDecimal(ranked[0].valueScore)}.`;
+
+  return (
+    <>
+      <SEOHead title={pageTitle} description={pageDesc} path="/bedste-vaerdi" />
+
+      <Breadcrumbs
+        items={[
+          { label: "Forside", href: "/" },
+          { label: "Skoler", href: "/skole" },
+          { label: "Bedste værdi for pengene" },
+        ]}
+      />
+
+      {/* Hero */}
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+          Skoler der giver mest kvalitet for pengene
+        </h1>
+        <p className="text-muted text-base max-w-2xl mx-auto">
+          Vi har kombineret officielle kvalitetsdata med SFO-priser for at finde de skoler,
+          der giver mest værdi for pengene. Top 25 skoler i hele Danmark rangeret efter
+          kvalitet per 1.000 kr. i månedlig SFO-betaling.
+        </p>
+      </section></ScrollReveal>
+
+      {/* Stat cards */}
+      {stats && (
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
+          <ScrollReveal stagger className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="card p-4 text-center">
+              <p className="text-xs text-muted uppercase tracking-wide mb-1">
+                Bedste skole
+              </p>
+              <p className="font-display text-lg font-bold text-primary truncate">
+                {stats.best.school.name}
+              </p>
+              <p className="text-xs text-muted">
+                Værdi-score: {formatDecimal(stats.best.valueScore)}
+              </p>
+            </div>
+            <div className="card p-4 text-center">
+              <p className="text-xs text-muted uppercase tracking-wide mb-1">
+                Gns. kvalitet (top 25)
+              </p>
+              <p className="font-display text-2xl font-bold text-foreground">
+                {formatDecimal(stats.avgQuality)}/5
+              </p>
+            </div>
+            <div className="card p-4 text-center">
+              <p className="text-xs text-muted uppercase tracking-wide mb-1">
+                Gns. SFO-pris (top 25)
+              </p>
+              <p className="font-display text-2xl font-bold text-foreground">
+                {formatDKK(stats.avgPrice)}/md
+              </p>
+            </div>
+          </ScrollReveal>
+        </section></ScrollReveal>
+      )}
+
+      {/* Scatter plot: price vs quality */}
+      {scatterData.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 py-6">
+          <h2 className="font-display text-xl font-bold text-foreground mb-2">
+            Pris vs. kvalitet
+          </h2>
+          <p className="text-xs text-muted mb-4">
+            Hver prik er en skole. Skoler i top 5 er fremhævet. Stiplede linjer viser gennemsnittet.
+          </p>
+          <div className="card p-4">
+            <ResponsiveContainer width="100%" height={360}>
+              <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                <XAxis
+                  type="number"
+                  dataKey="price"
+                  name="SFO-pris"
+                  tickFormatter={(v: number) => `${v.toLocaleString("da-DK")} kr`}
+                  fontSize={11}
+                  tick={{ fill: "#4F5F6F" }}
+                  label={{
+                    value: "Mdl. SFO-pris (kr)",
+                    position: "insideBottom",
+                    offset: -10,
+                    fontSize: 12,
+                    fill: "#4F5F6F",
+                  }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="quality"
+                  name="Kvalitet"
+                  domain={[0, 5]}
+                  tickCount={6}
+                  fontSize={11}
+                  tick={{ fill: "#4F5F6F" }}
+                  label={{
+                    value: "Kvalitetsscore",
+                    angle: -90,
+                    position: "insideLeft",
+                    offset: 5,
+                    fontSize: 12,
+                    fill: "#4F5F6F",
+                  }}
+                />
+                <ZAxis range={[60, 60]} />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0].payload as (typeof scatterData)[0];
+                    return (
+                      <div className="rounded-lg border border-border bg-[var(--color-bg-card)] p-2 shadow-sm text-xs">
+                        <p className="font-semibold text-foreground">{d.name}</p>
+                        <p className="text-muted">
+                          SFO: {d.price.toLocaleString("da-DK")} kr/md
+                        </p>
+                        <p className="text-muted">
+                          Kvalitet: {formatDecimal(d.quality)}/5
+                        </p>
+                      </div>
+                    );
+                  }}
+                />
+                <ReferenceLine
+                  x={scatterAvgs.avgPrice}
+                  stroke="#4F5F6F"
+                  strokeDasharray="4 4"
+                  strokeWidth={1}
+                />
+                <ReferenceLine
+                  y={scatterAvgs.avgQuality}
+                  stroke="#4F5F6F"
+                  strokeDasharray="4 4"
+                  strokeWidth={1}
+                />
+                <Scatter data={scatterData}>
+                  {scatterData.map((entry) => (
+                    <Cell
+                      key={entry.name}
+                      fill={entry.isTop5 ? "#B8642E" : "#1B3A5C"}
+                      opacity={entry.isTop5 ? 1 : 0.6}
+                    />
+                  ))}
+                </Scatter>
+              </ScatterChart>
+            </ResponsiveContainer>
+            <div className="flex justify-center gap-6 mt-2 text-xs text-muted">
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#B8642E" }} />
+                Top 5 bedste værdi
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: "#1B3A5C", opacity: 0.6 }} />
+                Øvrige top 25
+              </span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Top 5 highlight cards */}
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
+        <h2 className="font-display text-xl font-bold text-foreground mb-4">
+          Top 5 — mest kvalitet for pengene
+        </h2>
+        <div className="space-y-3">
+          {ranked.slice(0, 5).map((item, idx) => {
+            const badge = qualityBadge(item.school.quality?.r);
+            return (
+              <div
+                key={item.school.id}
+                className="card p-4 flex flex-col sm:flex-row sm:items-center gap-3"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm">
+                    {idx + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <Link
+                      to={`/institution/${item.school.id}`}
+                      className="font-semibold text-primary hover:underline block truncate"
+                    >
+                      {item.school.name}
+                    </Link>
+                    <p className="text-xs text-muted truncate">
+                      {item.school.municipality} — {formatDKK(item.school.monthlyRate)}/md SFO
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {badge && (
+                    <span className={`text-xs px-2 py-1 rounded ${badge.color}`}>
+                      {badge.label}
+                    </span>
+                  )}
+                  <span className="font-mono font-bold text-primary">
+                    {formatDecimal(item.valueScore)}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section></ScrollReveal>
+
+      {/* Full table */}
+      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8">
+        <h2 className="font-display text-xl font-bold text-foreground mb-4">
+          Top 25 skoler — værdi for pengene
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left">
+                <th className="py-2 pr-2 text-muted font-medium">#</th>
+                <th className="py-2 pr-4 text-muted font-medium">Skole</th>
+                <th className="py-2 pr-2 text-muted font-medium">Kommune</th>
+                <th className="py-2 pr-2 text-muted font-medium text-center">Kvalitet</th>
+                <th className="py-2 pr-2 text-muted font-medium text-center">SFO-pris</th>
+                <th className="py-2 text-muted font-medium text-center">Værdi-score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ranked.map((item, idx) => (
+                <ValueRow key={item.school.id} item={item} rank={idx + 1} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section></ScrollReveal>
+
+      {/* Methodology */}
+      <section className="max-w-3xl mx-auto px-4 py-6">
+        <div className="card card-static p-4 bg-[var(--color-bg)] dark:bg-[var(--color-bg-card)]">
+          <h3 className="font-semibold text-sm mb-2">Om beregningen</h3>
+          <p className="text-xs text-muted">
+            Værdi-scoren beregnes som kvalitetsscore divideret med den månedlige SFO-pris
+            i tusinder (kvalitet / (SFO-pris / 1.000)). En højere score betyder mere
+            kvalitet per krone. Kun skoler med både en kvalitetsvurdering fra
+            Undervisningsministeriet og en offentlig SFO-takst er medtaget.
+            Kvalitetsscoren er baseret på trivsel, karaktergennemsnit, fravær og
+            kompetencedækning.
+          </p>
+        </div>
+      </section>
+
+      {/* Municipality links */}
+      {representedMunicipalities.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 py-8">
+          <h2 className="font-display text-lg font-bold text-foreground mb-3">
+            Se bedste skoler i disse kommuner
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {representedMunicipalities.map((m) => (
+              <Link
+                key={m}
+                to={`/bedste-skole/${toSlug(m)}`}
+                className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
+              >
+                {m}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Related searches */}
+      <RelatedSearches />
+    </>
+  );
+}
+
+function ValueRow({ item, rank }: { item: RankedSchool; rank: number }) {
+  const badge = qualityBadge(item.school.quality?.r);
+
+  return (
+    <tr className="border-b hover:bg-primary/5 transition-colors">
+      <td className="py-3 pr-2 font-mono text-muted text-xs">{rank}</td>
+      <td className="py-3 pr-4">
+        <Link
+          to={`/institution/${item.school.id}`}
+          className="font-medium text-primary hover:underline"
+        >
+          {item.school.name}
+        </Link>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-xs text-muted capitalize">{item.school.subtype}</span>
+          {badge && (
+            <span className={`text-[10px] px-1.5 py-0.5 rounded ${badge.color}`}>
+              {badge.label}
+            </span>
+          )}
+        </div>
+      </td>
+      <td className="py-3 pr-2 text-sm text-muted">{item.school.municipality}</td>
+      <td className="py-3 pr-2 font-mono text-center font-semibold">
+        {formatDecimal(item.school.quality!.r!)}/5
+      </td>
+      <td className="py-3 pr-2 font-mono text-center">
+        {formatDKK(item.school.monthlyRate)}
+      </td>
+      <td className="py-3 font-mono text-center font-semibold text-primary">
+        {formatDecimal(item.valueScore)}
+      </td>
+    </tr>
+  );
+}

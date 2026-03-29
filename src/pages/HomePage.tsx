@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Heart, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -11,7 +11,8 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
-import InstitutionMap from "@/components/map/InstitutionMap";
+
+const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import CompareBar from "@/components/compare/CompareBar";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
@@ -21,16 +22,10 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { formatDKK } from "@/lib/format";
 import NoResults from "@/components/filters/NoResults";
 import EmailCapture from "@/components/shared/EmailCapture";
+import { toSlug } from "@/lib/slugs";
 import type { UnifiedInstitution } from "@/lib/types";
 import { haversineKm, formatDistance } from "@/lib/geo";
-
-const CATEGORY_BADGE_COLORS: Record<string, string> = {
-  vuggestue: "bg-green-100 text-green-700",
-  boernehave: "bg-blue-100 text-blue-700",
-  dagpleje: "bg-amber-100 text-amber-700",
-  skole: "bg-indigo-100 text-indigo-700",
-  sfo: "bg-purple-100 text-purple-700",
-};
+import { CATEGORY_BADGE_COLORS } from "@/lib/badges";
 
 const FAQ_ITEMS_DA = [
   {
@@ -198,11 +193,11 @@ export default function HomePage() {
   }
 
   const CATEGORY_CARDS = [
-    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100", href: "/vuggestue", desc: t.ageGroups.vuggestue },
-    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100", href: "/boernehave", desc: t.ageGroups.boernehave },
-    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100", href: "/dagpleje", desc: t.ageGroups.dagpleje },
-    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100", href: "/skole", desc: t.ageGroups.skole },
-    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100", href: "/sfo", desc: t.ageGroups.sfo },
+    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100 dark:bg-green-900/30", href: "/vuggestue", desc: t.ageGroups.vuggestue },
+    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-900/30", href: "/boernehave", desc: t.ageGroups.boernehave },
+    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje },
+    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole },
+    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo },
   ];
 
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
@@ -288,7 +283,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-primary/50" />
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-10 pb-8 sm:pt-16 sm:pb-12 text-center">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 py-10 sm:py-14 text-center">
           <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-1.5">
             {t.home.heroTitle}
           </h1>
@@ -299,7 +294,7 @@ export default function HomePage() {
           </p>
 
           {/* Search bar */}
-          <div className="max-w-lg mx-auto mb-3">
+          <div className="max-w-lg mx-auto mb-4">
             <div className="relative">
               <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
@@ -309,25 +304,28 @@ export default function HomePage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
-                className="w-full py-3.5 pl-12 pr-4 text-base rounded-xl bg-white text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent shadow-xl transition-shadow"
+                className="w-full py-3.5 pl-12 pr-4 text-base rounded-xl bg-[var(--color-bg-card)] text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent shadow-xl transition-shadow"
                 autoComplete="off"
               />
             </div>
           </div>
 
-          {/* Near me */}
+          {/* Near me CTA — larger with arrow */}
           <button
             onClick={geo.handleNearMe}
             disabled={geo.nearMeLoading}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white font-medium text-sm hover:bg-white/30 transition-all disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-accent text-white font-semibold text-sm sm:text-base shadow-lg hover:bg-accent/90 hover:shadow-xl transition-all disabled:opacity-60"
           >
             {geo.nearMeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
             {language === "da" ? "Find tæt på mig" : "Find near me"}
+            <ArrowRight className="w-4 h-4" />
           </button>
 
-          {/* Trust signal */}
-          <p className="text-[12px] sm:text-[13px] text-white/60 mt-4">
-            {language === "da" ? "Officielle data · Alle 98 kommuner · Gratis" : "Official data · All 98 municipalities · Free"}
+          {/* Social proof line */}
+          <p className="text-[12px] sm:text-[13px] text-white/70 mt-5 font-medium tracking-wide">
+            {language === "da"
+              ? `${institutions.length.toLocaleString("da-DK")}+ institutioner · Alle 98 kommuner · Officielle data`
+              : `${institutions.length.toLocaleString("da-DK")}+ institutions · All 98 municipalities · Official data`}
           </p>
         </div>
       </section>
@@ -341,7 +339,7 @@ export default function HomePage() {
               <Link
                 key={card.category}
                 to={card.href}
-                className="group rounded-xl bg-white border border-border/50 shadow-sm px-3 py-3 text-center hover:shadow-md hover:border-primary/20 transition-all"
+                className="group rounded-xl bg-[var(--color-bg-card)] border border-border/50 shadow-sm px-3 py-3 text-center hover:shadow-md hover:border-primary/20 transition-all"
                 aria-label={`${t.common.show} ${card.label}`}
               >
                 <div className={`w-9 h-9 mx-auto mb-1.5 rounded-lg flex items-center justify-center ${card.bgColor}`}>
@@ -438,22 +436,24 @@ export default function HomePage() {
       {/* Fullscreen map overlay */}
       {mapFullscreen && (
         <div className="fixed inset-0 z-50">
-          <InstitutionMap
-            institutions={boundsFiltered}
-            onSelect={handleSelect}
-            flyTo={flyTo}
-            highlightedId={hoveredId}
-            onMarkerHover={handleMarkerHover}
-            isFullscreen={mapFullscreen}
-            onToggleFullscreen={() => setMapFullscreen((f) => !f)}
-            onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
-            initialCenter={{ lat, lng }}
-            initialZoom={mapZoom}
-            onViewChange={setMapView}
-            radiusCenter={geo.userLocation}
-            radiusKm={radiusKm}
-            onRadiusChange={setRadiusKm}
-          />
+          <Suspense fallback={<div className="h-full bg-border/20 animate-pulse" />}>
+            <InstitutionMap
+              institutions={boundsFiltered}
+              onSelect={handleSelect}
+              flyTo={flyTo}
+              highlightedId={hoveredId}
+              onMarkerHover={handleMarkerHover}
+              isFullscreen={mapFullscreen}
+              onToggleFullscreen={() => setMapFullscreen((f) => !f)}
+              onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
+              initialCenter={{ lat, lng }}
+              initialZoom={mapZoom}
+              onViewChange={setMapView}
+              radiusCenter={geo.userLocation}
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+            />
+          </Suspense>
         </div>
       )}
 
@@ -508,7 +508,7 @@ export default function HomePage() {
                 key={inst.id}
                 to={`/institution/${inst.id}`}
                 data-inst-id={inst.id}
-                className={`card hover:scale-[1.005] transition-all block ${
+                className={`card transition-all block ${
                   hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
                 }`}
                 onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(inst.id); }}
@@ -553,7 +553,7 @@ export default function HomePage() {
                       )}
                       <button
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
-                        className="p-1 rounded-md hover:bg-red-50 transition-colors"
+                        className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md hover:bg-red-50 transition-colors"
                         aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
                       >
                         <Heart className={`w-4 h-4 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted/40 hover:text-red-400"}`} />
@@ -586,22 +586,24 @@ export default function HomePage() {
 
         {/* Map */}
         <div className={`h-[calc(100dvh-140px)] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
-          <InstitutionMap
-            institutions={boundsFiltered}
-            onSelect={handleSelect}
-            flyTo={flyTo}
-            highlightedId={hoveredId}
-            onMarkerHover={handleMarkerHover}
-            isFullscreen={mapFullscreen}
-            onToggleFullscreen={() => setMapFullscreen((f) => !f)}
-            onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
-            initialCenter={{ lat, lng }}
-            initialZoom={mapZoom}
-            onViewChange={setMapView}
-            radiusCenter={geo.userLocation}
-            radiusKm={radiusKm}
-            onRadiusChange={setRadiusKm}
-          />
+          <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+            <InstitutionMap
+              institutions={boundsFiltered}
+              onSelect={handleSelect}
+              flyTo={flyTo}
+              highlightedId={hoveredId}
+              onMarkerHover={handleMarkerHover}
+              isFullscreen={mapFullscreen}
+              onToggleFullscreen={() => setMapFullscreen((f) => !f)}
+              onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
+              initialCenter={{ lat, lng }}
+              initialZoom={mapZoom}
+              onViewChange={setMapView}
+              radiusCenter={geo.userLocation}
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+            />
+          </Suspense>
         </div>
       </section>
 
@@ -678,7 +680,7 @@ export default function HomePage() {
         </h2>
         <div className="space-y-4">
           {FAQ_ITEMS.map((faq) => (
-            <details key={faq.q} className="card p-4 group">
+            <details key={faq.q} className="card card-static p-4 group">
               <summary className="font-semibold text-foreground cursor-pointer list-none flex justify-between items-center min-h-[44px]">
                 {faq.q}
                 <span className="text-muted group-open:rotate-180 transition-transform ml-2 shrink-0">&#x25BC;</span>
@@ -702,7 +704,7 @@ export default function HomePage() {
             href="https://nemtbudget.nu"
             target="_blank"
             rel="noopener noreferrer"
-            className="card p-5 hover:scale-[1.02] transition-transform group"
+            className="card p-5 transition-transform group"
           >
             <Wallet className="w-8 h-8 text-blue-500 mb-3" />
             <p className="font-semibold text-foreground group-hover:text-primary transition-colors">NemtBudget</p>
@@ -712,7 +714,7 @@ export default function HomePage() {
             href="https://parfinans.dk"
             target="_blank"
             rel="noopener noreferrer"
-            className="card p-5 hover:scale-[1.02] transition-transform group"
+            className="card p-5 transition-transform group"
           >
             <Calculator className="w-8 h-8 text-amber-600 mb-3" />
             <p className="font-semibold text-foreground group-hover:text-primary transition-colors">ParFinans</p>
@@ -722,7 +724,7 @@ export default function HomePage() {
             href="https://børneskat.dk"
             target="_blank"
             rel="noopener noreferrer"
-            className="card p-5 hover:scale-[1.02] transition-transform group"
+            className="card p-5 transition-transform group"
           >
             <PiggyBank className="w-8 h-8 text-success mb-3" />
             <p className="font-semibold text-foreground group-hover:text-primary transition-colors">Børneskat</p>
@@ -730,6 +732,40 @@ export default function HomePage() {
           </a>
         </div>
       </section></ScrollReveal>
+
+      {/* Populære sider */}
+      <section className="max-w-5xl mx-auto px-4 py-10">
+        <h2 className="font-display text-2xl font-bold text-foreground mb-2 text-center">
+          {language === "da" ? "Populære sider" : "Popular pages"}
+        </h2>
+        <p className="text-muted text-sm text-center mb-6">
+          {language === "da" ? "Udforsk børnepasning og skoler i Danmarks største byer" : "Explore childcare and schools in Denmark's largest cities"}
+        </p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {[
+            { label: "Billigste vuggestue i København", to: `/billigste-vuggestue/${toSlug("København")}` },
+            { label: "Billigste vuggestue i Aarhus", to: `/billigste-vuggestue/${toSlug("Aarhus")}` },
+            { label: "Billigste vuggestue i Odense", to: `/billigste-vuggestue/${toSlug("Odense")}` },
+            { label: "Billigste vuggestue i Aalborg", to: `/billigste-vuggestue/${toSlug("Aalborg")}` },
+            { label: "Billigste vuggestue i Frederiksberg", to: `/billigste-vuggestue/${toSlug("Frederiksberg")}` },
+            { label: "Bedste skoler i København", to: `/bedste-skole/${toSlug("København")}` },
+            { label: "Bedste skoler i Aarhus", to: `/bedste-skole/${toSlug("Aarhus")}` },
+            { label: "Bedste skoler i Odense", to: `/bedste-skole/${toSlug("Odense")}` },
+            { label: "Bedste skoler i Aalborg", to: `/bedste-skole/${toSlug("Aalborg")}` },
+            { label: "Bedste skoler i Frederiksberg", to: `/bedste-skole/${toSlug("Frederiksberg")}` },
+            { label: "Normering i hele Danmark", to: "/normering" },
+            { label: "Sammenlign vuggestue vs dagpleje", to: `/sammenlign/vuggestue-vs-dagpleje/${toSlug("København")}` },
+          ].map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Email capture */}
       <section className="max-w-xl mx-auto px-4 py-8">

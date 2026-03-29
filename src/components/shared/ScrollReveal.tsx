@@ -4,9 +4,11 @@ interface ScrollRevealProps {
   children: ReactNode;
   className?: string;
   animation?: "fade-up" | "fade-in";
+  /** Apply staggered entrance to direct children (cards/list items) */
+  stagger?: boolean;
 }
 
-export default function ScrollReveal({ children, className = "", animation = "fade-up" }: ScrollRevealProps) {
+export default function ScrollReveal({ children, className = "", animation = "fade-up", stagger = false }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -29,9 +31,10 @@ export default function ScrollReveal({ children, className = "", animation = "fa
   }, []);
 
   const animClass = animation === "fade-up" ? "scroll-fade-up" : "scroll-fade-in";
+  const staggerClass = stagger ? "stagger-children" : "";
 
   return (
-    <div ref={ref} className={`${animClass} ${isVisible ? "visible" : ""} ${className}`}>
+    <div ref={ref} className={`${animClass} ${staggerClass} ${isVisible ? "visible" : ""} ${className}`}>
       {children}
     </div>
   );

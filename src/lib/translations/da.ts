@@ -37,6 +37,7 @@ export const da: TranslationStrings = {
     skipToContent: "Spring til indhold",
     lightMode: "Skift til lys tilstand",
     darkMode: "Skift til mørk tilstand",
+    tools: "Værktøjer",
   },
   categories: {
     vuggestue: "Vuggestuer",
@@ -63,7 +64,7 @@ export const da: TranslationStrings = {
   },
   home: {
     heroTagline: "Danmarks mest komplette institutionsoversigt",
-    heroTitle: "Find det rigtige sted for dit barn",
+    heroTitle: "Find den bedste børnepasning til din familie",
     heroSubtitle: "Se priser, kvalitet og afstand for {count}+ vuggestuer, børnehaver og skoler. Beregn dit fripladstilskud og sammenlign — helt gratis.",
     heroSearchPlaceholder: "Hvor bor du? Skriv adresse, postnummer eller by...",
     heroCta: "eller find institutioner tæt på dig",
@@ -186,12 +187,21 @@ export const da: TranslationStrings = {
   footer: {
     categories: "Kategorier",
     tools: "Værktøjer",
+    information: "Information",
     seeAlso: "Se også",
     legal: "Juridisk",
     privacy: "Privatlivspolitik",
     terms: "Vilkår",
     dataSources: "Datakilder",
+    dataUpdated: "Data opdateret: 2025/2026",
     disclaimer: "Alle priser og kvalitetsdata er vejledende. Kontakt den enkelte kommune eller institution for aktuelle oplysninger. Udgør ikke rådgivning.",
+    priceComparison: "Prissammenligning",
+    bestValue: "Bedste værdi",
+    subsidyCalc: "Fripladsberegner",
+    staffRatio: "Børn pr. voksen",
+    compareInstitutions: "Sammenlign institutioner",
+    methodology: "Metode & datakilder",
+    blog: "Blog",
   },
   cookie: {
     message: "Vi bruger cookies til at forbedre din oplevelse. Læs mere i vores",

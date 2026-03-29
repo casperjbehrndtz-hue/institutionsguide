@@ -13,6 +13,7 @@ import {
   toSlug,
   type CategorySlug,
 } from "@/lib/slugs";
+import RelatedSearches from "@/components/shared/RelatedSearches";
 import type { UnifiedInstitution } from "@/lib/types";
 
 export default function CategoryMunicipalityPage() {
@@ -282,6 +283,9 @@ export default function CategoryMunicipalityPage() {
           </div>
         </section>
       )}
+
+      {/* Related searches */}
+      <RelatedSearches municipality={munName} category={cat} />
     </>
   );
 }
@@ -290,7 +294,7 @@ function InstitutionCard({ inst }: { inst: UnifiedInstitution }) {
   return (
     <Link
       to={`/institution/${inst.id}`}
-      className="text-left card p-4 hover:scale-[1.01] transition-transform min-h-[44px] block"
+      className="text-left card p-4 transition-transform min-h-[44px] block"
     >
       <p className="font-semibold text-foreground text-sm">{inst.name}</p>
       <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>

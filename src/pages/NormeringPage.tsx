@@ -6,6 +6,9 @@ import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import JsonLd from "@/components/shared/JsonLd";
 import { toSlug } from "@/lib/slugs";
+import DataFreshness from "@/components/shared/DataFreshness";
+import ScrollReveal from "@/components/shared/ScrollReveal";
+import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import {
   LineChart,
   Line,
@@ -175,8 +178,9 @@ export default function NormeringPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen">
+        <SkeletonHero />
+        <SkeletonTable rows={8} />
       </div>
     );
   }
@@ -226,7 +230,7 @@ export default function NormeringPage() {
       />
 
       {/* Header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           Normering i danske dagtilbud
         </h1>
@@ -234,14 +238,15 @@ export default function NormeringPage() {
           Oversigt over normering (børn per voksen) i alle {kommuneRows.length} kommuner.
           Lavere tal = bedre normering. Data for {latestYear}.
         </p>
-      </section>
+        <DataFreshness />
+      </section></ScrollReveal>
 
       {/* National averages */}
-      <section className="max-w-4xl mx-auto px-4 py-6">
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           Landsgennemsnit {latestYear}
         </h2>
-        <div className="grid grid-cols-3 gap-3">
+        <ScrollReveal stagger className="grid grid-cols-3 gap-3">
           {AGE_GROUPS.map((ag) => (
             <div key={ag} className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">{AGE_GROUP_LABELS[ag]}</p>
@@ -251,12 +256,12 @@ export default function NormeringPage() {
               <p className="text-xs text-muted mt-1">børn/voksen</p>
             </div>
           ))}
-        </div>
-      </section>
+        </ScrollReveal>
+      </section></ScrollReveal>
 
       {/* National trend chart */}
       {trendData.length > 1 && (
-        <section className="max-w-4xl mx-auto px-4 py-6">
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">
             Udvikling i normering på landsplan
           </h2>
@@ -304,11 +309,11 @@ export default function NormeringPage() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </section>
+        </section></ScrollReveal>
       )}
 
       {/* Kommune ranking table */}
-      <section className="max-w-5xl mx-auto px-4 py-8">
+      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8">
         <h2 className="font-display text-xl font-bold text-foreground mb-3">
           Kommune-ranking {latestYear}
         </h2>
@@ -369,10 +374,10 @@ export default function NormeringPage() {
             </tbody>
           </table>
         </div>
-      </section>
+      </section></ScrollReveal>
 
       {/* FAQ section */}
-      <section className="max-w-3xl mx-auto px-4 py-8">
+      <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-8">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           Om normering i dagtilbud
         </h2>
@@ -393,7 +398,7 @@ export default function NormeringPage() {
             Kommunerne havde frem til da til at indfase normeringen gradvist.
           </p>
         </div>
-      </section>
+      </section></ScrollReveal>
     </>
   );
 }

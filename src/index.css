@@ -87,6 +87,13 @@
   transform: translateY(-2px);
 }
 
+/* Static card — no lift on hover (stat displays, FAQ, methodology) */
+.card-static,
+.card-static:hover {
+  transform: none !important;
+  box-shadow: inherit !important;
+}
+
 /* Card dark mode — subtle border instead of shadow */
 .dark .card {
   box-shadow: none;
@@ -174,19 +181,40 @@
 }
 
 /* Staggered children animation */
+.stagger-children > * {
+  opacity: 0;
+}
+
 .stagger-children.visible > * {
-  animation: staggerIn 0.4s ease-out forwards;
+  animation: staggerIn 0.3s ease-out forwards;
 }
 
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(10) { animation-delay: 450ms; }
+.stagger-children > *:nth-child(11) { animation-delay: 500ms; }
+.stagger-children > *:nth-child(12) { animation-delay: 550ms; }
 
 @keyframes staggerIn {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Page-level fade transition */
+.page-fade-in {
+  animation: pageFade 0.25s ease-out;
+}
+
+@keyframes pageFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Skeleton loading */
