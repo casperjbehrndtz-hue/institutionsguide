@@ -160,24 +160,31 @@ function ViewChangeTracker({
 function ScrollZoomGuard({ message }: { message: string }) {
   const map = useMap();
   useEffect(() => {
-    // Disable default scroll zoom — we control it manually
+    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    // On touch devices: enable native pinch-to-zoom, no guard needed
+    if (isTouchDevice) {
+      map.scrollWheelZoom.disable();
+      // Dragging with one finger should pan, two-finger pinch should zoom
+      // Leaflet handles this natively when touch zoom is enabled
+      return;
+    }
+
+    // On desktop: require Ctrl/Cmd for scroll zoom to prevent accidental zooming
     map.scrollWheelZoom.disable();
     const container = map.getContainer();
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     function handleWheel(e: WheelEvent) {
       if (e.ctrlKey || e.metaKey) {
-        // Prevent browser zoom and let Leaflet handle it
         e.preventDefault();
         map.scrollWheelZoom.enable();
-        // Disable again after a short delay so plain scroll doesn't zoom
         if (timer) clearTimeout(timer);
         timer = setTimeout(() => {
           map.scrollWheelZoom.disable();
         }, 400);
         return;
       }
-      // Show overlay message for plain scroll
       let overlay = container.querySelector(".scroll-zoom-msg") as HTMLDivElement | null;
       if (!overlay) {
         overlay = document.createElement("div");
@@ -196,7 +203,7 @@ function ScrollZoomGuard({ message }: { message: string }) {
         timer = setTimeout(() => {
           overlay?.remove();
         }, 400);
-      }, 2000);
+      }, 1500);
     }
 
     container.addEventListener("wheel", handleWheel, { passive: false });
@@ -432,7 +439,7 @@ export default function InstitutionMap({
           onClick={handleSearchArea}
           className="absolute top-4 left-1/2 -translate-x-1/2 z-[1100] bg-bg-card text-foreground text-sm font-medium px-4 py-2 rounded-full shadow-lg border border-border hover:shadow-xl transition-shadow cursor-pointer"
         >
-          Søg i dette område
+          {t.map.searchArea || "Søg i dette område"}
         </button>
       )}
 
@@ -441,7 +448,7 @@ export default function InstitutionMap({
         <button
           onClick={onToggleFullscreen}
           className="absolute top-4 right-4 z-[1100] bg-bg-card text-foreground p-2 rounded-lg shadow-md border border-border hover:shadow-lg transition-shadow cursor-pointer"
-          aria-label={isFullscreen ? "Formindsk kort" : "Forstør kort"}
+          aria-label={isFullscreen ? (t.map.exitFullscreen || "Formindsk kort") : (t.map.enterFullscreen || "Forstør kort")}
         >
           {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
         </button>
@@ -449,7 +456,7 @@ export default function InstitutionMap({
 
       {/* Detail overlay panel */}
       {selectedInstitution && onClose && (
-        <div className="absolute top-0 left-0 z-[1100] w-80 lg:w-96 h-full overflow-y-auto bg-bg-card shadow-xl animate-slide-in-left">
+        <div className="absolute top-0 left-0 z-[1200] w-80 lg:w-96 h-full overflow-y-auto bg-bg-card shadow-xl animate-slide-in-left">
           <InstitutionDetail
             institution={selectedInstitution}
             onClose={onClose}

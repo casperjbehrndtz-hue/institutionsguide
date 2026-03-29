@@ -91,10 +91,10 @@ export default function InstitutionReport({
       <div className="border-t border-border/40 my-3" />
 
       {/* Overall score */}
-      <div className="flex items-center gap-6 rounded-xl bg-bg-card p-5 mb-4">
-        <div className="flex flex-col items-center shrink-0">
-          <div className={`w-[72px] h-[72px] rounded-full border-[3px] flex items-center justify-content shrink-0 ${SCORE_COLOR(s10)}`}>
-            <span className="font-mono text-[28px] font-medium w-full text-center">{s10.toFixed(1)}</span>
+      <div className="flex items-center gap-4 sm:gap-6 rounded-xl bg-bg-card p-4 sm:p-5 mb-4">
+        <div className="flex flex-col items-center shrink-0" title={lang === "da" ? `Score: ${s10.toFixed(1)}/10 baseret på pris, kvalitet og placering` : `Score: ${s10.toFixed(1)}/10 based on price, quality and location`}>
+          <div className={`w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] rounded-full border-[3px] flex items-center justify-center shrink-0 ${SCORE_COLOR(s10)}`}>
+            <span className="font-mono text-[24px] sm:text-[28px] font-medium w-full text-center">{s10.toFixed(1)}</span>
           </div>
           <span className="text-[10px] text-muted mt-1">{lang === "da" ? "af 10" : "of 10"}</span>
         </div>

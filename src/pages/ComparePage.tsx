@@ -1,5 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, X } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
@@ -14,7 +14,7 @@ const COLORS = ["#0E7490", "#1B8F5F", "#F4B82C", "#D73C3C"];
 export default function ComparePage() {
   const location = useLocation();
   const { t, language } = useLanguage();
-  const { compareList } = useCompare();
+  const { compareList, removeFromCompare } = useCompare();
   // Backwards compat: prefer context, fall back to location.state
   const locationInstitutions: UnifiedInstitution[] = (location.state as { institutions?: UnifiedInstitution[] })?.institutions || [];
   const institutions = compareList.length >= 2 ? compareList : locationInstitutions;
@@ -42,7 +42,7 @@ export default function ComparePage() {
   }
 
   const rateData = institutions.map((inst) => ({
-    name: inst.name.length > 20 ? inst.name.slice(0, 20) + "..." : inst.name,
+    name: inst.name.length > 25 ? inst.name.slice(0, 25) + "…" : inst.name,
     [t.detail.monthlyRate]: inst.monthlyRate || 0,
   }));
 
@@ -95,6 +95,21 @@ export default function ComparePage() {
           <p className="text-muted">
             {institutions.length} {t.common.institutions}
           </p>
+          {/* Institution chips with remove */}
+          <div className="flex flex-wrap gap-2 mt-3 print:hidden">
+            {institutions.map((inst) => (
+              <div key={inst.id} className="inline-flex items-center gap-1.5 bg-bg-card border border-border rounded-full px-3 py-1.5 text-sm">
+                <span className="truncate max-w-[200px]">{inst.name}</span>
+                <button
+                  onClick={() => removeFromCompare(inst.id)}
+                  className="p-0.5 rounded-full hover:bg-red-100 text-muted hover:text-red-500 transition-colors"
+                  aria-label={`${language === "da" ? "Fjern" : "Remove"} ${inst.name}`}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

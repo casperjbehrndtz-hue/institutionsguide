@@ -130,7 +130,7 @@ export default function FripladsPage() {
   const [income, setIncome] = useState(profile?.income ?? 450_000);
   const [singleParent, setSingleParent] = useState(profile?.singleParent ?? false);
   const [children, setChildren] = useState(profile?.childCount ?? 1);
-  const [municipality, setMunicipality] = useState("Kobenhavn");
+  const [municipality, setMunicipality] = useState("København");
   const [category, setCategory] = useState<InstitutionType>("vuggestue");
   const [siblingChild, setSiblingChild] = useState(false);
 
@@ -160,7 +160,7 @@ export default function FripladsPage() {
   return (
     <>
       <SEOHead
-        title={isDa ? "Beregn fripladstilskud 2025 — Institutionsguide" : "Calculate childcare subsidy 2025 — Institutionsguide"}
+        title={isDa ? `Beregn fripladstilskud ${FRIPLADS_CONSTANTS.year} — Institutionsguide` : `Calculate childcare subsidy ${FRIPLADS_CONSTANTS.year} — Institutionsguide`}
         description={
           isDa
             ? "Beregn dit fripladstilskud for vuggestue, bornehave, dagpleje og SFO. Se hvad du skal betale i alle 98 kommuner med vores gratis fripladstilskud beregner."
@@ -290,12 +290,12 @@ export default function FripladsPage() {
               </div>
               <div className="flex justify-between text-[10px] text-muted font-mono mt-0.5 px-0.5">
                 <span>0</span>
-                <span>200k</span>
-                <span>400k</span>
-                <span>600k</span>
-                <span>800k</span>
-                <span>1.000k</span>
-                <span>1.200k</span>
+                <span>200.000</span>
+                <span>400.000</span>
+                <span>600.000</span>
+                <span>800.000</span>
+                <span>1.000.000</span>
+                <span>1.200.000</span>
               </div>
               {/* Threshold info */}
               <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted">
@@ -339,12 +339,15 @@ export default function FripladsPage() {
                   type="checkbox"
                   checked={siblingChild}
                   onChange={(e) => setSiblingChild(e.target.checked)}
-                  className="w-5 h-5 accent-primary cursor-pointer min-w-[44px] min-h-[44px]"
+                  disabled={children <= 1}
+                  className="w-5 h-5 accent-primary cursor-pointer min-w-[44px] min-h-[44px] disabled:opacity-40"
                 />
-                <label htmlFor="friplads-sibling" className="text-sm text-foreground cursor-pointer">
-                  {isDa ? "Soskendeabat (barn nr. 2+)" : "Sibling discount (2nd+ child)"}
+                <label htmlFor="friplads-sibling" className={`text-sm cursor-pointer ${children <= 1 ? "text-muted" : "text-foreground"}`}>
+                  {isDa ? "Søskenderabat (barn nr. 2+)" : "Sibling discount (2nd+ child)"}
                   <span className="block text-xs text-muted">
-                    {isDa ? "50% rabat pa dette barn" : "50% discount on this child"}
+                    {children <= 1
+                      ? (isDa ? "Kræver 2+ børn" : "Requires 2+ children")
+                      : (isDa ? "50% rabat på dette barn" : "50% discount on this child")}
                   </span>
                 </label>
               </div>

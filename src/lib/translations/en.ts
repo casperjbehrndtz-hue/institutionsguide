@@ -309,6 +309,9 @@ export const en: TranslationStrings = {
     radiusKm: "km",
     radiusActivateLocation: "Activate location first",
     radiusClear: "Clear radius",
+    searchArea: "Search this area",
+    enterFullscreen: "Expand map",
+    exitFullscreen: "Shrink map",
   },
   privacy: {
     englishBanner: "This page is currently only available in Danish.",

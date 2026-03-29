@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import JsonLd from "@/components/shared/JsonLd";
@@ -72,6 +73,8 @@ export default function NormeringPage() {
   const { normering, loading } = useData() as ReturnType<typeof useData> & {
     normering: NormeringEntry[];
   };
+  const { language } = useLanguage();
+  const isDa = language === "da";
   const [sortKey, setSortKey] = useState<SortKey>("0-2");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -217,8 +220,8 @@ export default function NormeringPage() {
 
       <Breadcrumbs
         items={[
-          { label: "Forside", href: "/" },
-          { label: "Normering" },
+          { label: isDa ? "Forside" : "Home", href: "/" },
+          { label: isDa ? "Normering" : "Staff ratios" },
         ]}
       />
 
@@ -306,9 +309,15 @@ export default function NormeringPage() {
 
       {/* Kommune ranking table */}
       <section className="max-w-5xl mx-auto px-4 py-8">
-        <h2 className="font-display text-xl font-bold text-foreground mb-4">
+        <h2 className="font-display text-xl font-bold text-foreground mb-3">
           Kommune-ranking {latestYear}
         </h2>
+        {/* Color legend */}
+        <div className="flex flex-wrap items-center gap-4 text-xs text-muted mb-4 px-1">
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-green-500" />{isDa ? "God normering" : "Good ratio"}</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" />{isDa ? "Middel" : "Average"}</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500" />{isDa ? "Over grænseværdi" : "Above threshold"}</span>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>

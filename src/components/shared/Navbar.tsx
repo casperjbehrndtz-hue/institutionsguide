@@ -95,7 +95,7 @@ export default function Navbar() {
 
       {open && (
         <div className="md:hidden border-t border-border bg-bg animate-fade-in relative z-40">
-          <div className="px-4 py-3 space-y-1">
+          <div className="px-4 py-2 grid grid-cols-2 gap-1">
             {NAV_LINKS.map((link) => {
               const active = location.pathname === link.href;
               return (
@@ -103,7 +103,7 @@ export default function Navbar() {
                   key={link.key}
                   to={link.href}
                   onClick={() => setOpen(false)}
-                  className={`block px-3 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${
+                  className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     active
                       ? "bg-primary/10 text-primary"
                       : "text-muted hover:text-foreground hover:bg-border/30"
@@ -115,7 +115,7 @@ export default function Navbar() {
             })}
             <button
               onClick={() => { setLanguage(language === "da" ? "en" : "da"); setOpen(false); }}
-              className="block w-full text-left px-3 py-3 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
+              className="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors"
             >
               {language === "da" ? "English" : "Dansk"}
             </button>

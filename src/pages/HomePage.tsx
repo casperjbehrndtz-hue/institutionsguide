@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Heart, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, CheckCircle, BarChart3, Star, X, ShieldCheck } from "lucide-react";
+import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Heart, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
@@ -250,7 +250,7 @@ export default function HomePage() {
 
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
 
-  // Location gate: only show list+map when user has actively filtered
+  // Show filter bar + list/map when user has actively filtered
   const hasActiveFilter = !!(search || municipality || userLocation || category !== "alle");
 
   // Summary stats for the active filter
@@ -331,24 +331,28 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-primary/50" />
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-14 pb-10 sm:pt-20 sm:pb-14 text-center">
-          <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-2">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-10 pb-8 sm:pt-16 sm:pb-12 text-center">
+          <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-1.5">
             {t.home.heroTitle}
           </h1>
-          <p className="text-white/80 text-sm sm:text-base max-w-lg mx-auto mb-6">
-            {institutions.length.toLocaleString("da-DK")}+ {language === "da" ? "institutioner i alle 98 kommuner" : "institutions across all 98 municipalities"}
+          <p className="text-white/80 text-sm sm:text-base max-w-md mx-auto mb-5">
+            {language === "da"
+              ? `Sammenlign priser og kvalitet for ${institutions.length.toLocaleString("da-DK")}+ institutioner`
+              : `Compare prices and quality for ${institutions.length.toLocaleString("da-DK")}+ institutions`}
           </p>
 
           {/* Search bar */}
-          <div className="max-w-lg mx-auto mb-4">
+          <div className="max-w-lg mx-auto mb-3">
             <div className="relative">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
+              <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
               <input
+                id="hero-search"
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={language === "da" ? "Skriv postnummer, bydel eller institution..." : "Type postal code, area or institution..."}
-                className="w-full py-4 pl-14 pr-4 text-base sm:text-lg rounded-xl bg-white text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-accent shadow-xl transition-shadow"
+                placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
+                className="w-full py-3.5 pl-12 pr-4 text-base rounded-xl bg-white text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent shadow-xl transition-shadow"
                 autoComplete="off"
               />
             </div>
@@ -358,40 +362,37 @@ export default function HomePage() {
           <button
             onClick={handleNearMe}
             disabled={nearMeLoading}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white font-medium text-sm hover:bg-white/30 transition-all disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white font-medium text-sm hover:bg-white/30 transition-all disabled:opacity-60"
           >
             {nearMeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
-            {t.home.heroCta}
+            {language === "da" ? "Find tæt på mig" : "Find near me"}
           </button>
 
           {/* Trust signal */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            <ShieldCheck className="w-4 h-4 text-white/80" />
-            <p className="text-[13px] text-white/80 font-medium">
-              {language === "da" ? "Officielle data fra Undervisningsministeriet · Altid gratis" : "Official data from the Danish Ministry of Education · Always free"}
-            </p>
-          </div>
+          <p className="text-[12px] sm:text-[13px] text-white/60 mt-4">
+            {language === "da" ? "Officielle data · Alle 98 kommuner · Gratis" : "Official data · All 98 municipalities · Free"}
+          </p>
         </div>
       </section>
 
-      {/* Category cards — solid white, below hero */}
-      <section className="max-w-4xl mx-auto px-4 -mt-6 relative z-20 mb-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {/* Category cards — compact pills below hero */}
+      <section className="max-w-3xl mx-auto px-3 sm:px-4 -mt-5 relative z-20 mb-4">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {CATEGORY_CARDS.map((card) => {
             const count = institutions.filter((i) => i.category === card.category).length;
             return (
               <Link
                 key={card.category}
                 to={card.href}
-                className="group rounded-xl bg-white border border-border/50 shadow-sm p-4 text-center hover:shadow-md hover:border-primary/20 transition-all min-h-[44px]"
+                className="group rounded-xl bg-white border border-border/50 shadow-sm px-3 py-3 text-center hover:shadow-md hover:border-primary/20 transition-all"
                 aria-label={`${t.common.show} ${card.label}`}
               >
-                <div className={`w-12 h-12 mx-auto mb-2 rounded-xl flex items-center justify-center ${card.bgColor}`}>
-                  <card.icon className={`w-6 h-6 ${card.iconColor}`} />
+                <div className={`w-9 h-9 mx-auto mb-1.5 rounded-lg flex items-center justify-center ${card.bgColor}`}>
+                  <card.icon className={`w-4.5 h-4.5 ${card.iconColor}`} />
                 </div>
-                <p className="font-semibold text-foreground text-sm">{card.label}</p>
-                <p className="text-[11px] text-muted">{card.desc}</p>
-                <p className="font-mono text-xs text-muted mt-1.5 flex items-center justify-center gap-1">
+                <p className="font-semibold text-foreground text-xs sm:text-sm leading-tight">{card.label}</p>
+                <p className="text-[10px] text-muted leading-tight">{card.desc}</p>
+                <p className="font-mono text-[11px] text-muted mt-0.5 flex items-center justify-center gap-0.5">
                   {count.toLocaleString("da-DK")} <ArrowRight className="w-3 h-3 text-primary group-hover:translate-x-0.5 transition-transform" />
                 </p>
               </Link>
@@ -443,8 +444,8 @@ export default function HomePage() {
 
       {/* Summary bar */}
       {summaryStats && (
-        <div className="max-w-[1440px] mx-auto px-4 pt-4">
-          <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-primary/5 border border-primary/20 text-sm">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 pt-2 sm:pt-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm">
             <BarChart3 className="w-4 h-4 text-primary shrink-0" />
             <span className="text-foreground font-medium">
               {summaryStats.count.toLocaleString("da-DK")} {t.home.summaryInstitutions}
@@ -456,7 +457,7 @@ export default function HomePage() {
       )}
 
       {/* Mobile list/map toggle */}
-      <div className="lg:hidden flex justify-center py-3 px-4">
+      <div className="lg:hidden flex justify-center py-2 px-4">
         <div className="inline-flex rounded-lg border border-border overflow-hidden">
           <button
             onClick={() => setView("liste")}
@@ -500,9 +501,9 @@ export default function HomePage() {
       )}
 
       {/* Split layout: List + Map */}
-      <section className={`max-w-[1440px] mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-6 ${mapFullscreen ? "hidden" : ""}`}>
+      <section className={`max-w-[1440px] mx-auto px-3 sm:px-4 py-3 sm:py-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-3 sm:gap-4 ${mapFullscreen ? "hidden" : ""}`}>
         {/* Sidebar list */}
-        <div ref={listContainerRef} className={`space-y-3 overflow-y-auto max-h-[600px] lg:max-h-[calc(100vh-180px)] ${mobileView !== "list" ? "hidden lg:block" : ""}`}>
+        <div ref={listContainerRef} className={`space-y-2 overflow-y-auto max-h-[calc(100dvh-200px)] lg:max-h-[calc(100vh-180px)] ${mobileView !== "list" ? "hidden lg:block" : ""}`}>
           {/* Map bounds indicator */}
           {mapBounds && (
             <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm text-primary">
@@ -541,10 +542,8 @@ export default function HomePage() {
                 const tw = parts.reduce((s, p) => s + p.w, 0);
                 listScore = Math.round(parts.reduce((s, p) => s + p.s * p.w / tw, 0)) / 10;
               }
-            } else if (inst.monthlyRate) {
-              // Simple heuristic for dagtilbud: cheaper = higher score
-              listScore = inst.monthlyRate < 2000 ? 7.5 : inst.monthlyRate < 3000 ? 6.5 : inst.monthlyRate < 4000 ? 5.5 : 4.5;
             }
+            // No score for dagtilbud — price alone is not a quality indicator
             const scoreColor = listScore != null ? (listScore >= 7 ? "text-[#0F6E56] border-[#1D9E75]" : listScore >= 5 ? "text-[#8A5A12] border-[#BA7517]" : "text-[#A32D2D] border-[#A32D2D]") : "";
 
             return (
@@ -552,66 +551,58 @@ export default function HomePage() {
                 key={inst.id}
                 to={`/institution/${inst.id}`}
                 data-inst-id={inst.id}
-                className={`card hover:scale-[1.01] transition-all block ${
+                className={`card hover:scale-[1.005] transition-all block ${
                   hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
                 }`}
                 onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(inst.id); }}
                 onMouseLeave={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(null); }}
               >
-                <div className="p-3 sm:p-4">
+                <div className="px-3 py-2.5 sm:px-4 sm:py-3">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-foreground text-sm sm:text-base">{inst.name}</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-semibold text-foreground text-sm leading-tight">{inst.name}</p>
                         {category === "alle" && (
                           <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[inst.category] || ""}`}>
                             {t.categories[inst.category]}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-xs text-muted truncate">{inst.address}, {inst.postalCode} {inst.city}</p>
+                      <p className="text-xs text-muted truncate mt-0.5">
+                        {inst.address}, {inst.postalCode} {inst.city}
                         {userLocation && (
-                          <span className="inline-flex items-center gap-0.5 text-xs text-primary/70 shrink-0">
-                            <MapPin className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-0.5 text-primary/70 ml-1.5">
+                            <MapPin className="w-3 h-3 inline" />
                             {formatDistance(haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng))}
                           </span>
                         )}
-                      </div>
-                      <p className="text-xs text-muted">{inst.municipality}</p>
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       {inst.monthlyRate ? (
                         <div className="text-right">
                           <p className="font-mono text-xs sm:text-sm font-medium text-primary">
                             {formatDKK(inst.monthlyRate)}
                           </p>
-                          <span className="text-[10px] sm:text-xs text-muted">{t.common.perMonth}</span>
+                          <span className="text-[10px] text-muted">{t.common.perMonth}</span>
                         </div>
                       ) : inst.category === "skole" ? (
-                        <span className="text-xs text-muted">{language === "da" ? "Folkeskole" : "Public school"}</span>
-                      ) : (
-                        <span className="text-xs text-muted">{language === "da" ? "Se pris" : "See price"}</span>
-                      )}
+                        <span className="text-[11px] text-muted">{language === "da" ? "Gratis" : "Free"}</span>
+                      ) : null}
                       {listScore != null && (
-                        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 flex items-center justify-center shrink-0 ${scoreColor}`}>
-                          <span className="font-mono text-xs sm:text-sm font-medium">{listScore.toFixed(1)}</span>
+                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 ${scoreColor}`}>
+                          <span className="font-mono text-xs font-medium">{listScore.toFixed(1)}</span>
                         </div>
                       )}
+                      <button
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
+                        className="p-1 rounded-md hover:bg-red-50 transition-colors"
+                        aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
+                      >
+                        <Heart className={`w-4 h-4 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted/40 hover:text-red-400"}`} />
+                      </button>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center justify-between px-3 sm:px-4 pb-2.5 sm:pb-3 pt-0">
-                  <span className="text-xs text-primary font-medium">
-                    {t.common.seeFullProfile} &rarr;
-                  </span>
-                  <button
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
-                    className="p-1.5 sm:p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                    aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
-                  >
-                    <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
-                  </button>
                 </div>
               </Link>
             );
@@ -637,7 +628,7 @@ export default function HomePage() {
         </div>
 
         {/* Map */}
-        <div className={`h-[calc(100vh-200px)] sm:h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
+        <div className={`h-[calc(100dvh-140px)] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <InstitutionMap
             institutions={boundsFiltered}
             onSelect={handleSelect}
@@ -660,23 +651,25 @@ export default function HomePage() {
       </>}
 
       {/* Popular municipalities */}
-      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-12">
-        <h2 className="font-display text-2xl font-bold text-foreground mb-2 text-center">
+      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8 sm:py-10">
+        <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1 text-center">
           {language === "da" ? "Udforsk din kommune" : "Explore your municipality"}
         </h2>
-        <p className="text-sm text-muted text-center mb-6">
+        <p className="text-sm text-muted text-center mb-4">
           {language === "da" ? "Se priser og institutioner i de største kommuner" : "See prices and institutions in the largest municipalities"}
         </p>
         {/* Municipality search */}
-        <div className="max-w-sm mx-auto mb-6">
+        <div className="max-w-sm mx-auto mb-4">
           <div className="relative">
+            <label htmlFor="muni-search" className="sr-only">{language === "da" ? "Søg kommune" : "Search municipality"}</label>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
             <input
+              id="muni-search"
               type="text"
               value={municipalitySearch}
               onChange={(e) => setMunicipalitySearch(e.target.value)}
               placeholder={language === "da" ? "Søg kommune..." : "Search municipality..."}
-              className="w-full py-2.5 pl-10 pr-4 text-sm rounded-lg border border-border bg-bg-card text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full py-2.5 pl-10 pr-4 text-sm rounded-lg border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
@@ -721,9 +714,9 @@ export default function HomePage() {
       </section></ScrollReveal>
 
       {/* FAQ */}
-      <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-12">
-        <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-          <HelpCircle className="w-6 h-6 text-primary" />
+      <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-8 sm:py-10">
+        <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
+          <HelpCircle className="w-5 h-5 text-primary" />
           {t.home.faq}
         </h2>
         <div className="space-y-4">
@@ -740,11 +733,11 @@ export default function HomePage() {
       </section></ScrollReveal>
 
       {/* Cross-sell: Suite products */}
-      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-12">
-        <h2 className="font-display text-2xl font-bold text-foreground mb-2 text-center">
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
+        <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1 text-center">
           {t.home.moreTools}
         </h2>
-        <p className="text-muted text-center mb-8">
+        <p className="text-muted text-sm text-center mb-5">
           {t.home.moreToolsSubtitle}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -782,7 +775,7 @@ export default function HomePage() {
       </section></ScrollReveal>
 
       {/* Email capture */}
-      <section className="max-w-xl mx-auto px-4 py-12">
+      <section className="max-w-xl mx-auto px-4 py-8">
         <EmailCapture />
       </section>
 

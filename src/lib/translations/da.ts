@@ -309,6 +309,9 @@ export const da: TranslationStrings = {
     radiusKm: "km",
     radiusActivateLocation: "Aktiver lokation først",
     radiusClear: "Nulstil radius",
+    searchArea: "Søg i dette område",
+    enterFullscreen: "Forstør kort",
+    exitFullscreen: "Formindsk kort",
   },
   privacy: {
     englishBanner: "",

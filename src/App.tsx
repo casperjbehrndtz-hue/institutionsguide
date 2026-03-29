@@ -61,10 +61,11 @@ export default function App() {
               <Route path="/normering/:kommune" element={<NormeringKommunePage />} />
               {/* Friplads calculator */}
               <Route path="/friplads" element={<FripladsPage />} />
-              {/* Programmatic SEO pages */}
+              {/* Programmatic SEO pages — specific routes BEFORE /:category/:municipality catch-all */}
               <Route path="/bedste-skole/:municipality" element={<BestSchoolPage />} />
               <Route path="/billigste-:category/:municipality" element={<CheapestPage />} />
               <Route path="/sammenlign/:comparison/:municipality" element={<VsPage />} />
+              {/* Category+Municipality catch-all — must be LAST of the two-segment routes */}
               <Route path="/:category/:municipality" element={<CategoryMunicipalityPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

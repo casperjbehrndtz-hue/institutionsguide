@@ -60,17 +60,19 @@ function PercentileBar({ label, percentile, value, lang = "da" }: {
     : (lang === "da" ? "Bund 10%" : "Bottom 10%");
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm text-muted w-36 text-right shrink-0">{label}</span>
-      <div className="flex-1 relative h-1.5 bg-border/50 rounded-full">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <span className="text-xs sm:text-sm text-muted w-24 sm:w-36 text-right shrink-0">{label}</span>
+      <div className="flex-1 relative h-1.5 bg-border/50 rounded-full min-w-[60px]">
         <div
           className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm"
           style={{ left: `${percentile}%`, backgroundColor: color.dot }}
+          role="img"
+          aria-label={`${label}: ${value} (${rankLabel})`}
         />
       </div>
-      <span className="font-mono text-xs text-muted shrink-0 w-12 text-right">{value}</span>
+      <span className="font-mono text-xs text-muted shrink-0 w-10 sm:w-12 text-right">{value}</span>
       <span
-        className="text-[10px] px-2 py-0.5 rounded-md shrink-0 min-w-[72px] text-center font-medium"
+        className="text-[10px] px-1.5 sm:px-2 py-0.5 rounded-md shrink-0 min-w-[60px] sm:min-w-[72px] text-center font-medium"
         style={{ backgroundColor: color.bg, color: color.text }}
       >
         {rankLabel}
@@ -211,7 +213,9 @@ export default function InstitutionPage() {
     <>
       <SEOHead
         title={`${inst.name} — ${categoryLabels[inst.category]} i ${inst.municipality}`}
-        description={`${inst.name} er en ${(categoryLabels[inst.category] || "").toLowerCase()} i ${inst.municipality}. ${inst.monthlyRate ? `Månedspris: ${formatDKK(inst.monthlyRate)}.` : ""} Se vurdering, kvalitetsdata og beregn fripladstilskud.`}
+        description={language === "da"
+          ? `${inst.name} er en ${(categoryLabels[inst.category] || "").toLowerCase()} i ${inst.municipality}. ${inst.monthlyRate ? `Månedspris: ${formatDKK(inst.monthlyRate)}.` : ""} Se vurdering, kvalitetsdata og beregn fripladstilskud.`
+          : `${inst.name} is a ${(categoryLabels[inst.category] || "").toLowerCase()} in ${inst.municipality}. ${inst.monthlyRate ? `Monthly rate: ${formatDKK(inst.monthlyRate)}.` : ""} See assessment, quality data and calculate subsidy.`}
         path={`/institution/${inst.id}`}
       />
 
@@ -310,24 +314,24 @@ export default function InstitutionPage() {
 
       {/* Compact contact strip */}
       <section className="max-w-[640px] mx-auto px-4 pb-4">
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-sm text-muted">
           <div className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5" />
+            <MapPin className="w-3.5 h-3.5 shrink-0" />
             <span>{inst.address}, {inst.postalCode} {inst.city}</span>
           </div>
           {inst.phone && (
-            <a href={`tel:${inst.phone}`} className="flex items-center gap-1.5 text-primary hover:underline">
-              <Phone className="w-3.5 h-3.5" /> {inst.phone}
+            <a href={`tel:${inst.phone}`} className="flex items-center gap-1.5 text-primary hover:underline min-h-[44px] sm:min-h-0">
+              <Phone className="w-3.5 h-3.5 shrink-0" /> {inst.phone}
             </a>
           )}
           {inst.email && (
-            <a href={`mailto:${inst.email}`} className="flex items-center gap-1.5 text-primary hover:underline">
-              <Mail className="w-3.5 h-3.5" /> {inst.email}
+            <a href={`mailto:${inst.email}`} className="flex items-center gap-1.5 text-primary hover:underline min-h-[44px] sm:min-h-0 break-all">
+              <Mail className="w-3.5 h-3.5 shrink-0" /> {inst.email}
             </a>
           )}
           {inst.web && (
-            <a href={inst.web.startsWith("http") ? inst.web : `https://${inst.web}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary hover:underline">
-              <ExternalLink className="w-3.5 h-3.5" /> {language === "da" ? "Hjemmeside" : "Website"}
+            <a href={inst.web.startsWith("http") ? inst.web : `https://${inst.web}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary hover:underline min-h-[44px] sm:min-h-0">
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" /> {language === "da" ? "Hjemmeside" : "Website"}
             </a>
           )}
         </div>
@@ -345,7 +349,7 @@ export default function InstitutionPage() {
               <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
                 <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
                 <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
-                <p className="text-[10px] text-muted mt-1">{t.common.advisory}</p>
+                <p className="text-[10px] text-muted mt-1">{language === "da" ? "Før evt. fripladstilskud" : "Before subsidy"}</p>
               </div>
               <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
                 <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>

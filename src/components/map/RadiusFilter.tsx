@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Circle, useMap } from "react-leaflet";
 import { MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -22,14 +22,15 @@ function RadiusFitBounds({
 }) {
   const map = useMap();
 
-  // Fit bounds whenever center or radius changes
-  const circleCenter = L.latLng(center.lat, center.lng);
-  const radiusMeters = radiusKm * 1000;
-  const bounds = circleCenter.toBounds(radiusMeters * 2);
-  // Use setTimeout to avoid calling fitBounds during render
-  setTimeout(() => {
-    map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
-  }, 0);
+  useEffect(() => {
+    const circleCenter = L.latLng(center.lat, center.lng);
+    const radiusMeters = radiusKm * 1000;
+    const bounds = circleCenter.toBounds(radiusMeters * 2);
+    const timer = setTimeout(() => {
+      map.fitBounds(bounds, { padding: [30, 30], maxZoom: 16 });
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [map, center.lat, center.lng, radiusKm]);
 
   return null;
 }
@@ -106,7 +107,7 @@ export default function RadiusFilter({
           {radiusKm !== null && (
             <button
               onClick={handleClear}
-              className="p-1 rounded hover:bg-primary/10 text-muted hover:text-foreground transition-colors"
+              className="p-2 rounded hover:bg-primary/10 text-muted hover:text-foreground transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label={t.map.radiusClear}
               title={t.map.radiusClear}
             >

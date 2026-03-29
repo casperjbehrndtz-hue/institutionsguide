@@ -99,7 +99,9 @@ function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: 
 
   return (
     <div className="relative" ref={ref}>
+      <label htmlFor="muni-combobox" className="sr-only">Kommune</label>
       <input
+        id="muni-combobox"
         type="text"
         value={open ? query : value || ""}
         placeholder={placeholder}
