@@ -102,10 +102,15 @@ export interface TranslationStrings {
     qualityData: string;
     overallRating: string;
     wellbeing: string;
+    wellbeingAcademic: string;
+    wellbeingSocialIsolation: string;
+    wellbeingClassroom: string;
+    wellbeingGeneral: string;
     grades: string;
     absence: string;
     competenceCoverage: string;
     teachingEffect: string;
+    socioEconomicRef: string;
     classSize: string;
     studentCount: string;
     nationalAvg: string;

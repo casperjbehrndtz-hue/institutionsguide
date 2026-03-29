@@ -165,6 +165,15 @@ export default function InstitutionPage() {
     const result: { label: string; percentile: number; value: string }[] = [];
     const tsVals = schools.map((s) => s.quality!.ts).filter((v): v is number => v != null);
     if (q.ts != null && tsVals.length > 0) result.push({ label: t.detail.wellbeing, percentile: pctRank(tsVals, q.ts), value: q.ts.toLocaleString("da-DK") });
+    // Trivsel dimensions
+    const tfVals = schools.map((s) => s.quality!.tf).filter((v): v is number => v != null);
+    if (q.tf != null && tfVals.length > 0) result.push({ label: t.detail.wellbeingAcademic, percentile: pctRank(tfVals, q.tf), value: q.tf.toLocaleString("da-DK") });
+    const tgVals = schools.map((s) => s.quality!.tg).filter((v): v is number => v != null);
+    if (q.tg != null && tgVals.length > 0) result.push({ label: t.detail.wellbeingGeneral, percentile: pctRank(tgVals, q.tg), value: q.tg.toLocaleString("da-DK") });
+    const troVals = schools.map((s) => s.quality!.tro).filter((v): v is number => v != null);
+    if (q.tro != null && troVals.length > 0) result.push({ label: t.detail.wellbeingClassroom, percentile: pctRank(troVals, q.tro), value: q.tro.toLocaleString("da-DK") });
+    const tsiVals = schools.map((s) => s.quality!.tsi).filter((v): v is number => v != null);
+    if (q.tsi != null && tsiVals.length > 0) result.push({ label: t.detail.wellbeingSocialIsolation, percentile: pctRankInverse(tsiVals, q.tsi), value: q.tsi.toLocaleString("da-DK") });
     const kVals = schools.map((s) => s.quality!.k).filter((v): v is number => v != null);
     if (q.k != null && kVals.length > 0) result.push({ label: t.detail.grades, percentile: pctRank(kVals, q.k), value: q.k.toLocaleString("da-DK") });
     const fpVals = schools.map((s) => s.quality!.fp).filter((v): v is number => v != null);
@@ -380,12 +389,18 @@ export default function InstitutionPage() {
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
             </div>
             {q?.sr && (
-              <div className="mt-3 text-xs text-muted">
-                {t.detail.teachingEffect}: <strong className="text-foreground">{q.sr}</strong>
+              <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15">
+                <p className="text-xs text-muted mb-0.5">{t.detail.socioEconomicRef}</p>
+                <p className="text-sm font-semibold text-foreground">{q.sr}</p>
+                <p className="text-[10px] text-muted mt-1">
+                  {language === "da"
+                    ? "Sammenligner skolens resultater med forventede resultater baseret på elevernes socioøkonomiske baggrund"
+                    : "Compares the school's results with expected results based on students' socioeconomic background"}
+                </p>
               </div>
             )}
             {q?.el != null && (
-              <div className="text-xs text-muted mt-1">
+              <div className="text-xs text-muted mt-3">
                 {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
               </div>
             )}

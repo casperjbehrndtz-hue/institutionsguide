@@ -163,6 +163,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
           const u = compactDagtilbudToUnified(d, "vug");
           if (u && !seen.has(u.id)) {
             u.category = "vuggestue";
+            if (!u.monthlyRate || !u.annualRate) {
+              const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
+              if (rates?.vuggestue) {
+                u.monthlyRate = Math.round(rates.vuggestue / 12);
+                u.annualRate = rates.vuggestue;
+              }
+            }
             seen.add(u.id);
             unified.push(u);
           }
@@ -173,6 +180,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
           const u = compactDagtilbudToUnified(d, "bh");
           if (u && !seen.has(u.id)) {
             u.category = "boernehave";
+            if (!u.monthlyRate || !u.annualRate) {
+              const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
+              if (rates?.boernehave) {
+                u.monthlyRate = Math.round(rates.boernehave / 12);
+                u.annualRate = rates.boernehave;
+              }
+            }
             seen.add(u.id);
             unified.push(u);
           }
@@ -182,16 +196,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
         for (const d of dagplejeData.i) {
           const u = compactDagtilbudToUnified(d, "dag");
           if (u && !seen.has(u.id)) {
+            if (!u.monthlyRate || !u.annualRate) {
+              const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
+              if (rates?.dagpleje) {
+                u.monthlyRate = Math.round(rates.dagpleje / 12);
+                u.annualRate = rates.dagpleje;
+              }
+            }
             seen.add(u.id);
             unified.push(u);
           }
         }
 
-        // SFO/Klub (compact format)
+        // SFO/Klub (compact format) — fill missing prices from municipal rates
         for (const d of sfoData.i) {
           const u = compactDagtilbudToUnified(d, "sfo");
           if (u && !seen.has(u.id)) {
             u.category = "sfo";
+            if (!u.monthlyRate || !u.annualRate) {
+              const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
+              if (rates?.sfo) {
+                u.monthlyRate = Math.round(rates.sfo / 12);
+                u.annualRate = rates.sfo;
+              }
+            }
             seen.add(u.id);
             unified.push(u);
           }
