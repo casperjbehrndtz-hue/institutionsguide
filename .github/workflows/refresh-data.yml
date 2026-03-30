@@ -1,83 +1,207 @@
-# Weekly Data Refresh
-# Fetches latest normering data from BUVM API, rebuilds derived data files,
-# and commits any changes back to the repo so the next deploy picks them up.
+# Monthly Data Refresh Pipeline
+#
+# Fetches fresh data from all open sources (DST, BTU PDF, BUVM normering),
+# regenerates derived files (sitemap, compact data), and auto-commits changes.
+# Vercel auto-deploys on push to main.
+#
+# Data sources:
+#   1. Danmarks Statistik (DST) — kommune stats (prices, staff, children, sick leave, expenditure)
+#   2. BUVM Uddannelsesstatistik — normering (children per staff ratios)
+#   3. BTU Bilag 2 PDF — parent satisfaction survey data
+#   4. Sitemap regeneration from latest institution data
+#
+# Does NOT run fetch-institution-stats.mjs (requires unavailable API key)
+# Does NOT run fetch-arbejdstilsyn.mjs (requires manual Excel export)
 
-name: Weekly Data Refresh
+name: Monthly Data Refresh
 
 on:
   schedule:
-    # Every Monday at 03:00 UTC
-    - cron: "0 3 * * 1"
-  workflow_dispatch: # Allow manual trigger from GitHub Actions UI
+    # 1st of every month at 06:00 UTC
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+    inputs:
+      skip_dst:
+        description: "Skip DST kommune stats fetch"
+        required: false
+        type: boolean
+        default: false
+      skip_normering:
+        description: "Skip BUVM normering fetch"
+        required: false
+        type: boolean
+        default: false
+      skip_satisfaction:
+        description: "Skip BTU parent satisfaction fetch"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     env:
-      # Supabase credentials (used by app build if needed)
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-      # BUVM API key for fetching normering data
       BUVM_API_KEY: ${{ secrets.BUVM_API_KEY }}
 
     steps:
-      # --- Checkout ---
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- Node.js setup ---
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # --- Install dependencies ---
       - name: Install dependencies
         run: npm ci
 
-      # --- Fetch fresh normering data from BUVM API ---
-      # Requires BUVM_API_KEY secret. Writes to scripts/output/normering-kommune-all.json
-      # This step is non-critical: if the API is down we still rebuild from cached data.
-      - name: Fetch normering data from BUVM API
+      # ── Step 1: DST Kommune Stats (no auth needed) ──────────────────────
+      # Fetches from 5 DST tables: RES88, BOERN1, BOERN2, FRA027, REGK31
+      # Output: public/data/kommune-stats.json
+      - name: Fetch DST kommune stats
+        if: ${{ github.event.inputs.skip_dst != 'true' }}
         continue-on-error: true
-        run: node scripts/fetch-normering.mjs
+        id: dst
+        run: |
+          echo "::group::DST Kommune Stats"
+          node scripts/fetch-dst-kommune-stats.mjs --supabase
+          echo "::endgroup::"
+          echo "status=success" >> "$GITHUB_OUTPUT"
 
-      # --- Transform raw normering JSON into compact app-ready format ---
-      # Reads scripts/output/normering-kommune-all.json → writes public/data/normering-data.json
+      # ── Step 2: BUVM Normering (requires BUVM_API_KEY) ──────────────────
+      # Fetches children-per-staff ratios for all 98 kommuner
+      # Output: scripts/output/normering-kommune-all.json
+      - name: Fetch normering from BUVM API
+        if: ${{ github.event.inputs.skip_normering != 'true' }}
+        continue-on-error: true
+        id: normering_fetch
+        run: |
+          echo "::group::BUVM Normering Fetch"
+          if [ -z "$BUVM_API_KEY" ]; then
+            echo "::warning::BUVM_API_KEY not set — skipping normering fetch, using cached data"
+          else
+            node scripts/fetch-normering.mjs
+          fi
+          echo "::endgroup::"
+          echo "status=success" >> "$GITHUB_OUTPUT"
+
+      # Transform raw normering JSON into compact app-ready format
+      # Input: scripts/output/normering-kommune-all.json
+      # Output: public/data/normering-data.json
       - name: Build normering data
+        if: ${{ github.event.inputs.skip_normering != 'true' }}
         continue-on-error: true
-        run: node scripts/build-normering-data.mjs
+        id: normering_build
+        run: |
+          echo "::group::Build Normering Data"
+          node scripts/build-normering-data.mjs
+          echo "::endgroup::"
+          echo "status=success" >> "$GITHUB_OUTPUT"
 
-      # --- Compact institution data files (short keys, smaller payload) ---
+      # ── Step 3: BTU Parent Satisfaction (downloads PDF, no auth) ────────
+      # Downloads Bilag 2 PDF from benchmark.dk, extracts survey tables
+      # Output: public/data/parent-satisfaction.json
+      - name: Fetch parent satisfaction data
+        if: ${{ github.event.inputs.skip_satisfaction != 'true' }}
+        continue-on-error: true
+        id: satisfaction
+        run: |
+          echo "::group::BTU Parent Satisfaction"
+          node scripts/fetch-foraeldre-tilfredshed.mjs
+          echo "::endgroup::"
+          echo "status=success" >> "$GITHUB_OUTPUT"
+
+      # ── Step 4: Compact data files ──────────────────────────────────────
       - name: Compact data files
         continue-on-error: true
-        run: node scripts/compact-data.mjs
+        run: |
+          echo "::group::Compact Data"
+          node scripts/compact-data.mjs
+          echo "::endgroup::"
 
-      # --- Full build (prebuild generates sitemap, then tsc + vite, then prerender) ---
-      - name: Build site
-        run: npm run build
+      # ── Step 5: Update data freshness timestamp ─────────────────────────
+      - name: Update data freshness timestamp
+        run: |
+          cat > public/data/refresh-status.json << STATUSEOF
+          {
+            "lastRefresh": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "dstKommuneStats": "${{ steps.dst.outputs.status || 'skipped' }}",
+            "normeringFetch": "${{ steps.normering_fetch.outputs.status || 'skipped' }}",
+            "normeringBuild": "${{ steps.normering_build.outputs.status || 'skipped' }}",
+            "parentSatisfaction": "${{ steps.satisfaction.outputs.status || 'skipped' }}",
+            "triggeredBy": "${{ github.event_name }}",
+            "runId": "${{ github.run_id }}",
+            "runUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }
+          STATUSEOF
 
-      # --- Commit and push any changed data files ---
-      - name: Commit updated data files
+      # ── Step 5b: Update dataVersions.ts with current date ───────────────
+      - name: Update dataVersions.ts timestamp
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          # Update the overall.lastUpdated date in the TypeScript config
+          sed -i "s/overall: {/overall: {/" src/lib/dataVersions.ts
+          sed -i "s|lastUpdated: new Date(\"[0-9-]*\")|lastUpdated: new Date(\"$TODAY\")|g" src/lib/dataVersions.ts
+          echo "Updated dataVersions.ts dates to $TODAY"
+
+      # ── Step 6: Regenerate sitemap ──────────────────────────────────────
+      - name: Regenerate sitemap
+        continue-on-error: true
+        run: node scripts/generate-sitemap.mjs
+
+      # ── Step 7: Commit and push changes ─────────────────────────────────
+      - name: Commit and push data changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Stage only data-related files that may have changed
-          git add -A public/data/ public/sitemap.xml scripts/output/ || true
+          # Stage data files that may have changed
+          git add \
+            public/data/kommune-stats.json \
+            public/data/normering-data.json \
+            public/data/parent-satisfaction.json \
+            public/data/refresh-status.json \
+            public/sitemap.xml \
+            src/lib/dataVersions.ts \
+            scripts/output/ \
+            || true
 
-          # Check if there are staged changes
           if git diff --cached --quiet; then
             echo "No data changes detected — nothing to commit."
           else
-            git commit -m "chore: refresh data (automated weekly)"
+            CHANGED=$(git diff --cached --name-only | wc -l)
+            git commit -m "chore: monthly data refresh [automated]
+
+          Updated $CHANGED file(s) on $(date -u +%Y-%m-%d).
+          DST: ${{ steps.dst.outputs.status || 'skipped' }}
+          Normering: ${{ steps.normering_build.outputs.status || 'skipped' }}
+          Satisfaction: ${{ steps.satisfaction.outputs.status || 'skipped' }}
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
             git push
-            echo "Data changes committed and pushed."
+            echo "::notice::Data changes committed and pushed. Vercel will auto-deploy."
           fi
 
-      # --- Optional: trigger Vercel redeploy via deploy hook ---
-      # Uncomment and add VERCEL_DEPLOY_HOOK secret when ready:
-      # - name: Trigger Vercel redeploy
-      #   if: success()
-      #   run: curl -s -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+      # ── Step 8: Summary ─────────────────────────────────────────────────
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Monthly Data Refresh Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Source | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| DST Kommune Stats | ${{ steps.dst.outputs.status || 'skipped' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| BUVM Normering | ${{ steps.normering_fetch.outputs.status || 'skipped' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Normering Build | ${{ steps.normering_build.outputs.status || 'skipped' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Parent Satisfaction | ${{ steps.satisfaction.outputs.status || 'skipped' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Run completed at $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"

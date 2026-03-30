@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useSubmitReview } from "@/hooks/useReviews";
+import { useSubmitReview, REVIEW_DIMENSIONS, type DimensionKey, type DimensionRatings } from "@/hooks/useReviews";
 
 interface ReviewFormV2Props {
   institutionId: string;
@@ -26,6 +26,8 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
   const [pros, setPros] = useState("");
   const [cons, setCons] = useState("");
   const [childAgeGroup, setChildAgeGroup] = useState("");
+  const [dimensionRatings, setDimensionRatings] = useState<DimensionRatings>({});
+  const [dimensionHover, setDimensionHover] = useState<Partial<Record<DimensionKey, number>>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const labels = {
@@ -51,6 +53,8 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
       errorRating: "Vælg en vurdering",
       errorName: "Indtast dit navn",
       errorBody: "Skriv din anmeldelse",
+      dimensionRatings: "Vurder på dimensioner",
+      dimensionOptional: "(valgfrit)",
     },
     en: {
       writeReview: "Write a review",
@@ -74,6 +78,8 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
       errorRating: "Select a rating",
       errorName: "Enter your name",
       errorBody: "Write your review",
+      dimensionRatings: "Rate by dimension",
+      dimensionOptional: "(optional)",
     },
   };
 
@@ -122,6 +128,7 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
       pros: pros.trim() || undefined,
       cons: cons.trim() || undefined,
       child_age_group: childAgeGroup || undefined,
+      dimension_ratings: Object.keys(dimensionRatings).length > 0 ? dimensionRatings : undefined,
     });
   };
 
@@ -155,6 +162,52 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
           ))}
         </div>
         {errors.rating && <p className="text-xs text-destructive mt-1">{errors.rating}</p>}
+      </div>
+
+      {/* Dimension ratings */}
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          {l.dimensionRatings} <span className="text-muted font-normal">{l.dimensionOptional}</span>
+        </label>
+        <div className="space-y-1.5">
+          {REVIEW_DIMENSIONS.map((dim) => {
+            const dimLabel = language === "da" ? dim.da : dim.en;
+            const currentVal = dimensionRatings[dim.key] || 0;
+            const hoverVal = dimensionHover[dim.key] || 0;
+            return (
+              <div key={dim.key} className="flex items-center gap-3">
+                <span className="text-xs text-muted w-[130px] shrink-0 truncate">{dimLabel}</span>
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className="text-base transition-colors p-0 leading-none"
+                      onMouseEnter={() => setDimensionHover((prev) => ({ ...prev, [dim.key]: star }))}
+                      onMouseLeave={() => setDimensionHover((prev) => ({ ...prev, [dim.key]: 0 }))}
+                      onClick={() => {
+                        setDimensionRatings((prev) => {
+                          // Clicking the same star again clears the rating
+                          if (prev[dim.key] === star) {
+                            const next = { ...prev };
+                            delete next[dim.key];
+                            return next;
+                          }
+                          return { ...prev, [dim.key]: star };
+                        });
+                      }}
+                      aria-label={`${dimLabel} ${star}`}
+                    >
+                      <span className={star <= (hoverVal || currentVal) ? "text-warning" : "text-border"}>
+                        &#9733;
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Author name */}

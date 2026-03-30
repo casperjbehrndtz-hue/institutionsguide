@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useReviews, type SupabaseReview } from "@/hooks/useReviews";
+import { useReviews, REVIEW_DIMENSIONS, type SupabaseReview } from "@/hooks/useReviews";
 import StarRating from "@/components/shared/StarRating";
 
 type SortOption = "newest" | "highest" | "lowest";
@@ -66,6 +66,32 @@ function ReviewCardV2({ review }: { review: SupabaseReview }) {
               <span className="text-muted">{review.cons}</span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Dimension ratings */}
+      {review.dimension_ratings && Object.keys(review.dimension_ratings).length > 0 && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+          {REVIEW_DIMENSIONS.map((dim) => {
+            const val = review.dimension_ratings?.[dim.key];
+            if (val == null) return null;
+            const dimLabel = language === "da" ? dim.da : dim.en;
+            return (
+              <div key={dim.key} className="flex items-center gap-1.5 text-[11px]">
+                <span className="text-muted">{dimLabel}</span>
+                <span className="flex gap-px">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <span
+                      key={i}
+                      className={`inline-block w-1.5 h-1.5 rounded-full ${
+                        i <= val ? "bg-primary" : "bg-border"
+                      }`}
+                    />
+                  ))}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
 

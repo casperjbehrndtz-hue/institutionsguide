@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useReviews } from "@/hooks/useReviews";
+import { useReviews, REVIEW_DIMENSIONS, type DimensionKey } from "@/hooks/useReviews";
 import StarRating from "@/components/shared/StarRating";
 
 interface ReviewSummaryV2Props {
@@ -35,15 +35,42 @@ export default function ReviewSummaryV2({ institutionId, onWriteReview }: Review
     const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     let sum = 0;
 
+    // Track dimension sums and counts
+    const dimSums: Record<DimensionKey, number> = { personale: 0, mad: 0, lokaler: 0, udearealer: 0, kommunikation: 0 };
+    const dimCounts: Record<DimensionKey, number> = { personale: 0, mad: 0, lokaler: 0, udearealer: 0, kommunikation: 0 };
+
     for (const review of reviews) {
       distribution[review.rating] = (distribution[review.rating] || 0) + 1;
       sum += review.rating;
+
+      if (review.dimension_ratings) {
+        for (const dim of REVIEW_DIMENSIONS) {
+          const val = review.dimension_ratings[dim.key];
+          if (val != null) {
+            dimSums[dim.key] += val;
+            dimCounts[dim.key] += 1;
+          }
+        }
+      }
+    }
+
+    // Only include dimensions with 2+ ratings
+    const dimensionAverages: { key: DimensionKey; avg: number; count: number }[] = [];
+    for (const dim of REVIEW_DIMENSIONS) {
+      if (dimCounts[dim.key] >= 2) {
+        dimensionAverages.push({
+          key: dim.key,
+          avg: Math.round((dimSums[dim.key] / dimCounts[dim.key]) * 10) / 10,
+          count: dimCounts[dim.key],
+        });
+      }
     }
 
     return {
       averageRating: reviews.length > 0 ? Math.round((sum / reviews.length) * 10) / 10 : 0,
       totalReviews: reviews.length,
       distribution: distribution as Record<1 | 2 | 3 | 4 | 5, number>,
+      dimensionAverages,
     };
   }, [reviews]);
 
@@ -113,6 +140,32 @@ export default function ReviewSummaryV2({ institutionId, onWriteReview }: Review
           })}
         </div>
       </div>
+
+      {/* Dimension averages */}
+      {summary.dimensionAverages.length > 0 && (
+        <div className="mb-5 space-y-1.5">
+          <h3 className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">
+            {language === "da" ? "Vurdering pr. dimension" : "Ratings by dimension"}
+          </h3>
+          {summary.dimensionAverages.map((dim) => {
+            const dimDef = REVIEW_DIMENSIONS.find((d) => d.key === dim.key);
+            const label = dimDef ? (language === "da" ? dimDef.da : dimDef.en) : dim.key;
+            const barWidth = (dim.avg / 5) * 100;
+            return (
+              <div key={dim.key} className="flex items-center gap-2 text-xs">
+                <span className="w-[110px] shrink-0 truncate text-muted">{label}</span>
+                <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all"
+                    style={{ width: `${barWidth}%` }}
+                  />
+                </div>
+                <span className="w-7 text-right font-mono text-muted">{dim.avg}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {onWriteReview && (
         <button

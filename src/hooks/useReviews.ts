@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 
+export type DimensionKey = "personale" | "mad" | "lokaler" | "udearealer" | "kommunikation";
+export type DimensionRatings = Partial<Record<DimensionKey, number>>;
+
+export const REVIEW_DIMENSIONS: { key: DimensionKey; da: string; en: string }[] = [
+  { key: "personale", da: "Personale", en: "Staff" },
+  { key: "mad", da: "Mad og måltider", en: "Food & meals" },
+  { key: "lokaler", da: "Lokaler og indretning", en: "Facilities" },
+  { key: "udearealer", da: "Udearealer", en: "Outdoor areas" },
+  { key: "kommunikation", da: "Kommunikation", en: "Communication" },
+];
+
 export interface SupabaseReview {
   id: number;
   institution_id: string;
@@ -11,6 +22,7 @@ export interface SupabaseReview {
   pros: string | null;
   cons: string | null;
   child_age_group: string | null;
+  dimension_ratings: DimensionRatings | null;
   verified: boolean;
   approved: boolean;
   created_at: string;
@@ -75,6 +87,7 @@ interface SubmitReviewData {
   pros?: string;
   cons?: string;
   child_age_group?: string;
+  dimension_ratings?: DimensionRatings;
 }
 
 export function useSubmitReview() {
@@ -102,6 +115,10 @@ export function useSubmitReview() {
     }
 
     try {
+      const dimensionRatings = data.dimension_ratings && Object.keys(data.dimension_ratings).length > 0
+        ? data.dimension_ratings
+        : null;
+
       const { error: insertError } = await supabase.from("reviews").insert({
         institution_id: data.institution_id,
         author_name: data.author_name,
@@ -111,6 +128,7 @@ export function useSubmitReview() {
         pros: data.pros || null,
         cons: data.cons || null,
         child_age_group: data.child_age_group || null,
+        dimension_ratings: dimensionRatings,
       });
 
       if (insertError) {

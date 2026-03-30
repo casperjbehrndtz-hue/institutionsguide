@@ -1,0 +1,143 @@
+# Quarterly Tilsyn Scraper
+#
+# Scrapes tilsynsrapporter (inspection reports) from configured kommuner
+# and seeds results to Supabase. Runs quarterly since tilsyn reports are
+# published infrequently (typically 1-2 per institution per year).
+#
+# Currently configured kommuner (status=ready):
+#   - Randers (kommune_website, ~60 PDFs)
+#   - Roskilde (kommune_website, ~25 PDFs)
+#   - Aalborg (hjernen_hjertet, ~130 HTML reports)
+#   - Esbjerg (per_institution, PDFs via boernepasning.esbjerg.dk)
+#   - Horsens (per_institution, PDFs via dagtilbud.horsens.dk)
+
+name: Quarterly Tilsyn Scraper
+
+on:
+  schedule:
+    # 1st of Jan, Apr, Jul, Oct at 06:00 UTC
+    - cron: "0 6 1 */3 *"
+  workflow_dispatch:
+    inputs:
+      kommune:
+        description: "Specific kommune slug to scrape (leave empty for all ready kommuner)"
+        required: false
+        type: string
+        default: ""
+      discover_only:
+        description: "Only discover report URLs, do not download/parse"
+        required: false
+        type: boolean
+        default: false
+      skip_supabase:
+        description: "Skip Supabase upsert"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate environment
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY secrets"
+            exit 1
+          fi
+          echo "Environment validated. Supabase URL: ${SUPABASE_URL:0:30}..."
+
+      - name: List configured kommuner
+        run: node scripts/tilsyn/scrape-kommune.mjs --list
+
+      # ── Scrape tilsynsrapporter ─────────────────────────────────────────
+      - name: Scrape tilsynsrapporter
+        id: scrape
+        run: |
+          ARGS=""
+
+          # Determine which kommuner to scrape
+          KOMMUNE_INPUT="${{ github.event.inputs.kommune }}"
+          if [ -n "$KOMMUNE_INPUT" ]; then
+            ARGS="--kommune $KOMMUNE_INPUT"
+          else
+            ARGS="--all"
+          fi
+
+          # Optional flags
+          if [ "${{ github.event.inputs.discover_only }}" = "true" ]; then
+            ARGS="$ARGS --discover-only"
+          fi
+
+          if [ "${{ github.event.inputs.skip_supabase }}" = "true" ]; then
+            ARGS="$ARGS --skip-supabase"
+          fi
+
+          echo "Running: node scripts/tilsyn/scrape-kommune.mjs $ARGS"
+          echo "::group::Tilsyn Scraper Output"
+          node scripts/tilsyn/scrape-kommune.mjs $ARGS 2>&1 | tee /tmp/scrape-output.txt
+          echo "::endgroup::"
+
+          # Extract stats for summary
+          REPORTS=$(grep -oP 'Scraped \K\d+' /tmp/scrape-output.txt | tail -1 || echo "0")
+          echo "reports=$REPORTS" >> "$GITHUB_OUTPUT"
+          echo "status=success" >> "$GITHUB_OUTPUT"
+
+      # ── Commit scraped data artifacts ───────────────────────────────────
+      - name: Commit scraper output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add scripts/tilsyn/output/ || true
+
+          if git diff --cached --quiet; then
+            echo "No new tilsyn data to commit."
+          else
+            KOMMUNE_INPUT="${{ github.event.inputs.kommune }}"
+            if [ -n "$KOMMUNE_INPUT" ]; then
+              MSG="chore: scrape tilsyn for $KOMMUNE_INPUT [automated]"
+            else
+              MSG="chore: quarterly tilsyn scrape [automated]"
+            fi
+
+            git commit -m "$MSG
+
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+            git push
+            echo "::notice::Tilsyn data committed and pushed."
+          fi
+
+      # ── Summary ─────────────────────────────────────────────────────────
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Quarterly Tilsyn Scraper Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Status:** ${{ steps.scrape.outputs.status || 'failed' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Reports found:** ${{ steps.scrape.outputs.reports || 'unknown' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Kommune:** ${{ github.event.inputs.kommune || 'all (ready)' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Discover only:** ${{ github.event.inputs.discover_only || 'false' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Run completed at $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"
