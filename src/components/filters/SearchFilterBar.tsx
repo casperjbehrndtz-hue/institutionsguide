@@ -17,8 +17,8 @@ function normalizeSearch(str: string): string {
     .replace(/ä/g, "a");
 }
 
-/** Daycare categories where school-specific sort options don't apply */
-const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo"];
+/** Categories where school-specific sort options don't apply */
+const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo", "fritidsklub", "efterskole"];
 
 /** School-only sort keys that should be hidden for daycare categories */
 const SCHOOL_ONLY_SORT_KEYS: SortKey[] = ["rating", "grades", "absence"];
@@ -29,6 +29,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   dagpleje: "Dagpleje",
   skole: "Skole",
   sfo: "SFO",
+  fritidsklub: "Fritidsklub",
+  efterskole: "Efterskole",
 };
 
 interface Props {

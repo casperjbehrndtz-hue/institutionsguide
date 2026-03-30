@@ -38,7 +38,7 @@ export default function CategoryPage({ category }: Props) {
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const {
-    search, setSearch,
+    search, searchInput, setSearch,
     category: catFilter, setCategory: setCatFilter,
     municipality: municipalityFilter, setMunicipality,
     ageGroup, setAgeGroup,
@@ -341,7 +341,7 @@ export default function CategoryPage({ category }: Props) {
         {/* Full filter bar: always visible on sm+, toggle on mobile */}
         <div className={`${showFilters ? "block" : "hidden"} sm:block`}>
           <SearchFilterBar
-            search={search}
+            search={searchInput}
             onSearchChange={setSearch}
             category={catFilter}
             onCategoryChange={setCatFilter}
