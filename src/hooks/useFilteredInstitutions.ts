@@ -51,11 +51,12 @@ export function useFilteredInstitutions(
       result = result.filter((i) => i.municipality === options.municipality);
     }
 
-    // Quality filter (schools only)
+    // Quality filter (schools only — keep all non-school categories)
     if (options.qualityFilter) {
       const qVal = Number(options.qualityFilter);
+      const SCHOOL_CATS = ["skole", "efterskole"];
       result = result.filter(
-        (i) => i.category !== "skole" || (i.quality?.o !== undefined && i.quality.o === qVal)
+        (i) => !SCHOOL_CATS.includes(i.category) || (i.quality?.o !== undefined && i.quality.o === qVal)
       );
     }
 

@@ -102,7 +102,7 @@ export default function HomePage() {
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const {
-    search, setSearch,
+    search, searchInput, setSearch,
     category, setCategory,
     municipality, setMunicipality,
     ageGroup, setAgeGroup,
@@ -219,7 +219,7 @@ export default function HomePage() {
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
 
   // Show filter bar + list/map when user has actively filtered
-  const hasActiveFilter = !!(search || municipality || geo.userLocation || category !== "alle");
+  const hasActiveFilter = !!(searchInput || municipality || geo.userLocation || category !== "alle");
 
   // Summary stats for the active filter
   const summaryStats = useMemo(() => {
@@ -338,7 +338,7 @@ export default function HomePage() {
               <input
                 id="hero-search"
                 type="text"
-                value={search}
+                value={searchInput}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
                 className="w-full py-3.5 pl-12 pr-4 text-base rounded-xl bg-[var(--color-bg-card)] text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent shadow-xl transition-shadow"
@@ -425,7 +425,7 @@ export default function HomePage() {
         {/* Full filter bar: always visible on sm+, toggle on mobile */}
         <div className={`${showFilters ? "block" : "hidden"} sm:block`}>
           <SearchFilterBar
-            search={search}
+            search={searchInput}
             onSearchChange={setSearch}
             category={category}
             onCategoryChange={setCategory}
@@ -713,7 +713,7 @@ export default function HomePage() {
             <p className="text-sm text-muted mt-1">{t.suiteProducts.parfinans}</p>
           </a>
           <a
-            href="https://børneskat.dk"
+            href="https://boerneskat.dk"
             target="_blank"
             rel="noopener noreferrer"
             className="card p-5 transition-transform group"

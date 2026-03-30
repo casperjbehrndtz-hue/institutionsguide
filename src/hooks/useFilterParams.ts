@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { InstitutionCategory, AgeGroup, SortKey } from "@/lib/types";
 
@@ -45,7 +45,10 @@ interface UseFilterParamsOptions {
 }
 
 export interface FilterParams {
+  /** Debounced search value (use for filtering) */
   search: string;
+  /** Immediate search value (use for input display) */
+  searchInput: string;
   setSearch: (value: string) => void;
   category: InstitutionCategory;
   setCategory: (value: InstitutionCategory) => void;
@@ -107,10 +110,28 @@ export function useFilterParams(options?: UseFilterParamsOptions): FilterParams 
     [setSearchParams]
   );
 
+  // Debounced search: local state updates immediately, URL updates after 250ms
+  const [searchInput, setSearchInput] = useState(search);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync local state when URL changes externally (e.g. clearAll, back/forward)
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
   const setSearch = useCallback(
-    (value: string) => setParam(PARAM.search, value),
+    (value: string) => {
+      setSearchInput(value);
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      searchTimerRef.current = setTimeout(() => setParam(PARAM.search, value), 250);
+    },
     [setParam]
   );
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
+  }, []);
 
   const setCategory = useCallback(
     (value: InstitutionCategory) => setParam(PARAM.category, value, defaultCategory),
@@ -151,6 +172,7 @@ export function useFilterParams(options?: UseFilterParamsOptions): FilterParams 
 
   return {
     search,
+    searchInput,
     setSearch,
     category,
     setCategory,

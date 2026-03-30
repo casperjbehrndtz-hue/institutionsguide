@@ -249,7 +249,7 @@ export default function BlogPost() {
             {isDa ? "Del af familien:" : "Part of the family:"}{" "}
             <a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">ParFinans</a> ·{" "}
             <a href="https://nemtbudget.nu" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">NemtBudget</a> ·{" "}
-            <a href="https://børneskat.dk" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Børneskat</a>
+            <a href="https://boerneskat.dk" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Børneskat</a>
           </p>
         </section>
       </article>
