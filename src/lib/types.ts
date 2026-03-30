@@ -57,6 +57,7 @@ export interface MunicipalitySummary {
   boernehaveCount: number;
   dagplejeCount: number;
   sfoCount: number;
+  fritidsklubCount: number;
   folkeskoleCount: number;
   friskoleCount: number;
   rates: {
@@ -64,6 +65,7 @@ export interface MunicipalitySummary {
     vuggestue: number | null;
     boernehave: number | null;
     sfo: number | null;
+    fritidsklub: number | null;
   };
 }
 
@@ -71,7 +73,7 @@ export interface MunicipalitySummary {
 export interface UnifiedInstitution {
   id: string;
   name: string;
-  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
+  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub";
   subtype: string; // "folkeskole", "friskole", "kommunal", "privat" etc.
   municipality: string;
   address: string;
@@ -134,7 +136,7 @@ export interface KommuneStats {
   antalBoern35: number | null;
 }
 
-export type InstitutionCategory = "alle" | "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
+export type InstitutionCategory = "alle" | "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub";
 export type AgeGroup = "" | "0-2" | "3-5" | "6-9" | "10-16";
 export type SortKey = "name" | "price" | "municipality" | "rating" | "grades" | "absence" | "distance";
 

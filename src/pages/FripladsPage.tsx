@@ -9,13 +9,14 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { calculateFriplads, FRIPLADS_CONSTANTS } from "@/lib/childcare/friplads";
 import { getAllMunicipalities, getChildcareRates } from "@/lib/childcare/rates";
 import { formatDKK } from "@/lib/format";
+import { toSlug } from "@/lib/slugs";
 import type { InstitutionType } from "@/lib/childcare/types";
 
 const CATEGORY_LABELS_DA: Record<InstitutionType, string> = {
-  vuggestue: "Vuggestue (0-2 ar)",
-  boernehave: "Bornehave (3-5 ar)",
-  dagpleje: "Dagpleje (0-2 ar)",
-  sfo: "SFO (6-9 ar)",
+  vuggestue: "Vuggestue (0-2 år)",
+  boernehave: "Børnehave (3-5 år)",
+  dagpleje: "Dagpleje (0-2 år)",
+  sfo: "SFO (6-9 år)",
 };
 
 const CATEGORY_LABELS_EN: Record<InstitutionType, string> = {
@@ -40,31 +41,31 @@ interface FAQItem {
 const FAQ_DA: FAQItem[] = [
   {
     q: "Hvad er fripladstilskud?",
-    a: "Fripladstilskud (okonomisk friplads) er en rabat pa foraldrebetalingen for dagtilbud som vuggestue, bornehave, dagpleje og SFO. Tilskuddet beregnes ud fra husstandens samlede indkomst og reguleres arligt af Borne- og Undervisningsministeriet.",
+    a: "Fripladstilskud (økonomisk friplads) er en rabat på forældrebetalingen for dagtilbud som vuggestue, børnehave, dagpleje og SFO. Tilskuddet beregnes ud fra husstandens samlede indkomst og reguleres årligt af Børne- og Undervisningsministeriet.",
   },
   {
     q: "Hvem kan fa fripladstilskud?",
-    a: `I ${FRIPLADS_CONSTANTS.year} kan familier med en husstandsindkomst under ${FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr. fa delvist fripladstilskud. Er indkomsten under ${FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr., far man fuld friplads (0 kr. i foraldrebetaling). Enlige forsorgere far et tillg pa ${FRIPLADS_CONSTANTS.singleParentSupplement.toLocaleString("da-DK")} kr., og for hvert barn ud over det forste tillgges ${FRIPLADS_CONSTANTS.additionalChildSupplement.toLocaleString("da-DK")} kr.`,
+    a: `I ${FRIPLADS_CONSTANTS.year} kan familier med en husstandsindkomst under ${FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr. få delvist fripladstilskud. Er indkomsten under ${FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr., får man fuld friplads (0 kr. i forældrebetaling). Enlige forsørgere får et tillæg på ${FRIPLADS_CONSTANTS.singleParentSupplement.toLocaleString("da-DK")} kr., og for hvert barn ud over det første tillægges ${FRIPLADS_CONSTANTS.additionalChildSupplement.toLocaleString("da-DK")} kr.`,
   },
   {
-    q: "Hvordan soger jeg om fripladstilskud?",
-    a: "Du soger om fripladstilskud hos din kommune, typisk via Digital Pladsanvisning eller kommunens hjemmeside. Kommunen indhenter automatisk indkomstoplysninger fra SKAT. Du skal soge hvert ar, og tilskuddet reguleres lobende.",
+    q: "Hvordan søger jeg om fripladstilskud?",
+    a: "Du søger om fripladstilskud hos din kommune, typisk via Digital Pladsanvisning eller kommunens hjemmeside. Kommunen indhenter automatisk indkomstoplysninger fra SKAT. Du skal søge hvert år, og tilskuddet reguleres løbende.",
   },
   {
-    q: "Hvad er soskendeabat?",
-    a: "Har du flere born i dagtilbud samtidig, betaler du fuld pris for det dyreste barn og 50% for hvert ekstra barn. Soskendeabatten glder automatisk og kan kombineres med fripladstilskud.",
+    q: "Hvad er søskenderabat?",
+    a: "Har du flere børn i dagtilbud samtidig, betaler du fuld pris for det dyreste barn og 50% for hvert ekstra barn. Søskenderabatten gælder automatisk og kan kombineres med fripladstilskud.",
   },
   {
-    q: "Hvad er forskellen pa dagpleje og vuggestue prismssigt?",
+    q: "Hvad er forskellen på dagpleje og vuggestue prismæssigt?",
     a: "Dagpleje er ofte billigere end vuggestue, men det varierer fra kommune til kommune. Brug beregneren ovenfor til at sammenligne de to muligheder i din kommune.",
   },
   {
-    q: "Glder fripladstilskud ogsa for SFO?",
-    a: "Ja, fripladstilskud glder for alle kommunale dagtilbud inkl. vuggestue, bornehave, dagpleje og SFO. Private institutioner folger ogsa fripladsskalaen, men kan have andre takster.",
+    q: "Gælder fripladstilskud også for SFO?",
+    a: "Ja, fripladstilskud gælder for alle kommunale dagtilbud inkl. vuggestue, børnehave, dagpleje og SFO. Private institutioner følger også fripladsskalaen, men kan have andre takster.",
   },
   {
-    q: "Hvad hvis min indkomst ndrer sig i lobet af aret?",
-    a: "Hvis din indkomst ndrer sig vasentligt (fx ved jobskifte, barsel eller skilsmisse), skal du kontakte kommunen sa tilskuddet kan reguleres. Kommunen foretager ogsa en arlig efterregulering.",
+    q: "Hvad hvis min indkomst ændrer sig i løbet af året?",
+    a: "Hvis din indkomst ændrer sig væsentligt (fx ved jobskifte, barsel eller skilsmisse), skal du kontakte kommunen så tilskuddet kan reguleres. Kommunen foretager også en årlig efterregulering.",
   },
 ];
 
@@ -155,7 +156,7 @@ export default function FripladsPage() {
     return calculateFriplads(annualRate, income, singleParent, children, siblingChild ? 1 : 0);
   }, [annualRate, income, singleParent, children, siblingChild]);
 
-  const ctaUrl = `/${CATEGORY_URL_MAP[category]}/${municipality.toLowerCase().replace(/\s+/g, "-")}`;
+  const ctaUrl = `/${CATEGORY_URL_MAP[category]}/${toSlug(municipality)}`;
 
   return (
     <>
@@ -163,7 +164,7 @@ export default function FripladsPage() {
         title={isDa ? `Beregn fripladstilskud ${FRIPLADS_CONSTANTS.year} — Institutionsguide` : `Calculate childcare subsidy ${FRIPLADS_CONSTANTS.year} — Institutionsguide`}
         description={
           isDa
-            ? "Beregn dit fripladstilskud for vuggestue, bornehave, dagpleje og SFO. Se hvad du skal betale i alle 98 kommuner med vores gratis fripladstilskud beregner."
+            ? "Beregn dit fripladstilskud for vuggestue, børnehave, dagpleje og SFO. Se hvad du skal betale i alle 98 kommuner med vores gratis fripladstilskud-beregner."
             : "Calculate your Danish childcare subsidy (fripladstilskud) for nursery, kindergarten, childminder and after-school care. Free calculator for all 98 municipalities."
         }
         path="/friplads"
@@ -189,7 +190,7 @@ export default function FripladsPage() {
             </h1>
             <p className="text-muted text-lg max-w-2xl mx-auto leading-relaxed">
               {isDa
-                ? "Fripladstilskud er en indkomstafhngig rabat pa foraldrebetalingen for dagtilbud. Se prcis hvad du skal betale for vuggestue, bornehave, dagpleje eller SFO i din kommune."
+                ? "Fripladstilskud er en indkomstafhængig rabat på forældrebetalingen for dagtilbud. Se præcis hvad du skal betale for vuggestue, børnehave, dagpleje eller SFO i din kommune."
                 : "Fripladstilskud is an income-based subsidy that reduces childcare costs in Denmark. See exactly what you'll pay for nursery, kindergarten, childminder, or after-school care in your municipality."}
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-muted">
@@ -220,7 +221,7 @@ export default function FripladsPage() {
                   value={municipality}
                   onChange={(e) => setMunicipality(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-lg border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
-                  aria-label={isDa ? "Vlg kommune" : "Select municipality"}
+                  aria-label={isDa ? "Vælg kommune" : "Select municipality"}
                 >
                   {municipalities.map((m) => (
                     <option key={m} value={m}>{m}</option>
@@ -238,7 +239,7 @@ export default function FripladsPage() {
                   value={category}
                   onChange={(e) => setCategory(e.target.value as InstitutionType)}
                   className="w-full px-3 py-2.5 rounded-lg border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
-                  aria-label={isDa ? "Vlg type" : "Select type"}
+                  aria-label={isDa ? "Vælg type" : "Select type"}
                 >
                   {(["vuggestue", "boernehave", "dagpleje", "sfo"] as InstitutionType[]).map((cat) => (
                     <option key={cat} value={cat}>{categoryLabels[cat]}</option>
@@ -516,24 +517,24 @@ export default function FripladsPage() {
               {isDa ? (
                 <>
                   <p>
-                    Fripladstilskud (ogsa kaldet okonomisk friplads) er en statsstottet rabat pa foraldrebetalingen
+                    Fripladstilskud (også kaldet økonomisk friplads) er en statsstøttet rabat på forældrebetalingen
                     for dagtilbud i Danmark. Ordningen er reguleret i Dagtilbudsloven og administreres af kommunerne.
                   </p>
                   <p>
                     I {FRIPLADS_CONSTANTS.year} beregnes tilskuddet ud fra en skala med 95 indkomsttrin. Familier med en
-                    husstandsindkomst under <strong>{FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr.</strong> far
+                    husstandsindkomst under <strong>{FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr.</strong> får
                     fuld friplads (gratis pasning), mens familier over <strong>{FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr.</strong> betaler
-                    fuld pris. Imellem de to grenser stiger foraldrebetalingen gradvist.
+                    fuld pris. Imellem de to grænser stiger forældrebetalingen gradvist.
                   </p>
                   <p>
-                    Enlige forsorgere far et tillg pa {FRIPLADS_CONSTANTS.singleParentSupplement.toLocaleString("da-DK")} kr. til
-                    indkomstgrnserne, og for hvert barn under 18 ud over det forste tillgges {FRIPLADS_CONSTANTS.additionalChildSupplement.toLocaleString("da-DK")} kr.
-                    Det betyder, at storre familier og enlige forsorgere kan have gavn af fripladstilskud ved hojere indkomster.
+                    Enlige forsørgere får et tillæg på {FRIPLADS_CONSTANTS.singleParentSupplement.toLocaleString("da-DK")} kr. til
+                    indkomstgrænserne, og for hvert barn under 18 ud over det første tillægges {FRIPLADS_CONSTANTS.additionalChildSupplement.toLocaleString("da-DK")} kr.
+                    Det betyder, at større familier og enlige forsørgere kan have gavn af fripladstilskud ved højere indkomster.
                   </p>
                   <p>
                     Taksterne varierer betydeligt fra kommune til kommune. For eksempel kan en vuggestueplads koste fra ca.
-                    33.000 kr./ar i de billigste kommuner til over 57.000 kr./ar i de dyreste. Brug beregneren ovenfor til
-                    at se de prcise takster for din kommune og beregne dit fripladstilskud.
+                    33.000 kr./år i de billigste kommuner til over 57.000 kr./år i de dyreste. Brug beregneren ovenfor til
+                    at se de præcise takster for din kommune og beregne dit fripladstilskud.
                   </p>
                 </>
               ) : (
@@ -563,7 +564,7 @@ export default function FripladsPage() {
         <ScrollReveal>
           <section className="space-y-4">
             <h2 className="font-display text-xl font-semibold text-foreground">
-              {isDa ? "Ofte stillede sporgsmal om fripladstilskud" : "Frequently asked questions about childcare subsidy"}
+              {isDa ? "Ofte stillede spørgsmål om fripladstilskud" : "Frequently asked questions about childcare subsidy"}
             </h2>
             <FAQAccordion items={isDa ? FAQ_DA : FAQ_EN} />
           </section>
@@ -573,11 +574,11 @@ export default function FripladsPage() {
         <ScrollReveal>
           <section className="card p-6 sm:p-8 text-center space-y-4">
             <h2 className="font-display text-xl font-semibold text-foreground">
-              {isDa ? "Hvad koster bornepasning i alt?" : "What does childcare cost in total?"}
+              {isDa ? "Hvad koster børnepasning i alt?" : "What does childcare cost in total?"}
             </h2>
             <p className="text-muted text-sm max-w-lg mx-auto">
               {isDa
-                ? "Se den samlede pris for vuggestue, bornehave og SFO over 10 ar i din kommune."
+                ? "Se den samlede pris for vuggestue, børnehave og SFO over 10 år i din kommune."
                 : "See the total cost of nursery, kindergarten and after-school care over 10 years in your municipality."}
             </p>
             <Link
@@ -598,14 +599,14 @@ export default function FripladsPage() {
             </h2>
             <p className="text-muted text-sm max-w-lg mx-auto">
               {isDa
-                ? "Se alle vuggestuer, bornehaver, dagplejere og SFO'er med priser, afstand og beregnet fripladstilskud."
+                ? "Se alle vuggestuer, børnehaver, dagplejere og SFO'er med priser, afstand og beregnet fripladstilskud."
                 : "See all nurseries, kindergartens, childminders and after-school care with prices, distance and calculated subsidy."}
             </p>
             <div className="flex flex-wrap justify-center gap-3">
               {(["vuggestue", "boernehave", "dagpleje", "sfo"] as InstitutionType[]).map((cat) => (
                 <Link
                   key={cat}
-                  to={`/${CATEGORY_URL_MAP[cat]}/${municipality.toLowerCase().replace(/\s+/g, "-")}`}
+                  to={`/${CATEGORY_URL_MAP[cat]}/${toSlug(municipality)}`}
                   className="inline-flex items-center gap-1.5 bg-[var(--color-bg-card)] border border-border px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors min-h-[44px]"
                 >
                   {categoryLabels[cat].split(" (")[0]}

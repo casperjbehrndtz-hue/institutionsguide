@@ -43,6 +43,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   dagpleje: "#F4B82C",
   skole: "#3B82F6",
   sfo: "#8B5CF6",
+  fritidsklub: "#EA580C",
 };
 
 function getSchoolColor(quality?: { o?: number }): string {
@@ -260,6 +261,7 @@ function InstitutionMap({
     { category: "dagpleje", color: "#F4B82C", label: t.map.legendDagpleje },
     { category: "skole", color: "#3B82F6", label: t.map.legendSkole },
     { category: "sfo", color: "#8B5CF6", label: t.map.legendSfo },
+    { category: "fritidsklub", color: "#EA580C", label: t.map.legendFritidsklub },
   ], [t]);
 
   const instById = useMemo(() => {
@@ -327,7 +329,7 @@ function InstitutionMap({
           popupHtml: `<div style="font-size:13px;line-height:1.4;max-width:200px;font-family:system-ui,-apple-system,sans-serif;">
   <p style="font-weight:600;margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.name)}</p>
   <p style="color:${textSecondary};font-size:11px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.city)} · ${formatRate(inst.monthlyRate, t.common.unknown, t.common.perMonth)}</p>
-  <a data-select-id="${escapeHtml(inst.id)}" href="#" style="display:block;text-align:center;padding:5px 0;background:${linkColor};color:#fff;font-size:11px;font-weight:600;text-decoration:none;cursor:pointer;border-radius:5px;">${escapeHtml(t.map.seeDetails)} &rarr;</a>
+  <button data-select-id="${escapeHtml(inst.id)}" type="button" style="display:block;width:100%;text-align:center;padding:5px 0;background:${linkColor};color:#fff;font-size:11px;font-weight:600;border:none;cursor:pointer;border-radius:5px;">${escapeHtml(t.map.seeDetails)} &rarr;</button>
 </div>`,
         };
       }),

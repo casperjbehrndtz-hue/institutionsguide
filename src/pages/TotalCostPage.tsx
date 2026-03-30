@@ -53,7 +53,7 @@ function computePhases(
     phases.push({
       label: "Vuggestue",
       labelEn: "Nursery",
-      ageRange: "0-2 ar",
+      ageRange: "0-2 år",
       ageRangeEn: "0-2 yrs",
       months: VUGGESTUE_MONTHS,
       monthlyFull: calc.fullMonthlyRate,
@@ -66,7 +66,7 @@ function computePhases(
     phases.push({
       label: "Vuggestue",
       labelEn: "Nursery",
-      ageRange: "0-2 ar",
+      ageRange: "0-2 år",
       ageRangeEn: "0-2 yrs",
       months: VUGGESTUE_MONTHS,
       monthlyFull: 0,
@@ -82,9 +82,9 @@ function computePhases(
   if (bhRate !== null) {
     const calc = calculateFriplads(bhRate, income, singleParent, children, 0);
     phases.push({
-      label: "Bornehave",
+      label: "Børnehave",
       labelEn: "Kindergarten",
-      ageRange: "3-5 ar",
+      ageRange: "3-5 år",
       ageRangeEn: "3-5 yrs",
       months: BOERNEHAVE_MONTHS,
       monthlyFull: calc.fullMonthlyRate,
@@ -95,9 +95,9 @@ function computePhases(
     });
   } else {
     phases.push({
-      label: "Bornehave",
+      label: "Børnehave",
       labelEn: "Kindergarten",
-      ageRange: "3-5 ar",
+      ageRange: "3-5 år",
       ageRangeEn: "3-5 yrs",
       months: BOERNEHAVE_MONTHS,
       monthlyFull: 0,
@@ -115,7 +115,7 @@ function computePhases(
     phases.push({
       label: "SFO",
       labelEn: "After-school care",
-      ageRange: "6-9 ar",
+      ageRange: "6-9 år",
       ageRangeEn: "6-9 yrs",
       months: SFO_MONTHS,
       monthlyFull: calc.fullMonthlyRate,
@@ -128,7 +128,7 @@ function computePhases(
     phases.push({
       label: "SFO",
       labelEn: "After-school care",
-      ageRange: "6-9 ar",
+      ageRange: "6-9 år",
       ageRangeEn: "6-9 yrs",
       months: SFO_MONTHS,
       monthlyFull: 0,
@@ -167,15 +167,9 @@ export default function TotalCostPage() {
   const [income, setIncome] = useState(profile?.income ?? 550_000);
   const [singleParent, setSingleParent] = useState(profile?.singleParent ?? false);
   const [children, setChildren] = useState(profile?.childCount ?? 1);
-  const [municipality, setMunicipality] = useState("Kobenhavn");
+  const [municipality, setMunicipality] = useState("København");
 
   const municipalities = useMemo(() => getAllMunicipalities(), []);
-
-  // Fix municipality name on mount — find correct name with special chars
-  useEffect(() => {
-    const kbh = municipalities.find((m) => m.startsWith("Kob") || m.startsWith("Køb"));
-    if (kbh && municipality === "Kobenhavn") setMunicipality(kbh);
-  }, [municipalities, municipality]);
 
   // Persist to FamilyContext
   useEffect(() => {
@@ -225,12 +219,12 @@ export default function TotalCostPage() {
       <SEOHead
         title={
           isDa
-            ? `Hvad koster bornepasning i ${municipality}? Samlet pris fra vuggestue til SFO — Institutionsguide`
+            ? `Hvad koster børnepasning i ${municipality}? Samlet pris fra vuggestue til SFO — Institutionsguide`
             : `What does childcare cost in ${municipality}? Total cost from nursery to after-school care — Institutionsguide`
         }
         description={
           isDa
-            ? `Se den samlede pris for bornepasning fra vuggestue til SFO i ${municipality} og alle 98 kommuner. Beregn med fripladstilskud og sammenlign kommuner.`
+            ? `Se den samlede pris for børnepasning fra vuggestue til SFO i ${municipality} og alle 98 kommuner. Beregn med fripladstilskud og sammenlign kommuner.`
             : `See the total cost of childcare from nursery to after-school care in ${municipality} and all 98 municipalities. Calculate with subsidy and compare municipalities.`
         }
         path="/samlet-pris"
@@ -253,16 +247,16 @@ export default function TotalCostPage() {
             </div>
             <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
               {isDa
-                ? "Hvad koster bornepasning i alt?"
+                ? "Hvad koster børnepasning i alt?"
                 : "What does childcare cost in total?"}
             </h1>
             <p className="text-muted text-lg max-w-2xl mx-auto leading-relaxed">
               {isDa
-                ? "Se den samlede pris for bornepasning fra vuggestue (0 ar) til SFO (9 ar) i din kommune — med fripladstilskud beregnet automatisk."
+                ? "Se den samlede pris for børnepasning fra vuggestue (0 år) til SFO (9 år) i din kommune — med fripladstilskud beregnet automatisk."
                 : "See the total cost of childcare from nursery (age 0) through after-school care (age 9) in your municipality — with subsidy calculated automatically."}
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-muted">
-              <span>{isDa ? `${TOTAL_MONTHS / 12} ars pasning` : `${TOTAL_MONTHS / 12} years of care`}</span>
+              <span>{isDa ? `${TOTAL_MONTHS / 12} års pasning` : `${TOTAL_MONTHS / 12} years of care`}</span>
               <span className="text-muted/40">|</span>
               <span>{isDa ? "Alle 98 kommuner" : "All 98 municipalities"}</span>
               <span className="text-muted/40">|</span>
@@ -309,7 +303,7 @@ export default function TotalCostPage() {
                 >
                   {[1, 2, 3, 4, 5].map((n) => (
                     <option key={n} value={n}>
-                      {n} {n === 1 ? (isDa ? "barn" : "child") : (isDa ? "born" : "children")}
+                      {n} {n === 1 ? (isDa ? "barn" : "child") : (isDa ? "børn" : "children")}
                     </option>
                   ))}
                 </select>
@@ -319,7 +313,7 @@ export default function TotalCostPage() {
             {/* Income */}
             <div>
               <label htmlFor="tc-income" className="block text-sm font-medium text-foreground mb-1.5">
-                {isDa ? "Husstandsindkomst (arlig)" : "Household income (annual)"}
+                {isDa ? "Husstandsindkomst (årlig)" : "Household income (annual)"}
               </label>
               <div className="flex items-center justify-end gap-2 mb-2">
                 <input
@@ -381,7 +375,7 @@ export default function TotalCostPage() {
         <ScrollReveal>
           <section className="card p-6 sm:p-8 space-y-6">
             <h2 className="font-display text-xl font-semibold text-foreground">
-              {isDa ? `Tidslinje for bornepasning i ${municipality}` : `Childcare timeline in ${municipality}`}
+              {isDa ? `Tidslinje for børnepasning i ${municipality}` : `Childcare timeline in ${municipality}`}
             </h2>
 
             <div className="space-y-6">
@@ -455,11 +449,11 @@ export default function TotalCostPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-display text-lg font-bold text-foreground">
-                    {isDa ? "Samlet bornepasning" : "Total childcare cost"}
+                    {isDa ? "Samlet børnepasning" : "Total childcare cost"}
                   </p>
                   <p className="text-sm text-muted">
                     {isDa
-                      ? `${TOTAL_MONTHS / 12} ar (${TOTAL_MONTHS} maneder) i ${municipality}`
+                      ? `${TOTAL_MONTHS / 12} år (${TOTAL_MONTHS} måneder) i ${municipality}`
                       : `${TOTAL_MONTHS / 12} years (${TOTAL_MONTHS} months) in ${municipality}`}
                   </p>
                 </div>
@@ -478,7 +472,7 @@ export default function TotalCostPage() {
               {totalSavings > 0 && (
                 <p className="text-sm text-center text-success font-medium bg-success/5 rounded-lg py-2 mt-4">
                   {isDa
-                    ? `Du sparer ${formatDKK(totalSavings)} med fripladstilskud over ${TOTAL_MONTHS / 12} ar`
+                    ? `Du sparer ${formatDKK(totalSavings)} med fripladstilskud over ${TOTAL_MONTHS / 12} år`
                     : `You save ${formatDKK(totalSavings)} with childcare subsidy over ${TOTAL_MONTHS / 12} years`}
                 </p>
               )}
@@ -486,7 +480,7 @@ export default function TotalCostPage() {
               {/* Monthly average */}
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="bg-bg-muted/50 rounded-xl p-4 text-center">
-                  <p className="text-xs text-muted mb-1">{isDa ? "Gns. pr. maned" : "Avg. per month"}</p>
+                  <p className="text-xs text-muted mb-1">{isDa ? "Gns. pr. måned" : "Avg. per month"}</p>
                   <p className="font-mono text-xl font-bold text-foreground">
                     {formatDKK(Math.round(grandTotal / TOTAL_MONTHS))}
                   </p>
@@ -522,7 +516,7 @@ export default function TotalCostPage() {
                   <p className="font-display text-lg font-bold text-foreground">{cheapest.municipality}</p>
                   <p className="font-mono text-2xl font-bold text-success">{formatDKK(cheapest.grandTotal)}</p>
                   <p className="text-xs text-muted">
-                    {isDa ? "Samlet over" : "Total over"} {TOTAL_MONTHS / 12} {isDa ? "ar" : "years"}
+                    {isDa ? "Samlet over" : "Total over"} {TOTAL_MONTHS / 12} {isDa ? "år" : "years"}
                   </p>
                 </div>
               )}
@@ -539,7 +533,7 @@ export default function TotalCostPage() {
                   <p className="font-display text-lg font-bold text-foreground">{mostExpensive.municipality}</p>
                   <p className="font-mono text-2xl font-bold text-red-500">{formatDKK(mostExpensive.grandTotal)}</p>
                   <p className="text-xs text-muted">
-                    {isDa ? "Samlet over" : "Total over"} {TOTAL_MONTHS / 12} {isDa ? "ar" : "years"}
+                    {isDa ? "Samlet over" : "Total over"} {TOTAL_MONTHS / 12} {isDa ? "år" : "years"}
                   </p>
                 </div>
               )}
@@ -548,7 +542,7 @@ export default function TotalCostPage() {
             {cheapest && mostExpensive && (
               <p className="text-sm text-center text-muted">
                 {isDa
-                  ? `Forskel: ${formatDKK(mostExpensive.grandTotal - cheapest.grandTotal)} over ${TOTAL_MONTHS / 12} ar (${formatDKK(Math.round((mostExpensive.grandTotal - cheapest.grandTotal) / TOTAL_MONTHS))}/md.)`
+                  ? `Forskel: ${formatDKK(mostExpensive.grandTotal - cheapest.grandTotal)} over ${TOTAL_MONTHS / 12} år (${formatDKK(Math.round((mostExpensive.grandTotal - cheapest.grandTotal) / TOTAL_MONTHS))}/md.)`
                   : `Difference: ${formatDKK(mostExpensive.grandTotal - cheapest.grandTotal)} over ${TOTAL_MONTHS / 12} years (${formatDKK(Math.round((mostExpensive.grandTotal - cheapest.grandTotal) / TOTAL_MONTHS))}/mo.)`}
               </p>
             )}
@@ -563,7 +557,7 @@ export default function TotalCostPage() {
             </h2>
             <p className="text-sm text-muted">
               {isDa
-                ? `Samlet pris for vuggestue + bornehave + SFO (${TOTAL_MONTHS / 12} ar) ved husstandsindkomst ${formatNumber(income)} kr.`
+                ? `Samlet pris for vuggestue + børnehave + SFO (${TOTAL_MONTHS / 12} år) ved husstandsindkomst ${formatNumber(income)} kr.`
                 : `Total cost for nursery + kindergarten + after-school care (${TOTAL_MONTHS / 12} years) at household income ${formatNumber(income)} DKK`}
             </p>
 
@@ -614,18 +608,18 @@ export default function TotalCostPage() {
               {isDa ? (
                 <>
                   <p>
-                    Denne beregner viser den samlede pris for bornepasning fra vuggestue (0-2 ar) over
-                    bornehave (3-5 ar) til SFO (6-9 ar) — i alt {TOTAL_MONTHS / 12} ars kommunal pasning.
-                    Priserne er baseret pa officielle takster fra Danmarks Statistik ({FRIPLADS_CONSTANTS.year}-satser).
+                    Denne beregner viser den samlede pris for børnepasning fra vuggestue (0-2 år) over
+                    børnehave (3-5 år) til SFO (6-9 år) — i alt {TOTAL_MONTHS / 12} års kommunal pasning.
+                    Priserne er baseret på officielle takster fra Danmarks Statistik ({FRIPLADS_CONSTANTS.year}-satser).
                   </p>
                   <p>
                     Fripladstilskud beregnes automatisk ud fra din husstandsindkomst efter den nationale
                     fripladsskala med 95 indkomsttrin. Familier med en indkomst under {FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr.
-                    far fuld friplads, mens familier over {FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr. betaler fuld pris.
+                    får fuld friplads, mens familier over {FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr. betaler fuld pris.
                   </p>
                   <p>
-                    Beregningen bruger vuggestue-taksten for 0-2 ar. Hvis din kommune ogsa tilbyder dagpleje,
-                    kan den reelle pris vre lavere. Brug vores <Link to="/friplads" className="text-primary hover:underline">fripladstilskud-beregner</Link> for
+                    Beregningen bruger vuggestue-taksten for 0-2 år. Hvis din kommune også tilbyder dagpleje,
+                    kan den reelle pris være lavere. Brug vores <Link to="/friplads" className="text-primary hover:underline">fripladstilskud-beregner</Link> for
                     at se dagpleje-priser, eller se <Link to="/prissammenligning" className="text-primary hover:underline">prissammenligningen</Link> for
                     en detaljeret oversigt.
                   </p>

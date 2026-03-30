@@ -1,11 +1,24 @@
 import { useMemo } from "react";
 import type { UnifiedInstitution, InstitutionCategory, AgeGroup, SortKey } from "@/lib/types";
 
+/** Normalize Danish characters for accent-tolerant search */
+function normalizeSearch(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "oe")
+    .replace(/å/g, "aa")
+    .replace(/é/g, "e")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ä/g, "a");
+}
+
 const AGE_GROUP_CATEGORIES: Record<Exclude<AgeGroup, "">, InstitutionCategory[]> = {
   "0-2": ["vuggestue", "dagpleje"],
   "3-5": ["boernehave"],
   "6-9": ["skole", "sfo"],
-  "10-16": ["skole"],
+  "10-16": ["skole", "fritidsklub"],
 };
 
 interface FilterOptions {
@@ -46,17 +59,28 @@ export function useFilteredInstitutions(
       );
     }
 
-    // Text search
+    // Text search — accent-tolerant (æøå ↔ ae/oe/aa)
     if (options.search.trim()) {
-      const q = options.search.toLowerCase().trim();
-      result = result.filter(
-        (i) =>
-          i.name.toLowerCase().includes(q) ||
-          i.address.toLowerCase().includes(q) ||
-          i.postalCode.includes(q) ||
-          i.city.toLowerCase().includes(q) ||
-          i.municipality.toLowerCase().includes(q)
-      );
+      const raw = options.search.toLowerCase().trim();
+      const norm = normalizeSearch(raw);
+      result = result.filter((i) => {
+        // Try exact match first (fast path)
+        const nameLower = i.name.toLowerCase();
+        if (
+          nameLower.includes(raw) ||
+          i.address.toLowerCase().includes(raw) ||
+          i.postalCode.includes(raw) ||
+          i.city.toLowerCase().includes(raw) ||
+          i.municipality.toLowerCase().includes(raw)
+        ) return true;
+        // Fallback: normalized match (handles Bornehuset → Børnehuset)
+        return (
+          normalizeSearch(nameLower).includes(norm) ||
+          normalizeSearch(i.address).includes(norm) ||
+          normalizeSearch(i.city).includes(norm) ||
+          normalizeSearch(i.municipality).includes(norm)
+        );
+      });
     }
 
     // Sort

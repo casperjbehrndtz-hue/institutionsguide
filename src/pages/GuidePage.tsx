@@ -21,6 +21,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getAllMunicipalities, getChildcareRates } from "@/lib/childcare/rates";
 import { calculateFriplads } from "@/lib/childcare/friplads";
 import { formatDKK } from "@/lib/format";
+import { toSlug } from "@/lib/slugs";
 import type { InstitutionType } from "@/lib/childcare/types";
 
 // ---------------------------------------------------------------------------
@@ -51,19 +52,19 @@ interface WizardState {
 const STEPS = 5;
 
 const AGE_OPTIONS: { value: AgeGroup; da: string; en: string; emoji: string }[] = [
-  { value: "0-1", da: "0-1 ar", en: "0-1 years", emoji: "👶" },
-  { value: "1-2", da: "1-2 ar", en: "1-2 years", emoji: "🧒" },
-  { value: "2-3", da: "2-3 ar", en: "2-3 years", emoji: "🧒" },
-  { value: "3-5", da: "3-5 ar", en: "3-5 years", emoji: "👧" },
-  { value: "6+", da: "6+ ar", en: "6+ years", emoji: "🎒" },
+  { value: "0-1", da: "0-1 år", en: "0-1 years", emoji: "👶" },
+  { value: "1-2", da: "1-2 år", en: "1-2 years", emoji: "🧒" },
+  { value: "2-3", da: "2-3 år", en: "2-3 years", emoji: "🧒" },
+  { value: "3-5", da: "3-5 år", en: "3-5 years", emoji: "👧" },
+  { value: "6+", da: "6+ år", en: "6+ years", emoji: "🎒" },
 ];
 
 const PRIORITY_OPTIONS: { value: Priority; da: string; en: string; icon: string }[] = [
   { value: "lav-pris", da: "Lav pris", en: "Low price", icon: "💰" },
   { value: "lille-gruppe", da: "Lille gruppe", en: "Small group", icon: "👥" },
   { value: "uddannet-personale", da: "Uddannet personale", en: "Qualified staff", icon: "🎓" },
-  { value: "taet-paa-hjemmet", da: "Taet pa hjemmet", en: "Close to home", icon: "🏠" },
-  { value: "fleksible-tider", da: "Fleksible abningstider", en: "Flexible hours", icon: "🕐" },
+  { value: "taet-paa-hjemmet", da: "Tæt på hjemmet", en: "Close to home", icon: "🏠" },
+  { value: "fleksible-tider", da: "Fleksible åbningstider", en: "Flexible hours", icon: "🕐" },
   { value: "naturoplevelser", da: "Naturoplevelser", en: "Nature experiences", icon: "🌿" },
 ];
 
@@ -92,7 +93,7 @@ function getRecommendation(state: WizardState): Recommendation {
       alternatives: [],
       reasons: [
         {
-          da: "Til born over 6 ar er SFO (skolefritidsordning) det naturlige valg efter skolestart.",
+          da: "Til børn over 6 år er SFO (skolefritidsordning) det naturlige valg efter skolestart.",
           en: "For children over 6, SFO (after-school care) is the natural choice after school starts.",
         },
       ],
@@ -102,13 +103,13 @@ function getRecommendation(state: WizardState): Recommendation {
   if (age === "3-5") {
     const reasons: { da: string; en: string }[] = [
       {
-        da: "Til born mellem 3-5 ar er bornehave den oplagte pasningsform.",
+        da: "Til børn mellem 3-5 år er børnehave den oplagte pasningsform.",
         en: "For children aged 3-5, kindergarten is the obvious childcare type.",
       },
     ];
     if (pSet.has("naturoplevelser")) {
       reasons.push({
-        da: "Mange bornehaver har fokus pa udeliv og naturoplevelser — sog efter skov- eller naturbornehaver.",
+        da: "Mange børnehaver har fokus på udeliv og naturoplevelser — søg efter skov- eller naturbørnehaver.",
         en: "Many kindergartens focus on outdoor life and nature — look for forest or nature kindergartens.",
       });
     }
@@ -140,7 +141,7 @@ function getRecommendation(state: WizardState): Recommendation {
     alternatives: ["dagpleje"],
     reasons: [
       {
-        da: "Bade dagpleje og vuggestue passer godt til dine prioriteter. Vuggestue giver bredere sociale rammer, mens dagpleje tilbyder en mere hjemlig atmosfaere.",
+        da: "Både dagpleje og vuggestue passer godt til dine prioriteter. Vuggestue giver bredere sociale rammer, mens dagpleje tilbyder en mere hjemlig atmosfære.",
         en: "Both childminder and nursery fit your priorities. Nursery offers a broader social setting, while childminder provides a more home-like atmosphere.",
       },
     ],
@@ -171,7 +172,7 @@ function buildReasons(type: "dagpleje" | "vuggestue", pSet: Set<Priority>): { da
   if (type === "dagpleje") {
     if (pSet.has("lille-gruppe"))
       reasons.push({
-        da: "Dagpleje har typisk kun 3-4 born per voksen — perfekt til dig, der onsker en lille gruppe.",
+        da: "Dagpleje har typisk kun 3-4 børn per voksen — perfekt til dig, der ønsker en lille gruppe.",
         en: "Childminders typically have only 3-4 children per adult — perfect for small group preference.",
       });
     if (pSet.has("lav-pris"))
@@ -181,28 +182,28 @@ function buildReasons(type: "dagpleje" | "vuggestue", pSet: Set<Priority>): { da
       });
     if (pSet.has("taet-paa-hjemmet"))
       reasons.push({
-        da: "Dagplejere er spredt ud i lokalomradet, sa der er ofte en taet pa dit hjem.",
+        da: "Dagplejere er spredt ud i lokalområdet, så der er ofte en tæt på dit hjem.",
         en: "Childminders are spread across neighborhoods, so there is often one close to your home.",
       });
     if (reasons.length === 0)
       reasons.push({
-        da: "Dagpleje giver en hjemlig og tryg ramme med fa born og en fast voksen.",
+        da: "Dagpleje giver en hjemlig og tryg ramme med få børn og en fast voksen.",
         en: "Childminders provide a home-like, secure setting with few children and a dedicated adult.",
       });
   } else {
     if (pSet.has("uddannet-personale"))
       reasons.push({
-        da: "Vuggestuer har typisk uddannede pdagoger med en pdagogisk laereplan.",
+        da: "Vuggestuer har typisk uddannede pædagoger med en pædagogisk læreplan.",
         en: "Nurseries typically have qualified pedagogues with an educational curriculum.",
       });
     if (pSet.has("fleksible-tider"))
       reasons.push({
-        da: "Vuggestuer har ofte laengere abningstider end dagpleje.",
+        da: "Vuggestuer har ofte længere åbningstider end dagpleje.",
         en: "Nurseries often have longer opening hours than childminders.",
       });
     if (reasons.length === 0)
       reasons.push({
-        da: "Vuggestue giver bred socialisering med andre born og et struktureret pdagogisk miljo.",
+        da: "Vuggestue giver bred socialisering med andre børn og et struktureret pædagogisk miljø.",
         en: "Nursery provides broad socialization with other children and a structured pedagogical environment.",
       });
   }
@@ -225,19 +226,19 @@ const COMPARISON_TABLE: ComparisonRow[] = [
   {
     da: "Alder",
     en: "Age",
-    dagpleje: { da: "0-2 ar", en: "0-2 years" },
-    vuggestue: { da: "0-2 ar", en: "0-2 years" },
-    boernehave: { da: "3-5 ar", en: "3-5 years" },
+    dagpleje: { da: "0-2 år", en: "0-2 years" },
+    vuggestue: { da: "0-2 år", en: "0-2 years" },
+    boernehave: { da: "3-5 år", en: "3-5 years" },
   },
   {
-    da: "Typisk gruppestorrelse",
+    da: "Typisk gruppestørrelse",
     en: "Typical group size",
-    dagpleje: { da: "3-4 born", en: "3-4 children" },
-    vuggestue: { da: "10-14 born", en: "10-14 children" },
-    boernehave: { da: "20-25 born", en: "20-25 children" },
+    dagpleje: { da: "3-4 børn", en: "3-4 children" },
+    vuggestue: { da: "10-14 børn", en: "10-14 children" },
+    boernehave: { da: "20-25 børn", en: "20-25 children" },
   },
   {
-    da: "Normering (born pr. voksen)",
+    da: "Normering (børn pr. voksen)",
     en: "Staff ratio (children per adult)",
     dagpleje: { da: "3-4:1", en: "3-4:1" },
     vuggestue: { da: "3:1 (lovkrav)", en: "3:1 (legal min.)" },
@@ -247,8 +248,8 @@ const COMPARISON_TABLE: ComparisonRow[] = [
     da: "Personale",
     en: "Staff",
     dagpleje: { da: "Uddannet dagplejer", en: "Trained childminder" },
-    vuggestue: { da: "Pdagoger + medhjlpere", en: "Pedagogues + assistants" },
-    boernehave: { da: "Pdagoger + medhjlpere", en: "Pedagogues + assistants" },
+    vuggestue: { da: "Pædagoger + medhjælpere", en: "Pedagogues + assistants" },
+    boernehave: { da: "Pædagoger + medhjælpere", en: "Pedagogues + assistants" },
   },
   {
     da: "Rammer",
@@ -261,15 +262,15 @@ const COMPARISON_TABLE: ComparisonRow[] = [
     da: "Fordele",
     en: "Pros",
     dagpleje: { da: "Hjemlig, lille gruppe, ofte billigere", en: "Home-like, small group, often cheaper" },
-    vuggestue: { da: "Uddannet personale, laengere abningstid, social stimulering", en: "Qualified staff, longer hours, social stimulation" },
+    vuggestue: { da: "Uddannet personale, længere åbningstid, social stimulering", en: "Qualified staff, longer hours, social stimulation" },
     boernehave: { da: "Skoleforberedende, store legepladser, mange aktiviteter", en: "School preparation, large playgrounds, many activities" },
   },
   {
     da: "Ulemper",
     en: "Cons",
-    dagpleje: { da: "Sarbar ved sygdom, faerre born at lege med", en: "Vulnerable to illness, fewer playmates" },
-    vuggestue: { da: "Storre grupper, kan vaere dyrere", en: "Larger groups, can be more expensive" },
-    boernehave: { da: "Store grupper, mere stoj", en: "Large groups, more noise" },
+    dagpleje: { da: "Sårbar ved sygdom, færre børn at lege med", en: "Vulnerable to illness, fewer playmates" },
+    vuggestue: { da: "Større grupper, kan være dyrere", en: "Larger groups, can be more expensive" },
+    boernehave: { da: "Store grupper, mere støj", en: "Large groups, more noise" },
   },
 ];
 
@@ -280,7 +281,7 @@ const COMPARISON_TABLE: ComparisonRow[] = [
 const TYPE_LABELS_DA: Record<RecommendedType, string> = {
   dagpleje: "Dagpleje",
   vuggestue: "Vuggestue",
-  boernehave: "Bornehave",
+  boernehave: "Børnehave",
   sfo: "SFO",
 };
 
@@ -319,7 +320,7 @@ export default function GuidePage() {
   const [wizard, setWizard] = useState<WizardState>({
     age: null,
     priorities: [],
-    municipality: "Kobenhavn",
+    municipality: "København",
     income: null,
   });
   const [incomeInput, setIncomeInput] = useState("");
@@ -394,7 +395,7 @@ export default function GuidePage() {
   // Step icons for progress
   const stepIcons = [Baby, CheckCircle2, MapPin, Wallet, Sparkles];
 
-  const ctaUrl = `/${TYPE_URL[recommendation.primary]}/${validMunicipality.toLowerCase().replace(/\s+/g, "-")}`;
+  const ctaUrl = `/${TYPE_URL[recommendation.primary]}/${toSlug(validMunicipality)}`;
 
   return (
     <>
@@ -406,7 +407,7 @@ export default function GuidePage() {
         }
         description={
           isDa
-            ? "Brug vores gratis guide til at finde ud af om dagpleje, vuggestue eller bornehave er bedst for dit barn. Fa personlige anbefalinger med priser for din kommune."
+            ? "Brug vores gratis guide til at finde ud af om dagpleje, vuggestue eller børnehave er bedst for dit barn. Få personlige anbefalinger med priser for din kommune."
             : "Use our free guide to find out if childminder, nursery or kindergarten is best for your child. Get personalized recommendations with prices for your municipality."
         }
         path="/guide"
@@ -621,7 +622,7 @@ export default function GuidePage() {
                 </h2>
                 <p className="text-muted text-sm">
                   {isDa
-                    ? `Baseret pa dit barns alder, dine prioriteter og priser i ${validMunicipality}`
+                    ? `Baseret på dit barns alder, dine prioriteter og priser i ${validMunicipality}`
                     : `Based on your child's age, your priorities and prices in ${validMunicipality}`}
                 </p>
               </div>
@@ -655,6 +656,27 @@ export default function GuidePage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Score breakdown — transparency */}
+                  {wizard.age && ["0-1", "1-2", "2-3"].includes(wizard.age) && (
+                    <div className="border-t border-border/50 pt-3">
+                      <p className="text-[11px] text-muted/70 mb-2">
+                        {isDa ? "Sådan scorer vi dine prioriteter:" : "How we score your priorities:"}
+                      </p>
+                      <div className="flex gap-4">
+                        {(["dagpleje", "vuggestue"] as const).map((type) => {
+                          const score = computeScore(type, new Set(wizard.priorities));
+                          const isSelected = recommendation.primary === type;
+                          return (
+                            <div key={type} className={`flex-1 text-center p-2 rounded-lg ${isSelected ? "bg-primary/10 ring-1 ring-primary/30" : "bg-bg-card"}`}>
+                              <p className="text-[11px] text-muted">{isDa ? TYPE_LABELS_DA[type] : TYPE_LABELS_EN[type]}</p>
+                              <p className={`font-mono text-lg font-bold ${isSelected ? "text-primary" : "text-muted"}`}>{score > 0 ? `+${score}` : score}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Price estimate */}
                   {priceEstimate && (
@@ -712,7 +734,7 @@ export default function GuidePage() {
                 <ScrollReveal>
                   <div className="space-y-3">
                     <h3 className="font-display text-lg font-semibold text-foreground">
-                      {isDa ? "Overvej ogsa" : "Also consider"}
+                      {isDa ? "Overvej også" : "Also consider"}
                     </h3>
                     {recommendation.alternatives.map((alt) => {
                       const AltIcon = TYPE_ICONS[alt];
@@ -721,7 +743,7 @@ export default function GuidePage() {
                       return (
                         <Link
                           key={alt}
-                          to={`/${TYPE_URL[alt]}/${validMunicipality.toLowerCase().replace(/\s+/g, "-")}`}
+                          to={`/${TYPE_URL[alt]}/${toSlug(validMunicipality)}`}
                           className="card p-4 flex items-center justify-between gap-3 hover:border-primary/30 transition-all"
                         >
                           <div className="flex items-center gap-3">
@@ -749,7 +771,7 @@ export default function GuidePage() {
               <ScrollReveal>
                 <div className="space-y-3">
                   <h3 className="font-display text-lg font-semibold text-foreground">
-                    {isDa ? "Sammenligning: dagpleje vs. vuggestue vs. bornehave" : "Comparison: childminder vs. nursery vs. kindergarten"}
+                    {isDa ? "Sammenligning: dagpleje vs. vuggestue vs. børnehave" : "Comparison: childminder vs. nursery vs. kindergarten"}
                   </h3>
                   <div className="overflow-x-auto -mx-4 px-4">
                     <table className="w-full text-sm border-collapse min-w-[520px]">
@@ -763,7 +785,7 @@ export default function GuidePage() {
                             {isDa ? "Vuggestue" : "Nursery"}
                           </th>
                           <th className="text-left py-2 px-3 font-semibold text-foreground">
-                            {isDa ? "Bornehave" : "Kindergarten"}
+                            {isDa ? "Børnehave" : "Kindergarten"}
                           </th>
                         </tr>
                       </thead>
@@ -863,7 +885,7 @@ export default function GuidePage() {
                   ? "Se anbefaling"
                   : "See recommendation"
                 : isDa
-                ? "Naeste"
+                ? "Næste"
                 : "Next"}
               <ArrowRight className="w-4 h-4" />
             </button>

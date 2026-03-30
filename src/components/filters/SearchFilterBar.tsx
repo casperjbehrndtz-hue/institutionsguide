@@ -4,6 +4,19 @@ import { Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { InstitutionCategory, AgeGroup, SortKey, UnifiedInstitution } from "@/lib/types";
 
+/** Normalize Danish characters for accent-tolerant search */
+function normalizeSearch(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "oe")
+    .replace(/å/g, "aa")
+    .replace(/é/g, "e")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ä/g, "a");
+}
+
 /** Daycare categories where school-specific sort options don't apply */
 const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo"];
 
@@ -39,6 +52,7 @@ interface Props {
   onClearAll?: () => void;
   hasActiveFilters?: boolean;
   hideCategoryPills?: boolean;
+  hasGeolocation?: boolean;
 }
 
 const POPULAR_MUNICIPALITIES = [
@@ -73,7 +87,11 @@ function MunicipalityCombobox({ value, onChange, municipalities, placeholder }: 
       return [...popular, ...rest];
     }
     const q = query.toLowerCase();
-    return municipalities.filter((m) => m.toLowerCase().includes(q));
+    const qNorm = normalizeSearch(q);
+    return municipalities.filter((m) => {
+      const mLower = m.toLowerCase();
+      return mLower.includes(q) || normalizeSearch(mLower).includes(qNorm);
+    });
   }, [query, municipalities]);
 
   const visibleItems = filtered.slice(0, 30);
@@ -182,6 +200,7 @@ export default function SearchFilterBar({
   onClearAll,
   hasActiveFilters,
   hideCategoryPills,
+  hasGeolocation,
 }: Props) {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -192,19 +211,27 @@ export default function SearchFilterBar({
   const suggestions = useMemo(() => {
     if (!institutions || search.trim().length < 2) return [];
     const q = search.toLowerCase().trim();
+    const qNorm = normalizeSearch(q);
     const matches: UnifiedInstitution[] = [];
     // Prioritize name-starts-with, then name-includes, then city/address
+    // Uses both exact and normalized matching for accent tolerance
     for (const inst of institutions) {
       if (matches.length >= 8) break;
-      if (inst.name.toLowerCase().startsWith(q)) matches.push(inst);
+      const nameLower = inst.name.toLowerCase();
+      if (nameLower.startsWith(q) || normalizeSearch(nameLower).startsWith(qNorm)) matches.push(inst);
     }
     for (const inst of institutions) {
       if (matches.length >= 8) break;
-      if (!matches.includes(inst) && inst.name.toLowerCase().includes(q)) matches.push(inst);
+      if (matches.includes(inst)) continue;
+      const nameLower = inst.name.toLowerCase();
+      if (nameLower.includes(q) || normalizeSearch(nameLower).includes(qNorm)) matches.push(inst);
     }
     for (const inst of institutions) {
       if (matches.length >= 8) break;
-      if (!matches.includes(inst) && (inst.city.toLowerCase().includes(q) || inst.address.toLowerCase().includes(q))) matches.push(inst);
+      if (matches.includes(inst)) continue;
+      const cityLower = inst.city.toLowerCase();
+      const addrLower = inst.address.toLowerCase();
+      if (cityLower.includes(q) || addrLower.includes(q) || normalizeSearch(cityLower).includes(qNorm) || normalizeSearch(addrLower).includes(qNorm)) matches.push(inst);
     }
     return matches;
   }, [institutions, search]);
@@ -282,6 +309,7 @@ export default function SearchFilterBar({
     { value: "dagpleje", label: t.categories.dagpleje },
     { value: "skole", label: t.categories.skole },
     { value: "sfo", label: t.categories.sfo },
+    { value: "fritidsklub", label: t.categories.fritidsklub },
   ];
 
   // Context-aware sort options: hide school-specific sorts for daycare categories
@@ -296,12 +324,16 @@ export default function SearchFilterBar({
 
   const sortOptions = useMemo(() => {
     const isDaycareOnly = DAYCARE_CATEGORIES.includes(category);
-    if (isDaycareOnly) {
-      return ALL_SORT_OPTIONS.filter((opt) => !SCHOOL_ONLY_SORT_KEYS.includes(opt.value));
+    let opts = isDaycareOnly
+      ? ALL_SORT_OPTIONS.filter((opt) => !SCHOOL_ONLY_SORT_KEYS.includes(opt.value))
+      : [...ALL_SORT_OPTIONS];
+    // Show distance sort when geolocation is active
+    if (hasGeolocation) {
+      opts.push({ value: "distance" as SortKey, label: t.sort.distance });
     }
-    return ALL_SORT_OPTIONS;
+    return opts;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, t]);
+  }, [category, t, hasGeolocation]);
 
   return (
     <div className="sticky top-0 z-30 bg-bg/95 backdrop-blur-sm border-b border-border py-3 px-4 sm:px-6">
@@ -438,7 +470,7 @@ export default function SearchFilterBar({
                 id="sort-select"
                 value={sortKey}
                 onChange={(e) => onSortChange(e.target.value as SortKey)}
-                aria-label="Sort"
+                aria-label="Sortér"
                 className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {sortOptions.map((opt) => (

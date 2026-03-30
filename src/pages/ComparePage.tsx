@@ -1,5 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
-import { ArrowLeft, Printer, X } from "lucide-react";
+import { ArrowLeft, Printer, X, Share2, Check } from "lucide-react";
+import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from "recharts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
@@ -15,6 +16,7 @@ export default function ComparePage() {
   const location = useLocation();
   const { t, language } = useLanguage();
   const { compareList, removeFromCompare } = useCompare();
+  const [copied, setCopied] = useState(false);
   // Backwards compat: prefer context, fall back to location.state
   const locationInstitutions: UnifiedInstitution[] = (location.state as { institutions?: UnifiedInstitution[] })?.institutions || [];
   const institutions = compareList.length >= 2 ? compareList : locationInstitutions;
@@ -84,13 +86,27 @@ export default function ComparePage() {
             <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
               {t.compare.title}
             </h1>
-            <button
-              onClick={() => window.print()}
-              className="print:hidden inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
-            >
-              <Printer className="w-4 h-4" />
-              {t.compare.print}
-            </button>
+            <div className="flex items-center gap-2 print:hidden">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  });
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
+              >
+                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Share2 className="w-4 h-4" />}
+                {copied ? (language === "da" ? "Kopieret!" : "Copied!") : (language === "da" ? "Del" : "Share")}
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
+              >
+                <Printer className="w-4 h-4" />
+                {t.compare.print}
+              </button>
+            </div>
           </div>
           <p className="text-muted">
             {institutions.length} {t.common.institutions}

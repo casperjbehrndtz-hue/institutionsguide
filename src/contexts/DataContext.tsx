@@ -88,11 +88,11 @@ function schoolToUnified(s: CompactSchool): UnifiedInstitution | null {
   };
 }
 
-function dagtilbudCategory(type: string): "vuggestue" | "boernehave" | "dagpleje" | "sfo" {
+function dagtilbudCategory(type: string): "vuggestue" | "boernehave" | "dagpleje" | "sfo" | "fritidsklub" {
   switch (type) {
     case "dagpleje": return "dagpleje";
-    case "sfo":
-    case "klub": return "sfo";
+    case "sfo": return "sfo";
+    case "klub": return "fritidsklub";
     case "boernehave": return "boernehave";
     default: return "vuggestue"; // vuggestue, aldersintegreret, andet
   }
@@ -225,20 +225,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // SFO/Klub (compact format) — fill missing prices from municipal rates
+        // SFO/Klub (compact format) — split into SFO and Fritidsklub categories
+        const seenFritidsklub = new Set<string>();
         for (const d of sfoData.i) {
-          const u = compactDagtilbudToUnified(d, "sfo");
-          if (u && !seenSfo.has(u.id)) {
-            u.category = "sfo";
-            if (!u.monthlyRate || !u.annualRate) {
-              const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
-              if (rates?.sfo) {
-                u.monthlyRate = Math.round(rates.sfo / 12);
-                u.annualRate = rates.sfo;
+          const cat = dagtilbudCategory(d.tp);
+          if (cat === "fritidsklub") {
+            const u = compactDagtilbudToUnified(d, "klub");
+            if (u && !seenFritidsklub.has(u.id)) {
+              u.category = "fritidsklub";
+              if (!u.monthlyRate || !u.annualRate) {
+                const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
+                if (rates?.fritidshjem) {
+                  u.monthlyRate = Math.round(rates.fritidshjem / 12);
+                  u.annualRate = rates.fritidshjem;
+                }
               }
+              seenFritidsklub.add(u.id);
+              unified.push(u);
             }
-            seenSfo.add(u.id);
-            unified.push(u);
+          } else {
+            const u = compactDagtilbudToUnified(d, "sfo");
+            if (u && !seenSfo.has(u.id)) {
+              u.category = "sfo";
+              if (!u.monthlyRate || !u.annualRate) {
+                const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
+                if (rates?.sfo) {
+                  u.monthlyRate = Math.round(rates.sfo / 12);
+                  u.annualRate = rates.sfo;
+                }
+              }
+              seenSfo.add(u.id);
+              unified.push(u);
+            }
           }
         }
 
@@ -297,7 +315,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Load kommune-level stats (sygefravær, expenditure, sprogvurdering)
         if (komStatsRes && komStatsRes.ok && komStatsRes.headers.get("content-type")?.includes("json")) {
           const komData = await komStatsRes.json();
-          setKommuneStats(komData.kommuner ?? {});
+          const rawKom = komData.kommuner ?? {};
+          // Remap JSON field names to TypeScript KommuneStats interface
+          const mappedKom: Record<string, KommuneStats> = {};
+          for (const [name, raw] of Object.entries(rawKom)) {
+            const r = raw as Record<string, unknown>;
+            mappedKom[name] = {
+              code: (r.code as string) ?? "",
+              avgSygefravaerDage: (r.avgSygefravaerDage as number) ?? null,
+              pctPaedagogerKommune: (r.pctPaedagogerKommune ?? r.pctPaedagoger ?? null) as number | null,
+              pctMedhjaelpereKommune: (r.pctMedhjaelpereKommune ?? r.pctMedhjaelpere ?? null) as number | null,
+              udgiftPrBarn: (r.udgiftPrBarn as number) ?? null,
+              sprogvurderingPctUdfordret: (r.sprogvurderingPctUdfordret as number) ?? null,
+              dagplejeTakst: (r.dagplejeTakst as number) ?? null,
+              vuggestueTakst: (r.vuggestueTakst as number) ?? null,
+              boernehaveTakst: (r.boernehaveTakst as number) ?? null,
+              sfoTakst: (r.sfoTakst as number) ?? null,
+              antalBoern02: (r.antalBoern02 as number) ?? null,
+              antalBoern35: (r.antalBoern35 as number) ?? null,
+            };
+          }
+          setKommuneStats(mappedKom);
         }
 
         setInstitutions(unified);
@@ -327,6 +365,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           boernehaveCount: 0,
           dagplejeCount: 0,
           sfoCount: 0,
+          fritidsklubCount: 0,
           folkeskoleCount: 0,
           friskoleCount: 0,
           rates: {
@@ -334,6 +373,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             vuggestue: rateInfo?.vuggestue ? Math.round(rateInfo.vuggestue / 12) : null,
             boernehave: rateInfo?.boernehave ? Math.round(rateInfo.boernehave / 12) : null,
             sfo: rateInfo?.sfo ? Math.round(rateInfo.sfo / 12) : null,
+            fritidsklub: rateInfo?.fritidshjem ? Math.round(rateInfo.fritidshjem / 12) : null,
           },
         };
         map.set(inst.municipality, m);
@@ -343,6 +383,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         case "boernehave": m.boernehaveCount++; break;
         case "dagpleje": m.dagplejeCount++; break;
         case "sfo": m.sfoCount++; break;
+        case "fritidsklub": m.fritidsklubCount++; break;
         case "skole":
           if (inst.subtype === "folkeskole") m.folkeskoleCount++;
           else m.friskoleCount++;

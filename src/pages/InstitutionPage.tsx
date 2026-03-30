@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows } from "lucide-react";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
+import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ArrowRight } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -36,7 +36,7 @@ import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
     vuggestue: "/vuggestue", boernehave: "/boernehave", dagpleje: "/dagpleje",
-    skole: "/skole", sfo: "/sfo",
+    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub",
   };
   return paths[cat] || "/";
 }
@@ -92,6 +92,8 @@ function PercentileBar({ label, percentile, value, lang = "da" }: {
 export default function InstitutionPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const cameFrom = (location.state as { from?: string })?.from;
   const { institutions, normering, institutionStats, kommuneStats, loading } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -117,6 +119,7 @@ export default function InstitutionPage() {
   const categoryLabels: Record<string, string> = {
     vuggestue: t.categories.vuggestue, boernehave: t.categories.boernehave,
     dagpleje: t.categories.dagpleje, skole: t.categories.skole, sfo: t.categories.sfo,
+    fritidsklub: t.categories.fritidsklub,
   };
 
   const inst = useMemo(
@@ -294,18 +297,18 @@ export default function InstitutionPage() {
       <div className="max-w-[640px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
         <button
           onClick={() => {
-            // If there's browser history (user came from search results), go back to preserve filters/scroll.
-            // Otherwise fall back to the category listing page.
-            if (window.history.length > 1) {
-              navigate(-1);
+            if (cameFrom) {
+              // We know exactly where the user came from — go there.
+              navigate(cameFrom);
             } else {
+              // Fallback: go to category listing.
               navigate(categoryPath(inst.category));
             }
           }}
           className="inline-flex items-center gap-1 text-sm text-primary hover:underline cursor-pointer bg-transparent border-none p-0"
         >
           <ArrowLeft className="w-4 h-4" />
-          {language === "da" ? `Alle ${(categoryLabels[inst.category] || "").toLowerCase()}` : `All ${(categoryLabels[inst.category] || "").toLowerCase()}`}
+          {language === "da" ? "Tilbage" : "Back"}
         </button>
         <div className="flex items-center gap-1">
           <button
@@ -420,6 +423,27 @@ export default function InstitutionPage() {
                 <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
               </div>
             </div>
+            {/* Municipality average comparison */}
+            {municipalityAvgPrice != null && inst.monthlyRate != null && (
+              <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 text-center">
+                <p className="text-xs text-muted mb-0.5">
+                  {language === "da" ? `Gennemsnit i ${inst.municipality}` : `Average in ${inst.municipality}`}
+                </p>
+                <p className="font-mono text-lg font-bold text-foreground">{formatDKK(municipalityAvgPrice)}<span className="text-xs font-normal text-muted">{t.common.perMonth}</span></p>
+                {(() => {
+                  const diff = inst.monthlyRate! - municipalityAvgPrice;
+                  const pct = Math.round((diff / municipalityAvgPrice) * 100);
+                  if (Math.abs(pct) < 2) return <p className="text-[11px] text-muted mt-1">{language === "da" ? "Tæt på gennemsnittet" : "Close to average"}</p>;
+                  return (
+                    <p className={`text-[11px] mt-1 font-medium ${diff < 0 ? "text-green-600" : "text-red-500"}`}>
+                      {diff < 0
+                        ? (language === "da" ? `${Math.abs(pct)}% billigere end gennemsnittet` : `${Math.abs(pct)}% cheaper than average`)
+                        : (language === "da" ? `${pct}% dyrere end gennemsnittet` : `${pct}% more expensive than average`)}
+                    </p>
+                  );
+                })()}
+              </div>
+            )}
             <p className="text-[10px] text-muted mt-3 text-center">
               {language === "da" ? `Priser fra ${dataVersions.prices.year} \u2014 kan afvige fra aktuelle takster` : `Prices from ${dataVersions.prices.year} \u2014 may differ from current rates`}
             </p>
@@ -524,6 +548,38 @@ export default function InstitutionPage() {
             />
           </div>
         </Suspense>
+
+        {/* Nearby alternatives list */}
+        {nearby.length > 0 && (
+          <div className="card p-5">
+            <h2 className="font-display text-lg font-semibold mb-3">
+              {language === "da" ? "Lignende i nærheden" : "Similar nearby"}
+            </h2>
+            <div className="space-y-2">
+              {nearby.slice(0, 5).map((n) => (
+                <Link
+                  key={n.id}
+                  to={`/institution/${n.id}`}
+                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-primary/5 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-bold text-primary">{n.name.charAt(0)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{n.name}</p>
+                    <p className="text-xs text-muted">{n.city} · {n.dist.toFixed(1).replace(".", ",")} km</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    {n.monthlyRate != null && (
+                      <p className="font-mono text-xs font-bold text-primary">{formatDKK(n.monthlyRate)}</p>
+                    )}
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted group-hover:text-primary shrink-0 transition-colors" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Tilsyn */}
         <TilsynSection institutionId={inst.id} institutionName={inst.name} />

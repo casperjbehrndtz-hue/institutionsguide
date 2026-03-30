@@ -35,7 +35,7 @@ const PARAM = {
   sortKey: "sort",
 } as const;
 
-const VALID_CATEGORIES: InstitutionCategory[] = ["alle", "vuggestue", "boernehave", "dagpleje", "skole", "sfo"];
+const VALID_CATEGORIES: InstitutionCategory[] = ["alle", "vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub"];
 const VALID_AGE_GROUPS: AgeGroup[] = ["", "0-2", "3-5", "6-9", "10-16"];
 const VALID_SORT_KEYS: SortKey[] = ["name", "price", "municipality", "rating", "grades", "absence", "distance"];
 

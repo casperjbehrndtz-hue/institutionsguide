@@ -1,6 +1,6 @@
 import { lazy, useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Heart, Search, SlidersHorizontal, MapPin, X } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Search, SlidersHorizontal, X, Calculator, Loader2, ChevronRight } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -17,21 +17,23 @@ import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import { useFavorites } from "@/hooks/useFavorites";
 import NoResults from "@/components/filters/NoResults";
+import InstitutionListCard from "@/components/shared/InstitutionListCard";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import type { UnifiedInstitution } from "@/lib/types";
-import { haversineKm, formatDistance } from "@/lib/geo";
+import { haversineKm } from "@/lib/geo";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
 import DataFreshness from "@/components/shared/DataFreshness";
-import { qualityLevelBadge, CATEGORY_BADGE_COLORS } from "@/lib/badges";
+import { qualityLevelBadge } from "@/lib/badges";
 
 interface Props {
-  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo";
+  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub";
 }
 
 export default function CategoryPage({ category }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { institutions, municipalities, normering, loading, error } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -58,8 +60,8 @@ export default function CategoryPage({ category }: Props) {
   const listContainerRef = useRef<HTMLDivElement>(null);
 
   const geo = useGeolocation(useCallback((loc) => {
-    setFlyTo({ ...loc, zoom: 13 });
-    setRadiusKm(5);
+    setFlyTo({ ...loc, zoom: 12 });
+    setRadiusKm(15);
   }, [setRadiusKm]));
 
   const categoryTitles: Record<string, string> = {
@@ -68,6 +70,7 @@ export default function CategoryPage({ category }: Props) {
     dagpleje: language === "en" ? "Childminders in Denmark" : "Dagplejere i Danmark",
     skole: language === "en" ? "Schools in Denmark" : "Skoler i Danmark",
     sfo: language === "en" ? "After-school care in Denmark" : "SFO og fritidsordninger",
+    fritidsklub: language === "en" ? "Youth clubs in Denmark" : "Fritidsklubber i Danmark",
   };
 
   const filtered = useFilteredInstitutions(institutions, {
@@ -136,6 +139,7 @@ export default function CategoryPage({ category }: Props) {
   };
 
   const [visibleCount, setVisibleCount] = useState(50);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [showAllMunicipalities, setShowAllMunicipalities] = useState(false);
 
   const distanceSorted = useMemo(() => {
@@ -200,7 +204,7 @@ export default function CategoryPage({ category }: Props) {
   }, [municipalities, category]);
 
   function handleSelect(inst: UnifiedInstitution) {
-    navigate(`/institution/${inst.id}`);
+    navigate(`/institution/${inst.id}`, { state: { from: location.pathname + location.search } });
   }
 
 
@@ -226,7 +230,7 @@ export default function CategoryPage({ category }: Props) {
 
   const categoryPaths: Record<string, string> = {
     vuggestue: "/vuggestue", boernehave: "/boernehave", dagpleje: "/dagpleje",
-    skole: "/skole", sfo: "/sfo",
+    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub",
   };
 
   const seoDescriptions: Record<string, Record<string, string>> = {
@@ -236,6 +240,7 @@ export default function CategoryPage({ category }: Props) {
       dagpleje: "Find og sammenlign dagplejere i alle 98 kommuner. Se priser, adresser og kontaktinfo.",
       skole: "Find og sammenlign skoler i Danmark. Se kvalitetsdata, karakterer, trivsel og fravær.",
       sfo: "Find og sammenlign SFO og fritidsordninger i alle 98 kommuner.",
+      fritidsklub: "Find og sammenlign fritidsklubber for 4.-7. klasse i alle kommuner. Se priser og kontaktinfo.",
     },
     en: {
       vuggestue: "Find and compare nurseries in all 98 municipalities. See prices, addresses and contact info.",
@@ -243,6 +248,7 @@ export default function CategoryPage({ category }: Props) {
       dagpleje: "Find and compare childminders in all 98 municipalities.",
       skole: "Find and compare schools in Denmark. See quality data, grades, well-being and absence.",
       sfo: "Find and compare after-school care in all 98 municipalities.",
+      fritidsklub: "Find and compare youth clubs for ages 10-14 in all municipalities.",
     },
   };
 
@@ -292,50 +298,7 @@ export default function CategoryPage({ category }: Props) {
           {filtered.length.toLocaleString("da-DK")} {t.common.institutions}
         </p>
         <DataFreshness />
-        <Link to="/metode" className="inline-block mt-2 text-xs text-muted hover:text-primary hover:underline transition-colors">
-          {language === "da" ? "Hvordan beregnes dette?" : "How is this calculated?"}
-        </Link>
       </section></ScrollReveal>
-
-      {/* Dagpleje info box */}
-      {category === "dagpleje" && (
-        <section className="max-w-3xl mx-auto px-4 py-6">
-          <div className="card p-6">
-            <h2 className="font-display text-xl font-bold mb-4">{t.dagplejeInfo.title}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div>
-                <h3 className="font-semibold text-success mb-2">{t.dagplejeInfo.pros}</h3>
-                <ul className="space-y-1 text-muted">
-                  {t.dagplejeInfo.prosList.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h3 className="font-semibold text-destructive mb-2">{t.dagplejeInfo.cons}</h3>
-                <ul className="space-y-1 text-muted">
-                  {t.dagplejeInfo.consList.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* School quality note */}
-      {category === "skole" && (
-        <section className="max-w-3xl mx-auto px-4 py-6">
-          <div className="card p-6">
-            <h2 className="font-display text-xl font-bold mb-3">{t.schoolInfo.title}</h2>
-            <p className="text-sm text-muted leading-relaxed">{t.schoolInfo.description}</p>
-            <Link to="/metode" className="inline-block mt-3 text-sm text-primary hover:underline">
-              {language === "da" ? "Hvordan beregnes dette?" : "How is this calculated?"} &rarr;
-            </Link>
-          </div>
-        </section>
-      )}
 
       {/* Filter bar with mobile collapse */}
       <div className="sticky top-14 z-30 bg-bg-card border-b border-border">
@@ -391,6 +354,7 @@ export default function CategoryPage({ category }: Props) {
             onNearMe={geo.handleNearMe}
             nearMeLoading={geo.nearMeLoading}
             hideCategoryPills
+            hasGeolocation={!!geo.userLocation}
           />
         </div>
       </div>
@@ -482,76 +446,19 @@ export default function CategoryPage({ category }: Props) {
             const badge = getInstQualityBadge(inst);
             const norm = getInstNormering(inst);
             return (
-            <Link
-              key={inst.id}
-              to={`/institution/${inst.id}`}
-              data-inst-id={inst.id}
-              className={`card transition-all block ${
-                hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
-              }`}
-              onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(inst.id); }}
-              onMouseLeave={() => { if (window.matchMedia("(hover: hover)").matches) setHoveredId(null); }}
-            >
-              <div className="p-3 sm:p-4">
-                {/* Row 1: Name + badge + price */}
-                <div className="flex justify-between items-start gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-foreground text-sm sm:text-base truncate">{inst.name}</p>
-                      {badge && (
-                        <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-md ${badge.className}`}>
-                          {badge.label}
-                        </span>
-                      )}
-                      {showCategoryBadge && (
-                        <span className={`inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full ${CATEGORY_BADGE_COLORS[inst.category] || ""}`}>
-                          {t.categories[inst.category]}
-                        </span>
-                      )}
-                    </div>
-                    {/* Row 2: Address + distance + municipality */}
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <p className="text-xs text-muted truncate">{inst.address}, {inst.postalCode} {inst.city} — {inst.municipality}</p>
-                      {geo.userLocation && (
-                        <span className="inline-flex items-center gap-0.5 text-xs text-primary/70 shrink-0">
-                          <MapPin className="w-3 h-3" />
-                          {formatDistance(haversineKm(geo.userLocation.lat, geo.userLocation.lng, inst.lat, inst.lng))}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-mono text-xs sm:text-sm font-bold tabular-nums text-primary">{formatDKK(inst.monthlyRate)}</p>
-                    <span className="text-[10px] text-muted">{t.common.perMonth}</span>
-                  </div>
-                </div>
-                {/* Row 3: Key metrics strip */}
-                <div className="flex items-center gap-2 sm:gap-3 mt-2 pt-2 border-t border-border/40 text-[11px] text-muted overflow-x-auto no-scrollbar">
-                  {norm != null && (
-                    <span className="shrink-0">{language === "da" ? "Normering" : "Ratio"} <strong className="text-foreground font-mono">{norm.toFixed(1).replace(".", ",")}</strong></span>
-                  )}
-                  {inst.quality?.el != null && (
-                    <span className="shrink-0">{inst.quality.el.toLocaleString("da-DK")} {language === "da" ? "elever" : "students"}</span>
-                  )}
-                  {inst.quality?.kv != null && (
-                    <span className="shrink-0">{language === "da" ? "Klasse" : "Class"} <strong className="text-foreground font-mono">{inst.quality.kv.toLocaleString("da-DK")}</strong></span>
-                  )}
-                  <span className="shrink-0">{subtypeLabels[inst.subtype] || inst.subtype}</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between px-3 sm:px-4 pb-2.5 sm:pb-3 pt-0">
-                <span className="text-xs text-primary font-medium">
-                  {t.common.seeFullProfile} &rarr;
-                </span>
-                <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(inst.id); }}
-                  className="p-1.5 sm:p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                  aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
-                >
-                  <Heart className={`w-5 h-5 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
-                </button>
-              </div>
-            </Link>
+              <InstitutionListCard
+                key={inst.id}
+                inst={inst}
+                hoveredId={hoveredId}
+                onHover={setHoveredId}
+                userLocation={geo.userLocation}
+                isFavorite={isFavorite(inst.id)}
+                onToggleFavorite={toggleFavorite}
+                showCategoryBadge={showCategoryBadge}
+                badge={badge}
+                normering={norm}
+                subtypeLabel={subtypeLabels[inst.subtype] || inst.subtype}
+              />
             );
           })}
           {boundsFiltered.length > visibleCount && (
@@ -560,9 +467,17 @@ export default function CategoryPage({ category }: Props) {
                 {t.common.showing} {visibleCount} {t.common.of} {boundsFiltered.length.toLocaleString("da-DK")} {t.common.results}
               </p>
               <button
-                onClick={() => setVisibleCount((c) => c + 50)}
-                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
+                onClick={() => {
+                  setLoadingMore(true);
+                  requestAnimationFrame(() => {
+                    setVisibleCount((c) => c + 50);
+                    setLoadingMore(false);
+                  });
+                }}
+                disabled={loadingMore}
+                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px] inline-flex items-center gap-2 disabled:opacity-60"
               >
+                {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
                 {t.common.showMore}
               </button>
             </div>
@@ -593,6 +508,31 @@ export default function CategoryPage({ category }: Props) {
           />
         </div>
       </section>
+
+      {/* Friplads CTA — only for daycare categories */}
+      {category !== "skole" && (
+        <section className="max-w-5xl mx-auto px-4 pt-8">
+          <Link
+            to="/friplads"
+            className="flex items-center gap-3 p-4 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/15 transition-colors group"
+          >
+            <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center shrink-0">
+              <Calculator className="w-5 h-5 text-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground text-sm">
+                {language === "da" ? "Beregn dit fripladstilskud" : "Calculate your subsidy"}
+              </p>
+              <p className="text-xs text-muted">
+                {language === "da"
+                  ? "Se hvor meget du kan spare på børnepasning baseret på din indkomst"
+                  : "See how much you can save on childcare based on your income"}
+              </p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-accent shrink-0 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+        </section>
+      )}
 
       {/* Municipality ranking for this category */}
       <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-12">

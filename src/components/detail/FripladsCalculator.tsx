@@ -35,9 +35,19 @@ export default function FripladsCalculator({ annualRate, label }: Props) {
 
       {/* Income slider */}
       <div>
-        <label htmlFor="friplads-income" className="block text-sm text-muted mb-1">
-          {t.friplads.householdIncome}
-        </label>
+        <div className="flex items-center gap-1.5 mb-1">
+          <label htmlFor="friplads-income" className="block text-sm text-muted">
+            {t.friplads.householdIncome}
+          </label>
+          <span className="group relative">
+            <Info className="w-3.5 h-3.5 text-muted/60 cursor-help" />
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-56 p-2 rounded-lg bg-foreground text-background text-[11px] leading-tight opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10">
+              {language === "da"
+                ? "Husstandsindkomst er den samlede årlige indkomst før skat for alle voksne i husstanden."
+                : "Household income is the total annual income before tax for all adults in the household."}
+            </span>
+          </span>
+        </div>
         <p className="text-right font-mono text-base text-foreground font-bold mb-1">
           {income.toLocaleString("da-DK")} kr.
         </p>
@@ -68,6 +78,13 @@ export default function FripladsCalculator({ annualRate, label }: Props) {
           <span>800k</span>
           <span>1.000k</span>
         </div>
+        {income >= 1_200_000 && (
+          <p className="text-[10px] text-muted mt-1">
+            {language === "da"
+              ? "Maks. i beregner — ved højere indkomst er der ingen friplads."
+              : "Calculator max — no subsidy at higher income."}
+          </p>
+        )}
       </div>
 
       {/* Single parent toggle */}
