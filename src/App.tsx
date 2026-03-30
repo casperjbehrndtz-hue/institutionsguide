@@ -8,31 +8,42 @@ import Layout from "@/components/shared/Layout";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
 
-const HomePage = lazy(() => import("@/pages/HomePage"));
-const CategoryPage = lazy(() => import("@/pages/CategoryPage"));
-const KommunePage = lazy(() => import("@/pages/KommunePage"));
-const ComparePage = lazy(() => import("@/pages/ComparePage"));
-const InstitutionPage = lazy(() => import("@/pages/InstitutionPage"));
-const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
-const TermsPage = lazy(() => import("@/pages/TermsPage"));
-const FavoritesPage = lazy(() => import("@/pages/FavoritesPage"));
-const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
-const CategoryMunicipalityPage = lazy(() => import("@/pages/CategoryMunicipalityPage"));
-const CheapestPage = lazy(() => import("@/pages/CheapestPage"));
-const BestSchoolPage = lazy(() => import("@/pages/BestSchoolPage"));
-const VsPage = lazy(() => import("@/pages/VsPage"));
-const NormeringPage = lazy(() => import("@/pages/NormeringPage"));
-const NormeringKommunePage = lazy(() => import("@/pages/NormeringKommunePage"));
-const FripladsPage = lazy(() => import("@/pages/FripladsPage"));
-const MetodePage = lazy(() => import("@/pages/MetodePage"));
-const BestValuePage = lazy(() => import("@/pages/BestValuePage"));
-const BlogIndex = lazy(() => import("@/pages/BlogIndex"));
-const BlogPost = lazy(() => import("@/pages/BlogPost"));
-const PrissammenligningPage = lazy(() => import("@/pages/PrissammenligningPage"));
-const AboutPage = lazy(() => import("@/pages/AboutPage"));
-const BestDagtilbudPage = lazy(() => import("@/pages/BestDagtilbudPage"));
-const TotalCostPage = lazy(() => import("@/pages/TotalCostPage"));
-const GuidePage = lazy(() => import("@/pages/GuidePage"));
+// Auto-reload on stale chunk failures (e.g. after deploy)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lazyRetry(fn: () => Promise<any>) {
+  return lazy(() =>
+    fn().catch(() => {
+      window.location.reload();
+      return new Promise(() => {}); // never resolves — page is reloading
+    })
+  );
+}
+
+const HomePage = lazyRetry(() => import("@/pages/HomePage"));
+const CategoryPage = lazyRetry(() => import("@/pages/CategoryPage"));
+const KommunePage = lazyRetry(() => import("@/pages/KommunePage"));
+const ComparePage = lazyRetry(() => import("@/pages/ComparePage"));
+const InstitutionPage = lazyRetry(() => import("@/pages/InstitutionPage"));
+const PrivacyPage = lazyRetry(() => import("@/pages/PrivacyPage"));
+const TermsPage = lazyRetry(() => import("@/pages/TermsPage"));
+const FavoritesPage = lazyRetry(() => import("@/pages/FavoritesPage"));
+const NotFoundPage = lazyRetry(() => import("@/pages/NotFoundPage"));
+const CategoryMunicipalityPage = lazyRetry(() => import("@/pages/CategoryMunicipalityPage"));
+const CheapestPage = lazyRetry(() => import("@/pages/CheapestPage"));
+const BestSchoolPage = lazyRetry(() => import("@/pages/BestSchoolPage"));
+const VsPage = lazyRetry(() => import("@/pages/VsPage"));
+const NormeringPage = lazyRetry(() => import("@/pages/NormeringPage"));
+const NormeringKommunePage = lazyRetry(() => import("@/pages/NormeringKommunePage"));
+const FripladsPage = lazyRetry(() => import("@/pages/FripladsPage"));
+const MetodePage = lazyRetry(() => import("@/pages/MetodePage"));
+const BestValuePage = lazyRetry(() => import("@/pages/BestValuePage"));
+const BlogIndex = lazyRetry(() => import("@/pages/BlogIndex"));
+const BlogPost = lazyRetry(() => import("@/pages/BlogPost"));
+const PrissammenligningPage = lazyRetry(() => import("@/pages/PrissammenligningPage"));
+const AboutPage = lazyRetry(() => import("@/pages/AboutPage"));
+const BestDagtilbudPage = lazyRetry(() => import("@/pages/BestDagtilbudPage"));
+const TotalCostPage = lazyRetry(() => import("@/pages/TotalCostPage"));
+const GuidePage = lazyRetry(() => import("@/pages/GuidePage"));
 
 function Loading() {
   return (
