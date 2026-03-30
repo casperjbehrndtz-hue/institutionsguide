@@ -208,13 +208,13 @@ export default function HomePage() {
   }, [institutions]);
 
   const CATEGORY_CARDS = [
-    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100 dark:bg-green-900/30", href: "/vuggestue", desc: t.ageGroups.vuggestue, cta: language === "da" ? "Se priser" : "See prices" },
-    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-900/30", href: "/boernehave", desc: t.ageGroups.boernehave, cta: language === "da" ? "Se priser" : "See prices" },
-    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Sammenlign" : "Compare" },
-    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole, cta: language === "da" ? "Se kvalitetsdata" : "See quality data" },
-    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Se priser" : "See prices" },
-    { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Se alle" : "See all" },
-    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Se priser og profiler" : "See prices & profiles" },
+    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100 dark:bg-green-900/30", href: "/vuggestue", desc: t.ageGroups.vuggestue, cta: language === "da" ? "Udforsk" : "Explore" },
+    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-900/30", href: "/boernehave", desc: t.ageGroups.boernehave, cta: language === "da" ? "Udforsk" : "Explore" },
+    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Udforsk" : "Explore" },
+    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole, cta: language === "da" ? "Udforsk" : "Explore" },
+    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Udforsk" : "Explore" },
+    { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Udforsk" : "Explore" },
+    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Udforsk" : "Explore" },
   ];
 
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
@@ -320,7 +320,7 @@ export default function HomePage() {
           >
             <source src={heroVideo} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-primary/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 py-10 sm:py-14 text-center">
@@ -358,18 +358,18 @@ export default function HomePage() {
             {language === "da" ? "Find tæt på mig" : "Find near me"}
           </button>
 
-          {/* Data dimensions — what you can compare */}
-          <p className="text-[12px] sm:text-[13px] text-white/60 mt-5 font-medium tracking-wide">
+          {/* Social proof — trust line */}
+          <p className="text-[12px] sm:text-[13px] text-white/50 mt-5 font-medium tracking-wide">
             {language === "da"
-              ? "Trivsel · Karakterer · Normering · Priser · Fravær · Kompetencedækning"
-              : "Well-being · Grades · Staff ratios · Prices · Absence · Competence"}
+              ? `${institutions.length.toLocaleString("da-DK")} institutioner · ${municipalities.length} kommuner · Opdateret marts 2026`
+              : `${institutions.length.toLocaleString("da-DK")} institutions · ${municipalities.length} municipalities · Updated March 2026`}
           </p>
         </div>
       </section>
 
       {/* Category cards — data preview grid */}
       <section className="max-w-5xl mx-auto px-3 sm:px-4 -mt-5 relative z-20 mb-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           {CATEGORY_CARDS.map((card) => {
             const stats = categoryStats[card.category];
             const count = stats?.count ?? 0;
@@ -378,7 +378,7 @@ export default function HomePage() {
               <Link
                 key={card.category}
                 to={card.href}
-                className="group rounded-xl bg-[var(--color-bg-card)] border border-border/50 shadow-sm px-3 py-3 sm:px-4 sm:py-4 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all"
+                className="group rounded-xl bg-[var(--color-bg-card)] border border-border/50 shadow-sm px-3 py-3 sm:px-4 sm:py-4 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all w-[calc(50%-4px)] sm:w-[calc(25%-9px)]"
                 aria-label={`${t.common.show} ${card.label}`}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -396,10 +396,10 @@ export default function HomePage() {
                   )}
                   {card.category === "efterskole" && stats?.minYearlyPrice ? (
                     <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</p>
-                  ) : minPrice ? (
-                    <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minPrice)}{t.common.perMonth}</p>
                   ) : card.category === "skole" ? (
                     <p className="text-muted">{language === "da" ? "Trivsel · Karakterer · Fravær" : "Well-being · Grades · Absence"}</p>
+                  ) : minPrice ? (
+                    <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minPrice)}{t.common.perMonth}</p>
                   ) : null}
                 </div>
                 <p className="text-[11px] text-primary font-medium mt-2 flex items-center gap-0.5">

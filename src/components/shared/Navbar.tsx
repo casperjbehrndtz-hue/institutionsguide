@@ -135,7 +135,7 @@ export default function Navbar() {
 
           <button
             onClick={() => setLanguage(language === "da" ? "en" : "da")}
-            className="ml-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-border text-muted hover:text-foreground hover:bg-border/30 transition-colors min-h-[36px]"
+            className="ml-1 px-2 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors"
             aria-label={language === "da" ? "Switch to English" : "Skift til dansk"}
           >
             {language === "da" ? "EN" : "DA"}
