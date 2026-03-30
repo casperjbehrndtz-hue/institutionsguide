@@ -10,6 +10,7 @@ interface MarkerData {
   popupHtml: string;
   id: string;
   price: number | null;
+  category?: string;
 }
 
 interface MarkerClusterGroupProps {
@@ -28,42 +29,62 @@ function formatPrice(price: number | null): string {
   return String(price);
 }
 
-// Cache dot icons by color — only ~7 colors exist
-const dotIconCache = new Map<string, L.DivIcon>();
-const dotIconHighlightCache = new Map<string, L.DivIcon>();
+// Category emoji/symbols for pin markers
+const CATEGORY_SYMBOL: Record<string, string> = {
+  vuggestue: "👶",
+  boernehave: "🧒",
+  dagpleje: "🏠",
+  skole: "🎓",
+  sfo: "📚",
+  fritidsklub: "⚽",
+  efterskole: "🏫",
+};
 
-function getDotIcon(color: string, highlighted: boolean): L.DivIcon {
-  const cache = highlighted ? dotIconHighlightCache : dotIconCache;
-  const cached = cache.get(color);
+// SVG pin marker — teardrop shape with category symbol
+function pinSvg(color: string, symbol: string, size: number, shadow = true): string {
+  const s = size;
+  const half = s / 2;
+  // Teardrop: circle top + pointed bottom
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s * 1.3}" viewBox="0 0 ${s} ${s * 1.3}">
+    ${shadow ? `<ellipse cx="${half}" cy="${s * 1.22}" rx="${s * 0.22}" ry="${s * 0.06}" fill="rgba(0,0,0,0.2)"/>` : ""}
+    <path d="M${half} ${s * 1.15} C${half} ${s * 1.15} ${s * 0.05} ${half * 1.1} ${s * 0.05} ${half * 0.85} C${s * 0.05} ${s * 0.15} ${s * 0.15} ${s * 0.05} ${half} ${s * 0.05} C${s * 0.85} ${s * 0.05} ${s * 0.95} ${s * 0.15} ${s * 0.95} ${half * 0.85} C${s * 0.95} ${half * 1.1} ${half} ${s * 1.15} ${half} ${s * 1.15} Z" fill="${color}" stroke="#fff" stroke-width="1.5"/>
+    <text x="${half}" y="${half * 0.95}" text-anchor="middle" dominant-baseline="central" font-size="${s * 0.38}">${symbol}</text>
+  </svg>`;
+}
+
+// Cache pin icons by key
+const pinIconCache = new Map<string, L.DivIcon>();
+
+function getPinIcon(color: string, category: string, highlighted: boolean): L.DivIcon {
+  const key = `${color}-${category}-${highlighted ? "h" : "n"}`;
+  const cached = pinIconCache.get(key);
   if (cached) return cached;
 
-  const scale = highlighted ? "transform:scale(1.5);" : "";
-  const ring = highlighted
-    ? `<span class="marker-pulse-ring" style="border-color:${color};"></span>`
-    : "";
+  const size = highlighted ? 34 : 28;
+  const symbol = CATEGORY_SYMBOL[category] || "📍";
+  const svg = pinSvg(color, symbol, size);
+
   const icon = L.divIcon({
     className: "custom-circle-marker",
-    html: `${ring}<span style="background:${color};width:14px;height:14px;display:block;border-radius:50%;border:1.5px solid #fff;opacity:0.9;position:absolute;top:7px;left:7px;${scale}transition:transform 0.15s ease;"></span>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -14],
+    html: svg,
+    iconSize: [size, size * 1.3],
+    iconAnchor: [size / 2, size * 1.3],
+    popupAnchor: [0, -size * 1.1],
   });
-  cache.set(color, icon);
+  pinIconCache.set(key, icon);
   return icon;
 }
 
-function createPriceIcon(color: string, price: number | null, highlighted: boolean): L.DivIcon {
+function createPriceIcon(color: string, price: number | null, highlighted: boolean, category = ""): L.DivIcon {
   const label = formatPrice(price);
-  const scale = highlighted ? "transform:scale(1.3);" : "";
-  const ring = highlighted
-    ? `<span class="marker-pulse-ring" style="border-color:${color};width:100%;height:100%;top:0;left:0;border-radius:10px;"></span>`
-    : "";
+  const symbol = CATEGORY_SYMBOL[category] || "";
+  const scale = highlighted ? "transform:scale(1.15);" : "";
   return L.divIcon({
     className: "custom-circle-marker price-marker",
-    html: `${ring}<span style="background:${color};color:#fff;font-size:11px;font-weight:600;font-family:Inter,system-ui,sans-serif;padding:2px 7px;border-radius:10px;white-space:nowrap;display:inline-block;border:1.5px solid #fff;line-height:1.3;${scale}transition:transform 0.15s ease;">${label}</span>`,
-    iconSize: [60, 24],
-    iconAnchor: [30, 12],
-    popupAnchor: [0, -14],
+    html: `<span style="background:${color};color:#fff;font-size:11px;font-weight:600;font-family:Inter,system-ui,sans-serif;padding:2px 8px;border-radius:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:2px;border:2px solid #fff;line-height:1.3;box-shadow:0 1px 4px rgba(0,0,0,0.25);${scale}transition:transform 0.15s ease;">${symbol ? `<span style="font-size:12px;">${symbol}</span>` : ""}${label}</span>`,
+    iconSize: [70, 28],
+    iconAnchor: [35, 14],
+    popupAnchor: [0, -16],
   });
 }
 
@@ -113,8 +134,8 @@ export default function MarkerClusterGroup({
     for (const m of markers) {
       const sp = showPricesRef.current;
       const icon = sp
-        ? createPriceIcon(m.color, m.price, false)
-        : getDotIcon(m.color, false);
+        ? createPriceIcon(m.color, m.price, false, m.category)
+        : getPinIcon(m.color, m.category || "", false);
 
       const marker = L.marker([m.lat, m.lng], {
         icon,
@@ -160,8 +181,8 @@ export default function MarkerClusterGroup({
         if (!data) return;
         const isHighlighted = id === highlightedId;
         const icon = showPrices
-          ? createPriceIcon(data.color, data.price, isHighlighted)
-          : getDotIcon(data.color, isHighlighted);
+          ? createPriceIcon(data.color, data.price, isHighlighted, data.category)
+          : getPinIcon(data.color, data.category || "", isHighlighted);
         marker.setIcon(icon);
         marker.setZIndexOffset(isHighlighted ? 1000 : 0);
       });
@@ -174,7 +195,7 @@ export default function MarkerClusterGroup({
         const prevData = dataMap.get(prevId);
         if (prevMarker && prevData) {
           prevMarker.setIcon(
-            showPrices ? createPriceIcon(prevData.color, prevData.price, false) : getDotIcon(prevData.color, false)
+            showPrices ? createPriceIcon(prevData.color, prevData.price, false, prevData.category) : getPinIcon(prevData.color, prevData.category || "", false)
           );
           prevMarker.setZIndexOffset(0);
         }
@@ -185,7 +206,7 @@ export default function MarkerClusterGroup({
         const curData = dataMap.get(highlightedId);
         if (curMarker && curData) {
           curMarker.setIcon(
-            showPrices ? createPriceIcon(curData.color, curData.price, true) : getDotIcon(curData.color, true)
+            showPrices ? createPriceIcon(curData.color, curData.price, true, curData.category) : getPinIcon(curData.color, curData.category || "", true)
           );
           curMarker.setZIndexOffset(1000);
         }

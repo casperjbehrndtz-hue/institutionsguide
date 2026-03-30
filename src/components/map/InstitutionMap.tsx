@@ -297,6 +297,7 @@ function InstitutionMap({
           color: getColor(inst),
           id: inst.id,
           price: inst.monthlyRate,
+          category: inst.category,
           popupHtml: `<div style="font-size:13px;line-height:1.4;max-width:200px;font-family:system-ui,-apple-system,sans-serif;">
   <p style="font-weight:600;margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.name)}</p>
   <p style="color:${textSecondary};font-size:11px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.city)} · ${formatRate(inst.monthlyRate, t.common.unknown, t.common.perMonth)}</p>
@@ -360,11 +361,22 @@ function InstitutionMap({
           <RadiusCircle center={radiusCenter} radiusKm={radiusKm} />
         )}
         {radiusCenter && (
-          <CircleMarker
-            center={[radiusCenter.lat, radiusCenter.lng]}
-            radius={7}
-            pathOptions={{ color: "#fff", weight: 2, fillColor: "#3B82F6", fillOpacity: 1 }}
-          />
+          <>
+            {/* Pulsing ring */}
+            <CircleMarker
+              center={[radiusCenter.lat, radiusCenter.lng]}
+              radius={18}
+              pathOptions={{ color: "#3B82F6", weight: 1.5, fillColor: "#3B82F6", fillOpacity: 0.12, className: "user-loc-pulse" }}
+              pane="markerPane"
+            />
+            {/* Solid dot */}
+            <CircleMarker
+              center={[radiusCenter.lat, radiusCenter.lng]}
+              radius={6}
+              pathOptions={{ color: "#fff", weight: 2.5, fillColor: "#3B82F6", fillOpacity: 1 }}
+              pane="markerPane"
+            />
+          </>
         )}
       </MapContainer>
 

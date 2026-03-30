@@ -114,8 +114,8 @@ export default function HomePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const geo = useGeolocation(useCallback((loc) => {
-    setFlyTo({ ...loc, zoom: 13 });
-    setRadiusKm(5);
+    setFlyTo({ ...loc, zoom: 14 });
+    setRadiusKm(3);
   }, []));
 
   // Force video play — some browsers block autoPlay even with muted

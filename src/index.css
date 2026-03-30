@@ -380,6 +380,15 @@
   }
 }
 
+/* User location pulsing ring */
+.user-loc-pulse {
+  animation: userLocPulse 2s ease-out infinite;
+}
+@keyframes userLocPulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 0; transform: scale(2); }
+}
+
 /* ── Dark mode: Leaflet popups ── */
 .dark .leaflet-popup-content-wrapper {
   background-color: var(--color-bg-card) !important;
