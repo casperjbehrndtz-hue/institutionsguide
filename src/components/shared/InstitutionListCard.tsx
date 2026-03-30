@@ -151,8 +151,6 @@ export default function InstitutionListCard({
                   <p className="font-mono text-xs sm:text-sm font-bold tabular-nums text-primary">{formatDKK(inst.monthlyRate)}</p>
                   <span className="text-[10px] text-muted">{t.common.perMonth}</span>
                 </>
-              ) : inst.category === "skole" ? (
-                <span className="text-[11px] text-muted">{language === "da" ? "Gratis" : "Free"}</span>
               ) : null}
             </div>
           </div>

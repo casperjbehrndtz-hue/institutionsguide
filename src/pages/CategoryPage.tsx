@@ -353,7 +353,7 @@ export default function CategoryPage({ category }: Props) {
             onQualityFilterChange={setQualityFilter}
             sortKey={sortKey}
             onSortChange={setSortKey}
-            resultCount={filtered.length}
+            resultCount={boundsFiltered.length}
             municipalities={municipalityNames}
             institutions={institutions}
             onNearMe={geo.handleNearMe}

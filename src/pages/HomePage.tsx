@@ -438,7 +438,7 @@ export default function HomePage() {
             onQualityFilterChange={setQualityFilter}
             sortKey={sortKey}
             onSortChange={setSortKey}
-            resultCount={filtered.length}
+            resultCount={boundsFiltered.length}
             municipalities={municipalityNames}
             institutions={institutions}
             onNearMe={geo.handleNearMe}

@@ -225,6 +225,13 @@ function InstitutionMap({
   }, []);
   const handleShowSearchArea = useCallback((show: boolean) => setShowSearchArea(show), []);
 
+  // Only show legend items for categories present in current data
+  const visibleCategories = useMemo(() => {
+    const cats = new Set<string>();
+    for (const inst of institutions) cats.add(inst.category);
+    return cats;
+  }, [institutions]);
+
   const legendItems = useMemo(() => [
     { category: "vuggestue", color: "#1B8F5F", label: t.map.legendVuggestue },
     { category: "boernehave", color: "#0E7490", label: t.map.legendBoernehave },
@@ -421,18 +428,22 @@ function InstitutionMap({
         />
       )}
 
-      {/* Legend (color key only — category filtering is in the filter bar) */}
-      <div className="absolute bottom-4 left-4 z-[1000] card p-3 text-xs select-none" role="region" aria-label={t.map.legendAriaLabel}>
-        {legendItems.map((item) => (
-          <div key={item.category} className="flex items-center gap-2 mb-1 last:mb-0 px-1 py-0.5">
-            <span
-              className="w-3 h-3 rounded-full inline-block shrink-0"
-              style={{ backgroundColor: item.color }}
-            />
-            <span>{item.label}</span>
-          </div>
-        ))}
-      </div>
+      {/* Legend — only show categories present in data */}
+      {visibleCategories.size > 1 && (
+        <div className="absolute bottom-4 left-4 z-[1000] card p-2 text-[11px] select-none opacity-80 hover:opacity-100 transition-opacity" role="region" aria-label={t.map.legendAriaLabel}>
+          {legendItems
+            .filter((item) => visibleCategories.has(item.category))
+            .map((item) => (
+              <div key={item.category} className="flex items-center gap-1.5 px-0.5 py-0.5">
+                <span
+                  className="w-2.5 h-2.5 rounded-full inline-block shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span>{item.label}</span>
+              </div>
+            ))}
+        </div>
+      )}
     </div>
   );
 }

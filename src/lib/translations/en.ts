@@ -23,7 +23,7 @@ export const en: TranslationStrings = {
     resetFilters: "Reset",
     showMore: "Show more",
     nearMe: "Near me",
-    seeFullProfile: "See assessment",
+    seeFullProfile: "See details",
     advisory: "Advisory",
     partOfFamily: "Part of the ParFinans family",
     noJsMessage: "Institutionsguide requires JavaScript to function.",
