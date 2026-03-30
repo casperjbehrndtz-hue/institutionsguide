@@ -22,6 +22,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { formatDKK } from "@/lib/format";
 import NoResults from "@/components/filters/NoResults";
 import EmailCapture from "@/components/shared/EmailCapture";
+import RecentlyViewed from "@/components/shared/RecentlyViewed";
 import InstitutionListCard from "@/components/shared/InstitutionListCard";
 import { toSlug } from "@/lib/slugs";
 import type { UnifiedInstitution } from "@/lib/types";
@@ -724,6 +725,9 @@ export default function HomePage() {
           </a>
         </div>
       </section></ScrollReveal>
+
+      {/* Recently viewed */}
+      <RecentlyViewed />
 
       {/* FAQ — moved down */}
       <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-8 sm:py-10">

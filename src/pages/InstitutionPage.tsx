@@ -16,6 +16,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import { institutionSchema, breadcrumbSchema } from "@/lib/schema";
 import ShareButton from "@/components/shared/ShareButton";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useCompare } from "@/contexts/CompareContext";
 import CompareBar from "@/components/compare/CompareBar";
 import ReviewSummaryV2 from "@/components/reviews/ReviewSummaryV2";
@@ -31,6 +32,8 @@ import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
 import StreetViewImage from "@/components/shared/StreetViewImage";
 import DataFreshness from "@/components/shared/DataFreshness";
+import DataSourceBadges from "@/components/shared/DataSourceBadges";
+import PopularInMunicipality from "@/components/shared/PopularInMunicipality";
 import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
 
 function categoryPath(cat: string): string {
@@ -121,6 +124,7 @@ export default function InstitutionPage() {
   const { institutions, normering, institutionStats, kommuneStats, loading } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { addViewed } = useRecentlyViewed();
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { reviews } = useReviews(id || "");
   const [compareToast, setCompareToast] = useState<string | false>(false);
@@ -133,6 +137,11 @@ export default function InstitutionPage() {
       totalReviews: reviews.length,
     };
   }, [reviews]);
+
+  // Track recently viewed
+  useEffect(() => {
+    if (id) addViewed(id);
+  }, [id, addViewed]);
 
   useEffect(() => {
     if (!compareToast) return;
@@ -314,8 +323,14 @@ export default function InstitutionPage() {
         </ol>
       </nav>
 
-      <div className="max-w-[640px] mx-auto px-4">
+      <div className="max-w-[640px] mx-auto px-4 space-y-2">
         <DataFreshness />
+        <DataSourceBadges
+          category={inst.category}
+          hasPrice={inst.monthlyRate != null}
+          hasQuality={inst.quality?.r !== undefined}
+          hasNormering={!!instStats?.normering02 || !!instStats?.normering35}
+        />
       </div>
 
       {/* Compact action bar */}
@@ -665,6 +680,13 @@ export default function InstitutionPage() {
             </div>
           </div>
         )}
+
+        {/* Popular in municipality */}
+        <PopularInMunicipality
+          municipality={inst.municipality}
+          excludeId={inst.id}
+          category={inst.category}
+        />
 
         {/* Tilsyn */}
         <TilsynSection institutionId={inst.id} institutionName={inst.name} />

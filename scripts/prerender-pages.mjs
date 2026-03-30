@@ -318,7 +318,36 @@ function generateProgrammaticPages() {
     });
   }
 
-  // 4. VS comparison pages
+  // 4. "Bedste dagtilbud" pages (vuggestue, boernehave, dagpleje, sfo)
+  const BEDSTE_CATS = ["vuggestue", "boernehave", "dagpleje", "sfo"];
+  const BEDSTE_PLURAL = {
+    vuggestue: "vuggestuer", boernehave: "børnehaver",
+    dagpleje: "dagplejere", sfo: "SFO'er",
+  };
+  for (const mun of municipalities) {
+    const mc = munCatMap.get(mun);
+    for (const cat of BEDSTE_CATS) {
+      const data = mc[cat];
+      if (!data || data.count === 0) continue;
+      const plural = BEDSTE_PLURAL[cat];
+      const slug = toSlug(mun);
+
+      pages.push({
+        path: `/bedste-${cat}/${slug}`,
+        title: `Bedste ${plural} i ${mun} 2026 — Kvalitetsranking | Institutionsguide`,
+        description: `Top ${Math.min(data.count, 10)} ${plural} i ${mun} rangeret efter kvalitetsdata. Se priser, normering og kvalitet.`,
+      });
+    }
+  }
+
+  // 5. Best value page (single national page)
+  pages.push({
+    path: "/bedste-vaerdi",
+    title: "Bedste værdi for pengene — Skoler med mest kvalitet per krone 2026 | Institutionsguide",
+    description: "Top 25 skoler i Danmark rangeret efter kvalitet i forhold til SFO-pris. Find den skole der giver mest værdi for pengene.",
+  });
+
+  // 6. VS comparison pages
   for (const mun of municipalities) {
     const mc = munCatMap.get(mun);
     for (const [catA, catB] of VS_PAIRS) {

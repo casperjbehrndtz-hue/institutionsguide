@@ -7,6 +7,8 @@ import { useFavorites } from "@/hooks/useFavorites";
 import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { formatDKK } from "@/lib/format";
+import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
+import RecentlyViewed from "@/components/shared/RecentlyViewed";
 
 export default function FavoritesPage() {
   const { institutions, loading } = useData();
@@ -119,6 +121,16 @@ export default function FavoritesPage() {
           </div>
         )}
       </section>
+
+      {/* Price alert signup */}
+      {favoriteInstitutions.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 pb-8">
+          <PriceAlertSignup />
+        </section>
+      )}
+
+      {/* Recently viewed */}
+      <RecentlyViewed />
 
       {/* Confirm clear dialog */}
       {showConfirm && (
