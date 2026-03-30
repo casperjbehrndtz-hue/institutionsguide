@@ -29,16 +29,30 @@ function compactInstitution(d) {
   return c;
 }
 
-// Compact vuggestue
+// Compact vuggestue (handle both old "institutions" format and new "i" format)
 const vugRaw = JSON.parse(readFileSync(resolve(dataDir, "vuggestue-data.json"), "utf-8"));
-const vugCompact = { i: vugRaw.institutions.map(compactInstitution) };
-const vugOut = JSON.stringify(vugCompact);
-writeFileSync(resolve(dataDir, "vuggestue-data.json"), vugOut);
-console.log(`Vuggestue: ${vugRaw.institutions.length} institutions → ${(vugOut.length / 1024).toFixed(0)} KB`);
+const vugItems = vugRaw.institutions || vugRaw.i;
+if (!vugItems) {
+  console.log("Vuggestue: already compact or empty — skipping");
+} else if (vugRaw.i && !vugRaw.institutions) {
+  console.log(`Vuggestue: already in compact format (${vugRaw.i.length} items) — skipping`);
+} else {
+  const vugCompact = { i: vugItems.map(compactInstitution) };
+  const vugOut = JSON.stringify(vugCompact);
+  writeFileSync(resolve(dataDir, "vuggestue-data.json"), vugOut);
+  console.log(`Vuggestue: ${vugItems.length} institutions → ${(vugOut.length / 1024).toFixed(0)} KB`);
+}
 
-// Compact dagpleje
+// Compact dagpleje (handle both old "dagplejere" format and new "i" format)
 const dagRaw = JSON.parse(readFileSync(resolve(dataDir, "dagpleje-data.json"), "utf-8"));
-const dagCompact = { i: dagRaw.dagplejere.map(compactInstitution) };
-const dagOut = JSON.stringify(dagCompact);
-writeFileSync(resolve(dataDir, "dagpleje-data.json"), dagOut);
-console.log(`Dagpleje: ${dagRaw.dagplejere.length} dagplejere → ${(dagOut.length / 1024).toFixed(0)} KB`);
+const dagItems = dagRaw.dagplejere || dagRaw.i;
+if (!dagItems) {
+  console.log("Dagpleje: already compact or empty — skipping");
+} else if (dagRaw.i && !dagRaw.dagplejere) {
+  console.log(`Dagpleje: already in compact format (${dagRaw.i.length} items) — skipping`);
+} else {
+  const dagCompact = { i: dagItems.map(compactInstitution) };
+  const dagOut = JSON.stringify(dagCompact);
+  writeFileSync(resolve(dataDir, "dagpleje-data.json"), dagOut);
+  console.log(`Dagpleje: ${dagItems.length} dagplejere → ${(dagOut.length / 1024).toFixed(0)} KB`);
+}
