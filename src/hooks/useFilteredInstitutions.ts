@@ -74,12 +74,15 @@ export function useFilteredInstitutions(
           i.municipality.toLowerCase().includes(raw)
         ) return true;
         // Fallback: normalized match (handles Bornehuset → Børnehuset)
-        return (
+        if (
           normalizeSearch(nameLower).includes(norm) ||
           normalizeSearch(i.address).includes(norm) ||
           normalizeSearch(i.city).includes(norm) ||
           normalizeSearch(i.municipality).includes(norm)
-        );
+        ) return true;
+        // Efterskole profiles search (e.g. "sport", "musik")
+        if (i.profiles?.some((p) => p.includes(raw) || normalizeSearch(p).includes(norm))) return true;
+        return false;
       });
     }
 

@@ -187,14 +187,19 @@ export default function HomePage() {
 
   // Compute category stats from real data
   const categoryStats = useMemo(() => {
-    const stats: Record<string, { count: number; minPrice: number | null }> = {};
+    const stats: Record<string, { count: number; minPrice: number | null; minYearlyPrice: number | null }> = {};
     for (const inst of institutions) {
       const cat = inst.category;
-      if (!stats[cat]) stats[cat] = { count: 0, minPrice: null };
+      if (!stats[cat]) stats[cat] = { count: 0, minPrice: null, minYearlyPrice: null };
       stats[cat].count++;
       if (inst.monthlyRate && inst.monthlyRate > 0) {
         if (stats[cat].minPrice === null || inst.monthlyRate < stats[cat].minPrice!) {
           stats[cat].minPrice = inst.monthlyRate;
+        }
+      }
+      if (inst.yearlyPrice && inst.yearlyPrice > 0) {
+        if (stats[cat].minYearlyPrice === null || inst.yearlyPrice < stats[cat].minYearlyPrice!) {
+          stats[cat].minYearlyPrice = inst.yearlyPrice;
         }
       }
     }
@@ -208,7 +213,7 @@ export default function HomePage() {
     { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole, cta: language === "da" ? "Se kvalitetsdata" : "See quality data" },
     { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Se priser" : "See prices" },
     { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Se alle" : "See all" },
-    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Sammenlign" : "Compare" },
+    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Se priser og profiler" : "See prices & profiles" },
   ];
 
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
@@ -388,7 +393,9 @@ export default function HomePage() {
                   {count > 0 && (
                     <p>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</p>
                   )}
-                  {minPrice ? (
+                  {card.category === "efterskole" && stats?.minYearlyPrice ? (
+                    <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</p>
+                  ) : minPrice ? (
                     <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minPrice)}{t.common.perMonth}</p>
                   ) : card.category === "skole" ? (
                     <p className="text-muted">{language === "da" ? "Trivsel · Karakterer · Fravær" : "Well-being · Grades · Absence"}</p>

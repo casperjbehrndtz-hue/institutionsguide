@@ -101,9 +101,13 @@ export default function InstitutionListCard({
       }}
     >
       <div className="flex">
-        {/* Thumbnail — Street View or category initial */}
+        {/* Thumbnail — efterskole image, Street View, or category initial */}
         <div className="w-16 sm:w-20 shrink-0 overflow-hidden rounded-l-[inherit]">
-          <StreetViewThumb lat={inst.lat} lng={inst.lng} name={inst.name} category={inst.category} />
+          {inst.imageUrl ? (
+            <img src={inst.imageUrl} alt={inst.name} loading="lazy" className="w-full h-full object-cover" />
+          ) : (
+            <StreetViewThumb lat={inst.lat} lng={inst.lng} name={inst.name} category={inst.category} />
+          )}
         </div>
 
         {/* Content */}
@@ -136,7 +140,12 @@ export default function InstitutionListCard({
               </div>
             </div>
             <div className="text-right shrink-0">
-              {inst.monthlyRate ? (
+              {inst.category === "efterskole" && inst.yearlyPrice ? (
+                <>
+                  <p className="font-mono text-xs sm:text-sm font-bold tabular-nums text-primary">{formatDKK(inst.yearlyPrice)}</p>
+                  <span className="text-[10px] text-muted">{language === "da" ? "/år" : "/year"}</span>
+                </>
+              ) : inst.monthlyRate ? (
                 <>
                   <p className="font-mono text-xs sm:text-sm font-bold tabular-nums text-primary">{formatDKK(inst.monthlyRate)}</p>
                   <span className="text-[10px] text-muted">{t.common.perMonth}</span>
@@ -158,9 +167,33 @@ export default function InstitutionListCard({
             {inst.quality?.kv != null && (
               <span className="shrink-0">{language === "da" ? "Klasse" : "Class"} <strong className="text-foreground font-mono">{inst.quality.kv.toLocaleString("da-DK")}</strong></span>
             )}
+            {inst.category === "efterskole" && inst.availableSpots != null && inst.availableSpots > 0 && (
+              <span className="shrink-0 text-green-600 dark:text-green-400 font-medium">
+                {inst.availableSpots} {language === "da" ? "ledige" : "available"}
+              </span>
+            )}
+            {inst.category === "efterskole" && inst.schoolType && inst.schoolType !== "Almen" && (
+              <span className="shrink-0 font-medium text-primary">{inst.schoolType}</span>
+            )}
+            {inst.category === "efterskole" && inst.classLevels && inst.classLevels.length > 0 && (
+              <span className="shrink-0">{inst.classLevels.join(". + ")}. kl.</span>
+            )}
             {subtypeLabel && <span className="shrink-0">{subtypeLabel}</span>}
             <span className="shrink-0">{inst.municipality}</span>
           </div>
+          {/* Efterskole profiles */}
+          {inst.category === "efterskole" && inst.profiles && inst.profiles.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {inst.profiles.slice(0, 4).map((p) => (
+                <span key={p} className="text-[10px] px-1.5 py-0.5 rounded-full bg-pink-50 text-pink-600 dark:bg-pink-950/30 dark:text-pink-400">
+                  {p}
+                </span>
+              ))}
+              {inst.profiles.length > 4 && (
+                <span className="text-[10px] text-muted">+{inst.profiles.length - 4}</span>
+              )}
+            </div>
+          )}
 
           {/* Row 4: Actions */}
           <div className="flex items-center justify-between mt-2">

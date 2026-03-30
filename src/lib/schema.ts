@@ -7,7 +7,7 @@ export function institutionSchema(
 ): object {
   return {
     "@context": "https://schema.org",
-    "@type": inst.category === "skole" ? "School" : "ChildCare",
+    "@type": inst.category === "skole" || inst.category === "efterskole" ? "School" : "ChildCare",
     name: inst.name,
     address: {
       "@type": "PostalAddress",
@@ -26,9 +26,11 @@ export function institutionSchema(
     ...(inst.phone && { telephone: inst.phone }),
     ...(inst.email && { email: inst.email }),
     ...(inst.web && { sameAs: inst.web.startsWith("http") ? inst.web : `https://${inst.web}` }),
-    ...(inst.monthlyRate && {
+    ...(inst.yearlyPrice ? {
+      priceRange: `${inst.yearlyPrice} DKK/år`,
+    } : inst.monthlyRate ? {
       priceRange: `${inst.monthlyRate} DKK/md`,
-    }),
+    } : {}),
     ...(reviewData && reviewData.totalReviews > 0 && {
       aggregateRating: {
         "@type": "AggregateRating",
@@ -89,6 +91,8 @@ export function localBusinessSchema(inst: {
     dagpleje: "ChildCare",
     sfo: "ChildCare",
     skole: "School",
+    efterskole: "School",
+    fritidsklub: "EducationalOrganization",
   };
 
   return {

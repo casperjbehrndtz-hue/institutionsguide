@@ -13,6 +13,8 @@ const staticRoutes = [
   { path: "/dagpleje", priority: "0.9", changefreq: "weekly" },
   { path: "/skole", priority: "0.9", changefreq: "weekly" },
   { path: "/sfo", priority: "0.9", changefreq: "weekly" },
+  { path: "/fritidsklub", priority: "0.9", changefreq: "weekly" },
+  { path: "/efterskole", priority: "0.9", changefreq: "weekly" },
   { path: "/sammenlign", priority: "0.7", changefreq: "monthly" },
   { path: "/privatliv", priority: "0.3", changefreq: "yearly" },
   { path: "/vilkaar", priority: "0.3", changefreq: "yearly" },
@@ -31,7 +33,7 @@ function toSlug(name) {
 }
 
 const DAYCARE_CATS = ["vuggestue", "boernehave", "dagpleje"];
-const ALL_CATS = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo"];
+const ALL_CATS = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole"];
 const VS_PAIRS = [
   ["vuggestue", "dagpleje"],
   ["vuggestue", "boernehave"],
@@ -44,6 +46,8 @@ const CATEGORY_SINGULAR = {
   dagpleje: "dagpleje",
   skole: "skole",
   sfo: "sfo",
+  fritidsklub: "fritidsklub",
+  efterskole: "efterskole",
 };
 
 function loadData() {
@@ -69,9 +73,11 @@ function loadData() {
   }
 
   for (const s of skoleData.s) {
-    if (s.id) allInstitutionIds.add(s.id);
+    if (s.t === "u") continue; // skip ungdomsskoler
+    if (s.id) allInstitutionIds.add(s.id.startsWith("edk-") ? `school-${s.id}` : `school-${s.id}`);
     const m = s.m ? s.m.replace(" Kommune", "") : null;
-    if (m) addInst(m, "skole", s.sfo || null);
+    const cat = s.t === "e" ? "efterskole" : "skole";
+    if (m) addInst(m, cat, s.t === "e" ? (s.wp || null) : (s.sfo || null));
   }
 
   const schoolQualityMuns = new Set();
@@ -85,7 +91,7 @@ function loadData() {
   function processDagtilbud(data, forceCat) {
     for (const d of data.i) {
       if (d.id) allInstitutionIds.add(d.id);
-      const cat = forceCat || (d.tp === "dagpleje" ? "dagpleje" : d.tp === "sfo" || d.tp === "klub" ? "sfo" : d.tp === "boernehave" ? "boernehave" : "vuggestue");
+      const cat = forceCat || (d.tp === "dagpleje" ? "dagpleje" : d.tp === "klub" ? "fritidsklub" : d.tp === "sfo" ? "sfo" : d.tp === "boernehave" ? "boernehave" : "vuggestue");
       if (d.m) addInst(d.m, cat, d.mr || null);
     }
   }

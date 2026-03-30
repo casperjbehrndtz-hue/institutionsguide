@@ -2,7 +2,7 @@
 export interface CompactSchool {
   id: string;
   n: string; // name
-  t: "f" | "p" | "e"; // folkeskole/friskole/efterskole
+  t: "f" | "p" | "e" | "u"; // folkeskole/friskole/efterskole/ungdomsskole
   m: string; // municipality
   a: string; // address
   z: string; // postalCode
@@ -14,6 +14,16 @@ export interface CompactSchool {
   w?: string; // web
   e?: string; // email
   q?: SchoolQuality;
+  // Efterskole-specific fields (from efterskolerne.dk)
+  yp?: number; // yearly price
+  wp?: number; // weekly price
+  pr?: string[]; // profiles (sport, musik, kunst, etc.)
+  sc?: string; // school type (Almen/Ordblinde/Special)
+  cl?: number[]; // class levels (8, 9, 10)
+  av?: number; // available spots (current year)
+  img?: string; // image URL
+  edk?: string; // efterskolerne.dk ID
+  url?: string; // efterskolerne.dk profile URL
 }
 
 export interface SchoolQuality {
@@ -90,6 +100,15 @@ export interface UnifiedInstitution {
   email?: string;
   phone?: string;
   quality?: SchoolQuality;
+  // Efterskole-specific
+  yearlyPrice?: number;
+  weeklyPrice?: number;
+  profiles?: string[];
+  schoolType?: string; // Almen/Ordblinde/Special
+  classLevels?: number[];
+  availableSpots?: number;
+  imageUrl?: string;
+  edkUrl?: string; // efterskolerne.dk profile URL
 }
 
 // Normering (children-per-staff ratio) — from BUVM API

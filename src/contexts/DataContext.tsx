@@ -57,21 +57,24 @@ interface DataContextValue {
 
 const DataContext = createContext<DataContextValue | null>(null);
 
-function mapSchoolType(t: "f" | "p" | "e"): string {
+function mapSchoolType(t: "f" | "p" | "e" | "u"): string {
   switch (t) {
     case "f": return "folkeskole";
     case "p": return "friskole";
     case "e": return "efterskole";
+    case "u": return "ungdomsskole";
     default: return "skole";
   }
 }
 
 function schoolToUnified(s: CompactSchool): UnifiedInstitution | null {
   if (!s.la || !s.lo) return null;
+  if (s.t === "u") return null; // skip ungdomsskoler
+  const isEfterskole = s.t === "e";
   return {
     id: `school-${s.id}`,
     name: s.n,
-    category: s.t === "e" ? "efterskole" : "skole",
+    category: isEfterskole ? "efterskole" : "skole",
     subtype: mapSchoolType(s.t),
     municipality: s.m.replace(" Kommune", ""),
     address: s.a,
@@ -79,12 +82,21 @@ function schoolToUnified(s: CompactSchool): UnifiedInstitution | null {
     city: s.c,
     lat: s.la,
     lng: s.lo,
-    monthlyRate: s.sfo ? s.sfo : null,
-    annualRate: s.sfo ? s.sfo * 12 : null,
+    monthlyRate: isEfterskole ? (s.wp || null) : (s.sfo || null),
+    annualRate: isEfterskole ? (s.yp || null) : (s.sfo ? s.sfo * 12 : null),
     leader: s.l,
     web: s.w,
     email: s.e,
     quality: s.q,
+    // Efterskole-specific
+    yearlyPrice: s.yp,
+    weeklyPrice: s.wp,
+    profiles: s.pr,
+    schoolType: s.sc,
+    classLevels: s.cl,
+    availableSpots: s.av,
+    imageUrl: s.img ? `https://www.efterskolerne.dk${s.img}` : undefined,
+    edkUrl: s.url ? `https://www.efterskolerne.dk${s.url}` : undefined,
   };
 }
 

@@ -224,7 +224,7 @@ export default function InstitutionPage() {
     if (scoreResult) {
       defs.push({ id: "section-overblik", labelDA: "Overblik", labelEN: "Overview" });
     }
-    if (inst.monthlyRate != null) {
+    if (inst.monthlyRate != null || inst.yearlyPrice != null) {
       defs.push({ id: "section-pris", labelDA: "Pris", labelEN: "Price" });
     }
     if ((percentiles && percentiles.length > 0) || hasInstitutionQuality || inst.category !== "skole") {
@@ -340,14 +340,18 @@ export default function InstitutionPage() {
         </div>
       </div>
 
-      {/* Street View hero image */}
+      {/* Hero image — efterskole photo or Street View */}
       <div className="max-w-[640px] mx-auto px-4 pb-4">
-        <StreetViewImage
-          lat={inst.lat}
-          lng={inst.lng}
-          alt={inst.name}
-          className="w-full h-[200px] sm:h-[260px] rounded-xl"
-        />
+        {inst.imageUrl ? (
+          <img src={inst.imageUrl} alt={inst.name} className="w-full h-[200px] sm:h-[260px] rounded-xl object-cover" />
+        ) : (
+          <StreetViewImage
+            lat={inst.lat}
+            lng={inst.lng}
+            alt={inst.name}
+            className="w-full h-[200px] sm:h-[260px] rounded-xl"
+          />
+        )}
       </div>
 
       {/* Section navigation */}
@@ -405,25 +409,92 @@ export default function InstitutionPage() {
         </div>
       </section>
 
+      {/* Efterskole details card */}
+      {inst.category === "efterskole" && (inst.profiles?.length || inst.availableSpots != null || inst.classLevels?.length || inst.edkUrl) && (
+        <section className="max-w-[640px] mx-auto px-4 pb-4">
+          <div className="card p-5 space-y-4">
+            {inst.schoolType && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted">{language === "da" ? "Type" : "Type"}:</span>
+                <span className="text-sm font-medium text-foreground">{inst.schoolType}</span>
+              </div>
+            )}
+            {inst.classLevels && inst.classLevels.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted">{language === "da" ? "Klassetrin" : "Grades"}:</span>
+                <span className="text-sm font-medium text-foreground">{inst.classLevels.join(". + ")}. klasse</span>
+              </div>
+            )}
+            {inst.availableSpots != null && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted">{language === "da" ? "Ledige pladser" : "Available spots"}:</span>
+                <span className={`text-sm font-medium ${inst.availableSpots > 0 ? "text-green-600" : "text-red-500"}`}>
+                  {inst.availableSpots > 0
+                    ? `${inst.availableSpots} ${language === "da" ? "ledige linjer" : "available lines"}`
+                    : (language === "da" ? "Ingen ledige" : "No availability")}
+                </span>
+              </div>
+            )}
+            {inst.profiles && inst.profiles.length > 0 && (
+              <div>
+                <span className="text-xs text-muted block mb-2">{language === "da" ? "Profiler" : "Profiles"}:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {inst.profiles.map((p) => (
+                    <span key={p} className="text-xs px-2.5 py-1 rounded-full bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-400 font-medium">
+                      {p.charAt(0).toUpperCase() + p.slice(1)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {inst.edkUrl && (
+              <a
+                href={inst.edkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium min-h-[44px]"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                {language === "da" ? "Se på efterskolerne.dk" : "View on efterskolerne.dk"}
+              </a>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* ═══════════════════════════════════════════
           FULL DETAILS — always visible
           ═══════════════════════════════════════════ */}
       <section className="max-w-[640px] mx-auto px-4 pb-12 space-y-6">
         {/* Prices */}
-        {inst.monthlyRate != null && (
+        {(inst.monthlyRate != null || inst.yearlyPrice != null) && (
           <div id="section-pris" className="card p-5">
             <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
-                <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
-                <p className="text-[10px] text-muted mt-1">{language === "da" ? "Før evt. fripladstilskud" : "Before subsidy"}</p>
+            {inst.category === "efterskole" && inst.yearlyPrice ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                  <p className="text-xs text-muted mb-1">{language === "da" ? "Ugepris" : "Weekly rate"}</p>
+                  <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.weeklyPrice)}</p>
+                  <p className="text-[10px] text-muted mt-1">{language === "da" ? "~42 uger" : "~42 weeks"}</p>
+                </div>
+                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                  <p className="text-xs text-muted mb-1">{language === "da" ? "Årspris" : "Yearly rate"}</p>
+                  <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.yearlyPrice)}</p>
+                </div>
               </div>
-              <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
-                <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                  <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
+                  <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
+                  <p className="text-[10px] text-muted mt-1">{language === "da" ? "Før evt. fripladstilskud" : "Before subsidy"}</p>
+                </div>
+                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                  <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
+                  <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
+                </div>
               </div>
-            </div>
+            )}
             {/* Municipality average comparison */}
             {municipalityAvgPrice != null && inst.monthlyRate != null && (
               <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 text-center">
@@ -451,8 +522,8 @@ export default function InstitutionPage() {
           </div>
         )}
 
-        {/* Friplads calculator */}
-        {inst.annualRate && inst.annualRate > 0 && (
+        {/* Friplads calculator — only for daycare categories */}
+        {inst.annualRate && inst.annualRate > 0 && !["skole", "efterskole", "fritidsklub"].includes(inst.category) && (
           <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
         )}
 

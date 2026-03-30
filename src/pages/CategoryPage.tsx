@@ -46,7 +46,7 @@ export default function CategoryPage({ category }: Props) {
     sortKey, setSortKey,
   } = useFilterParams({
     defaultCategory: category,
-    defaultSortKey: category === "skole" ? "rating" : "price",
+    defaultSortKey: category === "skole" ? "rating" : category === "efterskole" ? "name" : "price",
   });
   const { lat, lng, zoom: mapZoom, view, setMapView, setView, radius: radiusKm, setRadius: setRadiusKm } = useMapParams();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
@@ -188,7 +188,7 @@ export default function CategoryPage({ category }: Props) {
   const catMunicipalities = useMemo(() => {
     return municipalities
       .map((m) => {
-        const rateKey = category === "skole" ? null : category;
+        const rateKey = category === "skole" || category === "efterskole" ? null : category;
         return {
           ...m,
           catRate: rateKey ? m.rates[rateKey as keyof typeof m.rates] : null,
@@ -197,6 +197,8 @@ export default function CategoryPage({ category }: Props) {
             category === "boernehave" ? m.boernehaveCount :
             category === "dagpleje" ? m.dagplejeCount :
             category === "skole" ? m.folkeskoleCount + m.friskoleCount :
+            category === "fritidsklub" ? m.fritidsklubCount :
+            category === "efterskole" ? m.efterskoleCount :
             m.sfoCount,
         };
       })
@@ -513,7 +515,7 @@ export default function CategoryPage({ category }: Props) {
       </section>
 
       {/* Friplads CTA — only for daycare categories */}
-      {category !== "skole" && (
+      {!["skole", "efterskole", "fritidsklub"].includes(category) && (
         <section className="max-w-5xl mx-auto px-4 pt-8">
           <Link
             to="/friplads"
@@ -547,7 +549,7 @@ export default function CategoryPage({ category }: Props) {
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left py-3 px-3 text-muted font-medium" scope="col">{t.sort.municipality}</th>
-                {category !== "skole" && (
+                {!["skole", "efterskole"].includes(category) && (
                   <th className="text-right py-3 px-3 text-muted font-medium" scope="col">
                     {language === "da" ? "Takst/md." : "Rate/mo."}
                   </th>
@@ -565,7 +567,7 @@ export default function CategoryPage({ category }: Props) {
                       {m.municipality}
                     </Link>
                   </td>
-                  {category !== "skole" && (
+                  {!["skole", "efterskole"].includes(category) && (
                     <td className="py-2 px-3 text-right font-mono">{formatDKK(m.catRate)}</td>
                   )}
                   <td className="py-2 px-3 text-right font-mono">{m.catCount}</td>

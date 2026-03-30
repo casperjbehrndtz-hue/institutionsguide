@@ -288,7 +288,11 @@ export default function KommunePage() {
                   >
                     <p className="font-semibold text-foreground text-sm">{inst.name}</p>
                     <p className="text-xs text-muted">{inst.address}</p>
-                    <p className="font-mono text-sm text-primary mt-1">{formatDKK(inst.monthlyRate)}{t.common.perMonth}</p>
+                    <p className="font-mono text-sm text-primary mt-1">
+                      {inst.category === "efterskole" && inst.yearlyPrice
+                        ? `${formatDKK(inst.yearlyPrice)}${language === "da" ? "/år" : "/year"}`
+                        : `${formatDKK(inst.monthlyRate)}${t.common.perMonth}`}
+                    </p>
                   </button>
                 ))}
               </div>
