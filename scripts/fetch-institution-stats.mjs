@@ -2,24 +2,23 @@
 /**
  * fetch-institution-stats.mjs
  *
- * Fetches per-institution data from the BUVM Uddannelsesstatistik API:
- *   - Normering 0-2 år / 3-5 år (children per adult)
- *   - Staff education breakdown (pædagoger, pæd. assistenter, uden pæd. udd.)
- *   - Number of enrolled children
+ * Fetches per-kommune data from the BUVM Uddannelsesstatistik API and maps it
+ * to individual institutions:
+ *   - Normering 0-2 år / 3-5 år / dagpleje (children per adult)
+ *   - Staff education breakdown (pædagog, pæd. assistent, ingen pæd. udd.)
+ *   - Number of enrolled children (børn ved nedslag, helårsbørn)
+ *
+ * The API only provides kommune-level data. Each institution inherits its
+ * kommune's stats based on its pasningstilbud type.
  *
  * Usage:
- *   UDDANNELSESSTATISTIK_API_KEY=<key> node scripts/fetch-institution-stats.mjs
- *   UDDANNELSESSTATISTIK_API_KEY=<key> node scripts/fetch-institution-stats.mjs --dry-run
- *   UDDANNELSESSTATISTIK_API_KEY=<key> node scripts/fetch-institution-stats.mjs --year 2023
- *   UDDANNELSESSTATISTIK_API_KEY=<key> node scripts/fetch-institution-stats.mjs --explore
+ *   node scripts/fetch-institution-stats.mjs
+ *   node scripts/fetch-institution-stats.mjs --dry-run
+ *   node scripts/fetch-institution-stats.mjs --year 2023
+ *   node scripts/fetch-institution-stats.mjs --explore
  *
- * Environment variables:
- *   UDDANNELSESSTATISTIK_API_KEY  — Required. Bearer token for the API.
- *   SUPABASE_URL                  — Optional. If set with SUPABASE_SERVICE_KEY, upserts to Supabase.
- *   SUPABASE_SERVICE_KEY          — Optional. Service role key for Supabase.
- *
- * Output:
- *   public/data/institution-stats.json
+ * Environment:
+ *   UDDANNELSESSTATISTIK_API_KEY  — Required (or set in .env file).
  */
 
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from "fs";
@@ -31,20 +30,38 @@ const __dirname = dirname(__filename);
 const PROJECT_ROOT = join(__dirname, "..");
 const OUTPUT_PATH = join(PROJECT_ROOT, "public", "data", "institution-stats.json");
 
+// Load .env manually (no dotenv dependency)
+try {
+  const envPath = join(PROJECT_ROOT, ".env");
+  if (existsSync(envPath)) {
+    const envContent = readFileSync(envPath, "utf-8");
+    for (const line of envContent.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx === -1) continue;
+      const key = trimmed.slice(0, eqIdx).trim();
+      const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
+      if (!process.env[key]) process.env[key] = val;
+    }
+  }
+} catch (_) {}
+
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
 const API_KEY = process.env.UDDANNELSESSTATISTIK_API_KEY || process.env.BUVM_API_KEY;
 if (!API_KEY) {
-  console.error("ERROR: Set UDDANNELSESSTATISTIK_API_KEY (or BUVM_API_KEY) environment variable");
+  console.error("ERROR: Set UDDANNELSESSTATISTIK_API_KEY environment variable (or .env file)");
   process.exit(1);
 }
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const EXPLORE = process.argv.includes("--explore");
 const yearIdx = process.argv.indexOf("--year");
-const TARGET_YEAR = yearIdx !== -1 ? parseInt(process.argv[yearIdx + 1], 10) : 2024;
+// 2023 is the latest year available in the API as of 2026
+const TARGET_YEAR = yearIdx !== -1 ? parseInt(process.argv[yearIdx + 1], 10) : 2023;
 
 const API_BASE = "https://api.uddannelsesstatistik.dk/Api/v1";
 const API_STATISTIK = `${API_BASE}/statistik`;
@@ -61,7 +78,16 @@ const HEADERS = {
 
 function parseDanish(s) {
   if (!s || typeof s !== "string" || s.trim() === "" || s === "..") return null;
-  return parseFloat(s.replace(",", "."));
+  // Danish number formatting: dot = thousands separator, comma = decimal
+  // Examples: "13.482" = 13482, "3,1" = 3.1, "50,4 %" = 50.4
+  let cleaned = s.replace(/%/g, "").replace(/\s/g, "");
+  // Remove thousands separator dots (digits.digits pattern where right side has 3 digits)
+  // E.g. "13.482" -> "13482", but "3,1" stays as is
+  cleaned = cleaned.replace(/\.(\d{3})/g, "$1");
+  // Convert decimal comma to dot
+  cleaned = cleaned.replace(",", ".");
+  const val = parseFloat(cleaned);
+  return isNaN(val) ? null : val;
 }
 
 async function apiPost(url, body) {
@@ -77,100 +103,75 @@ async function apiPost(url, body) {
   return res.json();
 }
 
-async function apiGet(url) {
-  const res = await fetch(url, { headers: HEADERS });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API ${res.status} at ${url}: ${text}`);
-  }
-  return res.json();
-}
-
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
 // ---------------------------------------------------------------------------
-// Step 0: Explore available schemas (--explore mode)
+// Explore mode: dump available schemas
 // ---------------------------------------------------------------------------
 
 async function explore() {
   console.log("\n=== Exploring API schemas ===\n");
 
-  // Try to list available schemas for DAG area
-  const explorations = [
-    { label: "Skema for DAG (all)", body: { område: "DAG" } },
-    {
-      label: "Skema for DAG > Normering",
-      body: { område: "DAG", emne: "DAG", underemne: "Normering" },
-    },
-    {
-      label: "Skema for DAG > Personale",
-      body: { område: "DAG", emne: "DAG", underemne: "Personale" },
-    },
-    {
-      label: "Skema for DAG > Børn",
-      body: { område: "DAG", emne: "DAG", underemne: "Børn" },
-    },
-    {
-      label: "Skema for DAG > Institutioner",
-      body: { område: "DAG", emne: "DAG", underemne: "Institutioner" },
-    },
-  ];
+  // Step 1: List underemner for DAG
+  console.log("--- Underemner for DAG ---");
+  const underemner = await apiPost(API_SKEMA, { område: "DAG", emne: "DAG" });
+  console.log(JSON.stringify(underemner, null, 2));
 
-  for (const { label, body } of explorations) {
-    console.log(`--- ${label} ---`);
+  // Step 2: For each underemne, list detaljer and nøgletal
+  for (const ue of underemner) {
+    console.log(`\n--- Schema for underemne: ${ue.ID} (${ue.Name}) ---`);
     try {
-      const data = await apiPost(API_SKEMA, body);
-      console.log(JSON.stringify(data, null, 2).slice(0, 3000));
+      const schema = await apiPost(API_SKEMA, {
+        område: "DAG",
+        emne: "DAG",
+        underemne: ue.ID,
+      });
+      console.log("Detaljer:", JSON.stringify(schema.detaljer, null, 2));
+      console.log("Nøgletal:", JSON.stringify(schema.nøgletal, null, 2));
+      console.log("Rapporter:", schema.rapporter?.map((r) => `${r.id}: ${r.titel}`));
     } catch (err) {
       console.log(`  Error: ${err.message}`);
     }
-    console.log();
-    await sleep(500);
+    await sleep(300);
   }
 
-  // Also try GET on api-docs
-  console.log("--- GET /api-docs ---");
+  // Step 3: Check available years
+  console.log("\n--- Available years (Normering) ---");
   try {
-    const docs = await apiGet("https://api.uddannelsesstatistik.dk/api-docs");
-    console.log(JSON.stringify(docs, null, 2).slice(0, 3000));
+    const years = await apiPost(API_SKEMA, {
+      område: "DAG",
+      emne: "DAG",
+      underemne: "Nrm",
+      detalje: "[År].[År]",
+    });
+    console.log(JSON.stringify(years));
   } catch (err) {
     console.log(`  Error: ${err.message}`);
   }
 }
 
 // ---------------------------------------------------------------------------
-// Step 1: Fetch normering at institution level
+// Fetch normering at kommune level
 // ---------------------------------------------------------------------------
 
-async function fetchNormeringInstitution() {
-  console.log(`\nFetching institution-level normering for ${TARGET_YEAR}...`);
+async function fetchNormering() {
+  console.log(`\nFetching kommune-level normering for ${TARGET_YEAR}...`);
 
   // The API has two measure sets split at 2022/2023
-  const measures =
+  const measureName =
     TARGET_YEAR <= 2022
-      ? ["Normering institution til og med 2022"]
-      : ["Normering institution fra 2023"];
+      ? "Normering kommune til og med 2022"
+      : "Normering kommune fra 2023";
 
-  // We try multiple possible measure names since the API naming isn't always predictable
-  const measureVariants = [
-    measures,
-    ["Normering institution"],
-    ["Normering dagtilbud"],
-    [
-      TARGET_YEAR <= 2022
-        ? "Normering til og med 2022"
-        : "Normering fra 2023",
-    ],
-  ];
-
-  const baseBody = {
+  const body = {
     område: "DAG",
     emne: "DAG",
-    underemne: "Normering",
+    underemne: "Nrm",
+    nøgletal: [measureName],
     detaljering: [
-      "[Institution].[Institution]",
+      "[Kommune].[Navn]",
       "[Pasningstilbud].[Pasningstilbud]",
       "[År].[År]",
     ],
@@ -179,81 +180,32 @@ async function fetchNormeringInstitution() {
     side_størrelse: 100000,
   };
 
-  for (const nøgletal of measureVariants) {
-    const body = { ...baseBody, nøgletal };
-    try {
-      console.log(`  Trying nøgletal: ${JSON.stringify(nøgletal)}`);
-      const data = await apiPost(API_STATISTIK, body);
-      if (data && data.length > 0) {
-        console.log(`  Got ${data.length} rows`);
-        return { data, measures: nøgletal };
-      }
-      console.log(`  Got 0 rows, trying next variant...`);
-    } catch (err) {
-      console.log(`  Failed: ${err.message.slice(0, 200)}`);
-    }
-    await sleep(300);
-  }
-
-  // Fallback: try without institution detail, using the kommune measures
-  // but with institution detaljering
-  console.log("  Trying kommune measure names with institution detaljering...");
-  const fallbackMeasures =
-    TARGET_YEAR <= 2022
-      ? ["Normering kommune til og med 2022"]
-      : ["Normering kommune fra 2023"];
-
   try {
-    const data = await apiPost(API_STATISTIK, {
-      ...baseBody,
-      nøgletal: fallbackMeasures,
-    });
-    if (data && data.length > 0) {
-      console.log(`  Got ${data.length} rows (using kommune measures with institution detail)`);
-      return { data, measures: fallbackMeasures };
-    }
+    const data = await apiPost(API_STATISTIK, body);
+    console.log(`  Got ${data.length} rows`);
+    return { data, measureName };
   } catch (err) {
-    console.log(`  Failed: ${err.message.slice(0, 200)}`);
+    console.error(`  Failed: ${err.message}`);
+    return { data: [], measureName };
   }
-
-  console.warn("  WARNING: Could not fetch institution-level normering.");
-  return { data: [], measures: [] };
 }
 
 // ---------------------------------------------------------------------------
-// Step 2: Fetch staff education (personaleuddannelse)
+// Fetch staff education (personale uddannelsessammensætning)
 // ---------------------------------------------------------------------------
 
 async function fetchPersonale() {
   console.log(`\nFetching staff education data for ${TARGET_YEAR}...`);
 
-  const measureVariants = [
-    [
-      "Pædagoguddannede pct.",
-      "Pædagogisk assistentuddannede pct.",
-      "Uden pædagogisk uddannelse pct.",
-    ],
-    [
-      "Andel pædagoguddannede",
-      "Andel pædagogisk assistentuddannede",
-      "Andel uden pædagogisk uddannelse",
-    ],
-    [
-      "Pædagoger pct.",
-      "Pædagogiske assistenter pct.",
-    ],
-    [
-      "Andel pædagoger",
-      "Andel pædagogiske assistenter",
-    ],
-  ];
-
-  const baseBody = {
+  const body = {
     område: "DAG",
     emne: "DAG",
-    underemne: "Personale",
+    underemne: "Pers",
+    nøgletal: ["Personale uddannelse (andel)"],
     detaljering: [
-      "[Institution].[Institution]",
+      "[Kommune].[Navn]",
+      "[Uddannelsessammensætning].[Uddannelsessammensætning]",
+      "[Dagtilbudstype].[Dagtilbudstype]",
       "[År].[År]",
     ],
     filtre: { "[År].[År]": [String(TARGET_YEAR)] },
@@ -261,269 +213,248 @@ async function fetchPersonale() {
     side_størrelse: 100000,
   };
 
-  for (const nøgletal of measureVariants) {
-    const body = { ...baseBody, nøgletal };
-    try {
-      console.log(`  Trying nøgletal: ${JSON.stringify(nøgletal)}`);
-      const data = await apiPost(API_STATISTIK, body);
-      if (data && data.length > 0) {
-        console.log(`  Got ${data.length} rows`);
-        return { data, measures: nøgletal };
-      }
-      console.log(`  Got 0 rows, trying next variant...`);
-    } catch (err) {
-      console.log(`  Failed: ${err.message.slice(0, 200)}`);
-    }
-    await sleep(300);
+  try {
+    const data = await apiPost(API_STATISTIK, body);
+    console.log(`  Got ${data.length} rows`);
+    return { data };
+  } catch (err) {
+    console.error(`  Failed: ${err.message}`);
+    return { data: [] };
   }
-
-  console.warn("  WARNING: Could not fetch staff education data.");
-  return { data: [], measures: [] };
 }
 
 // ---------------------------------------------------------------------------
-// Step 3: Fetch child enrollment counts
+// Fetch child enrollment counts
 // ---------------------------------------------------------------------------
 
-async function fetchBoernetal() {
+async function fetchBoern() {
   console.log(`\nFetching child enrollment counts for ${TARGET_YEAR}...`);
 
-  const measureVariants = [
-    ["Antal børn"],
-    ["Antal indskrevne børn"],
-    ["Børnetal"],
-    ["Indskrevne børn"],
-  ];
+  const body = {
+    område: "DAG",
+    emne: "DAG",
+    underemne: "Brn",
+    nøgletal: ["Børn ved nedslag (antal)", "Helårsbørn"],
+    detaljering: [
+      "[Kommune].[Navn]",
+      "[Pasningstilbud].[Pasningstilbud]",
+      "[År].[År]",
+    ],
+    filtre: { "[År].[År]": [String(TARGET_YEAR)] },
+    side: 1,
+    side_størrelse: 100000,
+  };
 
-  const underemneVariants = ["Børn", "Børnetal", "Institutioner"];
-
-  for (const underemne of underemneVariants) {
-    for (const nøgletal of measureVariants) {
-      const body = {
-        område: "DAG",
-        emne: "DAG",
-        underemne,
-        nøgletal,
-        detaljering: [
-          "[Institution].[Institution]",
-          "[År].[År]",
-        ],
-        filtre: { "[År].[År]": [String(TARGET_YEAR)] },
-        side: 1,
-        side_størrelse: 100000,
-      };
-      try {
-        console.log(`  Trying underemne=${underemne}, nøgletal: ${JSON.stringify(nøgletal)}`);
-        const data = await apiPost(API_STATISTIK, body);
-        if (data && data.length > 0) {
-          console.log(`  Got ${data.length} rows`);
-          return { data, measures: nøgletal };
-        }
-        console.log(`  Got 0 rows, trying next...`);
-      } catch (err) {
-        console.log(`  Failed: ${err.message.slice(0, 200)}`);
-      }
-      await sleep(300);
-    }
+  try {
+    const data = await apiPost(API_STATISTIK, body);
+    console.log(`  Got ${data.length} rows`);
+    return { data };
+  } catch (err) {
+    console.error(`  Failed: ${err.message}`);
+    return { data: [] };
   }
-
-  console.warn("  WARNING: Could not fetch child enrollment data.");
-  return { data: [], measures: [] };
 }
 
 // ---------------------------------------------------------------------------
-// Step 4: Parse and merge data
+// Build kommune-level stats map
 // ---------------------------------------------------------------------------
 
-function extractInstitutionId(row) {
-  // The API returns institution IDs in various column formats
-  // Try common patterns
-  for (const key of Object.keys(row)) {
-    if (key.includes("[Institution]")) {
-      const val = row[key];
-      if (typeof val === "string" && /^G\d+$/.test(val)) return val;
-      // Sometimes the ID is in a separate field
-      if (typeof val === "string" && val.includes("(G")) {
-        const m = val.match(/\(G(\d+)\)/);
-        if (m) return `G${m[1]}`;
-      }
-    }
-  }
-  // Check for inst_id or similar
-  for (const key of Object.keys(row)) {
-    const val = row[key];
-    if (typeof val === "string" && /^G\d{4,6}$/.test(val)) return val;
-  }
-  return null;
-}
+function buildKommuneMap(normeringResult, personaleResult, boernResult) {
+  // Key: kommune name -> { normering: {0-2, 3-5, dagpleje}, personale: {...}, boern: {...} }
+  const kommuner = {};
 
-function extractAgeGroup(row) {
-  for (const key of Object.keys(row)) {
-    if (key.includes("[Pasningstilbud]")) {
-      const val = row[key];
-      if (val === "0-2 år") return "0-2";
-      if (val === "3-5 år") return "3-5";
-      if (val === "Dagpleje") return "dagpleje";
-    }
-  }
-  return null;
-}
-
-function buildInstitutionMap(normeringResult, personaleResult, boerneResult) {
-  const institutions = {};
-
-  function ensure(id) {
-    if (!institutions[id]) {
-      institutions[id] = {
+  function ensure(kommune) {
+    if (!kommuner[kommune]) {
+      kommuner[kommune] = {
         normering02: null,
         normering35: null,
-        pctPaedagoger: null,
-        pctPaedAssistenter: null,
-        pctUdenPaedUdd: null,
-        antalBoern: null,
+        normeringDagpleje: null,
+        pctPaedagog: null,
+        pctPaedAssistent: null,
+        pctAndenPaedUdd: null,
+        pctIngenPaedUdd: null,
+        pctStuderende: null,
+        boernVedNedslag02: null,
+        boernVedNedslag35: null,
+        boernVedNedslagDagpleje: null,
+        helaarBoern02: null,
+        helaarBoern35: null,
+        helaarBoernDagpleje: null,
       };
     }
-    return institutions[id];
+    return kommuner[kommune];
   }
 
-  // Parse normering
-  if (normeringResult.data.length > 0) {
-    const measureName = normeringResult.measures[0];
-    for (const row of normeringResult.data) {
-      const id = extractInstitutionId(row);
-      if (!id) continue;
+  // --- Normering ---
+  const KOM_KEY = "[Kommune].[Navn].[Navn]";
+  const PAS_KEY = "[Pasningstilbud].[Pasningstilbud].[Pasningstilbud]";
 
-      const ageGroup = extractAgeGroup(row);
-      const value = parseDanish(row[measureName]);
-      if (value === null) continue;
+  for (const row of normeringResult.data) {
+    const kommune = row[KOM_KEY];
+    const pasning = row[PAS_KEY];
+    const val = parseDanish(row[normeringResult.measureName]);
+    if (!kommune || val === null) continue;
 
-      const inst = ensure(id);
-      if (ageGroup === "0-2") inst.normering02 = value;
-      else if (ageGroup === "3-5") inst.normering35 = value;
+    const k = ensure(kommune);
+    if (pasning === "0-2 år") k.normering02 = val;
+    else if (pasning === "3-5 år") k.normering35 = val;
+    else if (pasning === "Dagpleje") k.normeringDagpleje = val;
+  }
+
+  // --- Personale ---
+  const UDD_KEY =
+    "[Uddannelsessammensætning].[Uddannelsessammensætning].[Uddannelsessammensætning]";
+  const DAG_TYPE_KEY = "[Dagtilbudstype].[Dagtilbudstype].[Dagtilbudstype]";
+  const ANDEL_KEY = "Personale uddannelse (andel)";
+
+  for (const row of personaleResult.data) {
+    const kommune = row[KOM_KEY];
+    const uddType = row[UDD_KEY];
+    const dagType = row[DAG_TYPE_KEY];
+    const val = parseDanish(row[ANDEL_KEY]);
+    if (!kommune || val === null) continue;
+
+    // Only use Daginstitution type (not Dagpleje for personale)
+    if (dagType !== "Daginstitution") continue;
+
+    const k = ensure(kommune);
+    if (uddType === "Pædagog") k.pctPaedagog = val;
+    else if (uddType === "Pædagogisk assistent") k.pctPaedAssistent = val;
+    else if (uddType === "Anden pædagogisk uddannelse") k.pctAndenPaedUdd = val;
+    else if (uddType === "Ingen pædagogisk uddannelse") k.pctIngenPaedUdd = val;
+    else if (uddType === "Pædagogstuderende og PAU-elever") k.pctStuderende = val;
+  }
+
+  // --- Børn ---
+  const BOERN_NEDSLAG_KEY = "Børn ved nedslag (antal)";
+  const HELAAR_KEY = "Helårsbørn";
+
+  for (const row of boernResult.data) {
+    const kommune = row[KOM_KEY];
+    const pasning = row[PAS_KEY];
+    const nedslag = parseDanish(row[BOERN_NEDSLAG_KEY]);
+    const helaar = parseDanish(row[HELAAR_KEY]);
+    if (!kommune) continue;
+
+    const k = ensure(kommune);
+    if (pasning === "0-2 år") {
+      if (nedslag !== null) k.boernVedNedslag02 = Math.round(nedslag);
+      if (helaar !== null) k.helaarBoern02 = Math.round(helaar);
+    } else if (pasning === "3-5 år") {
+      if (nedslag !== null) k.boernVedNedslag35 = Math.round(nedslag);
+      if (helaar !== null) k.helaarBoern35 = Math.round(helaar);
+    } else if (pasning === "Dagpleje") {
+      if (nedslag !== null) k.boernVedNedslagDagpleje = Math.round(nedslag);
+      if (helaar !== null) k.helaarBoernDagpleje = Math.round(helaar);
     }
   }
 
-  // Parse personale
-  if (personaleResult.data.length > 0) {
-    for (const row of personaleResult.data) {
-      const id = extractInstitutionId(row);
-      if (!id) continue;
-      const inst = ensure(id);
-
-      // Try each measure name from the result
-      for (const measure of personaleResult.measures) {
-        const val = parseDanish(row[measure]);
-        if (val === null) continue;
-        const ml = measure.toLowerCase();
-        if (ml.includes("uden")) inst.pctUdenPaedUdd = val;
-        else if (ml.includes("assistent")) inst.pctPaedAssistenter = val;
-        else if (ml.includes("pædagog")) inst.pctPaedagoger = val;
-      }
-    }
-  }
-
-  // Parse børnetal
-  if (boerneResult.data.length > 0) {
-    for (const row of boerneResult.data) {
-      const id = extractInstitutionId(row);
-      if (!id) continue;
-      const inst = ensure(id);
-
-      for (const measure of boerneResult.measures) {
-        const val = parseDanish(row[measure]);
-        if (val !== null) inst.antalBoern = Math.round(val);
-      }
-    }
-  }
-
-  return institutions;
+  return kommuner;
 }
 
 // ---------------------------------------------------------------------------
-// Step 5: Match to our existing institution IDs
+// Map kommune stats to individual institutions
 // ---------------------------------------------------------------------------
 
-function loadOurInstitutionIds() {
-  const ids = new Set();
+function mapToInstitutions(kommuneMap) {
+  const institutions = {};
+
   const dataFiles = [
-    "boernehave-data.json",
-    "vuggestue-data.json",
-    "dagpleje-data.json",
-    "sfo-data.json",
+    { file: "boernehave-data.json", label: "børnehave" },
+    { file: "vuggestue-data.json", label: "vuggestue" },
+    { file: "dagpleje-data.json", label: "dagpleje" },
+    { file: "sfo-data.json", label: "sfo" },
   ];
 
-  for (const file of dataFiles) {
+  let totalLoaded = 0;
+  let totalMatched = 0;
+
+  for (const { file, label } of dataFiles) {
     const path = join(PROJECT_ROOT, "public", "data", file);
-    if (!existsSync(path)) continue;
+    if (!existsSync(path)) {
+      console.log(`  Skipping ${file} (not found)`);
+      continue;
+    }
+
+    let items;
     try {
-      const data = JSON.parse(readFileSync(path, "utf-8"));
-      const items = data.i || data.institutions || data;
-      if (Array.isArray(items)) {
-        for (const item of items) {
-          if (item.id) ids.add(item.id);
-        }
-      }
+      const raw = JSON.parse(readFileSync(path, "utf-8"));
+      items = raw.i || raw.institutions || (Array.isArray(raw) ? raw : []);
     } catch (err) {
       console.warn(`  Could not read ${file}: ${err.message}`);
+      continue;
     }
-  }
-  return ids;
-}
 
-// ---------------------------------------------------------------------------
-// Step 6: Supabase upsert
-// ---------------------------------------------------------------------------
+    console.log(`  ${file}: ${items.length} institutions`);
+    totalLoaded += items.length;
 
-async function upsertToSupabase(institutions) {
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    console.log("\nSkipping Supabase upsert (SUPABASE_URL / SUPABASE_SERVICE_KEY not set)");
-    return;
-  }
+    for (const inst of items) {
+      const id = inst.id;
+      const kommune = inst.m; // kommune name
+      const tp = inst.tp; // type: aldersintegreret, vuggestue, børnehave, dagpleje, etc.
+      if (!id || !kommune) continue;
 
-  console.log("\nUpserting to Supabase table 'institution_stats'...");
+      const kStats = kommuneMap[kommune];
+      if (!kStats) continue;
 
-  const rows = Object.entries(institutions).map(([id, stats]) => ({
-    institution_id: id,
-    year: TARGET_YEAR,
-    normering_02: stats.normering02,
-    normering_35: stats.normering35,
-    pct_paedagoger: stats.pctPaedagoger,
-    pct_paed_assistenter: stats.pctPaedAssistenter,
-    pct_uden_paed_udd: stats.pctUdenPaedUdd,
-    antal_boern: stats.antalBoern,
-    updated_at: new Date().toISOString(),
-  }));
+      totalMatched++;
 
-  // Upsert in batches of 500
-  const BATCH_SIZE = 500;
-  let upserted = 0;
+      // Determine which normering applies based on institution type
+      let normering = null;
+      let boernNedslag = null;
+      let helaarBoern = null;
 
-  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-    const batch = rows.slice(i, i + BATCH_SIZE);
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/institution_stats`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_SERVICE_KEY,
-          Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
-          Prefer: "resolution=merge-duplicates",
-        },
-        body: JSON.stringify(batch),
+      if (tp === "dagpleje") {
+        normering = kStats.normeringDagpleje;
+        boernNedslag = kStats.boernVedNedslagDagpleje;
+        helaarBoern = kStats.helaarBoernDagpleje;
+      } else if (tp === "vuggestue") {
+        normering = kStats.normering02;
+        boernNedslag = kStats.boernVedNedslag02;
+        helaarBoern = kStats.helaarBoern02;
+      } else if (tp === "børnehave") {
+        normering = kStats.normering35;
+        boernNedslag = kStats.boernVedNedslag35;
+        helaarBoern = kStats.helaarBoern35;
+      } else if (tp === "aldersintegreret") {
+        // Combined institutions serve both age groups - use the average
+        if (kStats.normering02 !== null && kStats.normering35 !== null) {
+          normering = Math.round(((kStats.normering02 + kStats.normering35) / 2) * 10) / 10;
+        } else {
+          normering = kStats.normering02 ?? kStats.normering35;
+        }
+        // For children, sum both age groups
+        if (kStats.boernVedNedslag02 !== null && kStats.boernVedNedslag35 !== null) {
+          boernNedslag = kStats.boernVedNedslag02 + kStats.boernVedNedslag35;
+        }
+        if (kStats.helaarBoern02 !== null && kStats.helaarBoern35 !== null) {
+          helaarBoern = kStats.helaarBoern02 + kStats.helaarBoern35;
+        }
+      } else {
+        // SFO or unknown - just use 3-5 normering as closest
+        normering = kStats.normering35;
+        boernNedslag = kStats.boernVedNedslag35;
+        helaarBoern = kStats.helaarBoern35;
       }
-    );
-    if (!res.ok) {
-      const text = await res.text();
-      console.error(`  Supabase error (batch ${i / BATCH_SIZE + 1}): ${res.status} ${text}`);
-    } else {
-      upserted += batch.length;
+
+      institutions[id] = {
+        kommune,
+        type: tp,
+        normering,
+        normering02: kStats.normering02,
+        normering35: kStats.normering35,
+        pctPaedagog: kStats.pctPaedagog,
+        pctPaedAssistent: kStats.pctPaedAssistent,
+        pctAndenPaedUdd: kStats.pctAndenPaedUdd,
+        pctIngenPaedUdd: kStats.pctIngenPaedUdd,
+        boernVedNedslag: boernNedslag,
+        helaarBoern: helaarBoern,
+      };
     }
   }
 
-  console.log(`  Upserted ${upserted} rows to Supabase`);
+  console.log(`\n  Loaded ${totalLoaded} institutions, matched ${totalMatched} to kommune data`);
+  return institutions;
 }
 
 // ---------------------------------------------------------------------------
@@ -533,91 +464,82 @@ async function upsertToSupabase(institutions) {
 async function main() {
   console.log(`\n=== Institution Stats Fetcher ===`);
   console.log(`Target year: ${TARGET_YEAR}`);
+  console.log(`API: ${API_BASE}`);
   if (DRY_RUN) console.log("Mode: DRY RUN (no files will be written)\n");
 
-  // Explore mode: just dump API schema info and exit
   if (EXPLORE) {
     await explore();
     return;
   }
 
-  // Load our institution IDs for matching
-  const ourIds = loadOurInstitutionIds();
-  console.log(`Loaded ${ourIds.size} institution IDs from existing data files`);
-
-  // Fetch all three datasets
-  const normeringResult = await fetchNormeringInstitution();
+  // Fetch all three datasets from the API
+  const normeringResult = await fetchNormering();
+  await sleep(300);
   const personaleResult = await fetchPersonale();
-  const boerneResult = await fetchBoernetal();
+  await sleep(300);
+  const boernResult = await fetchBoern();
 
-  // Log sample rows for debugging
+  // Log sample rows
   for (const [name, result] of [
     ["Normering", normeringResult],
     ["Personale", personaleResult],
-    ["Børnetal", boerneResult],
+    ["Børn", boernResult],
   ]) {
-    if (result.data.length > 0) {
+    const data = result.data;
+    if (data.length > 0) {
       console.log(`\nSample ${name} row:`);
-      console.log(JSON.stringify(result.data[0], null, 2));
+      console.log(JSON.stringify(data[0], null, 2));
     }
   }
 
-  // Build merged institution map
-  const allInstitutions = buildInstitutionMap(normeringResult, personaleResult, boerneResult);
-  const totalKeys = Object.keys(allInstitutions).length;
-  console.log(`\nMerged data for ${totalKeys} institutions from API`);
+  // Build kommune-level stats map
+  const kommuneMap = buildKommuneMap(normeringResult, personaleResult, boernResult);
+  const kommuneCount = Object.keys(kommuneMap).length;
+  console.log(`\nBuilt stats for ${kommuneCount} kommuner`);
 
-  // Filter to only institutions we know about
-  const matched = {};
-  let matchCount = 0;
-  for (const [id, stats] of Object.entries(allInstitutions)) {
-    if (ourIds.has(id)) {
-      matched[id] = stats;
-      matchCount++;
-    }
-  }
-  console.log(`Matched ${matchCount} institutions to our data (${ourIds.size} known IDs)`);
-
-  // Also include unmatched for completeness
-  const unmatched = totalKeys - matchCount;
-  if (unmatched > 0) {
-    console.log(`  ${unmatched} API institutions not in our dataset (included anyway)`);
+  // Show a sample kommune
+  const sampleKommune = Object.keys(kommuneMap)[0];
+  if (sampleKommune) {
+    console.log(`Sample kommune (${sampleKommune}):`);
+    console.log(JSON.stringify(kommuneMap[sampleKommune], null, 2));
   }
 
-  // Use all institutions in output (users may want the full set)
+  // Map to individual institutions
+  console.log("\nMapping kommune stats to institutions...");
+  const institutions = mapToInstitutions(kommuneMap);
+  const instCount = Object.keys(institutions).length;
+
+  // Coverage stats
+  const withNorm = Object.values(institutions).filter((i) => i.normering !== null).length;
+  const withPaed = Object.values(institutions).filter((i) => i.pctPaedagog !== null).length;
+  const withBoern = Object.values(institutions).filter((i) => i.boernVedNedslag !== null).length;
+
+  console.log(`\nData coverage (${instCount} institutions):`);
+  console.log(`  Normering: ${withNorm} (${((withNorm / instCount) * 100).toFixed(1)}%)`);
+  console.log(`  Staff education: ${withPaed} (${((withPaed / instCount) * 100).toFixed(1)}%)`);
+  console.log(`  Child count: ${withBoern} (${((withBoern / instCount) * 100).toFixed(1)}%)`);
+
   const output = {
     year: TARGET_YEAR,
     fetchedAt: new Date().toISOString(),
-    matchedCount: matchCount,
-    totalCount: totalKeys,
-    institutions: allInstitutions,
+    source: "Uddannelsesstatistik.dk API (kommune-level)",
+    kommuneCount,
+    institutionCount: instCount,
+    kommuner: kommuneMap,
+    institutions,
   };
 
-  // Stats summary
-  const withNorm02 = Object.values(allInstitutions).filter((i) => i.normering02 !== null).length;
-  const withNorm35 = Object.values(allInstitutions).filter((i) => i.normering35 !== null).length;
-  const withPaed = Object.values(allInstitutions).filter((i) => i.pctPaedagoger !== null).length;
-  const withBoern = Object.values(allInstitutions).filter((i) => i.antalBoern !== null).length;
-
-  console.log(`\nData coverage:`);
-  console.log(`  Normering 0-2: ${withNorm02} institutions`);
-  console.log(`  Normering 3-5: ${withNorm35} institutions`);
-  console.log(`  Staff education: ${withPaed} institutions`);
-  console.log(`  Child count: ${withBoern} institutions`);
+  const jsonStr = JSON.stringify(output, null, 2);
 
   if (DRY_RUN) {
-    console.log("\n[DRY RUN] Would write to:");
+    console.log(`\n[DRY RUN] Would write ${jsonStr.length} bytes to:`);
     console.log(`  ${OUTPUT_PATH}`);
-    console.log(`  (${JSON.stringify(output).length} bytes)`);
-    if (process.env.SUPABASE_URL) {
-      console.log(`  + Supabase table 'institution_stats'`);
-    }
-    // Print a few sample entries
-    const sampleIds = Object.keys(allInstitutions).slice(0, 3);
+    // Sample entries
+    const sampleIds = Object.keys(institutions).slice(0, 3);
     if (sampleIds.length > 0) {
-      console.log("\nSample output entries:");
+      console.log("\nSample institution entries:");
       for (const id of sampleIds) {
-        console.log(`  ${id}: ${JSON.stringify(allInstitutions[id])}`);
+        console.log(`  ${id}: ${JSON.stringify(institutions[id])}`);
       }
     }
     return;
@@ -626,11 +548,8 @@ async function main() {
   // Write JSON
   const outputDir = dirname(OUTPUT_PATH);
   if (!existsSync(outputDir)) mkdirSync(outputDir, { recursive: true });
-  writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf-8");
-  console.log(`\nWritten to ${OUTPUT_PATH}`);
-
-  // Supabase upsert
-  await upsertToSupabase(allInstitutions);
+  writeFileSync(OUTPUT_PATH, jsonStr, "utf-8");
+  console.log(`\nWritten to ${OUTPUT_PATH} (${(jsonStr.length / 1024).toFixed(0)} KB)`);
 
   console.log("\nDone.");
 }
