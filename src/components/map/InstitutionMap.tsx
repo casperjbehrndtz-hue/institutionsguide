@@ -137,62 +137,31 @@ function ViewChangeTracker({
   return null;
 }
 
-function ScrollZoomGuard({ message }: { message: string }) {
+function ScrollZoomGuard({ message: _message }: { message: string }) {
   const map = useMap();
   useEffect(() => {
     const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-    // On touch devices: enable native pinch-to-zoom, no guard needed
     if (isTouchDevice) {
       map.scrollWheelZoom.disable();
-      // Dragging with one finger should pan, two-finger pinch should zoom
-      // Leaflet handles this natively when touch zoom is enabled
       return;
     }
 
-    // On desktop: require Ctrl/Cmd for scroll zoom to prevent accidental zooming
-    map.scrollWheelZoom.disable();
+    // Enable scroll zoom on hover, disable on leave
     const container = map.getContainer();
-    let timer: ReturnType<typeof setTimeout> | null = null;
+    map.scrollWheelZoom.disable();
 
-    function handleWheel(e: WheelEvent) {
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        map.scrollWheelZoom.enable();
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(() => {
-          map.scrollWheelZoom.disable();
-        }, 400);
-        return;
-      }
-      let overlay = container.querySelector(".scroll-zoom-msg") as HTMLDivElement | null;
-      if (!overlay) {
-        overlay = document.createElement("div");
-        overlay.className = "scroll-zoom-msg";
-        overlay.style.cssText =
-          "position:absolute;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(0,0,0,0.15);transition:opacity 0.4s ease;";
-        overlay.innerHTML =
-          `<span style="background:#fff;color:#1A2632;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.15);">${escapeHtml(message)}</span>`;
-        container.style.position = "relative";
-        container.appendChild(overlay);
-      }
-      overlay.style.opacity = "1";
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => {
-        if (overlay) overlay.style.opacity = "0";
-        timer = setTimeout(() => {
-          overlay?.remove();
-        }, 400);
-      }, 1500);
-    }
+    function handleEnter() { map.scrollWheelZoom.enable(); }
+    function handleLeave() { map.scrollWheelZoom.disable(); }
 
-    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("mouseenter", handleEnter);
+    container.addEventListener("mouseleave", handleLeave);
     return () => {
-      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("mouseenter", handleEnter);
+      container.removeEventListener("mouseleave", handleLeave);
       map.scrollWheelZoom.enable();
-      if (timer) clearTimeout(timer);
     };
-  }, [map, message]);
+  }, [map]);
   return null;
 }
 
