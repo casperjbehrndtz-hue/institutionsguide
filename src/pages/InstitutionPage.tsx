@@ -41,6 +41,30 @@ function categoryPath(cat: string): string {
   return paths[cat] || "/";
 }
 
+function HeroImage({ inst }: { inst: { imageUrl?: string; lat: number; lng: number; name: string } }) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const showExternal = inst.imageUrl && !imgFailed;
+  return (
+    <div className="max-w-[640px] mx-auto px-4 pb-4">
+      {showExternal ? (
+        <img
+          src={inst.imageUrl}
+          alt={inst.name}
+          className="w-full h-[200px] sm:h-[260px] rounded-xl object-cover"
+          onError={() => setImgFailed(true)}
+        />
+      ) : (
+        <StreetViewImage
+          lat={inst.lat}
+          lng={inst.lng}
+          alt={inst.name}
+          className="w-full h-[200px] sm:h-[260px] rounded-xl"
+        />
+      )}
+    </div>
+  );
+}
+
 function PercentileBar({ label, percentile, value, lang = "da" }: {
   label: string;
   percentile: number;
@@ -341,18 +365,7 @@ export default function InstitutionPage() {
       </div>
 
       {/* Hero image — efterskole photo or Street View */}
-      <div className="max-w-[640px] mx-auto px-4 pb-4">
-        {inst.imageUrl ? (
-          <img src={inst.imageUrl} alt={inst.name} className="w-full h-[200px] sm:h-[260px] rounded-xl object-cover" />
-        ) : (
-          <StreetViewImage
-            lat={inst.lat}
-            lng={inst.lng}
-            alt={inst.name}
-            className="w-full h-[200px] sm:h-[260px] rounded-xl"
-          />
-        )}
-      </div>
+      <HeroImage inst={inst} />
 
       {/* Section navigation */}
       <SectionNav sections={sectionDefs} />
