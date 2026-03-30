@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, useMapEvents, CircleMarker } from "react-leaflet";
 import { Maximize2, Minimize2 } from "lucide-react";
 import type { UnifiedInstitution } from "@/lib/types";
 import MarkerClusterGroup from "./MarkerClusterGroup";
@@ -358,6 +358,13 @@ function InstitutionMap({
         <ScrollZoomGuard message={t.map.scrollZoomGuard} />
         {radiusCenter && radiusKm && (
           <RadiusCircle center={radiusCenter} radiusKm={radiusKm} />
+        )}
+        {radiusCenter && (
+          <CircleMarker
+            center={[radiusCenter.lat, radiusCenter.lng]}
+            radius={7}
+            pathOptions={{ color: "#fff", weight: 2, fillColor: "#3B82F6", fillOpacity: 1 }}
+          />
         )}
       </MapContainer>
 

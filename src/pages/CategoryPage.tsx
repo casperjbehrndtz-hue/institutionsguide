@@ -60,8 +60,8 @@ export default function CategoryPage({ category }: Props) {
   const listContainerRef = useRef<HTMLDivElement>(null);
 
   const geo = useGeolocation(useCallback((loc) => {
-    setFlyTo({ ...loc, zoom: 12 });
-    setRadiusKm(15);
+    setFlyTo({ ...loc, zoom: 13 });
+    setRadiusKm(5);
   }, [setRadiusKm]));
 
   const categoryTitles: Record<string, string> = {
