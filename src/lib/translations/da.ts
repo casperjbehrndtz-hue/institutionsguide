@@ -47,6 +47,7 @@ export const da: TranslationStrings = {
     skole: "Skoler",
     sfo: "SFO",
     fritidsklub: "Fritidsklubber",
+    efterskole: "Efterskoler",
     alle: "Alle",
     normering: "Normering",
   },
@@ -57,6 +58,7 @@ export const da: TranslationStrings = {
     skole: "Sammenlign folkeskoler og friskoler med kvalitetsdata: trivsel, karaktersnit, fravær og kompetencedækning.",
     sfo: "Find SFO-tilbud (6-9 år) i din kommune. Se priser og sammenlign med andre fritidsordninger.",
     fritidsklub: "Find fritidsklubber for 4.-7. klasse i din kommune. Se priser og sammenlign tilbud.",
+    efterskole: "Sammenlign efterskoler i hele Danmark. Se profiler, priser og kontaktinfo for alle 119+ efterskoler.",
   },
   ageGroups: {
     vuggestue: "0–2 år",
@@ -65,6 +67,7 @@ export const da: TranslationStrings = {
     skole: "6–16 år",
     sfo: "6–9 år",
     fritidsklub: "10–14 år",
+    efterskole: "14–18 år",
   },
   home: {
     heroTagline: "Danmarks mest komplette institutionsoversigt",
@@ -320,6 +323,7 @@ export const da: TranslationStrings = {
     legendSkole: "Skole",
     legendSfo: "SFO",
     legendFritidsklub: "Fritidsklub",
+    legendEfterskole: "Efterskole",
     addToCompare: "Sammenlign",
     saveFavorite: "Gem",
     removeFavorite: "Fjern favorit",

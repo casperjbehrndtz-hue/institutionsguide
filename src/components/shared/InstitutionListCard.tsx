@@ -16,6 +16,7 @@ const THUMB_BG: Record<string, string> = {
   skole: "bg-blue-50 dark:bg-blue-950/30",
   sfo: "bg-violet-50 dark:bg-violet-950/30",
   fritidsklub: "bg-orange-50 dark:bg-orange-950/30",
+  efterskole: "bg-pink-50 dark:bg-pink-950/30",
 };
 const THUMB_TEXT: Record<string, string> = {
   vuggestue: "text-pink-400",
@@ -24,6 +25,7 @@ const THUMB_TEXT: Record<string, string> = {
   skole: "text-blue-400",
   sfo: "text-violet-400",
   fritidsklub: "text-orange-400",
+  efterskole: "text-pink-400",
 };
 
 interface Props {

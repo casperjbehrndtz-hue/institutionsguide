@@ -71,6 +71,7 @@ export default function App() {
               <Route path="/skole" element={<CategoryPage key="skole" category="skole" />} />
               <Route path="/sfo" element={<CategoryPage key="sfo" category="sfo" />} />
               <Route path="/fritidsklub" element={<CategoryPage key="fritidsklub" category="fritidsklub" />} />
+              <Route path="/efterskole" element={<CategoryPage key="efterskole" category="efterskole" />} />
               <Route path="/kommune/:name" element={<KommunePage />} />
               <Route path="/institution/:id" element={<InstitutionPage />} />
               <Route path="/sammenlign" element={<ComparePage />} />

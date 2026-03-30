@@ -98,7 +98,7 @@ export default function RelatedSearches({ municipality, category }: Props) {
 
       // Category pages for this municipality
       if (category) {
-        const otherCats: CategorySlug[] = (["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub"] as CategorySlug[]).filter(
+        const otherCats: CategorySlug[] = (["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole"] as CategorySlug[]).filter(
           (c) => c !== category
         );
         for (const c of otherCats) {

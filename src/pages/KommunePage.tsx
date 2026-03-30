@@ -21,7 +21,7 @@ import ScrollReveal from "@/components/shared/ScrollReveal";
 import { useFamily } from "@/contexts/FamilyContext";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 
-const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub"] as const;
+const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole"] as const;
 
 export default function KommunePage() {
   const { name } = useParams<{ name: string }>();
@@ -39,6 +39,7 @@ export default function KommunePage() {
     skole: t.categories.skole,
     sfo: t.categories.sfo,
     fritidsklub: t.categories.fritidsklub,
+    efterskole: t.categories.efterskole,
   };
 
   const munInstitutions = useMemo(

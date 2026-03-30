@@ -46,6 +46,7 @@ export interface TranslationStrings {
     skole: string;
     sfo: string;
     fritidsklub: string;
+    efterskole: string;
     alle: string;
     normering: string;
   };
@@ -56,6 +57,7 @@ export interface TranslationStrings {
     skole: string;
     sfo: string;
     fritidsklub: string;
+    efterskole: string;
   };
   ageGroups: {
     vuggestue: string;
@@ -64,6 +66,7 @@ export interface TranslationStrings {
     skole: string;
     sfo: string;
     fritidsklub: string;
+    efterskole: string;
   };
   home: {
     heroTagline: string;
@@ -309,6 +312,7 @@ export interface TranslationStrings {
     legendSkole: string;
     legendSfo: string;
     legendFritidsklub: string;
+    legendEfterskole: string;
     addToCompare: string;
     saveFavorite: string;
     removeFavorite: string;

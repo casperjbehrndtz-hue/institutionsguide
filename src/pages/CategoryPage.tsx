@@ -28,7 +28,7 @@ import DataFreshness from "@/components/shared/DataFreshness";
 import { qualityLevelBadge } from "@/lib/badges";
 
 interface Props {
-  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub";
+  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub" | "efterskole";
 }
 
 export default function CategoryPage({ category }: Props) {
@@ -71,6 +71,7 @@ export default function CategoryPage({ category }: Props) {
     skole: language === "en" ? "Schools in Denmark" : "Skoler i Danmark",
     sfo: language === "en" ? "After-school care in Denmark" : "SFO og fritidsordninger",
     fritidsklub: language === "en" ? "Youth clubs in Denmark" : "Fritidsklubber i Danmark",
+    efterskole: language === "en" ? "Boarding schools in Denmark" : "Efterskoler i Danmark",
   };
 
   const filtered = useFilteredInstitutions(institutions, {
@@ -230,7 +231,7 @@ export default function CategoryPage({ category }: Props) {
 
   const categoryPaths: Record<string, string> = {
     vuggestue: "/vuggestue", boernehave: "/boernehave", dagpleje: "/dagpleje",
-    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub",
+    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub", efterskole: "/efterskole",
   };
 
   const seoDescriptions: Record<string, Record<string, string>> = {
@@ -241,6 +242,7 @@ export default function CategoryPage({ category }: Props) {
       skole: "Find og sammenlign skoler i Danmark. Se kvalitetsdata, karakterer, trivsel og fravær.",
       sfo: "Find og sammenlign SFO og fritidsordninger i alle 98 kommuner.",
       fritidsklub: "Find og sammenlign fritidsklubber for 4.-7. klasse i alle kommuner. Se priser og kontaktinfo.",
+      efterskole: "Sammenlign efterskoler i hele Danmark. Se profiler, priser og kontaktinfo.",
     },
     en: {
       vuggestue: "Find and compare nurseries in all 98 municipalities. See prices, addresses and contact info.",
@@ -249,6 +251,7 @@ export default function CategoryPage({ category }: Props) {
       skole: "Find and compare schools in Denmark. See quality data, grades, well-being and absence.",
       sfo: "Find and compare after-school care in all 98 municipalities.",
       fritidsklub: "Find and compare youth clubs for ages 10-14 in all municipalities.",
+      efterskole: "Compare boarding schools across Denmark. See profiles, prices and contact info.",
     },
   };
 

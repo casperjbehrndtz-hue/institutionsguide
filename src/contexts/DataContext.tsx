@@ -71,7 +71,7 @@ function schoolToUnified(s: CompactSchool): UnifiedInstitution | null {
   return {
     id: `school-${s.id}`,
     name: s.n,
-    category: "skole",
+    category: s.t === "e" ? "efterskole" : "skole",
     subtype: mapSchoolType(s.t),
     municipality: s.m.replace(" Kommune", ""),
     address: s.a,
@@ -366,6 +366,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           dagplejeCount: 0,
           sfoCount: 0,
           fritidsklubCount: 0,
+          efterskoleCount: 0,
           folkeskoleCount: 0,
           friskoleCount: 0,
           rates: {
@@ -384,6 +385,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         case "dagpleje": m.dagplejeCount++; break;
         case "sfo": m.sfoCount++; break;
         case "fritidsklub": m.fritidsklubCount++; break;
+        case "efterskole": m.efterskoleCount++; break;
         case "skole":
           if (inst.subtype === "folkeskole") m.folkeskoleCount++;
           else m.friskoleCount++;

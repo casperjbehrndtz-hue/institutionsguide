@@ -79,4 +79,5 @@ export const CATEGORY_BADGE_COLORS: Record<string, string> = {
   skole: "bg-[#E0E7FF] text-[#3730A3] dark:bg-[#3730A3]/30 dark:text-[#A5B4FC]",
   sfo: "bg-[#F3E8FF] text-[#6B21A8] dark:bg-[#6B21A8]/30 dark:text-[#D8B4FE]",
   fritidsklub: "bg-[#FFF7ED] text-[#9A3412] dark:bg-[#9A3412]/30 dark:text-[#FDBA74]",
+  efterskole: "bg-[#FDF2F8] text-[#9D174D] dark:bg-[#9D174D]/30 dark:text-[#F9A8D4]",
 };

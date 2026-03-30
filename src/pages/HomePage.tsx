@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X, Gamepad2 } from "lucide-react";
+import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X, Gamepad2, School } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -208,6 +208,7 @@ export default function HomePage() {
     { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole, cta: language === "da" ? "Se kvalitetsdata" : "See quality data" },
     { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Se priser" : "See prices" },
     { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Se alle" : "See all" },
+    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Sammenlign" : "Compare" },
   ];
 
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
@@ -361,8 +362,8 @@ export default function HomePage() {
       </section>
 
       {/* Category cards — data preview grid */}
-      <section className="max-w-4xl mx-auto px-3 sm:px-4 -mt-5 relative z-20 mb-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+      <section className="max-w-5xl mx-auto px-3 sm:px-4 -mt-5 relative z-20 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           {CATEGORY_CARDS.map((card) => {
             const stats = categoryStats[card.category];
             const count = stats?.count ?? 0;

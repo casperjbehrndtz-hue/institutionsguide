@@ -310,6 +310,7 @@ export default function SearchFilterBar({
     { value: "skole", label: t.categories.skole },
     { value: "sfo", label: t.categories.sfo },
     { value: "fritidsklub", label: t.categories.fritidsklub },
+    { value: "efterskole", label: t.categories.efterskole },
   ];
 
   // Context-aware sort options: hide school-specific sorts for daycare categories

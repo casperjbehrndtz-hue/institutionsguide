@@ -36,7 +36,7 @@ import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
     vuggestue: "/vuggestue", boernehave: "/boernehave", dagpleje: "/dagpleje",
-    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub",
+    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub", efterskole: "/efterskole",
   };
   return paths[cat] || "/";
 }
@@ -120,6 +120,7 @@ export default function InstitutionPage() {
     vuggestue: t.categories.vuggestue, boernehave: t.categories.boernehave,
     dagpleje: t.categories.dagpleje, skole: t.categories.skole, sfo: t.categories.sfo,
     fritidsklub: t.categories.fritidsklub,
+    efterskole: t.categories.efterskole,
   };
 
   const inst = useMemo(
