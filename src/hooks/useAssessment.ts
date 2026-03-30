@@ -40,7 +40,7 @@ export function useAssessment(
   scoreRef.current = scoreResult;
 
   useEffect(() => {
-    if (!inst || !scoreRef.current) return;
+    if (!inst || !scoreRef.current || !scoreRef.current.hasData) return;
     if (!supabase) {
       setState("idle");
       return;

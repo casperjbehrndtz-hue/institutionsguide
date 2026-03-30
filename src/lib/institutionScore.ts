@@ -19,8 +19,9 @@ export interface MetricScore {
 }
 
 export interface ScoreResult {
-  overall: number;
-  grade: "A" | "B" | "C" | "D" | "E";
+  overall: number | null;
+  grade: "A" | "B" | "C" | "D" | "E" | null;
+  hasData: boolean;
   metrics: MetricScore[];
   pros: LocalizedText[];
   cons: LocalizedText[];
@@ -75,7 +76,7 @@ interface WeightedMetric {
 
 function scoreSchool(q: SchoolQuality): {
   metrics: MetricScore[];
-  overall: number;
+  overall: number | null;
 } {
   const raw: (WeightedMetric | null)[] = [
     q.ts != null
@@ -152,7 +153,7 @@ function scoreSchool(q: SchoolQuality): {
 
   const available = raw.filter((m): m is WeightedMetric => m != null);
   if (available.length === 0) {
-    return { metrics: [], overall: 50 };
+    return { metrics: [], overall: null };
   }
 
   const totalWeight = available.reduce((s, m) => s + m.weight, 0);
@@ -180,7 +181,7 @@ function scoreDagtilbud(
   normering: NormeringEntry[],
   municipalityAvgPrice: number | null,
   instStats?: InstitutionStats,
-): { metrics: MetricScore[]; overall: number } {
+): { metrics: MetricScore[]; overall: number | null } {
   const available: WeightedMetric[] = [];
 
   if (inst.monthlyRate != null && municipalityAvgPrice != null && municipalityAvgPrice > 0) {
@@ -274,8 +275,10 @@ function scoreDagtilbud(
     });
   }
 
-  if (available.length === 0) {
-    return { metrics: [], overall: 50 };
+  // If no metrics or only ejerskab, there's not enough meaningful data
+  const meaningful = available.filter((m) => m.key !== "ejerskab");
+  if (meaningful.length === 0) {
+    return { metrics: [], overall: null };
   }
 
   const totalWeight = available.reduce((s, m) => s + m.weight, 0);
@@ -617,25 +620,10 @@ export function computeScore(
   municipalityAvgPrice: number | null,
   instStats?: InstitutionStats,
 ): ScoreResult {
-  const isSchool = inst.category === "skole";
-
-  if (isSchool && inst.quality) {
-    const { metrics, overall } = scoreSchool(inst.quality);
-    const { pros, cons } = schoolProsAndCons(inst.quality);
-    const recommendation = schoolRecommendation(overall, inst.quality);
-    return { overall, grade: toGrade(overall), metrics, pros, cons, recommendation };
-  }
-
-  if (DAGTILBUD_CATEGORIES.has(inst.category)) {
-    const { metrics, overall } = scoreDagtilbud(inst, normering, municipalityAvgPrice, instStats);
-    const { pros, cons } = dagtilbudProsAndCons(inst, normering, municipalityAvgPrice, instStats);
-    const recommendation = dagtilbudRecommendation(overall, inst, normering, municipalityAvgPrice);
-    return { overall, grade: toGrade(overall), metrics, pros, cons, recommendation };
-  }
-
-  return {
-    overall: 50,
-    grade: "C",
+  const noDataResult: ScoreResult = {
+    overall: null,
+    grade: null,
+    hasData: false,
     metrics: [],
     pros: [],
     cons: [],
@@ -644,4 +632,28 @@ export function computeScore(
       en: "Not enough data to compute a score.",
     },
   };
+
+  const isSchool = inst.category === "skole";
+
+  if (isSchool && inst.quality) {
+    const { metrics, overall } = scoreSchool(inst.quality);
+    if (overall == null) {
+      return noDataResult;
+    }
+    const { pros, cons } = schoolProsAndCons(inst.quality);
+    const recommendation = schoolRecommendation(overall, inst.quality);
+    return { overall, grade: toGrade(overall), hasData: true, metrics, pros, cons, recommendation };
+  }
+
+  if (DAGTILBUD_CATEGORIES.has(inst.category)) {
+    const { metrics, overall } = scoreDagtilbud(inst, normering, municipalityAvgPrice, instStats);
+    if (overall == null) {
+      return noDataResult;
+    }
+    const { pros, cons } = dagtilbudProsAndCons(inst, normering, municipalityAvgPrice, instStats);
+    const recommendation = dagtilbudRecommendation(overall, inst, normering, municipalityAvgPrice);
+    return { overall, grade: toGrade(overall), hasData: true, metrics, pros, cons, recommendation };
+  }
+
+  return noDataResult;
 }

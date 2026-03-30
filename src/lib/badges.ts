@@ -63,8 +63,9 @@ export function qualityBadgeInlineColors(
 
 /** Score-based inline colors (for InstitutionReport nearby badges) */
 export function scoreBadgeInlineColors(
-  overall: number,
-): { bg: string; text: string } {
+  overall: number | null,
+): { bg: string; text: string } | null {
+  if (overall == null) return null;
   if (overall >= 65) return { bg: "#E1F5EE", text: "#085041" };
   if (overall >= 45) return { bg: "#FAEEDA", text: "#633806" };
   return { bg: "#FCEBEB", text: "#791F1F" };

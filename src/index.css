@@ -114,6 +114,10 @@
   background: hsl(220 20% 12% / 0.8);
 }
 
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* Luxury divider — matches ParFinans */
 .divider {
   height: 1px;

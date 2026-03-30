@@ -75,7 +75,13 @@ function loadTilsynFiles() {
     }
   }
 
-  return allReports;
+  // Deduplicate: keep last entry per (institution_id, report_year, report_type)
+  const seen = new Map();
+  for (const r of allReports) {
+    const key = `${r.institution_id}|${r.report_year}|${r.report_type}`;
+    seen.set(key, r);
+  }
+  return [...seen.values()];
 }
 
 async function main() {

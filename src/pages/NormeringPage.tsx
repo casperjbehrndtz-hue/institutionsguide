@@ -80,6 +80,7 @@ export default function NormeringPage() {
   const isDa = language === "da";
   const [sortKey, setSortKey] = useState<SortKey>("0-2");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const normeringData: NormeringEntry[] = normering ?? [];
 
@@ -139,6 +140,15 @@ export default function NormeringPage() {
     });
     return rows;
   }, [kommuneRows, sortKey, sortDir]);
+
+  // Filtered rows by search query
+  const filteredRows = useMemo(() => {
+    if (!searchQuery.trim()) return sortedRows;
+    const q = searchQuery.toLowerCase().trim();
+    return sortedRows.filter((row) =>
+      row.municipality.toLowerCase().includes(q)
+    );
+  }, [sortedRows, searchQuery]);
 
   // National trend chart data (2017-2023)
   const trendData = useMemo(() => {
@@ -317,6 +327,24 @@ export default function NormeringPage() {
         <h2 className="font-display text-xl font-bold text-foreground mb-3">
           Kommune-ranking {latestYear}
         </h2>
+        {/* Search input */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder={isDa ? "Søg kommune..." : "Search municipality..."}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full sm:w-80 px-4 py-2.5 rounded-xl border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+            aria-label={isDa ? "Søg kommune" : "Search municipality"}
+          />
+          {searchQuery.trim() && (
+            <p className="text-xs text-muted mt-2" aria-live="polite">
+              {isDa
+                ? `Viser ${filteredRows.length} af ${kommuneRows.length} kommuner`
+                : `Showing ${filteredRows.length} of ${kommuneRows.length} municipalities`}
+            </p>
+          )}
+        </div>
         {/* Color legend */}
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted mb-4 px-1">
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-green-500" />{isDa ? "God normering" : "Good ratio"}</span>
@@ -348,7 +376,7 @@ export default function NormeringPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedRows.map((row) => (
+              {filteredRows.map((row) => (
                 <tr
                   key={row.municipality}
                   className="border-b border-border/50 hover:bg-muted/30 transition-colors"

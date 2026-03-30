@@ -569,6 +569,27 @@ export default function FripladsPage() {
           </section>
         </ScrollReveal>
 
+        {/* Total cost CTA */}
+        <ScrollReveal>
+          <section className="card p-6 sm:p-8 text-center space-y-4">
+            <h2 className="font-display text-xl font-semibold text-foreground">
+              {isDa ? "Hvad koster bornepasning i alt?" : "What does childcare cost in total?"}
+            </h2>
+            <p className="text-muted text-sm max-w-lg mx-auto">
+              {isDa
+                ? "Se den samlede pris for vuggestue, bornehave og SFO over 10 ar i din kommune."
+                : "See the total cost of nursery, kindergarten and after-school care over 10 years in your municipality."}
+            </p>
+            <Link
+              to="/samlet-pris"
+              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors min-h-[44px]"
+            >
+              {isDa ? "Se samlet pris" : "See total cost"}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </section>
+        </ScrollReveal>
+
         {/* Bottom CTA */}
         <ScrollReveal>
           <section className="card p-6 sm:p-8 text-center space-y-4 bg-primary/5">

@@ -154,14 +154,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         setNationalAverages(skoleData.avg);
 
-        const seen = new Set<string>();
         const unified: UnifiedInstitution[] = [];
+
+        // Per-category dedup sets. Aldersintegreret institutions share the
+        // same G-number in both vuggestue-data.json and boernehave-data.json.
+        // They SHOULD appear in both category listings (they genuinely serve
+        // both age groups), so we only deduplicate within each category.
+        const seenSchool = new Set<string>();
+        const seenVug = new Set<string>();
+        const seenBh = new Set<string>();
+        const seenDag = new Set<string>();
+        const seenSfo = new Set<string>();
 
         // Schools
         for (const s of skoleData.s) {
           const u = schoolToUnified(s);
-          if (u && !seen.has(u.id)) {
-            seen.add(u.id);
+          if (u && !seenSchool.has(u.id)) {
+            seenSchool.add(u.id);
             unified.push(u);
           }
         }
@@ -169,7 +178,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Vuggestuer (compact format) — forced category "vuggestue"
         for (const d of vuggestueData.i) {
           const u = compactDagtilbudToUnified(d, "vug");
-          if (u && !seen.has(u.id)) {
+          if (u && !seenVug.has(u.id)) {
             u.category = "vuggestue";
             if (!u.monthlyRate || !u.annualRate) {
               const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
@@ -178,7 +187,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 u.annualRate = rates.vuggestue;
               }
             }
-            seen.add(u.id);
+            seenVug.add(u.id);
             unified.push(u);
           }
         }
@@ -186,7 +195,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Børnehaver (compact format) — forced category "boernehave"
         for (const d of boernehaveData.i) {
           const u = compactDagtilbudToUnified(d, "bh");
-          if (u && !seen.has(u.id)) {
+          if (u && !seenBh.has(u.id)) {
             u.category = "boernehave";
             if (!u.monthlyRate || !u.annualRate) {
               const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
@@ -195,7 +204,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 u.annualRate = rates.boernehave;
               }
             }
-            seen.add(u.id);
+            seenBh.add(u.id);
             unified.push(u);
           }
         }
@@ -203,7 +212,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Dagplejere (compact format)
         for (const d of dagplejeData.i) {
           const u = compactDagtilbudToUnified(d, "dag");
-          if (u && !seen.has(u.id)) {
+          if (u && !seenDag.has(u.id)) {
             if (!u.monthlyRate || !u.annualRate) {
               const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
               if (rates?.dagpleje) {
@@ -211,7 +220,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 u.annualRate = rates.dagpleje;
               }
             }
-            seen.add(u.id);
+            seenDag.add(u.id);
             unified.push(u);
           }
         }
@@ -219,7 +228,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // SFO/Klub (compact format) — fill missing prices from municipal rates
         for (const d of sfoData.i) {
           const u = compactDagtilbudToUnified(d, "sfo");
-          if (u && !seen.has(u.id)) {
+          if (u && !seenSfo.has(u.id)) {
             u.category = "sfo";
             if (!u.monthlyRate || !u.annualRate) {
               const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
@@ -228,7 +237,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 u.annualRate = rates.sfo;
               }
             }
-            seen.add(u.id);
+            seenSfo.add(u.id);
             unified.push(u);
           }
         }

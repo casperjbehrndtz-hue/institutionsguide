@@ -1,7 +1,9 @@
 {
   "takstYear": 2025,
   "boernYear": 2024,
-  "fetchedAt": "2026-03-29T21:47:59.158Z",
+  "fravaerYear": 2024,
+  "regnskabYear": 2024,
+  "fetchedAt": "2026-03-30T07:17:47.573Z",
   "kommuner": {
     "Aabenraa": {
       "code": "580",
@@ -13,7 +15,10 @@
       "pctMedhjaelpere": 24.8,
       "antalDagpleje": 276,
       "antalBoern02": 446,
-      "antalBoern35": 1250
+      "antalBoern35": 1250,
+      "avgSygefravaerDage": 13.7,
+      "udgiftPrBarn": 143164,
+      "sprogvurderingPctUdfordret": null
     },
     "Aalborg": {
       "code": "851",
@@ -25,7 +30,10 @@
       "pctMedhjaelpere": 15.9,
       "antalDagpleje": 1625,
       "antalBoern02": 1372,
-      "antalBoern35": 6376
+      "antalBoern35": 6376,
+      "avgSygefravaerDage": 17.2,
+      "udgiftPrBarn": 131205,
+      "sprogvurderingPctUdfordret": null
     },
     "Aarhus": {
       "code": "751",
@@ -37,7 +45,10 @@
       "pctMedhjaelpere": 38.2,
       "antalDagpleje": 405,
       "antalBoern02": 6942,
-      "antalBoern35": 10527
+      "antalBoern35": 10527,
+      "avgSygefravaerDage": 18.4,
+      "udgiftPrBarn": 109320,
+      "sprogvurderingPctUdfordret": null
     },
     "Albertslund": {
       "code": "165",
@@ -49,7 +60,10 @@
       "pctMedhjaelpere": 40.9,
       "antalDagpleje": 38,
       "antalBoern02": 360,
-      "antalBoern35": 890
+      "antalBoern35": 890,
+      "avgSygefravaerDage": 21.7,
+      "udgiftPrBarn": 141624,
+      "sprogvurderingPctUdfordret": null
     },
     "Allerød": {
       "code": "201",
@@ -61,7 +75,10 @@
       "pctMedhjaelpere": 48.2,
       "antalDagpleje": 32,
       "antalBoern02": 506,
-      "antalBoern35": 873
+      "antalBoern35": 873,
+      "avgSygefravaerDage": 14.2,
+      "udgiftPrBarn": 110571,
+      "sprogvurderingPctUdfordret": null
     },
     "Assens": {
       "code": "420",
@@ -73,7 +90,10 @@
       "pctMedhjaelpere": 22.7,
       "antalDagpleje": 286,
       "antalBoern02": 225,
-      "antalBoern35": 818
+      "antalBoern35": 818,
+      "avgSygefravaerDage": 19.9,
+      "udgiftPrBarn": 139224,
+      "sprogvurderingPctUdfordret": null
     },
     "Ballerup": {
       "code": "151",
@@ -85,7 +105,10 @@
       "pctMedhjaelpere": 37.8,
       "antalDagpleje": 49,
       "antalBoern02": 970,
-      "antalBoern35": 1741
+      "antalBoern35": 1741,
+      "avgSygefravaerDage": 20.9,
+      "udgiftPrBarn": 143167,
+      "sprogvurderingPctUdfordret": null
     },
     "Billund": {
       "code": "530",
@@ -97,7 +120,10 @@
       "pctMedhjaelpere": 14.5,
       "antalDagpleje": 283,
       "antalBoern02": 155,
-      "antalBoern35": 573
+      "antalBoern35": 573,
+      "avgSygefravaerDage": 17.3,
+      "udgiftPrBarn": 127927,
+      "sprogvurderingPctUdfordret": null
     },
     "Bornholm": {
       "code": "400",
@@ -109,7 +135,10 @@
       "pctMedhjaelpere": 21.5,
       "antalDagpleje": 117,
       "antalBoern02": 318,
-      "antalBoern35": 691
+      "antalBoern35": 691,
+      "avgSygefravaerDage": 21.7,
+      "udgiftPrBarn": 144984,
+      "sprogvurderingPctUdfordret": null
     },
     "Brøndby": {
       "code": "153",
@@ -121,7 +150,10 @@
       "pctMedhjaelpere": 29.4,
       "antalDagpleje": 49,
       "antalBoern02": 706,
-      "antalBoern35": 1220
+      "antalBoern35": 1220,
+      "avgSygefravaerDage": 19.3,
+      "udgiftPrBarn": 129056,
+      "sprogvurderingPctUdfordret": null
     },
     "Brønderslev": {
       "code": "810",
@@ -133,7 +165,10 @@
       "pctMedhjaelpere": 20.9,
       "antalDagpleje": 470,
       "antalBoern02": 158,
-      "antalBoern35": 1090
+      "antalBoern35": 1090,
+      "avgSygefravaerDage": 19.2,
+      "udgiftPrBarn": 103933,
+      "sprogvurderingPctUdfordret": null
     },
     "Dragør": {
       "code": "155",
@@ -145,7 +180,10 @@
       "pctMedhjaelpere": 44,
       "antalDagpleje": 14,
       "antalBoern02": 205,
-      "antalBoern35": 365
+      "antalBoern35": 365,
+      "avgSygefravaerDage": 17.4,
+      "udgiftPrBarn": 153971,
+      "sprogvurderingPctUdfordret": null
     },
     "Egedal": {
       "code": "240",
@@ -157,7 +195,10 @@
       "pctMedhjaelpere": 42.7,
       "antalDagpleje": 51,
       "antalBoern02": 1020,
-      "antalBoern35": 1584
+      "antalBoern35": 1584,
+      "avgSygefravaerDage": 17.1,
+      "udgiftPrBarn": 110637,
+      "sprogvurderingPctUdfordret": null
     },
     "Esbjerg": {
       "code": "561",
@@ -169,7 +210,10 @@
       "pctMedhjaelpere": 24.7,
       "antalDagpleje": 526,
       "antalBoern02": 1300,
-      "antalBoern35": 3075
+      "antalBoern35": 3075,
+      "avgSygefravaerDage": 16.5,
+      "udgiftPrBarn": 115552,
+      "sprogvurderingPctUdfordret": null
     },
     "Faaborg-Midtfyn": {
       "code": "430",
@@ -181,7 +225,10 @@
       "pctMedhjaelpere": 17.5,
       "antalDagpleje": 371,
       "antalBoern02": 227,
-      "antalBoern35": 1014
+      "antalBoern35": 1014,
+      "avgSygefravaerDage": 17.4,
+      "udgiftPrBarn": 146841,
+      "sprogvurderingPctUdfordret": null
     },
     "Fanø": {
       "code": "563",
@@ -193,7 +240,10 @@
       "pctMedhjaelpere": 39.3,
       "antalDagpleje": 0,
       "antalBoern02": 38,
-      "antalBoern35": 82
+      "antalBoern35": 82,
+      "avgSygefravaerDage": null,
+      "udgiftPrBarn": 125483,
+      "sprogvurderingPctUdfordret": null
     },
     "Favrskov": {
       "code": "710",
@@ -205,7 +255,10 @@
       "pctMedhjaelpere": 25.5,
       "antalDagpleje": 530,
       "antalBoern02": 651,
-      "antalBoern35": 1649
+      "antalBoern35": 1649,
+      "avgSygefravaerDage": 21.7,
+      "udgiftPrBarn": 102752,
+      "sprogvurderingPctUdfordret": null
     },
     "Faxe": {
       "code": "320",
@@ -217,7 +270,10 @@
       "pctMedhjaelpere": 36.7,
       "antalDagpleje": 139,
       "antalBoern02": 429,
-      "antalBoern35": 842
+      "antalBoern35": 842,
+      "avgSygefravaerDage": 21.6,
+      "udgiftPrBarn": 109948,
+      "sprogvurderingPctUdfordret": null
     },
     "Fredensborg": {
       "code": "210",
@@ -229,7 +285,10 @@
       "pctMedhjaelpere": 39.2,
       "antalDagpleje": 33,
       "antalBoern02": 637,
-      "antalBoern35": 1153
+      "antalBoern35": 1153,
+      "avgSygefravaerDage": 22,
+      "udgiftPrBarn": 128026,
+      "sprogvurderingPctUdfordret": null
     },
     "Fredericia": {
       "code": "607",
@@ -241,7 +300,10 @@
       "pctMedhjaelpere": 29.7,
       "antalDagpleje": 205,
       "antalBoern02": 553,
-      "antalBoern35": 1036
+      "antalBoern35": 1036,
+      "avgSygefravaerDage": 16.7,
+      "udgiftPrBarn": 153457,
+      "sprogvurderingPctUdfordret": null
     },
     "Frederiksberg": {
       "code": "147",
@@ -253,7 +315,10 @@
       "pctMedhjaelpere": 47.5,
       "antalDagpleje": 17,
       "antalBoern02": 2079,
-      "antalBoern35": 2713
+      "antalBoern35": 2713,
+      "avgSygefravaerDage": 18.3,
+      "udgiftPrBarn": 123575,
+      "sprogvurderingPctUdfordret": null
     },
     "Frederikshavn": {
       "code": "813",
@@ -265,7 +330,10 @@
       "pctMedhjaelpere": 20.9,
       "antalDagpleje": 297,
       "antalBoern02": 420,
-      "antalBoern35": 1353
+      "antalBoern35": 1353,
+      "avgSygefravaerDage": 16.7,
+      "udgiftPrBarn": 121374,
+      "sprogvurderingPctUdfordret": null
     },
     "Frederikssund": {
       "code": "250",
@@ -277,7 +345,10 @@
       "pctMedhjaelpere": 28.6,
       "antalDagpleje": 122,
       "antalBoern02": 634,
-      "antalBoern35": 1146
+      "antalBoern35": 1146,
+      "avgSygefravaerDage": 20.6,
+      "udgiftPrBarn": 127125,
+      "sprogvurderingPctUdfordret": null
     },
     "Furesø": {
       "code": "190",
@@ -289,7 +360,10 @@
       "pctMedhjaelpere": 41.7,
       "antalDagpleje": 27,
       "antalBoern02": 846,
-      "antalBoern35": 1505
+      "antalBoern35": 1505,
+      "avgSygefravaerDage": 22.4,
+      "udgiftPrBarn": 119938,
+      "sprogvurderingPctUdfordret": null
     },
     "Gentofte": {
       "code": "157",
@@ -301,7 +375,10 @@
       "pctMedhjaelpere": 42.7,
       "antalDagpleje": 36,
       "antalBoern02": 1195,
-      "antalBoern35": 2290
+      "antalBoern35": 2290,
+      "avgSygefravaerDage": 16.6,
+      "udgiftPrBarn": 120830,
+      "sprogvurderingPctUdfordret": null
     },
     "Gladsaxe": {
       "code": "159",
@@ -313,7 +390,10 @@
       "pctMedhjaelpere": 42,
       "antalDagpleje": 66,
       "antalBoern02": 1334,
-      "antalBoern35": 2434
+      "antalBoern35": 2434,
+      "avgSygefravaerDage": 22.3,
+      "udgiftPrBarn": 131749,
+      "sprogvurderingPctUdfordret": null
     },
     "Glostrup": {
       "code": "161",
@@ -325,7 +405,10 @@
       "pctMedhjaelpere": 42.3,
       "antalDagpleje": 15,
       "antalBoern02": 409,
-      "antalBoern35": 740
+      "antalBoern35": 740,
+      "avgSygefravaerDage": 17,
+      "udgiftPrBarn": 125829,
+      "sprogvurderingPctUdfordret": null
     },
     "Greve": {
       "code": "253",
@@ -337,7 +420,10 @@
       "pctMedhjaelpere": 39.1,
       "antalDagpleje": 86,
       "antalBoern02": 881,
-      "antalBoern35": 1500
+      "antalBoern35": 1500,
+      "avgSygefravaerDage": 24.8,
+      "udgiftPrBarn": 123839,
+      "sprogvurderingPctUdfordret": null
     },
     "Gribskov": {
       "code": "270",
@@ -349,7 +435,10 @@
       "pctMedhjaelpere": 35.4,
       "antalDagpleje": 66,
       "antalBoern02": 403,
-      "antalBoern35": 675
+      "antalBoern35": 675,
+      "avgSygefravaerDage": 19.8,
+      "udgiftPrBarn": 159191,
+      "sprogvurderingPctUdfordret": null
     },
     "Guldborgsund": {
       "code": "376",
@@ -361,7 +450,10 @@
       "pctMedhjaelpere": 16,
       "antalDagpleje": 188,
       "antalBoern02": 575,
-      "antalBoern35": 1142
+      "antalBoern35": 1142,
+      "avgSygefravaerDage": 18.9,
+      "udgiftPrBarn": 136952,
+      "sprogvurderingPctUdfordret": null
     },
     "Haderslev": {
       "code": "510",
@@ -373,7 +465,10 @@
       "pctMedhjaelpere": 23.1,
       "antalDagpleje": 368,
       "antalBoern02": 433,
-      "antalBoern35": 1481
+      "antalBoern35": 1481,
+      "avgSygefravaerDage": 19.7,
+      "udgiftPrBarn": 120798,
+      "sprogvurderingPctUdfordret": null
     },
     "Halsnæs": {
       "code": "260",
@@ -385,7 +480,10 @@
       "pctMedhjaelpere": 28.8,
       "antalDagpleje": 37,
       "antalBoern02": 351,
-      "antalBoern35": 702
+      "antalBoern35": 702,
+      "avgSygefravaerDage": 21,
+      "udgiftPrBarn": 131083,
+      "sprogvurderingPctUdfordret": null
     },
     "Hedensted": {
       "code": "766",
@@ -397,7 +495,10 @@
       "pctMedhjaelpere": 29.2,
       "antalDagpleje": 329,
       "antalBoern02": 508,
-      "antalBoern35": 1292
+      "antalBoern35": 1292,
+      "avgSygefravaerDage": 14.5,
+      "udgiftPrBarn": 114136,
+      "sprogvurderingPctUdfordret": null
     },
     "Helsingør": {
       "code": "217",
@@ -409,7 +510,10 @@
       "pctMedhjaelpere": 41.7,
       "antalDagpleje": 0,
       "antalBoern02": 844,
-      "antalBoern35": 1513
+      "antalBoern35": 1513,
+      "avgSygefravaerDage": 21.8,
+      "udgiftPrBarn": 142627,
+      "sprogvurderingPctUdfordret": null
     },
     "Herlev": {
       "code": "163",
@@ -421,7 +525,10 @@
       "pctMedhjaelpere": 31.5,
       "antalDagpleje": 36,
       "antalBoern02": 546,
-      "antalBoern35": 911
+      "antalBoern35": 911,
+      "avgSygefravaerDage": 24.2,
+      "udgiftPrBarn": 130089,
+      "sprogvurderingPctUdfordret": null
     },
     "Herning": {
       "code": "657",
@@ -433,7 +540,10 @@
       "pctMedhjaelpere": 34.4,
       "antalDagpleje": 437,
       "antalBoern02": 992,
-      "antalBoern35": 2810
+      "antalBoern35": 2810,
+      "avgSygefravaerDage": 18.4,
+      "udgiftPrBarn": 110157,
+      "sprogvurderingPctUdfordret": null
     },
     "Hillerød": {
       "code": "219",
@@ -445,7 +555,10 @@
       "pctMedhjaelpere": 40.4,
       "antalDagpleje": 65,
       "antalBoern02": 1029,
-      "antalBoern35": 1640
+      "antalBoern35": 1640,
+      "avgSygefravaerDage": 21.7,
+      "udgiftPrBarn": 114890,
+      "sprogvurderingPctUdfordret": null
     },
     "Hjørring": {
       "code": "860",
@@ -457,7 +570,10 @@
       "pctMedhjaelpere": 27.6,
       "antalDagpleje": 246,
       "antalBoern02": 487,
-      "antalBoern35": 1452
+      "antalBoern35": 1452,
+      "avgSygefravaerDage": 15.7,
+      "udgiftPrBarn": 129321,
+      "sprogvurderingPctUdfordret": null
     },
     "Holbæk": {
       "code": "316",
@@ -469,7 +585,10 @@
       "pctMedhjaelpere": 33.5,
       "antalDagpleje": 193,
       "antalBoern02": 824,
-      "antalBoern35": 1804
+      "antalBoern35": 1804,
+      "avgSygefravaerDage": 20.8,
+      "udgiftPrBarn": 129658,
+      "sprogvurderingPctUdfordret": null
     },
     "Holstebro": {
       "code": "661",
@@ -481,7 +600,10 @@
       "pctMedhjaelpere": 27.5,
       "antalDagpleje": 387,
       "antalBoern02": 699,
-      "antalBoern35": 1634
+      "antalBoern35": 1634,
+      "avgSygefravaerDage": 20.5,
+      "udgiftPrBarn": 117145,
+      "sprogvurderingPctUdfordret": null
     },
     "Horsens": {
       "code": "615",
@@ -493,7 +615,10 @@
       "pctMedhjaelpere": 28.3,
       "antalDagpleje": 323,
       "antalBoern02": 1642,
-      "antalBoern35": 2861
+      "antalBoern35": 2861,
+      "avgSygefravaerDage": 20.5,
+      "udgiftPrBarn": 114975,
+      "sprogvurderingPctUdfordret": null
     },
     "Hvidovre": {
       "code": "167",
@@ -505,7 +630,10 @@
       "pctMedhjaelpere": 35.7,
       "antalDagpleje": 81,
       "antalBoern02": 1052,
-      "antalBoern35": 1768
+      "antalBoern35": 1768,
+      "avgSygefravaerDage": 18.9,
+      "udgiftPrBarn": 127647,
+      "sprogvurderingPctUdfordret": null
     },
     "Høje-Taastrup": {
       "code": "169",
@@ -517,7 +645,10 @@
       "pctMedhjaelpere": 39.3,
       "antalDagpleje": 35,
       "antalBoern02": 1159,
-      "antalBoern35": 1817
+      "antalBoern35": 1817,
+      "avgSygefravaerDage": 20.5,
+      "udgiftPrBarn": 141045,
+      "sprogvurderingPctUdfordret": null
     },
     "Hørsholm": {
       "code": "223",
@@ -529,7 +660,10 @@
       "pctMedhjaelpere": 44.6,
       "antalDagpleje": 4,
       "antalBoern02": 302,
-      "antalBoern35": 476
+      "antalBoern35": 476,
+      "avgSygefravaerDage": 18.9,
+      "udgiftPrBarn": 172165,
+      "sprogvurderingPctUdfordret": null
     },
     "Ikast-Brande": {
       "code": "756",
@@ -541,7 +675,10 @@
       "pctMedhjaelpere": 23.2,
       "antalDagpleje": 458,
       "antalBoern02": 333,
-      "antalBoern35": 1245
+      "antalBoern35": 1245,
+      "avgSygefravaerDage": 16.8,
+      "udgiftPrBarn": 117849,
+      "sprogvurderingPctUdfordret": null
     },
     "Ishøj": {
       "code": "183",
@@ -553,7 +690,10 @@
       "pctMedhjaelpere": 38.6,
       "antalDagpleje": 47,
       "antalBoern02": 409,
-      "antalBoern35": 738
+      "antalBoern35": 738,
+      "avgSygefravaerDage": 22.3,
+      "udgiftPrBarn": 123999,
+      "sprogvurderingPctUdfordret": null
     },
     "Jammerbugt": {
       "code": "849",
@@ -565,7 +705,10 @@
       "pctMedhjaelpere": 22.3,
       "antalDagpleje": 202,
       "antalBoern02": 178,
-      "antalBoern35": 893
+      "antalBoern35": 893,
+      "avgSygefravaerDage": 21.9,
+      "udgiftPrBarn": 141584,
+      "sprogvurderingPctUdfordret": null
     },
     "Kalundborg": {
       "code": "326",
@@ -577,7 +720,10 @@
       "pctMedhjaelpere": 28.5,
       "antalDagpleje": 266,
       "antalBoern02": 343,
-      "antalBoern35": 1104
+      "antalBoern35": 1104,
+      "avgSygefravaerDage": 20.2,
+      "udgiftPrBarn": 115434,
+      "sprogvurderingPctUdfordret": null
     },
     "Kerteminde": {
       "code": "440",
@@ -589,7 +735,10 @@
       "pctMedhjaelpere": 28.6,
       "antalDagpleje": 143,
       "antalBoern02": 202,
-      "antalBoern35": 579
+      "antalBoern35": 579,
+      "avgSygefravaerDage": 17.4,
+      "udgiftPrBarn": 131968,
+      "sprogvurderingPctUdfordret": null
     },
     "Kolding": {
       "code": "621",
@@ -601,7 +750,10 @@
       "pctMedhjaelpere": 25.3,
       "antalDagpleje": 618,
       "antalBoern02": 898,
-      "antalBoern35": 2650
+      "antalBoern35": 2650,
+      "avgSygefravaerDage": 18,
+      "udgiftPrBarn": 114572,
+      "sprogvurderingPctUdfordret": null
     },
     "København": {
       "code": "101",
@@ -613,7 +765,10 @@
       "pctMedhjaelpere": 42.8,
       "antalDagpleje": 295,
       "antalBoern02": 12710,
-      "antalBoern35": 17327
+      "antalBoern35": 17327,
+      "avgSygefravaerDage": 18.7,
+      "udgiftPrBarn": 152333,
+      "sprogvurderingPctUdfordret": null
     },
     "Køge": {
       "code": "259",
@@ -625,7 +780,10 @@
       "pctMedhjaelpere": 32.2,
       "antalDagpleje": 121,
       "antalBoern02": 1092,
-      "antalBoern35": 1823
+      "antalBoern35": 1823,
+      "avgSygefravaerDage": 19.6,
+      "udgiftPrBarn": 119716,
+      "sprogvurderingPctUdfordret": null
     },
     "Langeland": {
       "code": "482",
@@ -637,7 +795,10 @@
       "pctMedhjaelpere": 30.4,
       "antalDagpleje": 56,
       "antalBoern02": 40,
-      "antalBoern35": 154
+      "antalBoern35": 154,
+      "avgSygefravaerDage": 23,
+      "udgiftPrBarn": 161012,
+      "sprogvurderingPctUdfordret": null
     },
     "Lejre": {
       "code": "350",
@@ -649,7 +810,10 @@
       "pctMedhjaelpere": 36,
       "antalDagpleje": 89,
       "antalBoern02": 405,
-      "antalBoern35": 912
+      "antalBoern35": 912,
+      "avgSygefravaerDage": 20.4,
+      "udgiftPrBarn": 119970,
+      "sprogvurderingPctUdfordret": null
     },
     "Lemvig": {
       "code": "665",
@@ -661,7 +825,10 @@
       "pctMedhjaelpere": 32.7,
       "antalDagpleje": 87,
       "antalBoern02": 165,
-      "antalBoern35": 375
+      "antalBoern35": 375,
+      "avgSygefravaerDage": 12,
+      "udgiftPrBarn": 131268,
+      "sprogvurderingPctUdfordret": null
     },
     "Lolland": {
       "code": "360",
@@ -673,7 +840,10 @@
       "pctMedhjaelpere": 16.4,
       "antalDagpleje": 252,
       "antalBoern02": 208,
-      "antalBoern35": 610
+      "antalBoern35": 610,
+      "avgSygefravaerDage": 19,
+      "udgiftPrBarn": 144524,
+      "sprogvurderingPctUdfordret": null
     },
     "Lyngby-Taarbæk": {
       "code": "173",
@@ -685,7 +855,10 @@
       "pctMedhjaelpere": 44.9,
       "antalDagpleje": 46,
       "antalBoern02": 981,
-      "antalBoern35": 1674
+      "antalBoern35": 1674,
+      "avgSygefravaerDage": 16.7,
+      "udgiftPrBarn": 114571,
+      "sprogvurderingPctUdfordret": null
     },
     "Læsø": {
       "code": "825",
@@ -697,7 +870,10 @@
       "pctMedhjaelpere": 50,
       "antalDagpleje": 0,
       "antalBoern02": 14,
-      "antalBoern35": 34
+      "antalBoern35": 34,
+      "avgSygefravaerDage": null,
+      "udgiftPrBarn": 100104,
+      "sprogvurderingPctUdfordret": null
     },
     "Mariagerfjord": {
       "code": "846",
@@ -709,7 +885,10 @@
       "pctMedhjaelpere": 16.6,
       "antalDagpleje": 390,
       "antalBoern02": 188,
-      "antalBoern35": 1031
+      "antalBoern35": 1031,
+      "avgSygefravaerDage": 19,
+      "udgiftPrBarn": 117983,
+      "sprogvurderingPctUdfordret": null
     },
     "Middelfart": {
       "code": "410",
@@ -721,7 +900,10 @@
       "pctMedhjaelpere": 29.9,
       "antalDagpleje": 236,
       "antalBoern02": 386,
-      "antalBoern35": 914
+      "antalBoern35": 914,
+      "avgSygefravaerDage": 19.3,
+      "udgiftPrBarn": 127522,
+      "sprogvurderingPctUdfordret": null
     },
     "Morsø": {
       "code": "773",
@@ -733,7 +915,10 @@
       "pctMedhjaelpere": 18.7,
       "antalDagpleje": 64,
       "antalBoern02": 145,
-      "antalBoern35": 279
+      "antalBoern35": 279,
+      "avgSygefravaerDage": 12.4,
+      "udgiftPrBarn": 189910,
+      "sprogvurderingPctUdfordret": null
     },
     "Norddjurs": {
       "code": "707",
@@ -745,7 +930,10 @@
       "pctMedhjaelpere": 21.1,
       "antalDagpleje": 332,
       "antalBoern02": 227,
-      "antalBoern35": 702
+      "antalBoern35": 702,
+      "avgSygefravaerDage": 20.5,
+      "udgiftPrBarn": 123184,
+      "sprogvurderingPctUdfordret": null
     },
     "Nordfyns": {
       "code": "480",
@@ -757,7 +945,10 @@
       "pctMedhjaelpere": 24.4,
       "antalDagpleje": 196,
       "antalBoern02": 161,
-      "antalBoern35": 655
+      "antalBoern35": 655,
+      "avgSygefravaerDage": 15.4,
+      "udgiftPrBarn": 118253,
+      "sprogvurderingPctUdfordret": null
     },
     "Nyborg": {
       "code": "450",
@@ -769,7 +960,10 @@
       "pctMedhjaelpere": 21.1,
       "antalDagpleje": 224,
       "antalBoern02": 229,
-      "antalBoern35": 803
+      "antalBoern35": 803,
+      "avgSygefravaerDage": 15.9,
+      "udgiftPrBarn": 110451,
+      "sprogvurderingPctUdfordret": null
     },
     "Næstved": {
       "code": "370",
@@ -781,7 +975,10 @@
       "pctMedhjaelpere": 21,
       "antalDagpleje": 405,
       "antalBoern02": 800,
-      "antalBoern35": 2041
+      "antalBoern35": 2041,
+      "avgSygefravaerDage": 18.6,
+      "udgiftPrBarn": 116316,
+      "sprogvurderingPctUdfordret": null
     },
     "Odder": {
       "code": "727",
@@ -793,7 +990,10 @@
       "pctMedhjaelpere": 34.9,
       "antalDagpleje": 117,
       "antalBoern02": 256,
-      "antalBoern35": 740
+      "antalBoern35": 740,
+      "avgSygefravaerDage": 21.4,
+      "udgiftPrBarn": 99511,
+      "sprogvurderingPctUdfordret": null
     },
     "Odense": {
       "code": "461",
@@ -805,7 +1005,10 @@
       "pctMedhjaelpere": 27.8,
       "antalDagpleje": 883,
       "antalBoern02": 2125,
-      "antalBoern35": 5001
+      "antalBoern35": 5001,
+      "avgSygefravaerDage": 17.5,
+      "udgiftPrBarn": 127411,
+      "sprogvurderingPctUdfordret": null
     },
     "Odsherred": {
       "code": "306",
@@ -817,7 +1020,10 @@
       "pctMedhjaelpere": 22.8,
       "antalDagpleje": 190,
       "antalBoern02": 158,
-      "antalBoern35": 494
+      "antalBoern35": 494,
+      "avgSygefravaerDage": 17.8,
+      "udgiftPrBarn": 147162,
+      "sprogvurderingPctUdfordret": null
     },
     "Randers": {
       "code": "730",
@@ -829,7 +1035,10 @@
       "pctMedhjaelpere": 31,
       "antalDagpleje": 464,
       "antalBoern02": 1513,
-      "antalBoern35": 2619
+      "antalBoern35": 2619,
+      "avgSygefravaerDage": 17.2,
+      "udgiftPrBarn": 120123,
+      "sprogvurderingPctUdfordret": null
     },
     "Rebild": {
       "code": "840",
@@ -841,7 +1050,10 @@
       "pctMedhjaelpere": 26.1,
       "antalDagpleje": 233,
       "antalBoern02": 299,
-      "antalBoern35": 1087
+      "antalBoern35": 1087,
+      "avgSygefravaerDage": 17.2,
+      "udgiftPrBarn": 108080,
+      "sprogvurderingPctUdfordret": null
     },
     "Ringkøbing-Skjern": {
       "code": "760",
@@ -853,7 +1065,10 @@
       "pctMedhjaelpere": 28.7,
       "antalDagpleje": 345,
       "antalBoern02": 348,
-      "antalBoern35": 1423
+      "antalBoern35": 1423,
+      "avgSygefravaerDage": 13.7,
+      "udgiftPrBarn": 116805,
+      "sprogvurderingPctUdfordret": null
     },
     "Ringsted": {
       "code": "329",
@@ -865,7 +1080,10 @@
       "pctMedhjaelpere": 30.3,
       "antalDagpleje": 115,
       "antalBoern02": 492,
-      "antalBoern35": 989
+      "antalBoern35": 989,
+      "avgSygefravaerDage": 21.1,
+      "udgiftPrBarn": 110167,
+      "sprogvurderingPctUdfordret": null
     },
     "Roskilde": {
       "code": "265",
@@ -877,7 +1095,10 @@
       "pctMedhjaelpere": 38.3,
       "antalDagpleje": 105,
       "antalBoern02": 1316,
-      "antalBoern35": 2474
+      "antalBoern35": 2474,
+      "avgSygefravaerDage": 20.6,
+      "udgiftPrBarn": 131957,
+      "sprogvurderingPctUdfordret": null
     },
     "Rudersdal": {
       "code": "230",
@@ -889,7 +1110,10 @@
       "pctMedhjaelpere": 47.6,
       "antalDagpleje": 31,
       "antalBoern02": 1065,
-      "antalBoern35": 1877
+      "antalBoern35": 1877,
+      "avgSygefravaerDage": 18.6,
+      "udgiftPrBarn": 107121,
+      "sprogvurderingPctUdfordret": null
     },
     "Rødovre": {
       "code": "175",
@@ -901,7 +1125,10 @@
       "pctMedhjaelpere": 37,
       "antalDagpleje": 119,
       "antalBoern02": 764,
-      "antalBoern35": 1410
+      "antalBoern35": 1410,
+      "avgSygefravaerDage": 20.4,
+      "udgiftPrBarn": 128846,
+      "sprogvurderingPctUdfordret": null
     },
     "Samsø": {
       "code": "741",
@@ -913,7 +1140,10 @@
       "pctMedhjaelpere": 21.4,
       "antalDagpleje": 54,
       "antalBoern02": 0,
-      "antalBoern35": 44
+      "antalBoern35": 44,
+      "avgSygefravaerDage": null,
+      "udgiftPrBarn": 160980,
+      "sprogvurderingPctUdfordret": null
     },
     "Silkeborg": {
       "code": "740",
@@ -925,7 +1155,10 @@
       "pctMedhjaelpere": 31.3,
       "antalDagpleje": 627,
       "antalBoern02": 1606,
-      "antalBoern35": 3439
+      "antalBoern35": 3439,
+      "avgSygefravaerDage": 16.7,
+      "udgiftPrBarn": 110091,
+      "sprogvurderingPctUdfordret": null
     },
     "Skanderborg": {
       "code": "746",
@@ -937,7 +1170,10 @@
       "pctMedhjaelpere": 35.4,
       "antalDagpleje": 381,
       "antalBoern02": 1152,
-      "antalBoern35": 2709
+      "antalBoern35": 2709,
+      "avgSygefravaerDage": 16.7,
+      "udgiftPrBarn": 110791,
+      "sprogvurderingPctUdfordret": null
     },
     "Skive": {
       "code": "779",
@@ -949,7 +1185,10 @@
       "pctMedhjaelpere": 12,
       "antalDagpleje": 487,
       "antalBoern02": 145,
-      "antalBoern35": 964
+      "antalBoern35": 964,
+      "avgSygefravaerDage": 16.6,
+      "udgiftPrBarn": 116907,
+      "sprogvurderingPctUdfordret": null
     },
     "Slagelse": {
       "code": "330",
@@ -961,7 +1200,10 @@
       "pctMedhjaelpere": 34.1,
       "antalDagpleje": 284,
       "antalBoern02": 935,
-      "antalBoern35": 2182
+      "antalBoern35": 2182,
+      "avgSygefravaerDage": 17.1,
+      "udgiftPrBarn": 126240,
+      "sprogvurderingPctUdfordret": null
     },
     "Solrød": {
       "code": "269",
@@ -973,7 +1215,10 @@
       "pctMedhjaelpere": 38.3,
       "antalDagpleje": 90,
       "antalBoern02": 424,
-      "antalBoern35": 869
+      "antalBoern35": 869,
+      "avgSygefravaerDage": 20.8,
+      "udgiftPrBarn": 108967,
+      "sprogvurderingPctUdfordret": null
     },
     "Sorø": {
       "code": "340",
@@ -985,7 +1230,10 @@
       "pctMedhjaelpere": 34.3,
       "antalDagpleje": 121,
       "antalBoern02": 371,
-      "antalBoern35": 743
+      "antalBoern35": 743,
+      "avgSygefravaerDage": 23.2,
+      "udgiftPrBarn": 116006,
+      "sprogvurderingPctUdfordret": null
     },
     "Stevns": {
       "code": "336",
@@ -997,7 +1245,10 @@
       "pctMedhjaelpere": 38.4,
       "antalDagpleje": 69,
       "antalBoern02": 204,
-      "antalBoern35": 534
+      "antalBoern35": 534,
+      "avgSygefravaerDage": 20.4,
+      "udgiftPrBarn": 137880,
+      "sprogvurderingPctUdfordret": null
     },
     "Struer": {
       "code": "671",
@@ -1009,7 +1260,10 @@
       "pctMedhjaelpere": 25.8,
       "antalDagpleje": 108,
       "antalBoern02": 169,
-      "antalBoern35": 450
+      "antalBoern35": 450,
+      "avgSygefravaerDage": 12.8,
+      "udgiftPrBarn": 113461,
+      "sprogvurderingPctUdfordret": null
     },
     "Svendborg": {
       "code": "479",
@@ -1021,7 +1275,10 @@
       "pctMedhjaelpere": 24.6,
       "antalDagpleje": 306,
       "antalBoern02": 545,
-      "antalBoern35": 1378
+      "antalBoern35": 1378,
+      "avgSygefravaerDage": 17.6,
+      "udgiftPrBarn": 132056,
+      "sprogvurderingPctUdfordret": null
     },
     "Syddjurs": {
       "code": "706",
@@ -1033,7 +1290,10 @@
       "pctMedhjaelpere": 31,
       "antalDagpleje": 238,
       "antalBoern02": 477,
-      "antalBoern35": 1073
+      "antalBoern35": 1073,
+      "avgSygefravaerDage": 15.3,
+      "udgiftPrBarn": 123291,
+      "sprogvurderingPctUdfordret": null
     },
     "Sønderborg": {
       "code": "540",
@@ -1045,7 +1305,10 @@
       "pctMedhjaelpere": 16.9,
       "antalDagpleje": 205,
       "antalBoern02": 595,
-      "antalBoern35": 1860
+      "antalBoern35": 1860,
+      "avgSygefravaerDage": 17.3,
+      "udgiftPrBarn": 132117,
+      "sprogvurderingPctUdfordret": null
     },
     "Thisted": {
       "code": "787",
@@ -1057,7 +1320,10 @@
       "pctMedhjaelpere": 14.2,
       "antalDagpleje": 361,
       "antalBoern02": 269,
-      "antalBoern35": 753
+      "antalBoern35": 753,
+      "avgSygefravaerDage": 12.8,
+      "udgiftPrBarn": 149551,
+      "sprogvurderingPctUdfordret": null
     },
     "Tårnby": {
       "code": "185",
@@ -1069,7 +1335,10 @@
       "pctMedhjaelpere": 41.9,
       "antalDagpleje": 114,
       "antalBoern02": 704,
-      "antalBoern35": 1320
+      "antalBoern35": 1320,
+      "avgSygefravaerDage": 19.4,
+      "udgiftPrBarn": 137852,
+      "sprogvurderingPctUdfordret": null
     },
     "Tønder": {
       "code": "550",
@@ -1081,7 +1350,10 @@
       "pctMedhjaelpere": 26,
       "antalDagpleje": 160,
       "antalBoern02": 355,
-      "antalBoern35": 944
+      "antalBoern35": 944,
+      "avgSygefravaerDage": 15.5,
+      "udgiftPrBarn": 120774,
+      "sprogvurderingPctUdfordret": null
     },
     "Vallensbæk": {
       "code": "187",
@@ -1093,7 +1365,10 @@
       "pctMedhjaelpere": 41,
       "antalDagpleje": 57,
       "antalBoern02": 364,
-      "antalBoern35": 666
+      "antalBoern35": 666,
+      "avgSygefravaerDage": 21.3,
+      "udgiftPrBarn": 104779,
+      "sprogvurderingPctUdfordret": null
     },
     "Varde": {
       "code": "573",
@@ -1105,7 +1380,10 @@
       "pctMedhjaelpere": 20.6,
       "antalDagpleje": 525,
       "antalBoern02": 266,
-      "antalBoern35": 1352
+      "antalBoern35": 1352,
+      "avgSygefravaerDage": 16.2,
+      "udgiftPrBarn": 108609,
+      "sprogvurderingPctUdfordret": null
     },
     "Vejen": {
       "code": "575",
@@ -1117,7 +1395,10 @@
       "pctMedhjaelpere": 18.9,
       "antalDagpleje": 388,
       "antalBoern02": 254,
-      "antalBoern35": 1091
+      "antalBoern35": 1091,
+      "avgSygefravaerDage": 18.7,
+      "udgiftPrBarn": 120537,
+      "sprogvurderingPctUdfordret": null
     },
     "Vejle": {
       "code": "630",
@@ -1129,7 +1410,10 @@
       "pctMedhjaelpere": 37.7,
       "antalDagpleje": 460,
       "antalBoern02": 1569,
-      "antalBoern35": 3395
+      "antalBoern35": 3395,
+      "avgSygefravaerDage": 17.8,
+      "udgiftPrBarn": 127066,
+      "sprogvurderingPctUdfordret": null
     },
     "Vesthimmerlands": {
       "code": "820",
@@ -1141,7 +1425,10 @@
       "pctMedhjaelpere": 18.8,
       "antalDagpleje": 220,
       "antalBoern02": 256,
-      "antalBoern35": 819
+      "antalBoern35": 819,
+      "avgSygefravaerDage": 18.4,
+      "udgiftPrBarn": 130986,
+      "sprogvurderingPctUdfordret": null
     },
     "Viborg": {
       "code": "791",
@@ -1153,7 +1440,10 @@
       "pctMedhjaelpere": 19.3,
       "antalDagpleje": 523,
       "antalBoern02": 911,
-      "antalBoern35": 2582
+      "antalBoern35": 2582,
+      "avgSygefravaerDage": 15.6,
+      "udgiftPrBarn": 129878,
+      "sprogvurderingPctUdfordret": null
     },
     "Vordingborg": {
       "code": "390",
@@ -1165,7 +1455,10 @@
       "pctMedhjaelpere": 27.2,
       "antalDagpleje": 91,
       "antalBoern02": 428,
-      "antalBoern35": 932
+      "antalBoern35": 932,
+      "avgSygefravaerDage": 20.1,
+      "udgiftPrBarn": 112710,
+      "sprogvurderingPctUdfordret": null
     },
     "Ærø": {
       "code": "492",
@@ -1177,7 +1470,10 @@
       "pctMedhjaelpere": 27,
       "antalDagpleje": 24,
       "antalBoern02": 23,
-      "antalBoern35": 97
+      "antalBoern35": 97,
+      "avgSygefravaerDage": null,
+      "udgiftPrBarn": 140396,
+      "sprogvurderingPctUdfordret": null
     }
   }
 }

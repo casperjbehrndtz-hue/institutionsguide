@@ -52,6 +52,7 @@ export default function PrissammenligningPage() {
   const { municipalities, loading } = useData();
   const [sortKey, setSortKey] = useState<SortKey>("vuggestue");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Compute quartile bounds per rate category
   const quartileBounds = useMemo(() => {
@@ -114,6 +115,15 @@ export default function PrissammenligningPage() {
     });
     return rows;
   }, [municipalities, sortKey, sortDir]);
+
+  // Filtered rows by search query
+  const filteredRows = useMemo(() => {
+    if (!searchQuery.trim()) return sortedRows;
+    const q = searchQuery.toLowerCase().trim();
+    return sortedRows.filter((row) =>
+      row.municipality.toLowerCase().includes(q)
+    );
+  }, [sortedRows, searchQuery]);
 
   // Active rate key for bar chart (only show when sorting by a rate category)
   const activeRateKey: RateKey = sortKey === "municipality" ? "vuggestue" : sortKey;
@@ -343,6 +353,22 @@ export default function PrissammenligningPage() {
         <h2 className="font-display text-xl font-bold text-foreground mb-3">
           Alle kommuner — månedlig takst
         </h2>
+        {/* Search input */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Søg kommune... / Search municipality..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full sm:w-80 px-4 py-2.5 rounded-xl border border-border bg-bg-card text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+            aria-label="Søg kommune"
+          />
+          {searchQuery.trim() && (
+            <p className="text-xs text-muted mt-2" aria-live="polite">
+              Viser {filteredRows.length} af {municipalities.length} kommuner
+            </p>
+          )}
+        </div>
         {/* Color legend */}
         <div className="flex flex-wrap items-center gap-4 text-xs text-muted mb-4 px-1">
           <span className="flex items-center gap-1.5">
@@ -379,7 +405,7 @@ export default function PrissammenligningPage() {
               </tr>
             </thead>
             <tbody>
-              {sortedRows.map((row) => (
+              {filteredRows.map((row) => (
                 <tr
                   key={row.municipality}
                   className="border-b border-border/50 hover:bg-muted/30 transition-colors"

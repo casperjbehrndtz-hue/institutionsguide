@@ -13,7 +13,7 @@ interface Props {
   municipality: string;
   language: "da" | "en";
   nearby?: (UnifiedInstitution & { dist?: number })[];
-  nearbyScores?: { id: string; overall: number }[];
+  nearbyScores?: { id: string; overall: number | null }[];
   /** AI-generated assessment — overrides deterministic text when present */
   aiAssessment?: Assessment | null;
   aiLoading?: boolean;
@@ -51,20 +51,29 @@ export default function InstitutionReport({
   aiAssessment,
   aiLoading,
 }: Props) {
-  const s10 = Math.round(score.overall / 10 * 10) / 10;
+  const hasData = score.hasData;
+  const s10 = hasData && score.overall != null ? Math.round(score.overall / 10 * 10) / 10 : null;
 
   // Use AI text when available, fall back to deterministic
-  const headline: string = aiAssessment?.headline?.[lang]
-    ?? FALLBACK_HEADLINE[score.grade]?.[lang]
-    ?? FALLBACK_HEADLINE.C[lang];
+  const headline: string = hasData
+    ? (aiAssessment?.headline?.[lang]
+      ?? (score.grade ? FALLBACK_HEADLINE[score.grade]?.[lang] : null)
+      ?? FALLBACK_HEADLINE.C[lang])
+    : (lang === "da" ? "Ingen kvalitetsdata tilgængelig" : "No quality data available");
 
-  const summary: string = aiAssessment?.summary?.[lang]
-    ?? score.recommendation[lang];
+  const summary: string = hasData
+    ? (aiAssessment?.summary?.[lang] ?? score.recommendation[lang])
+    : (lang === "da"
+      ? "Der er ikke nok offentligt tilgængelige data til at beregne en samlet vurdering for denne institution."
+      : "There is not enough publicly available data to compute an overall assessment for this institution.");
 
   const pros: LocalizedText[] = aiAssessment?.pros ?? score.pros;
   const cons: LocalizedText[] = aiAssessment?.cons ?? score.cons;
-  const recommendation: string = aiAssessment?.recommendation?.[lang]
-    ?? score.recommendation[lang];
+  const recommendation: string = hasData
+    ? (aiAssessment?.recommendation?.[lang] ?? score.recommendation[lang])
+    : (lang === "da"
+      ? "Vi anbefaler at kontakte institutionen direkte eller besøge den for at danne dit eget indtryk."
+      : "We recommend contacting the institution directly or visiting to form your own impression.");
 
   const dateStr = `${lang === "da" ? "Opdateret" : "Updated"} ${formatDataDate(dataVersions.overall.lastUpdated, lang)}`;
 
@@ -90,11 +99,17 @@ export default function InstitutionReport({
 
       {/* Overall score */}
       <div className="flex items-center gap-4 sm:gap-6 rounded-xl bg-bg-card p-4 sm:p-5 mb-4">
-        <div className="flex flex-col items-center shrink-0" title={lang === "da" ? `Score: ${s10.toFixed(1)}/10 baseret på pris, kvalitet og placering` : `Score: ${s10.toFixed(1)}/10 based on price, quality and location`}>
-          <div className={`w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] rounded-full border-[3px] flex items-center justify-center shrink-0 ${SCORE_COLOR(s10)}`}>
-            <span className="font-mono text-[24px] sm:text-[28px] font-medium w-full text-center">{s10.toFixed(1)}</span>
-          </div>
-          <span className="text-[10px] text-muted mt-1">{lang === "da" ? "af 10" : "of 10"}</span>
+        <div className="flex flex-col items-center shrink-0" title={s10 != null ? (lang === "da" ? `Score: ${s10.toFixed(1)}/10 baseret på pris, kvalitet og placering` : `Score: ${s10.toFixed(1)}/10 based on price, quality and location`) : (lang === "da" ? "Ingen data" : "No data")}>
+          {s10 != null ? (
+            <div className={`w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] rounded-full border-[3px] flex items-center justify-center shrink-0 ${SCORE_COLOR(s10)}`}>
+              <span className="font-mono text-[24px] sm:text-[28px] font-medium w-full text-center">{s10.toFixed(1)}</span>
+            </div>
+          ) : (
+            <div className="w-[64px] h-[64px] sm:w-[72px] sm:h-[72px] rounded-full border-[3px] border-border/50 flex items-center justify-center shrink-0">
+              <span className="font-mono text-[20px] sm:text-[24px] font-medium text-muted w-full text-center">&mdash;</span>
+            </div>
+          )}
+          <span className="text-[10px] text-muted mt-1">{s10 != null ? (lang === "da" ? "af 10" : "of 10") : (lang === "da" ? "Ingen data" : "No data")}</span>
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-base font-medium text-foreground">
@@ -112,7 +127,7 @@ export default function InstitutionReport({
       </div>
 
       {/* Metric cards — always deterministic */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
+      {score.metrics.length > 0 && <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
         {score.metrics.slice(0, 4).map((m) => {
           const valColor = m.score >= 70 ? "text-[#0F6E56]" : m.score >= 45 ? "text-[#BA7517]" : "text-[#A32D2D]";
           return (
@@ -125,10 +140,10 @@ export default function InstitutionReport({
             </div>
           );
         })}
-      </div>
+      </div>}
 
       {/* Fordele & Opmærksomhedspunkter */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+      {(pros.length > 0 || cons.length > 0) && <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
         <div className="rounded-xl border border-border/50 p-4">
           <p className="text-[13px] font-medium text-[#0F6E56] mb-2.5">
             {lang === "da" ? "Fordele" : "Strengths"}
@@ -159,7 +174,7 @@ export default function InstitutionReport({
             ))}
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Vores vurdering */}
       <div className="rounded-r-lg border border-primary/20 border-l-[3px] border-l-primary p-4 mb-5">
@@ -189,7 +204,7 @@ export default function InstitutionReport({
             {nearby.slice(0, 5).map((n) => {
               const ns = nearbyScores.find((s) => s.id === n.id);
               const isSchool = n.category === "skole";
-              const badgeColor = ns ? scoreBadgeInlineColors(ns.overall) : null;
+              const badgeColor = ns && ns.overall != null ? scoreBadgeInlineColors(ns.overall) : null;
               return (
                 <Link
                   key={n.id}
@@ -206,7 +221,7 @@ export default function InstitutionReport({
                     {!isSchool && n.monthlyRate != null && n.monthlyRate > 0 && (
                       <span>{formatDKK(n.monthlyRate)}/md.</span>
                     )}
-                    {ns && badgeColor && (
+                    {ns && ns.overall != null && badgeColor && (
                       <span
                         className="text-[10px] font-medium px-2 py-0.5 rounded-md"
                         style={{ backgroundColor: badgeColor.bg, color: badgeColor.text }}

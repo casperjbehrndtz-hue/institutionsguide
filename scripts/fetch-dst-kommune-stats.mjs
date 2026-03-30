@@ -8,6 +8,12 @@
  *   1. RES88  — Takster (yearly prices for dagpleje, vuggestue, boernehave, SFO)
  *   2. BOERN1 — Paedagogisk personale (staff by category/education)
  *   3. BOERN2 — Indskrevne boern (enrolled children by age group)
+ *   4. FRA027 — Sygefravær (sick leave days for pædagogisk personale)
+ *   5. REGK31 — Kommunale regnskaber (expenditure on dagtilbud per child)
+ *
+ * Note: sprogvurderingPctUdfordret is not available from DST Statistikbanken.
+ *       It's published by Social- og Boligministeriet and would require a
+ *       separate data source. Set to null for now.
  *
  * Usage:
  *   node scripts/fetch-dst-kommune-stats.mjs
@@ -176,6 +182,11 @@ const SKIP_CODES = new Set([
   "083",  // Region Syddanmark
   "081",  // Region Midtjylland (if present)
   "082",  // Region Nordjylland (if present)
+  "910",  // Hovedstadskommuner (aggregate)
+  "920",  // Storbykommuner (aggregate)
+  "930",  // Provinsbykommuner (aggregate)
+  "940",  // Oplandskommuner (aggregate)
+  "960",  // Landkommuner (aggregate)
 ]);
 
 function isKommune(code) {
@@ -299,6 +310,90 @@ async function fetchBOERN2(year) {
 }
 
 // ---------------------------------------------------------------------------
+// FRA027 — Sygefravær (sick leave)
+// ---------------------------------------------------------------------------
+// ARBFUNK 2343 = Pædagogisk arbejde
+// FRAVAER 1100 = Egen sygdom
+// FRAVAER1 40  = Gennemsnitlige antal fraværsdagsværk pr. fuldtidsansat
+// KØN 0        = I alt
+
+async function fetchFRA027(year) {
+  console.log(`[FRA027] Fetching sygefravær for ${year}...`);
+  const body = {
+    table: "FRA027",
+    format: "JSONSTAT",
+    variables: [
+      { code: "OMRÅDE", values: ["*"] },
+      { code: "KØN", values: ["0"] },
+      { code: "FRAVAER", values: ["1100"] },
+      { code: "ARBFUNK", values: ["2343"] },
+      { code: "FRAVAER1", values: ["40"] },
+      { code: "Tid", values: [String(year)] },
+    ],
+  };
+
+  const raw = await dstFetch(body);
+  const rows = parseJsonStat(raw);
+  console.log(`[FRA027] Parsed ${rows.length} cells`);
+
+  const result = {};
+  for (const r of rows) {
+    const code = r.OMRÅDE_code;
+    if (!isKommune(code)) continue;
+    const name = r.OMRÅDE_label;
+    // value = avg sick leave days per FTE
+    result[name] = { code, avgSygefravaerDage: Math.round(r.value * 10) / 10 };
+  }
+
+  console.log(`[FRA027] Got sygefravær for ${Object.keys(result).length} kommuner`);
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// REGK31 — Kommunale regnskaber (dagtilbud expenditure)
+// ---------------------------------------------------------------------------
+// Functions 5.25.10-5.25.19 = Dagpleje og daginstitutioner
+// DRANST 1 = Driftskonti, ART TOT = I alt (netto), PRISENHED LOBM = 1.000 kr.
+
+const REGK31_FUNKTION_CODES = [
+  "52510", "52511", "52512", "52513", "52514",
+  "52515", "52516", "52517", "52518", "52519",
+];
+
+async function fetchREGK31(year) {
+  console.log(`[REGK31] Fetching dagtilbud udgifter for ${year}...`);
+  const body = {
+    table: "REGK31",
+    format: "JSONSTAT",
+    variables: [
+      { code: "OMRÅDE", values: ["*"] },
+      { code: "FUNKTION", values: REGK31_FUNKTION_CODES },
+      { code: "DRANST", values: ["1"] },
+      { code: "ART", values: ["TOT"] },
+      { code: "PRISENHED", values: ["LOBM"] },
+      { code: "Tid", values: [String(year)] },
+    ],
+  };
+
+  const raw = await dstFetch(body);
+  const rows = parseJsonStat(raw);
+  console.log(`[REGK31] Parsed ${rows.length} cells`);
+
+  // Sum all function codes per kommune (value is in 1.000 kr)
+  const result = {};
+  for (const r of rows) {
+    const code = r.OMRÅDE_code;
+    if (!isKommune(code)) continue;
+    const name = r.OMRÅDE_label;
+    if (!result[name]) result[name] = { code, totalExpenditure1000kr: 0 };
+    result[name].totalExpenditure1000kr += r.value;
+  }
+
+  console.log(`[REGK31] Got udgifter for ${Object.keys(result).length} kommuner`);
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // Supabase upsert (optional)
 // ---------------------------------------------------------------------------
 
@@ -327,6 +422,9 @@ async function upsertToSupabase(output) {
     antal_dagpleje: data.antalDagpleje ?? null,
     antal_boern_0_2: data.antalBoern02 ?? null,
     antal_boern_3_5: data.antalBoern35 ?? null,
+    avg_sygefravaer_dage: data.avgSygefravaerDage ?? null,
+    udgift_pr_barn: data.udgiftPrBarn ?? null,
+    sprogvurdering_pct_udfordret: data.sprogvurderingPctUdfordret ?? null,
     fetched_at: output.fetchedAt,
   }));
 
@@ -360,23 +458,28 @@ async function main() {
   }
 
   // RES88 has 2025 data, BOERN1/BOERN2 have 2024 as latest
-  // We use the latest available year for each table
+  // FRA027 has 2024, REGK31 has 2024
   const TAKST_YEAR = 2025;
   const BOERN_YEAR = 2024;
+  const FRAVAER_YEAR = 2024;
+  const REGK_YEAR = 2024;
 
-  // Fetch all three in parallel
-  const [takster, personale, boern] = await Promise.all([
+  // Fetch all five in parallel
+  const [takster, personale, boern, fravaer, udgifter] = await Promise.all([
     fetchRES88(TAKST_YEAR),
     fetchBOERN1(BOERN_YEAR),
     fetchBOERN2(BOERN_YEAR),
+    fetchFRA027(FRAVAER_YEAR),
+    fetchREGK31(REGK_YEAR),
   ]);
 
   // Combine into unified structure
-  // Use all kommune names from takster as the base set
   const allNames = new Set([
     ...Object.keys(takster),
     ...Object.keys(personale),
     ...Object.keys(boern),
+    ...Object.keys(fravaer),
+    ...Object.keys(udgifter),
   ]);
 
   const kommuner = {};
@@ -384,9 +487,19 @@ async function main() {
     const t = takster[name] || {};
     const p = personale[name] || {};
     const b = boern[name] || {};
+    const f = fravaer[name] || {};
+    const u = udgifter[name] || {};
+
+    // Calculate expenditure per enrolled child (kr)
+    // REGK31 gives total in 1.000 kr, divide by enrolled children
+    const totalChildren = (b.antalDagpleje ?? 0) + (b.antalBoern02 ?? 0) + (b.antalBoern35 ?? 0);
+    let udgiftPrBarn = null;
+    if (u.totalExpenditure1000kr && totalChildren > 0) {
+      udgiftPrBarn = Math.round((u.totalExpenditure1000kr * 1000) / totalChildren);
+    }
 
     kommuner[name] = {
-      code: t.code || null,
+      code: t.code || f.code || u.code || null,
       dagplejeTakst: t.dagplejeTakst ?? null,
       vuggestueTakst: t.vuggestueTakst ?? null,
       boernehaveTakst: t.boernehaveTakst ?? null,
@@ -396,12 +509,19 @@ async function main() {
       antalDagpleje: b.antalDagpleje ?? null,
       antalBoern02: b.antalBoern02 ?? null,
       antalBoern35: b.antalBoern35 ?? null,
+      avgSygefravaerDage: f.avgSygefravaerDage ?? null,
+      udgiftPrBarn,
+      // sprogvurderingPctUdfordret: not available from DST Statistikbanken.
+      // Published by Social- og Boligministeriet — requires separate data source.
+      sprogvurderingPctUdfordret: null,
     };
   }
 
   const output = {
     takstYear: TAKST_YEAR,
     boernYear: BOERN_YEAR,
+    fravaerYear: FRAVAER_YEAR,
+    regnskabYear: REGK_YEAR,
     fetchedAt: new Date().toISOString(),
     kommuner,
   };
@@ -418,6 +538,9 @@ async function main() {
     console.log(`  Medhjælpere: ${sample.pctMedhjaelpere}%`);
     console.log(`  Børn 0-2: ${sample.antalBoern02}`);
     console.log(`  Børn 3-5: ${sample.antalBoern35}`);
+    console.log(`  Sygefravær (dage): ${sample.avgSygefravaerDage}`);
+    console.log(`  Udgift pr. barn: ${sample.udgiftPrBarn} kr`);
+    console.log(`  Sprogvurdering udfordret: ${sample.sprogvurderingPctUdfordret ?? "N/A (not in DST)"}`);
   }
 
   console.log(`\nTotal kommuner: ${Object.keys(kommuner).length}`);

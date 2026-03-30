@@ -348,7 +348,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Location prompt removed — hero search + near-me button covers this */}
+      {/* First-time parent guide CTA */}
+      <ScrollReveal><section className="max-w-3xl mx-auto px-3 sm:px-4 mb-4">
+        <Link
+          to="/guide"
+          className="group card flex items-center gap-4 p-4 sm:p-5 border-primary/20 bg-primary/5 hover:border-primary/40 hover:shadow-md transition-all"
+        >
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <HelpCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-semibold text-foreground text-sm sm:text-base">
+              {language === "da" ? "Ny foraelder? Find den rigtige pasningstype" : "New parent? Find the right childcare type"}
+            </p>
+            <p className="text-xs sm:text-sm text-muted mt-0.5">
+              {language === "da"
+                ? "Vores guide hjaelper dig med at vaelge mellem dagpleje, vuggestue og bornehave pa 2 minutter."
+                : "Our guide helps you choose between childminder, nursery and kindergarten in 2 minutes."}
+            </p>
+          </div>
+          <ArrowRight className="w-5 h-5 text-primary shrink-0 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+      </section></ScrollReveal>
 
       {/* Filter bar — only when user has actively filtered */}
       {hasActiveFilter && <div className="sticky top-14 z-30 bg-bg-card border-b border-border">
@@ -746,6 +767,7 @@ export default function HomePage() {
             { label: "Bedste skoler i Aalborg", to: `/bedste-skole/${toSlug("Aalborg")}` },
             { label: "Bedste skoler i Frederiksberg", to: `/bedste-skole/${toSlug("Frederiksberg")}` },
             { label: "Normering i hele Danmark", to: "/normering" },
+            { label: "Samlet pris for børnepasning", to: "/samlet-pris" },
             { label: "Sammenlign vuggestue vs dagpleje", to: `/sammenlign/vuggestue-vs-dagpleje/${toSlug("København")}` },
           ].map((link) => (
             <Link

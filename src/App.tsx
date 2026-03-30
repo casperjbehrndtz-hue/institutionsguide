@@ -30,6 +30,9 @@ const BlogIndex = lazy(() => import("@/pages/BlogIndex"));
 const BlogPost = lazy(() => import("@/pages/BlogPost"));
 const PrissammenligningPage = lazy(() => import("@/pages/PrissammenligningPage"));
 const AboutPage = lazy(() => import("@/pages/AboutPage"));
+const BestDagtilbudPage = lazy(() => import("@/pages/BestDagtilbudPage"));
+const TotalCostPage = lazy(() => import("@/pages/TotalCostPage"));
+const GuidePage = lazy(() => import("@/pages/GuidePage"));
 
 function Loading() {
   return (
@@ -70,6 +73,10 @@ export default function App() {
               <Route path="/friplads" element={<FripladsPage />} />
               {/* Prissammenligning */}
               <Route path="/prissammenligning" element={<PrissammenligningPage />} />
+              {/* Samlet pris (Total cost of childhood) */}
+              <Route path="/samlet-pris" element={<TotalCostPage />} />
+              {/* Guide wizard */}
+              <Route path="/guide" element={<GuidePage />} />
               {/* Metode */}
               <Route path="/metode" element={<MetodePage />} />
               {/* Blog */}
@@ -78,6 +85,10 @@ export default function App() {
               {/* Programmatic SEO pages — specific routes BEFORE /:category/:municipality catch-all */}
               <Route path="/bedste-vaerdi" element={<BestValuePage />} />
               <Route path="/bedste-skole/:municipality" element={<BestSchoolPage />} />
+              <Route path="/bedste-vuggestue/:municipality" element={<BestDagtilbudPage key="vuggestue" category="vuggestue" />} />
+              <Route path="/bedste-boernehave/:municipality" element={<BestDagtilbudPage key="boernehave" category="boernehave" />} />
+              <Route path="/bedste-dagpleje/:municipality" element={<BestDagtilbudPage key="dagpleje" category="dagpleje" />} />
+              <Route path="/bedste-sfo/:municipality" element={<BestDagtilbudPage key="sfo" category="sfo" />} />
               <Route path="/billigste-:category/:municipality" element={<CheapestPage />} />
               <Route path="/sammenlign/:comparison/:municipality" element={<VsPage />} />
               {/* Category+Municipality catch-all — must be LAST of the two-segment routes */}

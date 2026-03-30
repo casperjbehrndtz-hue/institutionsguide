@@ -62,6 +62,21 @@ export default function RelatedSearches({ municipality, category }: Props) {
         }
       }
 
+      // Best dagtilbud links
+      const bedsteCats: CategorySlug[] = ["vuggestue", "boernehave", "dagpleje", "sfo"];
+      for (const bCat of bedsteCats) {
+        if (category === bCat) continue;
+        const hasInsts = institutions.some(
+          (i) => i.category === bCat && i.municipality === municipality
+        );
+        if (hasInsts) {
+          result.push({
+            label: `Bedste ${CATEGORY_SINGULAR_DA[bCat]} i ${municipality}`,
+            to: `/bedste-${bCat}/${slug}`,
+          });
+        }
+      }
+
       // VS comparison links
       for (const [a, b] of VS_PAIRS) {
         if (category && category !== a && category !== b) continue;

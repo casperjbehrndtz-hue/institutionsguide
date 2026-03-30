@@ -31,6 +31,7 @@ import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
 import StreetViewImage from "@/components/shared/StreetViewImage";
 import DataFreshness from "@/components/shared/DataFreshness";
+import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
 
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
@@ -156,6 +157,11 @@ export default function InstitutionPage() {
     inst, scoreResult, nearby, normering, municipalityAvgPrice,
   );
 
+  // Determine which quality section has data
+  const hasInstStats = !!(instStats && (instStats.normering02 != null || instStats.pctPaedagoger != null || instStats.parentSatisfaction != null));
+  const hasKomStats = !!(komStats && (komStats.avgSygefravaerDage != null || komStats.udgiftPrBarn != null));
+  const hasInstitutionQuality = hasInstStats || hasKomStats;
+
   // Compute percentiles for school quality metrics across all schools
   const percentiles = useMemo(() => {
     if (!inst || inst.category !== "skole" || !inst.quality) return null;
@@ -205,6 +211,27 @@ export default function InstitutionPage() {
       return { id: n.id, overall: s.overall };
     });
   }, [inst, nearby, institutions, normering]);
+
+  // Build section nav definitions — only sections with content
+  const sectionDefs = useMemo<SectionDef[]>(() => {
+    if (!inst) return [];
+    const defs: SectionDef[] = [];
+
+    if (scoreResult) {
+      defs.push({ id: "section-overblik", labelDA: "Overblik", labelEN: "Overview" });
+    }
+    if (inst.monthlyRate != null) {
+      defs.push({ id: "section-pris", labelDA: "Pris", labelEN: "Price" });
+    }
+    if ((percentiles && percentiles.length > 0) || hasInstitutionQuality || inst.category !== "skole") {
+      defs.push({ id: "section-kvalitet", labelDA: "Kvalitet", labelEN: "Quality" });
+    }
+    // Map is always shown
+    defs.push({ id: "section-kort", labelDA: "Kort", labelEN: "Map" });
+    // Reviews always shown
+    defs.push({ id: "section-anmeldelser", labelDA: "Anmeldelser", labelEN: "Reviews" });
+    return defs;
+  }, [inst, scoreResult, percentiles, hasInstitutionQuality]);
 
   if (loading) {
     return (
@@ -319,6 +346,9 @@ export default function InstitutionPage() {
         />
       </div>
 
+      {/* Section navigation */}
+      <SectionNav sections={sectionDefs} />
+
       {/* Compare toast */}
       {compareToast && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium animate-in fade-in slide-in-from-bottom-4">
@@ -331,7 +361,7 @@ export default function InstitutionPage() {
           Matches the HTML mockup exactly
           ═══════════════════════════════════════════ */}
       {scoreResult && (
-        <section className="px-4 pb-6">
+        <section id="section-overblik" className="px-4 pb-6">
           <InstitutionReport
             score={scoreResult}
             institutionName={inst.name}
@@ -377,7 +407,7 @@ export default function InstitutionPage() {
       <section className="max-w-[640px] mx-auto px-4 pb-12 space-y-6">
         {/* Prices */}
         {inst.monthlyRate != null && (
-          <div className="card p-5">
+          <div id="section-pris" className="card p-5">
             <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
@@ -402,6 +432,7 @@ export default function InstitutionPage() {
         )}
 
         {/* Quality data — percentile bars (schools only) */}
+        <div id="section-kvalitet" />
         {percentiles && percentiles.length > 0 && (
           <div className="card p-5">
             <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
@@ -485,7 +516,7 @@ export default function InstitutionPage() {
 
         {/* Map */}
         <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-          <div className="h-[250px] rounded-xl overflow-hidden border border-border">
+          <div id="section-kort" className="h-[250px] rounded-xl overflow-hidden border border-border">
             <InstitutionMap
               institutions={[inst, ...nearby]}
               onSelect={() => {}}
@@ -498,7 +529,9 @@ export default function InstitutionPage() {
         <TilsynSection institutionId={inst.id} institutionName={inst.name} />
 
         {/* Reviews */}
-        <ReviewSection institutionId={inst.id} />
+        <div id="section-anmeldelser">
+          <ReviewSection institutionId={inst.id} />
+        </div>
       </section>
 
       <CompareBar />

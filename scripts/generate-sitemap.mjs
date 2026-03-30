@@ -58,6 +58,7 @@ function loadData() {
   } catch { /* optional */ }
 
   const munCatMap = new Map();
+  const allInstitutionIds = new Set();
 
   function addInst(munName, cat, monthlyRate) {
     if (!munCatMap.has(munName)) munCatMap.set(munName, {});
@@ -68,6 +69,7 @@ function loadData() {
   }
 
   for (const s of skoleData.s) {
+    if (s.id) allInstitutionIds.add(s.id);
     const m = s.m ? s.m.replace(" Kommune", "") : null;
     if (m) addInst(m, "skole", s.sfo || null);
   }
@@ -82,6 +84,7 @@ function loadData() {
 
   function processDagtilbud(data, forceCat) {
     for (const d of data.i) {
+      if (d.id) allInstitutionIds.add(d.id);
       const cat = forceCat || (d.tp === "dagpleje" ? "dagpleje" : d.tp === "sfo" || d.tp === "klub" ? "sfo" : d.tp === "boernehave" ? "boernehave" : "vuggestue");
       if (d.m) addInst(d.m, cat, d.mr || null);
     }
@@ -92,15 +95,17 @@ function loadData() {
   processDagtilbud(dagData, null);
   processDagtilbud(sfoData, "sfo");
 
-  return { munCatMap, schoolQualityMuns };
+  return { munCatMap, schoolQualityMuns, allInstitutionIds };
 }
 
 // Generate all routes
 let kommuneRoutes = [];
 let programmaticRoutes = [];
+let institutionRoutes = [];
+let blogRoutes = [];
 
 try {
-  const { munCatMap, schoolQualityMuns } = loadData();
+  const { munCatMap, schoolQualityMuns, allInstitutionIds } = loadData();
   const municipalities = [...munCatMap.keys()].sort();
 
   // Municipality routes
@@ -148,6 +153,21 @@ try {
     });
   }
 
+  // "Bedste" dagtilbud pages (vuggestue, boernehave, dagpleje, sfo)
+  const BEDSTE_CATS = ["vuggestue", "boernehave", "dagpleje", "sfo"];
+  for (const mun of municipalities) {
+    const mc = munCatMap.get(mun);
+    for (const cat of BEDSTE_CATS) {
+      const data = mc[cat];
+      if (!data || data.count === 0) continue;
+      programmaticRoutes.push({
+        path: `/bedste-${cat}/${toSlug(mun)}`,
+        priority: "0.5",
+        changefreq: "monthly",
+      });
+    }
+  }
+
   // VS comparison pages
   for (const mun of municipalities) {
     const mc = munCatMap.get(mun);
@@ -163,13 +183,50 @@ try {
     }
   }
 
+  // Institution detail pages (deduplicated across all data files)
+  institutionRoutes = [...allInstitutionIds].map((id) => ({
+    path: `/institution/${encodeURIComponent(id)}`,
+    priority: "0.7",
+    changefreq: "monthly",
+  }));
+  console.log(`Found ${institutionRoutes.length} unique institution detail pages`);
+
   console.log(`Generated ${programmaticRoutes.length} programmatic SEO routes`);
 } catch (err) {
   console.warn("Could not generate programmatic routes:", err.message);
 }
 
+// Fetch blog post slugs from Supabase (if credentials available)
+try {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (supabaseUrl && supabaseKey) {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/blog_posts?select=slug&locale=eq.da&order=published_at.desc`,
+      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+    );
+    if (res.ok) {
+      const posts = await res.json();
+      blogRoutes = posts.map((p) => ({
+        path: `/blog/${encodeURIComponent(p.slug)}`,
+        priority: "0.6",
+        changefreq: "monthly",
+      }));
+      // Add the blog index page too
+      blogRoutes.unshift({ path: "/blog", priority: "0.7", changefreq: "weekly" });
+      console.log(`Found ${blogRoutes.length - 1} blog posts`);
+    } else {
+      console.warn("Blog fetch failed:", res.status, await res.text().catch(() => ""));
+    }
+  } else {
+    console.log("Supabase credentials not found, skipping blog posts in sitemap");
+  }
+} catch (err) {
+  console.warn("Could not fetch blog posts:", err.message);
+}
+
 const today = new Date().toISOString().split("T")[0];
-const allRoutes = [...staticRoutes, ...kommuneRoutes, ...programmaticRoutes];
+const allRoutes = [...staticRoutes, ...kommuneRoutes, ...programmaticRoutes, ...institutionRoutes, ...blogRoutes];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
