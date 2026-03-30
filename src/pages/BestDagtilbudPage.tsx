@@ -124,7 +124,7 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
     );
 
     const scored = insts.map((inst) => {
-      const stats = institutionStats[inst.id];
+      const stats = institutionStats[inst.id.replace(/^(vug|bh|dag|sfo)-/, "")];
       const result = computeScore(inst, [], normering, municipalityAvgPrice, stats);
       return { inst, score: result };
     });

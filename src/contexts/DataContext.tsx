@@ -257,8 +257,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const mergedInstStats: Record<string, InstitutionStats> = {};
         if (instStatsRes && instStatsRes.ok && instStatsRes.headers.get("content-type")?.includes("json")) {
           const instData = await instStatsRes.json();
-          for (const [id, s] of Object.entries(instData.institutions ?? {})) {
-            mergedInstStats[id] = s as InstitutionStats;
+          for (const [id, raw] of Object.entries(instData.institutions ?? {})) {
+            const r = raw as Record<string, unknown>;
+            mergedInstStats[id] = {
+              normering02: (r.normering02 as number) ?? null,
+              normering35: (r.normering35 as number) ?? null,
+              pctPaedagoger: (r.pctPaedagoger ?? r.pctPaedagog ?? null) as number | null,
+              pctPaedAssistenter: (r.pctPaedAssistenter ?? r.pctPaedAssistent ?? null) as number | null,
+              pctUdenPaedUdd: (r.pctUdenPaedUdd ?? r.pctIngenPaedUdd ?? null) as number | null,
+              antalBoern: (r.antalBoern ?? r.boernVedNedslag ?? r.helaarBoern ?? null) as number | null,
+              parentSatisfaction: (r.parentSatisfaction as number) ?? null,
+              parentSatisfactionYear: (r.parentSatisfactionYear as number) ?? null,
+            };
           }
         }
 
