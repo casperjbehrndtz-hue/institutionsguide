@@ -73,6 +73,8 @@ export default function Footer() {
               <li><Link to="/dagpleje" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.dagpleje}</Link></li>
               <li><Link to="/skole" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.skole}</Link></li>
               <li><Link to="/sfo" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.sfo}</Link></li>
+              <li><Link to="/fritidsklub" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.fritidsklub}</Link></li>
+              <li><Link to="/efterskole" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.efterskole}</Link></li>
             </ul>
           </div>
 

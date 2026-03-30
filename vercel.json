@@ -9,7 +9,7 @@
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(self)" },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://cloud.umami.is https://eu.i.posthog.com https://eu-assets.i.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.basemaps.cartocdn.com https://maps.googleapis.com; connect-src 'self' https://cloud.umami.is https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.tile.openstreetmap.org https://*.supabase.co; media-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://cloud.umami.is https://eu.i.posthog.com https://eu-assets.i.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.basemaps.cartocdn.com https://maps.googleapis.com https://www.efterskolerne.dk; connect-src 'self' https://cloud.umami.is https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.tile.openstreetmap.org https://*.supabase.co; media-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests" }
       ]
     },
     {
