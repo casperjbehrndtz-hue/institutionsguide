@@ -7,6 +7,7 @@ import { buildSlugMap, toSlug } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import type { UnifiedInstitution } from "@/lib/types";
 import DataFreshness from "@/components/shared/DataFreshness";
+import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { qualityBadge } from "@/lib/badges";
@@ -90,10 +91,40 @@ export default function BestSchoolPage() {
     );
   }
 
+  // Municipality stats for unique content
+  const munStats = useMemo(() => {
+    const avgScore = schools.reduce((s, i) => s + (i.quality?.r ?? 0), 0) / schools.length;
+    const folkeskoler = schools.filter((i) => i.subtype === "folkeskole").length;
+    const friskoler = schools.length - folkeskoler;
+    const withGrades = schools.filter((i) => i.quality?.k !== undefined);
+    const avgGrades = withGrades.length > 0
+      ? withGrades.reduce((s, i) => s + (i.quality?.k ?? 0), 0) / withGrades.length
+      : null;
+    const withAbsence = schools.filter((i) => i.quality?.fp !== undefined);
+    const avgAbsence = withAbsence.length > 0
+      ? withAbsence.reduce((s, i) => s + (i.quality?.fp ?? 0), 0) / withAbsence.length
+      : null;
+    return { avgScore, folkeskoler, friskoler, avgGrades, avgAbsence };
+  }, [schools]);
+
   const top5 = schools.slice(0, 5);
   const bestSchool = schools[0];
   const pageTitle = `Bedste skoler i ${munName} 2026 — Kvalitetsranking`;
   const pageDesc = `Top ${Math.min(schools.length, 5)} skoler i ${munName} rangeret efter kvalitetsdata. ${bestSchool.name} scorer højest med ${formatNum(bestSchool.quality?.r)}/5. Se trivsel, karaktersnit og fravær for ${totalSchools} skoler.`;
+
+  // JSON-LD ItemList
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Bedste skoler i ${munName}`,
+    numberOfItems: schools.length,
+    itemListElement: top5.map((school, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: school.name,
+      url: `https://institutionsguide.dk/institution/${school.id}`,
+    })),
+  };
 
   return (
     <>
@@ -101,6 +132,10 @@ export default function BestSchoolPage() {
         title={pageTitle}
         description={pageDesc}
         path={`/bedste-skole/${munSlug}`}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       <Breadcrumbs
@@ -202,6 +237,47 @@ export default function BestSchoolPage() {
         </div>
       </section></ScrollReveal>
 
+      {/* Dynamic analysis — unique per municipality */}
+      <section className="max-w-3xl mx-auto px-4 py-6">
+        <h2 className="font-display text-xl font-bold text-foreground mb-3">
+          Skoleanalyse — {munName} Kommune
+        </h2>
+        <div className="prose prose-sm text-muted leading-relaxed space-y-3">
+          <p>
+            {munName} Kommune har {schools.length} skoler med kvalitetsdata ud af {totalSchools} i alt.
+            {munStats.folkeskoler > 0 && munStats.friskoler > 0 && (
+              <> Fordelingen er {munStats.folkeskoler} folkeskoler og {munStats.friskoler} fri- og privatskoler.</>
+            )}
+            {" "}Den gennemsnitlige kvalitetsscore i kommunen er {formatNum(munStats.avgScore)}/5
+            {nationalAverages.trivsel > 0 && (
+              <>, sammenlignet med en national trivselsscore på {formatNum(nationalAverages.trivsel)}</>
+            )}
+            .
+          </p>
+          <p>
+            {bestSchool.name} topper ranglisten med en samlet score på {formatNum(bestSchool.quality?.r)}/5.
+            {munStats.avgGrades !== null && (
+              <> Det gennemsnitlige karaktersnit for skoler i {munName} er {formatNum(munStats.avgGrades)},
+              {nationalAverages.karakterer > 0 && munStats.avgGrades > nationalAverages.karakterer
+                ? ` over landsgennemsnittet på ${formatNum(nationalAverages.karakterer)}.`
+                : nationalAverages.karakterer > 0 && munStats.avgGrades < nationalAverages.karakterer
+                ? ` under landsgennemsnittet på ${formatNum(nationalAverages.karakterer)}.`
+                : `.`}
+              </>
+            )}
+            {munStats.avgAbsence !== null && (
+              <> Gennemsnitligt fravær er {formatPct(munStats.avgAbsence)}
+              {nationalAverages.fravaer > 0 && munStats.avgAbsence < nationalAverages.fravaer
+                ? `, lavere end landsgennemsnittet på ${formatPct(nationalAverages.fravaer)}.`
+                : nationalAverages.fravaer > 0 && munStats.avgAbsence > nationalAverages.fravaer
+                ? `, højere end landsgennemsnittet på ${formatPct(nationalAverages.fravaer)}.`
+                : `.`}
+              </>
+            )}
+          </p>
+        </div>
+      </section>
+
       {/* Methodology note */}
       <section className="max-w-3xl mx-auto px-4 py-6">
         <div className="card card-static p-4 bg-[var(--color-bg)] dark:bg-[var(--color-bg-card)]">
@@ -216,6 +292,9 @@ export default function BestSchoolPage() {
           </p>
         </div>
       </section>
+
+      {/* Data attribution */}
+      <DataAttribution category="skole" />
 
       {/* Nearby */}
       {nearbyMuns.length > 0 && (

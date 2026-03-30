@@ -231,19 +231,29 @@ try {
   console.warn("Could not fetch blog posts:", err.message);
 }
 
-const today = new Date().toISOString().split("T")[0];
+// Use actual data freshness dates instead of today's date
+const DATA_LASTMOD = "2026-03-01"; // Matches dataVersions.overall.lastUpdated
+const STATIC_LASTMOD = new Date().toISOString().split("T")[0]; // Static pages can use deploy date
+const BLOG_LASTMOD = new Date().toISOString().split("T")[0];
+
 const allRoutes = [...staticRoutes, ...kommuneRoutes, ...programmaticRoutes, ...institutionRoutes, ...blogRoutes];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allRoutes
   .map(
-    (r) => `  <url>
+    (r) => {
+      // Static routes use deploy date, data-driven routes use actual data date
+      const isStatic = staticRoutes.includes(r);
+      const isBlog = blogRoutes.includes(r);
+      const lastmod = isStatic ? STATIC_LASTMOD : isBlog ? BLOG_LASTMOD : DATA_LASTMOD;
+      return `  <url>
     <loc>${BASE_URL}${r.path}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
-  </url>`
+  </url>`;
+    }
   )
   .join("\n")}
 </urlset>`;

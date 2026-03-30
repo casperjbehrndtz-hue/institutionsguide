@@ -20,6 +20,7 @@ import { formatDKK, formatDecimal } from "@/lib/format";
 import type { UnifiedInstitution } from "@/lib/types";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import RelatedSearches from "@/components/shared/RelatedSearches";
+import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { qualityBadge } from "@/lib/badges";
 
@@ -107,12 +108,45 @@ export default function BestValuePage() {
     );
   }
 
+  // Extra stats for unique content
+  const valueStats = useMemo(() => {
+    if (ranked.length === 0) return null;
+    const prices = ranked.map((r) => r.school.monthlyRate!);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const topMun = ranked[0].school.municipality;
+    const munCounts: Record<string, number> = {};
+    for (const r of ranked) {
+      munCounts[r.school.municipality] = (munCounts[r.school.municipality] || 0) + 1;
+    }
+    const topMunByCount = Object.entries(munCounts).sort((a, b) => b[1] - a[1])[0];
+    return { minPrice, maxPrice, topMun, topMunByCount };
+  }, [ranked]);
+
   const pageTitle = "Bedste værdi for pengene — Skoler med mest kvalitet per krone 2026";
   const pageDesc = `Top 25 skoler i Danmark rangeret efter kvalitet i forhold til SFO-pris. ${ranked[0].school.name} giver mest kvalitet per krone med en score på ${formatDecimal(ranked[0].valueScore)}.`;
+
+  // JSON-LD ItemList
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Top 25 skoler med bedste værdi for pengene i Danmark",
+    numberOfItems: ranked.length,
+    itemListElement: ranked.slice(0, 10).map((item, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: item.school.name,
+      url: `https://institutionsguide.dk/institution/${item.school.id}`,
+    })),
+  };
 
   return (
     <>
       <SEOHead title={pageTitle} description={pageDesc} path="/bedste-vaerdi" />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       <Breadcrumbs
         items={[
@@ -339,6 +373,41 @@ export default function BestValuePage() {
           </table>
         </div>
       </section></ScrollReveal>
+
+      {/* Dynamic analysis — unique content */}
+      {stats && valueStats && (
+        <section className="max-w-3xl mx-auto px-4 py-6">
+          <h2 className="font-display text-xl font-bold text-foreground mb-3">
+            Analyse — værdi for pengene 2026
+          </h2>
+          <div className="prose prose-sm text-muted leading-relaxed space-y-3">
+            <p>
+              De 25 skoler med bedste værdi for pengene har en gennemsnitlig kvalitetsscore
+              på {formatDecimal(stats.avgQuality)}/5 til en gennemsnitlig SFO-pris
+              på {formatDKK(stats.avgPrice)}/md. SFO-priserne i top 25 spænder fra{" "}
+              {formatDKK(valueStats.minPrice)}/md til {formatDKK(valueStats.maxPrice)}/md.
+            </p>
+            <p>
+              {ranked[0].school.name} i {ranked[0].school.municipality} topper listen
+              med en værdi-score på {formatDecimal(ranked[0].valueScore)} — det betyder at
+              skolen leverer {formatDecimal(ranked[0].school.quality!.r!)}/5 i kvalitet
+              til kun {formatDKK(ranked[0].school.monthlyRate)}/md i SFO-betaling.
+              {valueStats.topMunByCount && valueStats.topMunByCount[1] > 1 && (
+                <> {valueStats.topMunByCount[0]} Kommune er repræsenteret med {valueStats.topMunByCount[1]} skoler
+                i top 25.</>
+              )}
+            </p>
+            <p>
+              Skolerne er fordelt på {representedMunicipalities.length} kommuner.
+              Værdi-scoren belønner skoler der kombinerer høj kvalitet med rimelige priser,
+              hvilket gør den særligt relevant for familier der ønsker det bedste tilbud.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* Data attribution */}
+      <DataAttribution category="skole" />
 
       {/* Methodology */}
       <section className="max-w-3xl mx-auto px-4 py-6">

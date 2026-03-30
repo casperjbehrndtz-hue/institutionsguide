@@ -6,6 +6,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataFreshness from "@/components/shared/DataFreshness";
+import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { formatDKK } from "@/lib/format";
@@ -283,6 +284,39 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
         </section>
       </ScrollReveal>
 
+      {/* Dynamic analysis — unique per municipality+category */}
+      {language === "da" && (
+        <section className="max-w-3xl mx-auto px-4 py-6">
+          <h2 className="font-display text-xl font-bold text-foreground mb-3">
+            Analyse — {catPluralDa} i {munName}
+          </h2>
+          <div className="prose prose-sm text-muted leading-relaxed space-y-3">
+            <p>
+              Vi har vurderet {ranked.length} ud af {totalInCat} {catPluralDa} i {munName} Kommune
+              baseret på tilgængelige kvalitetsdata.
+              {bestInst.score.overall != null && (
+                <> {bestInst.inst.name} scorer højest med {bestInst.score.overall}/100 point.</>
+              )}
+              {municipalityAvgPrice && (
+                <> Gennemsnitsprisen for {catPluralDa} i kommunen er {formatDKK(municipalityAvgPrice)}/md.</>
+              )}
+            </p>
+            {ranked.length >= 3 && (
+              <p>
+                Top 3 i {munName} er{" "}
+                {ranked.slice(0, 3).map((e, idx) => (
+                  <span key={e.inst.id}>
+                    {idx > 0 && (idx === 2 ? " og " : ", ")}
+                    {e.inst.name}{e.score.overall != null ? ` (${e.score.overall}/100)` : ""}
+                  </span>
+                ))}
+                . Scoren tager højde for pris, normering og personalets uddannelsesbaggrund.
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* Methodology note */}
       <section className="max-w-3xl mx-auto px-4 py-6">
         <div className="card card-static p-4 bg-[var(--color-bg)] dark:bg-[var(--color-bg-card)]">
@@ -302,6 +336,9 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
           </Link>
         </div>
       </section>
+
+      {/* Data attribution */}
+      <DataAttribution category={cat} />
 
       {/* Other "bedste" categories in same municipality */}
       <section className="max-w-4xl mx-auto px-4 py-6">

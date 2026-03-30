@@ -13,6 +13,7 @@ import {
   type CategorySlug,
 } from "@/lib/slugs";
 import type { UnifiedInstitution } from "@/lib/types";
+import DataAttribution from "@/components/shared/DataAttribution";
 
 interface CategoryStats {
   count: number;
@@ -56,6 +57,18 @@ const VS_DESCRIPTIONS: Record<string, { da: string }> = {
   },
   "boernehave-vs-sfo": {
     da: "Børnehave er for børn i alderen 3-5 år, mens SFO (skolefritidsordning) er for skolebørn fra 6 år. Overgangen fra børnehave til SFO sker typisk, når barnet starter i skole. SFO er ofte billigere end børnehave, men tilbyder pasning før og efter skoletid samt i ferier.",
+  },
+  "dagpleje-vs-boernehave": {
+    da: "Dagpleje er for børn fra 0-2 år, mens børnehave typisk er for børn fra 3-5 år. Dagpleje drives i private hjem med højst 4 børn, mens børnehaver er større institutioner. Priserne for dagpleje er ofte lavere end for vuggestue, men kan variere afhængigt af kommune.",
+  },
+  "vuggestue-vs-sfo": {
+    da: "Vuggestue er for de yngste børn (0-2 år), mens SFO er en fritidsordning for skolebørn fra 6 år og op. De to tilbud dækker vidt forskellige aldersgrupper og behov. Vuggestuer har typisk den højeste normering og dermed ofte højere priser.",
+  },
+  "sfo-vs-fritidsklub": {
+    da: "SFO (skolefritidsordning) er for børn i indskolingen (0.-3. klasse), mens fritidsklub typisk dækker 4.-6. klasse. Fritidsklubber er ofte billigere og giver børnene mere selvstændighed. Overgangen sker typisk efter 3. klasse.",
+  },
+  "skole-vs-efterskole": {
+    da: "Folkeskoler og friskoler dækker grundskoleforløbet fra 0.-9. klasse, mens efterskoler er kostskoler for typisk 9. og 10. klasse. Efterskoler tilbyder et unikt socialt fællesskab med heldagsundervisning og bolig, men til en markant højere pris.",
   },
 };
 
@@ -144,12 +157,44 @@ export default function VsPage() {
   const pageTitle = `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB} i ${munName} 2026 — Pris og forskelle`;
   const pageDesc = `Sammenlign ${singA} og ${singB} i ${munName}. ${statsA.count} ${labelA.toLowerCase()} vs. ${statsB.count} ${labelB.toLowerCase()}. Se priser, antal og forskelle.`;
 
+  // JSON-LD FAQ for comparison
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: `Hvad er forskellen mellem ${singA} og ${singB} i ${munName}?`,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: descText || `${labelA} og ${labelB.toLowerCase()} i ${munName} adskiller sig primært i pris og antal tilbud. Se den fulde sammenligning på denne side.`,
+        },
+      },
+      ...(statsA.avgPrice && statsB.avgPrice
+        ? [
+            {
+              "@type": "Question",
+              name: `Hvad koster ${singA} vs ${singB} i ${munName}?`,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: `Gennemsnitsprisen for ${singA} i ${munName} er ${statsA.avgPrice.toLocaleString("da-DK")} kr/md, mens ${singB} koster ${statsB.avgPrice.toLocaleString("da-DK")} kr/md i gennemsnit.`,
+              },
+            },
+          ]
+        : []),
+    ],
+  };
+
   return (
     <>
       <SEOHead
         title={pageTitle}
         description={pageDesc}
         path={`/sammenlign/${comparison}/${munSlug}`}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
       <Breadcrumbs
@@ -263,6 +308,46 @@ export default function VsPage() {
           </div>
         </section>
       )}
+
+      {/* Dynamic analysis — unique per municipality */}
+      <section className="max-w-3xl mx-auto px-4 py-6">
+        <h2 className="font-display text-xl font-bold text-foreground mb-3">
+          {singA.charAt(0).toUpperCase() + singA.slice(1)} og {singB} i {munName} — opsummering
+        </h2>
+        <div className="prose prose-sm text-muted leading-relaxed space-y-3">
+          <p>
+            I {munName} Kommune er der {statsA.count} {labelA.toLowerCase()} og{" "}
+            {statsB.count} {labelB.toLowerCase()}.
+            {statsA.withPrice > 0 && statsB.withPrice > 0 && (
+              <> Af disse har {statsA.withPrice} {labelA.toLowerCase()} og {statsB.withPrice}{" "}
+              {labelB.toLowerCase()} offentlige prisoplysninger.</>
+            )}
+          </p>
+          {statsA.avgPrice && statsB.avgPrice && (
+            <p>
+              Prisniveauet adskiller sig med en gennemsnitlig forskel på{" "}
+              {formatDKK(Math.abs(statsA.avgPrice - statsB.avgPrice))}/md.{" "}
+              {statsA.avgPrice < statsB.avgPrice
+                ? `${labelA} er billigst med et gennemsnit på ${formatDKK(statsA.avgPrice)}/md mod ${formatDKK(statsB.avgPrice)}/md for ${labelB.toLowerCase()}.`
+                : `${labelB} er billigst med et gennemsnit på ${formatDKK(statsB.avgPrice)}/md mod ${formatDKK(statsA.avgPrice)}/md for ${labelA.toLowerCase()}.`}
+              {" "}Over et helt år svarer det til en forskel på ca. {formatDKK(Math.abs(statsA.avgPrice - statsB.avgPrice) * 11)}{" "}
+              (11 betalingsmåneder).
+            </p>
+          )}
+          {Object.keys(statsA.ownerships).length > 1 && (
+            <p>
+              Blandt {labelA.toLowerCase()} i {munName} er ejerskabet fordelt på:{" "}
+              {Object.entries(statsA.ownerships)
+                .map(([ow, count]) => `${count} ${ow}`)
+                .join(", ")}
+              .
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Data attribution */}
+      <DataAttribution category={catA} />
 
       {/* Related links */}
       <section className="max-w-4xl mx-auto px-4 py-8">

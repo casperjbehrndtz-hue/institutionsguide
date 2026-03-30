@@ -13,6 +13,7 @@ import {
   type CategorySlug,
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
+import DataAttribution from "@/components/shared/DataAttribution";
 import { dataVersions } from "@/lib/dataVersions";
 
 export default function CheapestPage() {
@@ -68,6 +69,33 @@ export default function CheapestPage() {
     );
   }, [institutions, cat]);
 
+  // Municipality average for this category
+  const munAvg = useMemo(() => {
+    if (sorted.length === 0) return null;
+    return Math.round(
+      sorted.reduce((s, i) => s + i.monthlyRate!, 0) / sorted.length
+    );
+  }, [sorted]);
+
+  // Ownership breakdown
+  const ownershipBreakdown = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const i of sorted) {
+      const ow = i.ownership || "ukendt";
+      map[ow] = (map[ow] || 0) + 1;
+    }
+    return map;
+  }, [sorted]);
+
+  // Median price
+  const medianPrice = useMemo(() => {
+    if (sorted.length === 0) return null;
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0
+      ? Math.round((sorted[mid - 1].monthlyRate! + sorted[mid].monthlyRate!) / 2)
+      : sorted[mid].monthlyRate!;
+  }, [sorted]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -98,12 +126,30 @@ export default function CheapestPage() {
   const pageTitle = `Billigste ${catSingular} i ${munName} 2026 — Fra ${cheapestPrice.toLocaleString("da-DK")} kr/md`;
   const pageDesc = `Se de billigste ${catLabel.toLowerCase()} i ${munName} Kommune, rangeret efter pris. Billigste: ${sorted[0].name} til ${cheapestPrice.toLocaleString("da-DK")} kr/md.${savings ? ` Spar op til ${savings.toLocaleString("da-DK")} kr/md.` : ""}`;
 
+  // JSON-LD ItemList
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Billigste ${catLabel.toLowerCase()} i ${munName}`,
+    numberOfItems: sorted.length,
+    itemListElement: sorted.slice(0, 10).map((inst, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: inst.name,
+      url: `https://institutionsguide.dk/institution/${inst.id}`,
+    })),
+  };
+
   return (
     <>
       <SEOHead
         title={pageTitle}
         description={pageDesc}
         path={`/billigste-${cat}/${munSlug}`}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       <Breadcrumbs
@@ -213,6 +259,65 @@ export default function CheapestPage() {
           </table>
         </div>
       </section>
+
+      {/* Dynamic analysis — unique content per municipality */}
+      <section className="max-w-3xl mx-auto px-4 py-6">
+        <h2 className="font-display text-xl font-bold text-foreground mb-3">
+          Prisanalyse — {catLabel} i {munName}
+        </h2>
+        <div className="prose prose-sm text-muted leading-relaxed space-y-3">
+          <p>
+            I {munName} Kommune er der {sorted.length} {catLabel.toLowerCase()} med
+            offentlige prisoplysninger ud af {totalInCat} i alt. Den billigste{" "}
+            {catSingular} koster {formatDKK(cheapestPrice)}/md
+            {sorted.length > 1 && (
+              <>, mens den dyreste koster {formatDKK(sorted[sorted.length - 1].monthlyRate)}/md</>
+            )}
+            .{" "}
+            {munAvg && nationalAvg && (
+              <>
+                Gennemsnitsprisen i {munName} er {formatDKK(munAvg)}/md, hvilket er{" "}
+                {munAvg < nationalAvg
+                  ? `${formatDKK(nationalAvg - munAvg)} under landsgennemsnittet på ${formatDKK(nationalAvg)}/md.`
+                  : munAvg > nationalAvg
+                  ? `${formatDKK(munAvg - nationalAvg)} over landsgennemsnittet på ${formatDKK(nationalAvg)}/md.`
+                  : `lig med landsgennemsnittet.`}
+              </>
+            )}
+          </p>
+          {medianPrice && (
+            <p>
+              Medianprisen er {formatDKK(medianPrice)}/md
+              {munAvg && medianPrice !== munAvg && (
+                <>
+                  , {medianPrice < munAvg
+                    ? "lavere end gennemsnittet — de dyreste trækker snittet op"
+                    : "højere end gennemsnittet — de billigste trækker snittet ned"}
+                </>
+              )}
+              .{" "}
+              {savings !== null && savings > 0 && (
+                <>
+                  Prisspændet er {formatDKK(savings)}/md, svarende til{" "}
+                  {formatDKK(savings * 12)} årligt i forskel mellem billigste og dyreste.
+                </>
+              )}
+            </p>
+          )}
+          {Object.keys(ownershipBreakdown).length > 1 && (
+            <p>
+              Fordelt på ejerskab:{" "}
+              {Object.entries(ownershipBreakdown)
+                .map(([ow, count]) => `${count} ${ow}`)
+                .join(", ")}
+              .
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Data attribution */}
+      <DataAttribution category={cat} />
 
       {/* Related links */}
       <section className="max-w-4xl mx-auto px-4 py-8">
