@@ -308,7 +308,7 @@ export default function HomePage() {
       {/* Hero — video + search */}
       <section className="relative overflow-hidden bg-primary">
         {/* Background video */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <video
             ref={videoRef}
             autoPlay
@@ -318,7 +318,8 @@ export default function HomePage() {
             preload="auto"
             aria-hidden="true"
             poster="/og-image.png"
-            className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
+            className="absolute left-0 w-full min-h-full object-cover pointer-events-none"
+            style={{ top: "40%", transform: "translateY(-40%)" }}
           >
             <source src={heroVideo} type="video/mp4" />
           </video>
