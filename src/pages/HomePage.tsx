@@ -318,7 +318,7 @@ export default function HomePage() {
             preload="auto"
             aria-hidden="true"
             poster="/og-image.png"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            className="absolute inset-0 w-full h-full object-cover object-[center_60%] pointer-events-none"
           >
             <source src={heroVideo} type="video/mp4" />
           </video>
