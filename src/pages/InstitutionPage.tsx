@@ -235,6 +235,10 @@ export default function InstitutionPage() {
     if (q.kp != null && kpVals.length > 0) result.push({ label: t.detail.competenceCoverage, percentile: pctRank(kpVals, q.kp), value: `${q.kp.toLocaleString("da-DK")}%` });
     const kvVals = schools.map((s) => s.quality!.kv).filter((v): v is number => v != null);
     if (q.kv != null && kvVals.length > 0) result.push({ label: t.detail.classSize, percentile: pctRankInverse(kvVals, q.kv), value: q.kv.toLocaleString("da-DK") });
+    const eplVals = schools.map((s) => s.quality!.epl).filter((v): v is number => v != null);
+    if (q.epl != null && eplVals.length > 0) result.push({ label: t.detail.studentsPerTeacher, percentile: pctRankInverse(eplVals, q.epl), value: q.epl.toLocaleString("da-DK") });
+    const upeVals = schools.map((s) => s.quality!.upe).filter((v): v is number => v != null);
+    if (q.upe != null && upeVals.length > 0) result.push({ label: t.detail.teachingTimePerStudent, percentile: pctRank(upeVals, q.upe), value: `${q.upe.toLocaleString("da-DK")} t` });
     return result;
   }, [inst, institutions, t]);
 

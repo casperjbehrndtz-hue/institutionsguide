@@ -119,6 +119,8 @@ export interface TranslationStrings {
     teachingEffect: string;
     socioEconomicRef: string;
     classSize: string;
+    studentsPerTeacher: string;
+    teachingTimePerStudent: string;
     studentCount: string;
     nationalAvg: string;
     contact: string;
@@ -189,6 +191,8 @@ export interface TranslationStrings {
     competenceCoverage: string;
     studentCount: string;
     classSize: string;
+    studentsPerTeacher: string;
+    teachingTimePerStudent: string;
   };
   footer: {
     categories: string;

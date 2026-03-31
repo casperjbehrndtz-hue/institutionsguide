@@ -31,6 +31,11 @@ const STEPS = [
     "Fetches grades, absence, trivsel, kompetencedaekning from Uddannelsesstatistik",
   ],
   [
+    "Skole personaledata",
+    "node scripts/fetch-school-staff.mjs",
+    "Fetches elever/lærer ratio and undervisningstid from Uddannelsesstatistik",
+  ],
+  [
     "Efterskoler",
     "node scripts/fetch-efterskoler.mjs",
     "Scrapes efterskole prices and profiles from efterskolerne.dk",

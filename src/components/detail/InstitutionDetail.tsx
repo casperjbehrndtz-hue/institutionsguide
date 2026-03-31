@@ -123,6 +123,8 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
           {q.fp != null && <span>{t.detail.absence}: <strong className="text-foreground font-mono">{q.fp.toLocaleString("da-DK")}%</strong></span>}
           {q.kv != null && <span>{t.detail.classSize}: <strong className="text-foreground font-mono">{q.kv.toLocaleString("da-DK")}</strong></span>}
           {q.el != null && <span>{t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong></span>}
+          {q.epl != null && <span>{t.detail.studentsPerTeacher}: <strong className="text-foreground font-mono">{q.epl.toLocaleString("da-DK")}</strong></span>}
+          {q.upe != null && <span>{t.detail.teachingTimePerStudent}: <strong className="text-foreground font-mono">{q.upe.toLocaleString("da-DK")} t</strong></span>}
         </div>
       )}
 

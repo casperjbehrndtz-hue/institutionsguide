@@ -29,14 +29,21 @@ const PRESETS: Preset[] = [
     id: "academic",
     label: { da: "Akademisk fokus", en: "Academic focus" },
     emoji: "📝",
-    weights: { karakterer: 90, kompetence: 70, trivsel: 40, fravaer: 50, klassestorrelse: 30, distance: 10 },
+    weights: { karakterer: 90, kompetence: 70, trivsel: 40, fravaer: 50, klassestorrelse: 30, elevPrLaerer: 40, distance: 10 },
     categories: ["skole"],
   },
   {
     id: "wellbeing",
     label: { da: "Trygt miljø", en: "Safe environment" },
     emoji: "🤗",
-    weights: { trivsel: 90, fravaer: 70, klassestorrelse: 60, karakterer: 20, kompetence: 30, distance: 30 },
+    weights: { trivsel: 90, fravaer: 70, klassestorrelse: 60, elevPrLaerer: 50, karakterer: 20, kompetence: 30, distance: 30 },
+    categories: ["skole"],
+  },
+  {
+    id: "individual",
+    label: { da: "Individuel opmærksomhed", en: "Individual attention" },
+    emoji: "🧑‍🏫",
+    weights: { elevPrLaerer: 100, undervisningstid: 80, klassestorrelse: 70, trivsel: 40, karakterer: 30, distance: 20 },
     categories: ["skole"],
   },
   {

@@ -120,6 +120,8 @@ export const da: TranslationStrings = {
     teachingEffect: "Undervisningseffekt",
     socioEconomicRef: "Socioøkonomisk reference",
     classSize: "Klassekvotient",
+    studentsPerTeacher: "Elever pr. lærer",
+    teachingTimePerStudent: "Undervisningstid pr. elev",
     studentCount: "Elevtal",
     nationalAvg: "Landssnit",
     contact: "Kontakt",
@@ -190,6 +192,8 @@ export const da: TranslationStrings = {
     competenceCoverage: "Kompetencedækning",
     studentCount: "Elevtal",
     classSize: "Klassekvotient",
+    studentsPerTeacher: "Elever pr. lærer",
+    teachingTimePerStudent: "Undervisningstid pr. elev",
   },
   footer: {
     categories: "Kategorier",

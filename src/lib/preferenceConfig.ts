@@ -153,6 +153,26 @@ const KLASSESTORRELSE: DimensionConfig = {
   goodLabel: { da: "Små klasser", en: "Small classes" },
 };
 
+const ELEV_PR_LAERER: DimensionConfig = {
+  key: "elevPrLaerer",
+  label: { da: "Elever pr. lærer", en: "Students per teacher" },
+  icon: "🧑‍🏫",
+  extract: (inst) => inst.quality?.epl ?? null,
+  range: [18, 6], // 18 worst, 6 best
+  format: (v) => `${fmt(v, 1)} elever/lærer`,
+  goodLabel: { da: "Få elever pr. lærer", en: "Few students per teacher" },
+};
+
+const UNDERVISNINGSTID: DimensionConfig = {
+  key: "undervisningstid",
+  label: { da: "Undervisningstid", en: "Teaching time" },
+  icon: "⏱️",
+  extract: (inst) => inst.quality?.upe ?? null,
+  range: [40, 90], // 40h worst, 90h best
+  format: (v) => `${fmt(v, 0)} timer/elev`,
+  goodLabel: { da: "Mere undervisning pr. elev", en: "More teaching per student" },
+};
+
 const NORMERING: DimensionConfig = {
   key: "normering",
   label: { da: "Normering", en: "Staff ratio" },
@@ -195,7 +215,7 @@ export const DIMENSIONS_BY_CATEGORY: Record<InstitutionCategory, DimensionConfig
   vuggestue: [DISTANCE, PRICE, NORMERING, UDDANNELSE, TILFREDSHED],
   boernehave: [DISTANCE, PRICE, NORMERING, UDDANNELSE, TILFREDSHED],
   dagpleje: [DISTANCE, PRICE, NORMERING, TILFREDSHED],
-  skole: [DISTANCE, TRIVSEL, KARAKTERER, FRAVAER, KOMPETENCE, KLASSESTORRELSE],
+  skole: [DISTANCE, TRIVSEL, KARAKTERER, FRAVAER, KOMPETENCE, KLASSESTORRELSE, ELEV_PR_LAERER, UNDERVISNINGSTID],
   sfo: [DISTANCE, PRICE, NORMERING, UDDANNELSE, TILFREDSHED],
   fritidsklub: [], // Not enough quality data for meaningful ranking
   efterskole: [DISTANCE, EFTERSKOLE_PRICE, TRIVSEL, KARAKTERER],

@@ -120,6 +120,8 @@ export const en: TranslationStrings = {
     teachingEffect: "Teaching effectiveness",
     socioEconomicRef: "Socioeconomic reference",
     classSize: "Class size",
+    studentsPerTeacher: "Students per teacher",
+    teachingTimePerStudent: "Teaching time per student",
     studentCount: "Student count",
     nationalAvg: "National avg",
     contact: "Contact",
@@ -190,6 +192,8 @@ export const en: TranslationStrings = {
     competenceCoverage: "Competence coverage",
     studentCount: "Student count",
     classSize: "Class size",
+    studentsPerTeacher: "Students per teacher",
+    teachingTimePerStudent: "Teaching time per student",
   },
   footer: {
     categories: "Categories",

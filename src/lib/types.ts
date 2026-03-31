@@ -36,6 +36,9 @@ export interface SchoolQuality {
   sr?: string; // socref niveau
   kv?: number; // klassekvotient
   el?: number; // elevtal
+  epl?: number; // elever pr lærerårsværk (students per teacher FTE)
+  epa?: number; // elever pr årsværk (students per total staff FTE)
+  upe?: number; // undervisningstid pr elev (teaching hours per student)
 }
 
 // Dagtilbud institution format (from vuggestue/dagpleje data)
