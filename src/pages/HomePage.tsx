@@ -238,20 +238,12 @@ export default function HomePage() {
   const popularData = useMemo(() => {
     if (!institutions.length) return null;
 
-    // Cheapest municipalities for vuggestue
-    const vugByMun = new Map<string, number>();
-    for (const inst of institutions) {
-      if (inst.category === "vuggestue" && inst.monthlyRate && inst.monthlyRate > 0) {
-        const existing = vugByMun.get(inst.municipality);
-        if (!existing || inst.monthlyRate < existing) {
-          vugByMun.set(inst.municipality, inst.monthlyRate);
-        }
-      }
-    }
-    const cheapestVug = [...vugByMun.entries()]
-      .sort((a, b) => a[1] - b[1])
+    // Best schools by trivsel (well-being)
+    const bestTrivsel = institutions
+      .filter((i) => i.category === "skole" && i.quality?.ts != null && i.quality.ts > 0)
+      .sort((a, b) => (b.quality!.ts! - a.quality!.ts!))
       .slice(0, 4)
-      .map(([kommune, pris]) => ({ kommune, pris }));
+      .map((s) => ({ id: s.id, navn: s.name, score: s.quality!.ts! }));
 
     // Best schools by grade average
     const bestSchools = institutions
@@ -260,7 +252,7 @@ export default function HomePage() {
       .slice(0, 4)
       .map((s) => ({ id: s.id, navn: s.name, score: s.quality!.k! }));
 
-    return { cheapestVug, bestSchools };
+    return { bestTrivsel, bestSchools };
   }, [institutions]);
 
   if (loading) {
@@ -653,21 +645,25 @@ export default function HomePage() {
             {language === "da" ? "Baseret på officielle data" : "Based on official data"}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {/* Billigste vuggestuer */}
-            <Link to={`/billigste-vuggestue/${toSlug("København")}`} className="card p-4 sm:p-5 hover:border-primary/30 transition-all group">
-              <h3 className="font-semibold text-foreground text-sm mb-3">{language === "da" ? "Billigste vuggestuer" : "Cheapest nurseries"}</h3>
-              <div className="space-y-1.5">
-                {popularData.cheapestVug.map((item) => (
-                  <div key={item.kommune} className="flex justify-between text-xs">
-                    <span className="text-muted">{item.kommune}</span>
-                    <span className="font-mono font-medium text-foreground">{formatDKK(item.pris)}{t.common.perMonth}</span>
-                  </div>
+            {/* Bedste trivsel */}
+            <div className="card p-4 sm:p-5">
+              <h3 className="font-semibold text-foreground text-sm mb-3">{language === "da" ? "Bedste trivsel" : "Best well-being"}</h3>
+              <div className="space-y-1">
+                {popularData.bestTrivsel.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={`/institution/${item.id}`}
+                    className="flex justify-between text-xs py-1 px-1.5 -mx-1.5 rounded hover:bg-primary/5 transition-colors group/row"
+                  >
+                    <span className="text-muted truncate mr-2 group-hover/row:text-foreground transition-colors">{item.navn}</span>
+                    <span className="font-mono font-medium text-foreground shrink-0">{item.score.toFixed(1).replace(".", ",")}</span>
+                  </Link>
                 ))}
               </div>
-              <p className="text-[11px] text-primary font-medium mt-3 flex items-center gap-0.5">
-                {language === "da" ? "Se alle kommuner" : "See all municipalities"} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </p>
-            </Link>
+              <Link to="/skole" className="text-[11px] text-primary font-medium mt-3 flex items-center gap-0.5 hover:underline">
+                {language === "da" ? "Se alle skoler" : "See all schools"} <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
 
             {/* Bedste skoler */}
             <div className="card p-4 sm:p-5">
