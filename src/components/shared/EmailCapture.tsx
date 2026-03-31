@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface EmailCaptureProps {
   compact?: boolean;
@@ -10,9 +11,10 @@ export default function EmailCapture({ compact = false }: EmailCaptureProps) {
   const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -21,14 +23,36 @@ export default function EmailCapture({ compact = false }: EmailCaptureProps) {
       return;
     }
 
-    // Save to localStorage
-    const existing = JSON.parse(localStorage.getItem("ig_email_subscribers") || "[]");
-    if (!existing.includes(email)) {
-      existing.push(email);
-      localStorage.setItem("ig_email_subscribers", JSON.stringify(existing));
-    }
+    setLoading(true);
 
-    setSubmitted(true);
+    const trimmedEmail = email.trim();
+
+    try {
+      if (supabase) {
+        const { error: dbError } = await supabase.from("email_alerts").insert({
+          email: trimmedEmail,
+          municipality: null,
+          category: null,
+          alert_type: "newsletter",
+        });
+        // 23505 = unique violation (already subscribed) — treat as success
+        if (dbError && dbError.code !== "23505") {
+          console.error("[EmailCapture] Supabase insert failed:", dbError);
+          setError(t.emailCapture.error ?? "Noget gik galt. Prøv igen.");
+          return;
+        }
+      } else {
+        console.warn("[EmailCapture] Supabase not configured — check VITE_SUPABASE_URL");
+        setError(t.emailCapture.error ?? "Noget gik galt. Prøv igen.");
+        return;
+      }
+      setSubmitted(true);
+    } catch (err) {
+      console.error("[EmailCapture] Unexpected error:", err);
+      setError(t.emailCapture.error ?? "Noget gik galt. Prøv igen.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -53,7 +77,8 @@ export default function EmailCapture({ compact = false }: EmailCaptureProps) {
           />
           <button
             type="submit"
-            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50"
           >
             {t.emailCapture.subscribe}
           </button>
@@ -84,7 +109,8 @@ export default function EmailCapture({ compact = false }: EmailCaptureProps) {
         />
         <button
           type="submit"
-          className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
+          disabled={loading}
+          className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50"
         >
           {t.emailCapture.subscribe}
         </button>

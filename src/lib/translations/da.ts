@@ -314,6 +314,7 @@ export const da: TranslationStrings = {
     placeholder: "Din e-mail",
     subscribe: "Tilmeld",
     success: "Du er tilmeldt!",
+    error: "Noget gik galt. Prøv igen.",
   },
   popular: "Populære",
   map: {

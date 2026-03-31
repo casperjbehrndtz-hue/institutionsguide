@@ -164,6 +164,23 @@ function buildPage(shellHtml, page) {
       { name: "Forside", url: `${SITE_URL}/` },
       { name: page.title.split(" — ")[0], url: `${SITE_URL}${page.path}` },
     ]));
+  } else if (page.jsonLdType === "institution" && page.instData) {
+    const d = page.instData;
+    const schemaType = ["Folkeskole", "Privatskole", "Efterskole"].includes(d.type) ? "School" : "ChildCare";
+    jsonLd = jsonLdTag({
+      "@context": "https://schema.org",
+      "@type": schemaType,
+      name: d.name,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: d.municipality,
+        addressCountry: "DK",
+      },
+    }) + "\n" + jsonLdTag(breadcrumbJsonLd([
+      { name: "Forside", url: `${SITE_URL}/` },
+      { name: d.municipality, url: `${SITE_URL}/kommune/${encodeURIComponent(d.municipality)}` },
+      { name: d.name, url: `${SITE_URL}${page.path}` },
+    ]));
   }
 
   if (jsonLd) {
@@ -213,6 +230,13 @@ const VS_PAIRS = [
   ["boernehave", "sfo"],
 ];
 
+// Top municipalities by population (used to select ~500 institution detail pages)
+const TOP_MUNICIPALITIES = [
+  "København", "Aarhus", "Aalborg", "Odense", "Frederiksberg",
+  "Vejle", "Roskilde", "Silkeborg", "Kolding", "Herning",
+  "Horsens", "Randers", "Esbjerg", "Viborg", "Næstved",
+];
+
 function loadAllData() {
   const DATA_DIR = path.join(__dirname, "../public/data");
 
@@ -224,6 +248,9 @@ function loadAllData() {
   try {
     sfoData = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "sfo-data.json"), "utf-8"));
   } catch { /* sfo optional */ }
+
+  // Collect all institutions for detail page pre-rendering
+  const allInstitutions = [];
 
   // Build municipality -> category -> institution count + price stats
   const munCatMap = new Map(); // munName -> { catName -> { count, prices[] } }
@@ -240,6 +267,16 @@ function loadAllData() {
   for (const s of skoleData.s) {
     const m = s.m ? s.m.replace(" Kommune", "") : null;
     if (m) addInst(m, "skole", s.sfo || null);
+    if (s.id && s.n && m) {
+      allInstitutions.push({
+        id: `school-${s.id}`,
+        name: s.n,
+        municipality: m,
+        type: s.t === "e" ? "efterskole" : s.t === "p" ? "privatskole" : "folkeskole",
+        category: "skole",
+        hasQuality: !!(s.q && s.q.r !== undefined),
+      });
+    }
   }
 
   // Schools with quality data
@@ -256,6 +293,16 @@ function loadAllData() {
     for (const d of data.i) {
       const cat = forceCat || (d.tp === "dagpleje" ? "dagpleje" : d.tp === "sfo" || d.tp === "klub" ? "sfo" : d.tp === "boernehave" ? "boernehave" : "vuggestue");
       if (d.m) addInst(d.m, cat, d.mr || null);
+      if (d.id && d.n && d.m) {
+        allInstitutions.push({
+          id: d.id,
+          name: d.n,
+          municipality: d.m,
+          type: d.tp || cat,
+          category: cat,
+          hasQuality: false,
+        });
+      }
     }
   }
 
@@ -264,11 +311,47 @@ function loadAllData() {
   processDagtilbud(dagData, null);
   processDagtilbud(sfoData, "sfo");
 
-  return { munCatMap, schoolQualityMuns };
+  return { munCatMap, schoolQualityMuns, allInstitutions };
+}
+
+const INST_TYPE_LABELS = {
+  folkeskole: "Folkeskole",
+  privatskole: "Privatskole",
+  efterskole: "Efterskole",
+  vuggestue: "Vuggestue",
+  boernehave: "Børnehave",
+  dagpleje: "Dagpleje",
+  sfo: "SFO",
+  aldersintegreret: "Aldersintegreret institution",
+};
+
+function generateInstitutionDetailPages(allInstitutions) {
+  // Prioritize: schools with quality data first, then top municipalities
+  const topMunSet = new Set(TOP_MUNICIPALITIES);
+  const scored = allInstitutions
+    .filter((inst) => topMunSet.has(inst.municipality))
+    .map((inst) => ({
+      ...inst,
+      score: (inst.hasQuality ? 10 : 0) + (inst.category === "skole" ? 5 : 0),
+    }))
+    .sort((a, b) => b.score - a.score);
+
+  const selected = scored.slice(0, 500);
+
+  return selected.map((inst) => {
+    const typeLabel = INST_TYPE_LABELS[inst.type] || INST_TYPE_LABELS[inst.category] || "Institution";
+    return {
+      path: `/institution/${inst.id}`,
+      title: `${inst.name} — ${typeLabel} i ${inst.municipality} | Institutionsguide`,
+      description: `Se detaljer om ${inst.name} i ${inst.municipality} Kommune. ${typeLabel} med priser, normering, kontaktinfo og kvalitetsdata.`,
+      jsonLdType: "institution",
+      instData: { name: inst.name, municipality: inst.municipality, type: typeLabel },
+    };
+  });
 }
 
 function generateProgrammaticPages() {
-  const { munCatMap, schoolQualityMuns } = loadAllData();
+  const { munCatMap, schoolQualityMuns, allInstitutions } = loadAllData();
   const pages = [];
   const municipalities = [...munCatMap.keys()].sort();
 
@@ -366,7 +449,7 @@ function generateProgrammaticPages() {
     }
   }
 
-  return pages;
+  return { pages, allInstitutions };
 }
 
 function main() {
@@ -379,14 +462,18 @@ function main() {
   const shellHtml = fs.readFileSync(shellPath, "utf-8");
 
   let programmaticPages = [];
+  let institutionDetailPages = [];
   try {
-    programmaticPages = generateProgrammaticPages();
+    const { pages, allInstitutions } = generateProgrammaticPages();
+    programmaticPages = pages;
+    institutionDetailPages = generateInstitutionDetailPages(allInstitutions);
     console.log(`[prerender] Generated ${programmaticPages.length} programmatic SEO pages`);
+    console.log(`[prerender] Generated ${institutionDetailPages.length} institution detail pages`);
   } catch (err) {
     console.warn("[prerender] Could not generate programmatic pages:", err.message);
   }
 
-  const allPages = [...PAGES, ...getMunicipalityPages(), ...programmaticPages];
+  const allPages = [...PAGES, ...getMunicipalityPages(), ...programmaticPages, ...institutionDetailPages];
   console.log(`[prerender] Total pages to render: ${allPages.length}`);
 
   let count = 0;

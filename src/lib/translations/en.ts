@@ -314,6 +314,7 @@ export const en: TranslationStrings = {
     placeholder: "Your email",
     subscribe: "Subscribe",
     success: "You're subscribed!",
+    error: "Something went wrong. Please try again.",
   },
   popular: "Popular",
   map: {

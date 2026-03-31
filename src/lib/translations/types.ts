@@ -303,6 +303,7 @@ export interface TranslationStrings {
     placeholder: string;
     subscribe: string;
     success: string;
+    error: string;
   };
   popular: string;
   map: {
