@@ -55,31 +55,56 @@ function computeDynamicRange(
   return [p90, p10];
 }
 
+/** Approximate distance in km using equirectangular projection */
+function quickDistanceKm(
+  lat1: number, lng1: number, lat2: number, lng2: number,
+): number {
+  const dLat = lat2 - lat1;
+  const dLng = (lng2 - lng1) * Math.cos(lat1 * Math.PI / 180);
+  return Math.sqrt(dLat * dLat + dLng * dLng) * 111.32;
+}
+
 export function rankInstitutions(
   institutions: UnifiedInstitution[],
   dimensions: DimensionConfig[],
   weights: Record<string, number>, // key → 0-100
   ctx: ScoringContext,
-): { ranked: ScoredInstitution[]; excluded: ScoredInstitution[] } {
-  // Only consider dimensions with weight > 0
-  const activeDims = dimensions.filter((d) => (weights[d.key] ?? 0) > 0);
-  if (activeDims.length === 0) return { ranked: [], excluded: [] };
+  maxDistanceKm: number | null = null,
+): { ranked: ScoredInstitution[]; excluded: ScoredInstitution[]; totalInArea: number } {
+  // Skip the "distance" dimension for scoring — it's used as a hard filter via maxDistanceKm
+  const activeDims = dimensions.filter(
+    (d) => d.key !== "distance" && (weights[d.key] ?? 0) > 0,
+  );
 
-  // Pre-compute dynamic ranges for dimensions that need it
+  // Pre-filter by distance if location + radius provided
+  let candidates = institutions;
+  if (ctx.userLocation && maxDistanceKm != null) {
+    candidates = institutions.filter((inst) => {
+      const km = quickDistanceKm(
+        ctx.userLocation!.lat, ctx.userLocation!.lng, inst.lat, inst.lng,
+      );
+      return km <= maxDistanceKm;
+    });
+  }
+
+  const totalInArea = candidates.length;
+
+  if (activeDims.length === 0) return { ranked: [], excluded: [], totalInArea };
+
+  // Pre-compute dynamic ranges from the FILTERED set (not all institutions)
   const resolvedRanges = new Map<string, [number, number]>();
   for (const dim of activeDims) {
     if (dim.range) {
       resolvedRanges.set(dim.key, dim.range);
     } else {
-      resolvedRanges.set(dim.key, computeDynamicRange(institutions, dim, ctx));
+      resolvedRanges.set(dim.key, computeDynamicRange(candidates, dim, ctx));
     }
   }
 
-  const distanceWeight = weights["distance"] ?? 0;
   const ranked: ScoredInstitution[] = [];
   const excluded: ScoredInstitution[] = [];
 
-  for (const inst of institutions) {
+  for (const inst of candidates) {
     const dimScores: DimensionScore[] = [];
     let weightedSum = 0;
     let totalWeight = 0;
@@ -112,37 +137,14 @@ export function rankInstitutions(
     }
 
     const dataCompleteness = activeDims.length > 0 ? dimsWithData / activeDims.length : 0;
-    let totalScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
+    const totalScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
 
     // Distance for display
     let distanceKm: number | null = null;
     if (ctx.userLocation) {
-      const dLat = inst.lat - ctx.userLocation.lat;
-      const dLng = (inst.lng - ctx.userLocation.lng) * Math.cos(ctx.userLocation.lat * Math.PI / 180);
-      distanceKm = Math.sqrt(dLat * dLat + dLng * dLng) * 111.32;
-    }
-
-    // Apply distance penalty: when distance is an active dimension, schools far away
-    // get their total score multiplied down so they can't beat nearby schools purely
-    // on academic metrics. Without this, a school 200km away with great stats would
-    // rank above a decent local school.
-    if (distanceKm != null && distanceWeight > 0) {
-      let distancePenalty: number;
-      if (distanceKm <= 15) {
-        distancePenalty = 1.0; // no penalty
-      } else if (distanceKm <= 30) {
-        // Linear decay from 1.0 → 0.5 over 15-30km
-        distancePenalty = 1.0 - 0.5 * ((distanceKm - 15) / 15);
-      } else if (distanceKm <= 60) {
-        // Linear decay from 0.5 → 0.15 over 30-60km
-        distancePenalty = 0.5 - 0.35 * ((distanceKm - 30) / 30);
-      } else {
-        distancePenalty = 0.1; // 60km+ effectively eliminated
-      }
-      // Scale penalty by how much the user cares about distance (weight 0-100)
-      const penaltyStrength = distanceWeight / 100;
-      const effectivePenalty = 1 - penaltyStrength * (1 - distancePenalty);
-      totalScore *= effectivePenalty;
+      distanceKm = quickDistanceKm(
+        ctx.userLocation.lat, ctx.userLocation.lng, inst.lat, inst.lng,
+      );
     }
 
     const result: ScoredInstitution = {
@@ -165,5 +167,5 @@ export function rankInstitutions(
   ranked.sort((a, b) => b.totalScore - a.totalScore);
   excluded.sort((a, b) => b.totalScore - a.totalScore);
 
-  return { ranked, excluded };
+  return { ranked, excluded, totalInArea };
 }

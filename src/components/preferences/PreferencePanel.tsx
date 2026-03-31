@@ -13,6 +13,15 @@ const ALL_CATEGORY_OPTIONS: { key: InstitutionCategory; da: string; en: string; 
 ];
 const CATEGORY_OPTIONS = ALL_CATEGORY_OPTIONS.filter((o) => categoryHasFinder(o.key));
 
+const RADIUS_OPTIONS = [
+  { value: 5, da: "5 km", en: "5 km" },
+  { value: 10, da: "10 km", en: "10 km" },
+  { value: 15, da: "15 km", en: "15 km" },
+  { value: 25, da: "25 km", en: "25 km" },
+  { value: 50, da: "50 km", en: "50 km" },
+  { value: 0, da: "Hele landet", en: "Entire country" },
+];
+
 interface Props {
   category: InstitutionCategory;
   onCategoryChange: (c: InstitutionCategory) => void;
@@ -22,6 +31,8 @@ interface Props {
   hasLocation: boolean;
   nearMeLoading: boolean;
   onNearMe: () => void;
+  maxDistanceKm: number;
+  onMaxDistanceChange: (km: number) => void;
 }
 
 export default function PreferencePanel({
@@ -33,8 +44,13 @@ export default function PreferencePanel({
   hasLocation,
   nearMeLoading,
   onNearMe,
+  maxDistanceKm,
+  onMaxDistanceChange,
 }: Props) {
-  const dimensions: DimensionConfig[] = DIMENSIONS_BY_CATEGORY[category] ?? [];
+  // Filter out the "distance" dimension — it's now a hard filter, not a slider
+  const dimensions: DimensionConfig[] = (DIMENSIONS_BY_CATEGORY[category] ?? []).filter(
+    (d) => d.key !== "distance",
+  );
 
   return (
     <div className="space-y-4">
@@ -60,26 +76,51 @@ export default function PreferencePanel({
         </div>
       </div>
 
-      {/* Location toggle */}
-      {dimensions.some((d) => d.key === "distance") && !hasLocation && (
-        <button
-          onClick={onNearMe}
-          disabled={nearMeLoading}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 border-dashed border-primary/30 text-primary hover:bg-primary/5 transition-colors text-sm font-medium disabled:opacity-50"
-        >
-          {nearMeLoading
-            ? <Loader2 className="w-4 h-4 animate-spin" />
-            : <MapPin className="w-4 h-4" />}
-          {language === "da" ? "Aktiver placering for afstands-rangering" : "Enable location for distance ranking"}
-        </button>
-      )}
-
-      {hasLocation && dimensions.some((d) => d.key === "distance") && (
-        <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 rounded-lg px-3 py-2">
-          <MapPin className="w-3.5 h-3.5" />
-          {language === "da" ? "Placering aktiv — afstand indgår i ranking" : "Location active — distance included in ranking"}
-        </div>
-      )}
+      {/* Location + radius */}
+      <div>
+        <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+          {language === "da" ? "Hvor bor I?" : "Where do you live?"}
+        </p>
+        {!hasLocation ? (
+          <button
+            onClick={onNearMe}
+            disabled={nearMeLoading}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 border-dashed border-primary/30 text-primary hover:bg-primary/5 transition-colors text-sm font-medium disabled:opacity-50"
+          >
+            {nearMeLoading
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <MapPin className="w-4 h-4" />}
+            {language === "da" ? "Aktiver placering" : "Enable location"}
+          </button>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-primary bg-primary/5 rounded-lg px-3 py-2">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              {language === "da" ? "Placering aktiv" : "Location active"}
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-muted shrink-0">
+                {language === "da" ? "Max afstand:" : "Max distance:"}
+              </label>
+              <div className="flex flex-wrap gap-1">
+                {RADIUS_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => onMaxDistanceChange(opt.value)}
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-all font-medium ${
+                      maxDistanceKm === opt.value
+                        ? "bg-primary text-white border-primary"
+                        : "border-border text-muted hover:border-primary/40"
+                    }`}
+                  >
+                    {language === "da" ? opt.da : opt.en}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Sliders */}
       <div>

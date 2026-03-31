@@ -23,9 +23,15 @@ function rankBadge(rank: number): string | null {
   return null;
 }
 
+function dimPillColor(score: number): string {
+  if (score >= 70) return "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
+  if (score >= 40) return "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300";
+  return "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300";
+}
+
 export default function MatchCard({ result, rank, language }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const { institution: inst, matchPct, dimensions, distanceKm, dataCompleteness } = result;
+  const { institution: inst, matchPct, dimensions, distanceKm } = result;
   const badge = rankBadge(rank);
 
   return (
@@ -56,34 +62,21 @@ export default function MatchCard({ result, rank, language }: Props) {
                 {distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1).replace(".", ",")} km`}
               </span>
             )}
-            {inst.monthlyRate != null && (
-              <span className="font-medium text-foreground">
-                {Math.round(inst.monthlyRate).toLocaleString("da-DK")} kr/md
-              </span>
+            {inst.subtype && inst.subtype !== "folkeskole" && (
+              <span className="text-primary/70 font-medium">{inst.subtype}</span>
             )}
           </div>
 
-          {/* Top dimension highlights — show top 2 */}
+          {/* Top dimension highlights */}
           <div className="flex flex-wrap gap-1.5 mt-2">
-            {dimensions.slice(0, 3).map((d) => (
+            {dimensions.slice(0, 4).map((d) => (
               <span
                 key={d.key}
-                className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md font-medium ${
-                  d.normalizedScore >= 70
-                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                    : d.normalizedScore >= 40
-                      ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
-                      : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                }`}
+                className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md font-medium ${dimPillColor(d.normalizedScore)}`}
               >
                 {d.icon} {d.formattedValue}
               </span>
             ))}
-            {dataCompleteness < 1 && (
-              <span className="text-[10px] text-muted px-1.5 py-0.5 bg-muted/10 rounded">
-                {Math.round(dataCompleteness * 100)}% data
-              </span>
-            )}
           </div>
         </div>
 
@@ -101,7 +94,7 @@ export default function MatchCard({ result, rank, language }: Props) {
       {expanded && (
         <div className="border-t border-border/50 px-4 py-3 space-y-2 animate-fade-in">
           <p className="text-xs font-semibold text-muted uppercase tracking-wider">
-            {language === "da" ? "Hvorfor denne ranking?" : "Why this ranking?"}
+            {language === "da" ? "Detaljeret vurdering" : "Detailed assessment"}
           </p>
           {dimensions.map((d) => (
             <div key={d.key} className="flex items-center gap-2">
@@ -126,6 +119,12 @@ export default function MatchCard({ result, rank, language }: Props) {
               </span>
             </div>
           ))}
+          <Link
+            to={`/institution/${inst.id}`}
+            className="inline-block text-xs text-primary hover:underline mt-1"
+          >
+            {language === "da" ? "Se fuld profil →" : "View full profile →"}
+          </Link>
         </div>
       )}
     </div>

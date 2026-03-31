@@ -11,11 +11,13 @@ interface Params {
   institutionStats: Record<string, InstitutionStats>;
   normering: NormeringEntry[];
   municipality?: string;
+  maxDistanceKm?: number | null;
 }
 
 export interface ScoringResult {
   ranked: ScoredInstitution[];
   excluded: ScoredInstitution[];
+  totalInArea: number;
 }
 
 export function usePreferenceScoring({
@@ -26,6 +28,7 @@ export function usePreferenceScoring({
   institutionStats,
   normering,
   municipality,
+  maxDistanceKm,
 }: Params): ScoringResult {
   return useMemo(() => {
     // Filter to category (and optionally municipality)
@@ -35,7 +38,7 @@ export function usePreferenceScoring({
     }
 
     const dimensions = DIMENSIONS_BY_CATEGORY[category];
-    if (!dimensions || dimensions.length === 0) return { ranked: [], excluded: [] };
+    if (!dimensions || dimensions.length === 0) return { ranked: [], excluded: [], totalInArea: 0 };
 
     const ctx: ScoringContext = {
       userLocation,
@@ -44,6 +47,6 @@ export function usePreferenceScoring({
       priceRange: null, // computed inside rankInstitutions dynamically
     };
 
-    return rankInstitutions(filtered, dimensions, weights, ctx);
-  }, [institutions, category, weights, userLocation, institutionStats, normering, municipality]);
+    return rankInstitutions(filtered, dimensions, weights, ctx, maxDistanceKm ?? null);
+  }, [institutions, category, weights, userLocation, institutionStats, normering, municipality, maxDistanceKm]);
 }
