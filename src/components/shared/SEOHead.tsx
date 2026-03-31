@@ -32,6 +32,12 @@ export default function SEOHead({ title, description, path = "", noIndex }: SEOH
     setMeta("property", "og:title", fullTitle);
     setMeta("property", "og:description", description);
     setMeta("property", "og:url", url);
+    setMeta("property", "og:type", "website");
+    setMeta("property", "og:image", `${BASE_URL}/og-image.png`);
+    setMeta("property", "og:image:width", "1200");
+    setMeta("property", "og:image:height", "630");
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:image", `${BASE_URL}/og-image.png`);
 
     if (noIndex) {
       setMeta("name", "robots", "noindex, nofollow");

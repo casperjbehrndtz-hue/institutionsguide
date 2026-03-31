@@ -40,7 +40,7 @@ export default function MatchCard({ result, rank, language }: Props) {
         {/* Rank + score */}
         <div className="shrink-0 flex flex-col items-center gap-0.5 w-12">
           <span className="text-lg">{badge ?? `#${rank}`}</span>
-          <div className={`text-xs font-bold text-white px-2 py-0.5 rounded-full ${scoreColor(matchPct)}`}>
+          <div className={`text-xs font-bold text-white px-2 py-0.5 rounded-full ${scoreColor(matchPct)}`} aria-label={`${matchPct}% match`}>
             {matchPct}%
           </div>
         </div>
