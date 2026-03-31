@@ -58,10 +58,10 @@ export default function SEOHead({ title, description, path = "", noIndex }: SEOH
     };
 
     setLink("da", url);
+    setLink("x-default", url);
 
-    // Remove stale en/x-default hreflang tags (no English URLs exist)
+    // Remove stale en hreflang tags (no English URLs exist)
     document.querySelector('link[hreflang="en"]')?.remove();
-    document.querySelector('link[hreflang="x-default"]')?.remove();
 
     // Canonical
     let canonical = document.querySelector('link[rel="canonical"]');
