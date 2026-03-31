@@ -78,7 +78,7 @@ function useSuiteLinks(): SuiteLink[] {
       },
       {
         label: "Børneskat",
-        href: withParams("https://xn--brneskat-d6a.dk", {
+        href: withParams("https://xn--brneskat-54a.dk", {
           ...familyParams,
           source: "institutionsguide",
         }),

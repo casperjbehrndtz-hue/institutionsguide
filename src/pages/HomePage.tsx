@@ -8,7 +8,7 @@ import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
-import { dataVersions } from "@/lib/dataVersions";
+import { dataVersions, formatDataDate, getFripladsYear } from "@/lib/dataVersions";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 
@@ -31,7 +31,7 @@ import { haversineKm } from "@/lib/geo";
 const FAQ_ITEMS_DA = [
   {
     q: "Hvad er fripladstilskud, og hvem kan få det?",
-    a: "Fripladstilskud er en rabat på forældrebetalingen for dagtilbud. Tilskuddet afhænger af husstandsindkomsten. I 2026 kan familier med en indkomst under 677.500 kr. få delvist tilskud, og under 218.100 kr. får man fuld friplads.",
+    a: `Fripladstilskud er en rabat på forældrebetalingen for dagtilbud. Tilskuddet afhænger af husstandsindkomsten. I ${getFripladsYear()} kan familier med en indkomst under 677.500 kr. få delvist tilskud, og under 218.100 kr. får man fuld friplads.`,
   },
   {
     q: "Hvad er forskellen på dagpleje og vuggestue?",
@@ -62,7 +62,7 @@ const FAQ_ITEMS_DA = [
 const FAQ_ITEMS_EN = [
   {
     q: "What is childcare subsidy, and who can get it?",
-    a: "Childcare subsidy (fripladstilskud) is a discount on parental fees for daycare. The subsidy depends on household income. In 2026, families with an income below DKK 677,500 can receive partial subsidy, and below DKK 218,100 full subsidy.",
+    a: `Childcare subsidy (fripladstilskud) is a discount on parental fees for daycare. The subsidy depends on household income. In ${getFripladsYear()}, families with an income below DKK 677,500 can receive partial subsidy, and below DKK 218,100 full subsidy.`,
   },
   {
     q: "What is the difference between childminder and nursery?",
@@ -350,21 +350,31 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Near me — text link, not button */}
-          <button
-            onClick={geo.handleNearMe}
-            disabled={geo.nearMeLoading}
-            className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm transition-colors disabled:opacity-60"
-          >
-            {geo.nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
-            {language === "da" ? "Find tæt på mig" : "Find near me"}
-          </button>
+          {/* Action row */}
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <button
+              onClick={geo.handleNearMe}
+              disabled={geo.nearMeLoading}
+              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm transition-colors disabled:opacity-60"
+            >
+              {geo.nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
+              {language === "da" ? "Find tæt på mig" : "Find near me"}
+            </button>
+            <span className="text-white/30">|</span>
+            <Link
+              to="/find"
+              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm transition-colors"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              {language === "da" ? "Find den rette for jer" : "Find your perfect match"}
+            </Link>
+          </div>
 
           {/* Social proof — trust line */}
           <p className="text-[12px] sm:text-[13px] text-white/50 mt-5 font-medium tracking-wide">
             {language === "da"
-              ? `${institutions.length.toLocaleString("da-DK")} institutioner · ${municipalities.length} kommuner · Opdateret marts 2026`
-              : `${institutions.length.toLocaleString("da-DK")} institutions · ${municipalities.length} municipalities · Updated March 2026`}
+              ? `${institutions.length.toLocaleString("da-DK")} institutioner · ${municipalities.length} kommuner · Opdateret ${formatDataDate(dataVersions.overall.lastUpdated, "da")}`
+              : `${institutions.length.toLocaleString("da-DK")} institutions · ${municipalities.length} municipalities · Updated ${formatDataDate(dataVersions.overall.lastUpdated, "en")}`}
           </p>
         </div>
       </section>
@@ -754,7 +764,7 @@ export default function HomePage() {
             <p className="text-sm text-muted mt-1">{t.suiteProducts.parfinans}</p>
           </a>
           <a
-            href="https://boerneskat.dk"
+            href="https://xn--brneskat-54a.dk"
             target="_blank"
             rel="noopener noreferrer"
             className="card p-5 transition-transform group"

@@ -123,7 +123,7 @@ export default function BestValuePage() {
     return { minPrice, maxPrice, topMun, topMunByCount };
   }, [ranked]);
 
-  const pageTitle = "Bedste værdi for pengene — Skoler med mest kvalitet per krone 2026";
+  const pageTitle = `Bedste værdi for pengene — Skoler med mest kvalitet per krone ${new Date().getFullYear()}`;
   const pageDesc = `Top 25 skoler i Danmark rangeret efter kvalitet i forhold til SFO-pris. ${ranked[0].school.name} giver mest kvalitet per krone med en score på ${formatDecimal(ranked[0].valueScore)}.`;
 
   // JSON-LD ItemList
@@ -378,7 +378,7 @@ export default function BestValuePage() {
       {stats && valueStats && (
         <section className="max-w-3xl mx-auto px-4 py-6">
           <h2 className="font-display text-xl font-bold text-foreground mb-3">
-            Analyse — værdi for pengene 2026
+            Analyse — værdi for pengene {new Date().getFullYear()}
           </h2>
           <div className="prose prose-sm text-muted leading-relaxed space-y-3">
             <p>

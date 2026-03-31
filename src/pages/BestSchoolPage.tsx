@@ -109,7 +109,7 @@ export default function BestSchoolPage() {
 
   const top5 = schools.slice(0, 5);
   const bestSchool = schools[0];
-  const pageTitle = `Bedste skoler i ${munName} 2026 — Kvalitetsranking`;
+  const pageTitle = `Bedste skoler i ${munName} ${new Date().getFullYear()} — Kvalitetsranking`;
   const pageDesc = `Top ${Math.min(schools.length, 5)} skoler i ${munName} rangeret efter kvalitetsdata. ${bestSchool.name} scorer højest med ${formatNum(bestSchool.quality?.r)}/5. Se trivsel, karaktersnit og fravær for ${totalSchools} skoler.`;
 
   // JSON-LD ItemList

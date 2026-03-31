@@ -44,6 +44,7 @@ const AboutPage = lazyRetry(() => import("@/pages/AboutPage"));
 const BestDagtilbudPage = lazyRetry(() => import("@/pages/BestDagtilbudPage"));
 const TotalCostPage = lazyRetry(() => import("@/pages/TotalCostPage"));
 const GuidePage = lazyRetry(() => import("@/pages/GuidePage"));
+const FindPage = lazyRetry(() => import("@/pages/FindPage"));
 
 function Loading() {
   return (
@@ -90,6 +91,8 @@ export default function App() {
               <Route path="/samlet-pris" element={<TotalCostPage />} />
               {/* Guide wizard */}
               <Route path="/guide" element={<GuidePage />} />
+              {/* Find — preference-based ranking */}
+              <Route path="/find" element={<FindPage />} />
               {/* Metode */}
               <Route path="/metode" element={<MetodePage />} />
               {/* Blog */}

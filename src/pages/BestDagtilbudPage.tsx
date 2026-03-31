@@ -194,8 +194,8 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
 
   const pageTitle =
     language === "da"
-      ? `Top 10 bedste ${catPluralDa} i ${munName} 2026 — Kvalitetsranking`
-      : `Top 10 best ${CATEGORY_LABELS_EN[cat].toLowerCase()} in ${munName} 2026 — Quality ranking`;
+      ? `Top 10 bedste ${catPluralDa} i ${munName} ${new Date().getFullYear()} — Kvalitetsranking`
+      : `Top 10 best ${CATEGORY_LABELS_EN[cat].toLowerCase()} in ${munName} ${new Date().getFullYear()} — Quality ranking`;
 
   const pageDesc =
     language === "da"

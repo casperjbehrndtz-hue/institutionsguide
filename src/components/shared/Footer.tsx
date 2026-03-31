@@ -36,7 +36,7 @@ function useSuiteProducts(): SuiteProduct[] {
     return [
       { name: "ParFinans", href: withParams("https://parfinans.dk", sharedParams), descKey: "parfinans" as const },
       { name: "NemtBudget", href: withParams("https://nemtbudget.nu", sharedParams), descKey: "nemtbudget" as const },
-      { name: "Børneskat", href: withParams("https://xn--brneskat-d6a.dk", sharedParams), descKey: "boerneskat" as const },
+      { name: "Børneskat", href: withParams("https://xn--brneskat-54a.dk", sharedParams), descKey: "boerneskat" as const },
     ];
   }, [profile]);
 }

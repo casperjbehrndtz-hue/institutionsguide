@@ -123,7 +123,7 @@ export default function CheapestPage() {
   const catLabel = CATEGORY_LABELS_DA[cat];
   const catSingular = CATEGORY_SINGULAR_DA[cat];
   const cheapestPrice = sorted[0].monthlyRate!;
-  const pageTitle = `Billigste ${catSingular} i ${munName} 2026 — Fra ${cheapestPrice.toLocaleString("da-DK")} kr/md`;
+  const pageTitle = `Billigste ${catSingular} i ${munName} ${new Date().getFullYear()} — Fra ${cheapestPrice.toLocaleString("da-DK")} kr/md`;
   const pageDesc = `Se de billigste ${catLabel.toLowerCase()} i ${munName} Kommune, rangeret efter pris. Billigste: ${sorted[0].name} til ${cheapestPrice.toLocaleString("da-DK")} kr/md.${savings ? ` Spar op til ${savings.toLocaleString("da-DK")} kr/md.` : ""}`;
 
   // JSON-LD ItemList

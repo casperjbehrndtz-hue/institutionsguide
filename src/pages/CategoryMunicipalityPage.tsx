@@ -127,7 +127,7 @@ export default function CategoryMunicipalityPage() {
 
   const catLabel = CATEGORY_LABELS_DA[cat];
   const catSingular = CATEGORY_SINGULAR_DA[cat];
-  const pageTitle = `${catLabel} i ${munName} 2026 — Priser og sammenligning`;
+  const pageTitle = `${catLabel} i ${munName} ${new Date().getFullYear()} — Priser og sammenligning`;
   const pageDesc = `Der er ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune.${stats.avg ? ` Gennemsnitlig månedlig takst: ${stats.avg} kr.` : ""} Se priser, kontakt og sammenlign.`;
 
   return (

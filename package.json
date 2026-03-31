@@ -20,6 +20,8 @@
     "fetch:all-data": "npm run fetch:inst-stats && npm run fetch:kommune-stats",
     "fetch:satisfaction": "node scripts/fetch-foraeldre-tilfredshed.mjs",
     "refresh": "npm run fetch:kommune-stats && node scripts/build-normering-data.mjs && npm run fetch:satisfaction && node scripts/generate-sitemap.mjs",
+    "refresh:all": "node scripts/refresh-all.mjs",
+    "refresh:all:dry": "node scripts/refresh-all.mjs --dry-run",
     "tilsyn:scrape": "node scripts/tilsyn/scrape-kommune.mjs --all",
     "tilsyn:scrape:kommune": "node scripts/tilsyn/scrape-kommune.mjs --kommune"
   },

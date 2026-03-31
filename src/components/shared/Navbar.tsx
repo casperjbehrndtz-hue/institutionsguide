@@ -14,6 +14,7 @@ const CATEGORY_LINKS: { href: string; key: string; labelOverride?: Record<string
 ];
 
 const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = [
+  { href: "/find", labelOverride: { da: "Find den rette", en: "Find your match" } },
   { href: "/prissammenligning", labelOverride: { da: "Prissammenligning", en: "Price comparison" } },
   { href: "/bedste-vaerdi", labelOverride: { da: "Bedste værdi", en: "Best value" } },
   { href: "/friplads", labelOverride: { da: "Fripladsberegner", en: "Subsidy calculator" } },

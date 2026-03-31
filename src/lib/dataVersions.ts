@@ -18,25 +18,25 @@ export const dataVersions = {
   /** Childcare price data from Danmarks Statistik (StatBank RES88) */
   prices: {
     year: 2025,
-    lastUpdated: new Date("2026-03-01"),
+    lastUpdated: new Date("2026-03-31"),
   },
   /** School quality data from Undervisningsministeriet */
   schoolQuality: {
     schoolYear: "2024/2025",
-    lastUpdated: new Date("2026-03-01"),
+    lastUpdated: new Date("2026-03-31"),
   },
   /** Friplads subsidy thresholds */
   friplads: {
-    year: 2025,
-    lastUpdated: new Date("2026-03-01"),
+    year: 2026,
+    lastUpdated: new Date("2026-03-31"),
   },
   /** Normering (staff ratio) data */
   normering: {
-    lastUpdated: new Date("2026-03-01"),
+    lastUpdated: new Date("2026-03-31"),
   },
   /** Overall site data freshness (latest of all sources) */
   overall: {
-    lastUpdated: new Date("2026-03-01"),
+    lastUpdated: new Date("2026-03-31"),
   },
   /** Privacy policy / terms page date */
   legal: {
