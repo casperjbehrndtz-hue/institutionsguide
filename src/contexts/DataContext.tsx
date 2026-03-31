@@ -178,12 +178,29 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const seenDag = new Set<string>();
         const seenSfo = new Set<string>();
 
-        // Schools
+        // Schools — deduplicate afdelinger of the same school
+        // Group by base name (before " - " or ", afd.") + municipality
+        const schoolsByBase = new Map<string, UnifiedInstitution[]>();
         for (const s of skoleData.s) {
           const u = schoolToUnified(s);
-          if (u && !seenSchool.has(u.id)) {
-            seenSchool.add(u.id);
-            unified.push(u);
+          if (!u || seenSchool.has(u.id)) continue;
+          seenSchool.add(u.id);
+          const base = u.name.replace(/ - .*$/, "").replace(/, afd\.? .*$/i, "").trim();
+          const key = `${base}__${u.municipality}`;
+          if (!schoolsByBase.has(key)) schoolsByBase.set(key, []);
+          schoolsByBase.get(key)!.push(u);
+        }
+        for (const group of schoolsByBase.values()) {
+          if (group.length === 1) {
+            unified.push(group[0]);
+          } else {
+            // Pick the entry with the most quality data; use first as fallback
+            const best = group.reduce((a, b) => {
+              const scoreA = Object.values(a.quality ?? {}).filter(v => v != null).length;
+              const scoreB = Object.values(b.quality ?? {}).filter(v => v != null).length;
+              return scoreB > scoreA ? b : a;
+            });
+            unified.push(best);
           }
         }
 

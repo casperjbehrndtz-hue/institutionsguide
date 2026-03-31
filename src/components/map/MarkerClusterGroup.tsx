@@ -110,10 +110,10 @@ export default function MarkerClusterGroup({
   useEffect(() => {
     const cluster = L.markerClusterGroup({
       chunkedLoading: true,
-      maxClusterRadius: 50,
+      maxClusterRadius: 60,
       spiderfyOnMaxZoom: true,
       spiderfyDistanceMultiplier: 2,
-      disableClusteringAtZoom: 18,
+      disableClusteringAtZoom: 15,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
       iconCreateFunction(clusterObj) {
