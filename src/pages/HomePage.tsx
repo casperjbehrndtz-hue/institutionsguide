@@ -90,9 +90,9 @@ const FAQ_ITEMS_EN = [
   },
 ];
 
-const HERO_VIDEOS = [
-  "/hero-1.mp4",
-  "/hero-2.mp4",
+const HERO_VIDEOS: { src: string; focus: string }[] = [
+  { src: "/hero-1.mp4", focus: "40%" },  // kvinde + barn — ansigt sidder lavt
+  { src: "/hero-2.mp4", focus: "20%" },  // mand + skelet — action i midten/toppen
 ];
 
 export default function HomePage() {
@@ -319,9 +319,9 @@ export default function HomePage() {
             aria-hidden="true"
             poster="/og-image.png"
             className="absolute left-0 w-full min-h-full object-cover pointer-events-none"
-            style={{ top: "40%", transform: "translateY(-40%)" }}
+            style={{ top: heroVideo.focus, transform: `translateY(-${heroVideo.focus})` }}
           >
-            <source src={heroVideo} type="video/mp4" />
+            <source src={heroVideo.src} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70" />
         </div>
