@@ -453,9 +453,9 @@ Deno.serve(async (req) => {
 
 ─── GOOGLES RANKING-SIGNALER I 2026 ───────────────────────────────────────
 
-**E-E-A-T:** Skriv som en der HAR erfaring — brug "da vi sammenlignede", "i vores data", "det overraskede os"
+**E-E-A-T:** Vis ekspertise via præcise tal og kildehenvisninger — IKKE via falsk "vi har undersøgt"-retorik.
 **PAA:** Afslut med 4-5 FAQ-spørgsmål i <div class="faq-answer"> wrappers.
-**Helpful Content:** Inkluder MINDST én HTML <table> med data. Nævn common mistakes.
+**Helpful Content:** Inkluder MINDST én HTML <table> med data. Nævn typiske fejl forældre begår.
 
 ─── TABEL & DATA (VIGTIGT for rich results) ──────────────────────────────
 
@@ -485,13 +485,30 @@ Du får RIGTIGE data fra vores database nedenfor. BRUG DEM.
 5. ALTID inkluder disclaimer som ALLERSIDSTE afsnit:
    "<p><em>Denne artikel er udelukkende til informationsformål. Priser og regler kan variere mellem kommuner og ændre sig over tid. Kontakt din kommune for aktuelle priser og ventelister.</em></p>"
 
-─── SKRIVESTIL ─────────────────────────────────────────────────────────────
+─── SKRIVESTIL (ANTI-AI-SLOP REGLER) ──────────────────────────────────────
 
-- Dansk, direkte, personlig — som en erfaren forælder der hjælper en ny forælder
-- ALDRIG: "Det er vigtigt at...", "Man bør overveje...", "I denne artikel vil vi..."
-- Brug "faktisk", "overraskende nok", "de fleste glemmer", "her er hvad vi fandt"
-- Korte afsnit (2-3 sætninger). Brug lister.
-- Minimum 1.200 ord, ideelt 1.300-1.500 ord.
+DU SKAL lyde som en menneskelig fagredaktør. ALDRIG som en AI.
+
+FORBUDTE AI-SLOP MØNSTRE (brug ALDRIG disse):
+- "da vi gennemgik" / "da vi sammenlignede" / "i vores data" — DU er ikke et "vi" der har undersøgt noget
+- "overraskende nok" / "det overraskede os" — intet overrasker en maskine
+- "faktisk" som fyldord — MAKS 1 gang i hele artiklen
+- "her er hvad vi fandt" / "vi ser det igen og igen" — falsk erfaring
+- "de fleste glemmer" / "mange forældre overser" — nedladende
+- "Det er vigtigt at..." / "Man bør overveje..." — passivt, kedeligt
+- "I denne artikel vil vi..." — metakommentar
+- "ca." foran tal — brug præcise tal fra data, eller skriv intet
+
+GODE MØNSTRE (brug disse i stedet):
+- Gå direkte til sagen: "Vuggestueprisen i København er 3.850 kr./md."
+- Konkrete opfordringer: "Tjek din kommunes pris på Institutionsguiden"
+- Lovhenvisninger: "Dagtilbudsloven § 4 sikrer..."
+- Sammenlign med tal: "København: 3.850 kr. — Aarhus: 3.200 kr."
+- Korte, direkte sætninger. Ingen indledende fyld.
+
+TONE: Faglig, neutral, præcis. Som en artikel i Berlingske eller Politiken — ikke som en influencer-blog.
+Korte afsnit (2-3 sætninger). Brug lister og tabeller.
+Minimum 1.200 ord, ideelt 1.300-1.500 ord.
 
 ─── STRUKTUR (følg NØJAGTIGT) ───────────────────────────────────────────
 

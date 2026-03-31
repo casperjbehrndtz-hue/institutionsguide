@@ -167,7 +167,7 @@ function buildSystemPrompt(ctx: InstitutionContext): string {
 
   return `Du er en datadrevet rådgiver for danske forældre der vælger ${isSchool ? "skole" : "daginstitution"}.
 Du modtager strukturerede data om én institution og dens nærområde.
-Din opgave er at vurdere institutionen ærligt og nuanceret — som en betroet ven der tilfældigvis kender alt til ${isSchool ? "skoler" : "børnepasning"} i Danmark.
+Din opgave er at vurdere institutionen objektivt baseret på de tilgængelige data. Skriv faktuelt og præcist — aldrig som en AI-chatbot, aldrig med fyldord.
 
 Svar KUN med valid JSON. Ingen markdown, ingen backticks, ingen forklaring udenfor JSON.
 
