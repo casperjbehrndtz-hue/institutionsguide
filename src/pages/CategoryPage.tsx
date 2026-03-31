@@ -401,7 +401,7 @@ export default function CategoryPage({ category }: Props) {
       {mapFullscreen && (
         <div className="fixed inset-0 z-50">
           <InstitutionMap
-            institutions={boundsFiltered}
+            institutions={radiusFiltered}
             onSelect={handleSelect}
             flyTo={flyTo}
             highlightedId={hoveredId}
@@ -496,7 +496,7 @@ export default function CategoryPage({ category }: Props) {
 
         <div className={`h-[calc(100vh-200px)] sm:h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <InstitutionMap
-            institutions={boundsFiltered}
+            institutions={radiusFiltered}
             onSelect={handleSelect}
             flyTo={flyTo}
             highlightedId={hoveredId}

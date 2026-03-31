@@ -160,6 +160,18 @@ export default function InstitutionListCard({
             {normering != null && (
               <span className="shrink-0">{language === "da" ? "Normering" : "Ratio"} <strong className="text-foreground font-mono">{normering.toFixed(1).replace(".", ",")}</strong></span>
             )}
+            {inst.quality?.ts != null && (
+              <span className="shrink-0">{language === "da" ? "Trivsel" : "Well-being"} <strong className="text-foreground font-mono">{inst.quality.ts.toFixed(1).replace(".", ",")}</strong></span>
+            )}
+            {inst.quality?.k != null && (
+              <span className="shrink-0">{language === "da" ? "Karakter" : "Grades"} <strong className="text-foreground font-mono">{inst.quality.k.toFixed(1).replace(".", ",")}</strong></span>
+            )}
+            {inst.quality?.fp != null && (
+              <span className="shrink-0">{language === "da" ? "Fravær" : "Absence"} <strong className="text-foreground font-mono">{inst.quality.fp.toFixed(1).replace(".", ",")}%</strong></span>
+            )}
+            {inst.quality?.kp != null && (
+              <span className="shrink-0">{language === "da" ? "Komp." : "Comp."} <strong className="text-foreground font-mono">{inst.quality.kp.toFixed(0)}%</strong></span>
+            )}
             {inst.quality?.el != null && (
               <span className="shrink-0">{inst.quality.el.toLocaleString("da-DK")} {language === "da" ? "elever" : "students"}</span>
             )}

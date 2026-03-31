@@ -207,20 +207,24 @@ export default function HomePage() {
     return stats;
   }, [institutions]);
 
-  const CATEGORY_CARDS = [
-    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100 dark:bg-green-900/30", href: "/vuggestue", desc: t.ageGroups.vuggestue, cta: language === "da" ? "Udforsk" : "Explore" },
-    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-900/30", href: "/boernehave", desc: t.ageGroups.boernehave, cta: language === "da" ? "Udforsk" : "Explore" },
-    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Udforsk" : "Explore" },
-    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole, cta: language === "da" ? "Udforsk" : "Explore" },
-    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Udforsk" : "Explore" },
-    { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Udforsk" : "Explore" },
-    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Udforsk" : "Explore" },
+  // Featured categories first (most searched), then the rest
+  const FEATURED_CARDS = [
+    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole, cta: language === "da" ? "Se skoler" : "See schools", featured: true },
+    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Se efterskoler" : "See boarding schools", featured: true },
   ];
+  const OTHER_CARDS = [
+    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100 dark:bg-green-900/30", href: "/vuggestue", desc: t.ageGroups.vuggestue, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
+    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-900/30", href: "/boernehave", desc: t.ageGroups.boernehave, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
+    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
+    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
+    { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
+  ];
+  const CATEGORY_CARDS = [...FEATURED_CARDS, ...OTHER_CARDS];
 
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
 
   // Show filter bar + list/map when user has actively filtered
-  const hasActiveFilter = !!(searchInput || municipality || geo.userLocation || category !== "alle");
+  const hasActiveFilter = !!(searchInput || municipality || geo.userLocation || category !== "alle" || ageGroup);
 
   // Summary stats for the active filter
   const summaryStats = useMemo(() => {
@@ -257,7 +261,7 @@ export default function HomePage() {
       .filter((i) => i.category === "skole" && i.quality?.k != null && i.quality.k > 0)
       .sort((a, b) => (b.quality!.k! - a.quality!.k!))
       .slice(0, 4)
-      .map((s) => ({ navn: s.name, score: s.quality!.k! }));
+      .map((s) => ({ id: s.id, navn: s.name, score: s.quality!.k! }));
 
     return { cheapestVug, bestSchools };
   }, [institutions]);
@@ -367,10 +371,48 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category cards — data preview grid */}
+      {/* Category cards — featured + grid */}
       <section className="max-w-5xl mx-auto px-3 sm:px-4 -mt-5 relative z-20 mb-6">
+        {/* Featured: Skoler + Efterskoler — wide cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-2 sm:mb-3">
+          {FEATURED_CARDS.map((card) => {
+            const stats = categoryStats[card.category];
+            const count = stats?.count ?? 0;
+            return (
+              <Link
+                key={card.category}
+                to={card.href}
+                className="group rounded-xl bg-[var(--color-bg-card)] border-2 border-primary/20 shadow-sm px-4 py-4 sm:px-5 sm:py-5 hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all"
+                aria-label={`${t.common.show} ${card.label}`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
+                    <card.icon className={`w-5 h-5 ${card.iconColor}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-foreground text-base leading-tight">{card.label}</p>
+                    <p className="text-xs text-muted leading-tight">{card.desc}</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-primary shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted">
+                  {count > 0 && (
+                    <span>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</span>
+                  )}
+                  {card.category === "skole" && (
+                    <span className="text-muted">{language === "da" ? "Trivsel · Karakterer · Fravær" : "Well-being · Grades · Absence"}</span>
+                  )}
+                  {card.category === "efterskole" && stats?.minYearlyPrice && (
+                    <span className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</span>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+        {/* Other categories — compact row */}
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-          {CATEGORY_CARDS.map((card) => {
+          {OTHER_CARDS.map((card) => {
             const stats = categoryStats[card.category];
             const count = stats?.count ?? 0;
             const minPrice = stats?.minPrice;
@@ -378,7 +420,7 @@ export default function HomePage() {
               <Link
                 key={card.category}
                 to={card.href}
-                className="group rounded-xl bg-[var(--color-bg-card)] border border-border/50 shadow-sm px-3 py-3 sm:px-4 sm:py-4 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all w-[calc(50%-4px)] sm:w-[calc(25%-9px)]"
+                className="group rounded-xl bg-[var(--color-bg-card)] border border-border/50 shadow-sm px-3 py-3 sm:px-4 sm:py-4 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all w-[calc(50%-4px)] sm:w-[calc(20%-8px)]"
                 aria-label={`${t.common.show} ${card.label}`}
               >
                 <div className="flex items-center gap-2 mb-2">
@@ -394,11 +436,7 @@ export default function HomePage() {
                   {count > 0 && (
                     <p>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</p>
                   )}
-                  {card.category === "efterskole" && stats?.minYearlyPrice ? (
-                    <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</p>
-                  ) : card.category === "skole" ? (
-                    <p className="text-muted">{language === "da" ? "Trivsel · Karakterer · Fravær" : "Well-being · Grades · Absence"}</p>
-                  ) : minPrice ? (
+                  {minPrice ? (
                     <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minPrice)}{t.common.perMonth}</p>
                   ) : null}
                 </div>
@@ -492,7 +530,7 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50">
           <Suspense fallback={<div className="h-full bg-border/20 animate-pulse" />}>
             <InstitutionMap
-              institutions={boundsFiltered}
+              institutions={radiusFiltered}
               onSelect={handleSelect}
               flyTo={flyTo}
               highlightedId={hoveredId}
@@ -575,7 +613,7 @@ export default function HomePage() {
         <div className={`h-[calc(100dvh-140px)] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
             <InstitutionMap
-              institutions={boundsFiltered}
+              institutions={radiusFiltered}
               onSelect={handleSelect}
               flyTo={flyTo}
               highlightedId={hoveredId}
@@ -624,20 +662,24 @@ export default function HomePage() {
             </Link>
 
             {/* Bedste skoler */}
-            <Link to={`/bedste-skole/${toSlug("København")}`} className="card p-4 sm:p-5 hover:border-primary/30 transition-all group">
+            <div className="card p-4 sm:p-5">
               <h3 className="font-semibold text-foreground text-sm mb-3">{language === "da" ? "Højeste karaktersnit" : "Highest grade average"}</h3>
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {popularData.bestSchools.map((item) => (
-                  <div key={item.navn} className="flex justify-between text-xs">
-                    <span className="text-muted truncate mr-2">{item.navn}</span>
+                  <Link
+                    key={item.id}
+                    to={`/institution/${item.id}`}
+                    className="flex justify-between text-xs py-1 px-1.5 -mx-1.5 rounded hover:bg-primary/5 transition-colors group/row"
+                  >
+                    <span className="text-muted truncate mr-2 group-hover/row:text-foreground transition-colors">{item.navn}</span>
                     <span className="font-mono font-medium text-foreground shrink-0">{item.score.toFixed(1).replace(".", ",")}</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
-              <p className="text-[11px] text-primary font-medium mt-3 flex items-center gap-0.5">
-                {language === "da" ? "Se alle skoler" : "See all schools"} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </p>
-            </Link>
+              <Link to="/skole?sort=grades" className="text-[11px] text-primary font-medium mt-3 flex items-center gap-0.5 hover:underline">
+                {language === "da" ? "Se alle skoler sorteret på karakterer" : "See all schools sorted by grades"} <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
 
             {/* Normering */}
             <Link to="/normering" className="card p-4 sm:p-5 hover:border-primary/30 transition-all group">

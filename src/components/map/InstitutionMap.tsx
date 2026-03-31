@@ -205,7 +205,7 @@ function InstitutionMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const isProgrammaticRef = useRef(false);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { addToCompare, isInCompare } = useCompare();
   const { toggleFavorite, isFavorite } = useFavorites();
   const isDark = useDarkMode();
@@ -298,6 +298,32 @@ function InstitutionMap({
         const textSecondary = isDark ? "#94A3B8" : "#596A7B";
         const linkColor = isDark ? "#D4944A" : "#B8642E";
 
+        // Build quality metrics row for schools
+        const q = inst.quality;
+        let metricsHtml = "";
+        if (inst.category === "skole" && q) {
+          const pills: string[] = [];
+          if (q.ts != null) pills.push(`<span style="background:${isDark ? "#1E293B" : "#F1F5F9"};padding:1px 5px;border-radius:4px;">&#9786; ${q.ts.toFixed(1).replace(".", ",")}</span>`);
+          if (q.k != null) pills.push(`<span style="background:${isDark ? "#1E293B" : "#F1F5F9"};padding:1px 5px;border-radius:4px;">&#9733; ${q.k.toFixed(1).replace(".", ",")}</span>`);
+          if (q.fp != null) pills.push(`<span style="background:${isDark ? "#1E293B" : "#F1F5F9"};padding:1px 5px;border-radius:4px;">${q.fp.toFixed(1).replace(".", ",")}%</span>`);
+          if (q.el != null) pills.push(`<span style="background:${isDark ? "#1E293B" : "#F1F5F9"};padding:1px 5px;border-radius:4px;">${q.el} elever</span>`);
+          if (pills.length > 0) {
+            metricsHtml = `<div style="display:flex;flex-wrap:wrap;gap:3px;margin:4px 0;font-size:10px;font-weight:500;color:${isDark ? "#CBD5E1" : "#334155"};">${pills.join("")}</div>`;
+          }
+        }
+
+        // Subtitle: city + price (or quality badge for schools)
+        let subtitle = escapeHtml(inst.city);
+        if (inst.category === "skole" && q?.o != null) {
+          const badgeLabel = q.o === 1 ? (language === "da" ? "Over middel" : "Above avg") : q.o === -1 ? (language === "da" ? "Under middel" : "Below avg") : (language === "da" ? "Middel" : "Average");
+          const badgeColor = q.o === 1 ? "#16A34A" : q.o === -1 ? "#DC2626" : textSecondary;
+          subtitle += ` · <span style="color:${badgeColor};font-weight:600;">${badgeLabel}</span>`;
+        } else if (inst.category === "efterskole" && inst.yearlyPrice) {
+          subtitle += ` · ${inst.yearlyPrice.toLocaleString("da-DK")} kr${language === "da" ? "/år" : "/year"}`;
+        } else if (inst.monthlyRate) {
+          subtitle += ` · ${formatRate(inst.monthlyRate, t.common.unknown, t.common.perMonth)}`;
+        }
+
         return {
           lat: inst.lat,
           lng: inst.lng,
@@ -305,14 +331,15 @@ function InstitutionMap({
           id: inst.id,
           price: inst.monthlyRate,
           category: inst.category,
-          popupHtml: `<div style="font-size:13px;line-height:1.4;max-width:200px;font-family:system-ui,-apple-system,sans-serif;">
+          popupHtml: `<div style="font-size:13px;line-height:1.4;max-width:220px;font-family:system-ui,-apple-system,sans-serif;">
   <p style="font-weight:600;margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.name)}</p>
-  <p style="color:${textSecondary};font-size:11px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.city)} · ${formatRate(inst.monthlyRate, t.common.unknown, t.common.perMonth)}</p>
-  <button data-select-id="${escapeHtml(inst.id)}" type="button" style="display:block;width:100%;text-align:center;padding:5px 0;background:${linkColor};color:#fff;font-size:11px;font-weight:600;border:none;cursor:pointer;border-radius:5px;">${escapeHtml(t.map.seeDetails)} &rarr;</button>
+  <p style="color:${textSecondary};font-size:11px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${subtitle}</p>
+  ${metricsHtml}
+  <button data-select-id="${escapeHtml(inst.id)}" type="button" style="display:block;width:100%;text-align:center;padding:5px 0;margin-top:5px;background:${linkColor};color:#fff;font-size:11px;font-weight:600;border:none;cursor:pointer;border-radius:5px;">${escapeHtml(t.map.seeDetails)} &rarr;</button>
 </div>`,
         };
       }),
-    [institutions, t, isFavorite, isInCompare, isDark]
+    [institutions, t, language, isFavorite, isInCompare, isDark]
   );
 
 
