@@ -3,13 +3,24 @@ import { handleCorsPreflightOrGetHeaders } from "../_shared/cors.ts";
 import { getAIConfig, resolveModel, fetchAI, extractJSON } from "../_shared/ai-client.ts";
 
 // Module → page path mapping for internal links / CTAs
-const MODULE_PATHS: Record<string, { path: string; label: string }> = {
-  dagtilbud: { path: "/", label: "Institutionsguide" },
-  skole: { path: "/skole", label: "Skoleguiden" },
-  normering: { path: "/normering", label: "Normeringstabellen" },
-  friplads: { path: "/friplads", label: "Fripladsberegneren" },
-  generel: { path: "/", label: "Institutionsguide.dk" },
+const MODULE_PATHS: Record<string, { path: string; label: string; site: string }> = {
+  dagtilbud: { path: "/", label: "Institutionsguide", site: "https://institutionsguiden.dk" },
+  skole: { path: "/skole", label: "Skoleguiden", site: "https://institutionsguiden.dk" },
+  normering: { path: "/normering", label: "Normeringstabellen", site: "https://institutionsguiden.dk" },
+  friplads: { path: "/friplads", label: "Fripladsberegneren", site: "https://institutionsguiden.dk" },
+  generel: { path: "/", label: "Institutionsguide.dk", site: "https://institutionsguiden.dk" },
+  parfinans: { path: "/", label: "ParFinans", site: "https://parfinans.dk" },
+  budget: { path: "/", label: "NemtBudget", site: "https://nemtbudget.nu" },
+  boerneskat: { path: "/", label: "Børneskat", site: "https://børneskat.dk" },
 };
+
+// Suite cross-links for all articles
+const SUITE_LINKS = [
+  { label: "Institutionsguiden", url: "https://institutionsguiden.dk", desc: "Sammenlign 5.000+ vuggestuer, børnehaver og skoler" },
+  { label: "ParFinans", url: "https://parfinans.dk", desc: "Gratis personlig økonomi for danske familier" },
+  { label: "NemtBudget", url: "https://nemtbudget.nu", desc: "Simpelt budget-overblik for din husstand" },
+  { label: "Børneskat", url: "https://børneskat.dk", desc: "Skattefri børneopsparing" },
+];
 
 // Authoritative Danish source labels for citations
 const SOURCE_LABELS: Record<string, string> = {
@@ -41,6 +52,165 @@ function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 120);
+}
+
+// ─── REAL DATA INJECTION ─────────────────────────────────────────────────
+// Fetches actual stats from our JSON data files to inject into AI prompts
+// This prevents the AI from hallucinating numbers
+
+const DATA_BASE = "https://institutionsguiden.dk/data";
+
+interface DataContext {
+  summary: string;
+  tables: string;
+}
+
+async function fetchRealData(keyword: string, module: string): Promise<DataContext> {
+  const kw = keyword.toLowerCase();
+  const lines: string[] = [];
+  const tables: string[] = [];
+
+  try {
+    // Detect which municipality is mentioned
+    const municipalityMatch = kw.match(/(?:i|fra|til)\s+([a-zæøå]+(?:\s+[a-zæøå]+)?)/i);
+    const targetMun = municipalityMatch?.[1]?.replace(/^\w/, c => c.toUpperCase());
+
+    // Fetch relevant data based on module/keyword
+    if (module === "dagtilbud" || module === "friplads" || kw.includes("vuggestue") || kw.includes("børnehave") || kw.includes("dagpleje")) {
+      const cats = ["vuggestue", "boernehave", "dagpleje"].filter(c =>
+        !kw.includes("vuggestue") && !kw.includes("børnehave") && !kw.includes("dagpleje") || kw.includes(c.replace("oe", "ø"))
+      );
+      const fetchCats = cats.length > 0 ? cats : ["vuggestue", "boernehave", "dagpleje"];
+
+      for (const cat of fetchCats) {
+        try {
+          const res = await fetch(`${DATA_BASE}/${cat}-data.json`, { signal: AbortSignal.timeout(5000) });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const institutions = data.i || [];
+
+          // Aggregate by municipality
+          const munPrices = new Map<string, number[]>();
+          for (const inst of institutions) {
+            if (inst.m && inst.mr && inst.mr > 0) {
+              if (!munPrices.has(inst.m)) munPrices.set(inst.m, []);
+              munPrices.get(inst.m)!.push(inst.mr);
+            }
+          }
+
+          const allPrices = institutions.map((i: { mr?: number }) => i.mr).filter((p: number | undefined): p is number => p != null && p > 0);
+          const avg = allPrices.length > 0 ? Math.round(allPrices.reduce((a: number, b: number) => a + b, 0) / allPrices.length) : 0;
+          const min = allPrices.length > 0 ? Math.min(...allPrices) : 0;
+          const max = allPrices.length > 0 ? Math.max(...allPrices) : 0;
+          const catLabel = cat === "boernehave" ? "børnehave" : cat;
+
+          lines.push(`FAKTA ${catLabel}: ${institutions.length} institutioner på landsplan. Gennemsnitspris: ${avg.toLocaleString("da-DK")} kr./md. Billigste: ${min.toLocaleString("da-DK")} kr./md. Dyreste: ${max.toLocaleString("da-DK")} kr./md.`);
+
+          // Top 5 billigste kommuner
+          const munAvgs = [...munPrices.entries()]
+            .map(([m, prices]) => ({ m, avg: Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) }))
+            .sort((a, b) => a.avg - b.avg);
+
+          if (munAvgs.length > 0) {
+            const top5 = munAvgs.slice(0, 5);
+            const bottom5 = munAvgs.slice(-5).reverse();
+            tables.push(`Billigste kommuner (${catLabel}): ${top5.map(m => `${m.m}: ${m.avg.toLocaleString("da-DK")} kr./md.`).join(", ")}`);
+            tables.push(`Dyreste kommuner (${catLabel}): ${bottom5.map(m => `${m.m}: ${m.avg.toLocaleString("da-DK")} kr./md.`).join(", ")}`);
+          }
+
+          // If specific municipality mentioned, get exact data
+          if (targetMun) {
+            const munInsts = institutions.filter((i: { m?: string }) => i.m?.toLowerCase() === targetMun.toLowerCase());
+            if (munInsts.length > 0) {
+              const munPriceList = munInsts.map((i: { mr?: number }) => i.mr).filter((p: number | undefined): p is number => p != null && p > 0);
+              const munAvg = munPriceList.length > 0 ? Math.round(munPriceList.reduce((a: number, b: number) => a + b, 0) / munPriceList.length) : 0;
+              const munMin = munPriceList.length > 0 ? Math.min(...munPriceList) : 0;
+              lines.push(`${catLabel} i ${targetMun}: ${munInsts.length} stk. Gns. pris: ${munAvg.toLocaleString("da-DK")} kr./md. Billigste: ${munMin.toLocaleString("da-DK")} kr./md.`);
+
+              // List top institutions with real names
+              const sorted = munInsts.filter((i: { mr?: number }) => i.mr && i.mr > 0).sort((a: { mr: number }, b: { mr: number }) => a.mr - b.mr).slice(0, 5);
+              if (sorted.length > 0) {
+                tables.push(`Top ${catLabel} i ${targetMun} (billigste): ${sorted.map((i: { n: string; mr: number }) => `${i.n}: ${i.mr.toLocaleString("da-DK")} kr./md.`).join(", ")}`);
+              }
+            }
+          }
+        } catch { /* skip category */ }
+      }
+    }
+
+    if (module === "skole" || kw.includes("skole") || kw.includes("folkeskole") || kw.includes("karakter") || kw.includes("trivsel")) {
+      try {
+        const res = await fetch(`${DATA_BASE}/skole-data.json`, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
+          const data = await res.json();
+          const schools = (data.s || []).filter((s: { t?: string }) => s.t !== "u" && s.t !== "e");
+
+          const withGrades = schools.filter((s: { q?: { k?: number } }) => s.q?.k != null && s.q.k > 0);
+          const withTrivsel = schools.filter((s: { q?: { ts?: number } }) => s.q?.ts != null && s.q.ts > 0);
+
+          if (withGrades.length > 0) {
+            const avgGrade = withGrades.reduce((sum: number, s: { q: { k: number } }) => sum + s.q.k, 0) / withGrades.length;
+            lines.push(`FAKTA skoler: ${schools.length} skoler i alt. ${withGrades.length} med karakterdata. Landsgennemsnit karakter: ${avgGrade.toFixed(1).replace(".", ",")}`);
+
+            // Top 5 schools nationally
+            const topSchools = [...withGrades].sort((a: { q: { k: number } }, b: { q: { k: number } }) => b.q.k - a.q.k).slice(0, 5);
+            tables.push(`Top 5 skoler (karaktersnit): ${topSchools.map((s: { n: string; q: { k: number }; m: string }) => `${s.n} (${s.m?.replace(" Kommune", "")}): ${s.q.k.toFixed(1).replace(".", ",")}`).join(", ")}`);
+          }
+
+          if (withTrivsel.length > 0) {
+            const avgTrivsel = withTrivsel.reduce((sum: number, s: { q: { ts: number } }) => sum + s.q.ts, 0) / withTrivsel.length;
+            lines.push(`Landsgennemsnit trivsel: ${avgTrivsel.toFixed(1).replace(".", ",")} (skala 1-5). ${withTrivsel.length} skoler med data.`);
+          }
+
+          // Municipality-specific school data
+          if (targetMun) {
+            const munSchools = schools.filter((s: { m?: string }) => s.m?.toLowerCase().includes(targetMun.toLowerCase()));
+            if (munSchools.length > 0) {
+              const munWithGrades = munSchools.filter((s: { q?: { k?: number } }) => s.q?.k != null && s.q.k > 0)
+                .sort((a: { q: { k: number } }, b: { q: { k: number } }) => b.q.k - a.q.k);
+              lines.push(`Skoler i ${targetMun}: ${munSchools.length} i alt, ${munWithGrades.length} med karakterdata.`);
+              if (munWithGrades.length > 0) {
+                const top = munWithGrades.slice(0, 5);
+                tables.push(`Top skoler i ${targetMun}: ${top.map((s: { n: string; q: { k: number; ts?: number; fp?: number } }) =>
+                  `${s.n}: snit ${s.q.k.toFixed(1).replace(".", ",")}${s.q.ts ? `, trivsel ${s.q.ts.toFixed(1).replace(".", ",")}` : ""}${s.q.fp ? `, fravær ${s.q.fp.toFixed(1).replace(".", ",")}%` : ""}`
+                ).join("; ")}`);
+              }
+            }
+          }
+        }
+      } catch { /* skip */ }
+    }
+
+    if (module === "normering" || kw.includes("normering") || kw.includes("børn pr") || kw.includes("børn per")) {
+      try {
+        const res = await fetch(`${DATA_BASE}/normering-data.json`, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
+          const data = await res.json();
+          const entries = data.m || data;
+          if (Array.isArray(entries)) {
+            lines.push(`FAKTA normering: Data for ${entries.length} kommuner.`);
+            const with02 = entries.filter((e: { n02?: number }) => e.n02 != null && e.n02 > 0);
+            const with35 = entries.filter((e: { n35?: number }) => e.n35 != null && e.n35 > 0);
+            if (with02.length > 0) {
+              const avg02 = with02.reduce((s: number, e: { n02: number }) => s + e.n02, 0) / with02.length;
+              const best02 = [...with02].sort((a: { n02: number }, b: { n02: number }) => a.n02 - b.n02).slice(0, 5);
+              lines.push(`Normering 0-2 år: Landsgennemsnit ${avg02.toFixed(1).replace(".", ",")} børn pr. voksen.`);
+              tables.push(`Bedste normering 0-2 år: ${best02.map((e: { m: string; n02: number }) => `${e.m}: ${e.n02.toFixed(1).replace(".", ",")} børn/voksen`).join(", ")}`);
+            }
+            if (with35.length > 0) {
+              const avg35 = with35.reduce((s: number, e: { n35: number }) => s + e.n35, 0) / with35.length;
+              lines.push(`Normering 3-5 år: Landsgennemsnit ${avg35.toFixed(1).replace(".", ",")} børn pr. voksen.`);
+            }
+          }
+        }
+      } catch { /* skip */ }
+    }
+  } catch { /* non-critical — AI can still write without data */ }
+
+  return {
+    summary: lines.length > 0 ? lines.join("\n") : "Ingen data hentet — brug generelle tal med forbehold.",
+    tables: tables.length > 0 ? tables.join("\n") : "",
+  };
 }
 
 Deno.serve(async (req) => {
@@ -256,6 +426,15 @@ Deno.serve(async (req) => {
 
     const modulePath = MODULE_PATHS[keywordRow.module] || MODULE_PATHS.generel;
 
+    // === STEP 2.5: Fetch REAL data from our database ===
+    const realData = await fetchRealData(keywordRow.keyword, keywordRow.module);
+
+    // Build suite cross-links (exclude current product)
+    const crossLinks = SUITE_LINKS
+      .filter(s => !modulePath.site.includes(s.url.replace("https://", "")))
+      .map(s => `- <a href="${s.url}">${s.label}</a> — ${s.desc}`)
+      .join("\n");
+
     // === STEP 3: Generate article via AI ===
 
     const systemPrompt = `Du er chefredaktør på Institutionsguide.dk — Danmarks mest komplette guide til børnepasning, skoler og dagtilbud. Du skriver en artikel til vores blog-sektion, rettet mod forældre der skal vælge institution til deres barn.
@@ -289,11 +468,19 @@ Deno.serve(async (req) => {
   <section class="references"><h3>Kilder</h3><ol><li>kilde</li></ol></section>
 - Referer til kilder i teksten: "(kilde: dst.dk, 2026)"
 
+─── DATA-REGLER (KRITISK — BRUG RIGTIGE TAL) ─────────────────────────────
+
+Du får RIGTIGE data fra vores database nedenfor. BRUG DEM.
+- ALDRIG opfind tal, priser, karakterer, normeringer eller institutionsnavne.
+- Alle tal i tabeller SKAL komme fra den medfølgende data-kontekst.
+- Hvis du ikke har data for en specifik kommune/institution, skriv "Se opdaterede tal på [værktøj]" i stedet for at gætte.
+- Du MÅ gerne bruge generelle fakta om lovgivning, regler og rettigheder.
+
 ─── COMPLIANCE-REGLER ──────────────────────────────────────────────────────
 
 1. ALDRIG giv konkret finansiel rådgivning.
 2. Henvis til autoritative kilder — nævn dem i teksten, men lav IKKE clickable links til eksterne sider.
-3. Alle priser og tal skal være korrekte for 2026 (eller seneste tilgængelige data).
+3. Alle priser og tal SKAL matche den medfølgende data-kontekst. Opfind ALDRIG tal.
 4. Artiklen SKAL være original.
 5. ALTID inkluder disclaimer som ALLERSIDSTE afsnit:
    "<p><em>Denne artikel er udelukkende til informationsformål. Priser og regler kan variere mellem kommuner og ændre sig over tid. Kontakt din kommune for aktuelle priser og ventelister.</em></p>"
@@ -346,20 +533,31 @@ Returner præcis dette JSON-objekt og INTET andet:
 
     const userPrompt = `Skriv en SEO-optimeret artikel om: "${keywordRow.keyword}"
 
-Modul: ${keywordRow.module} (link til ${modulePath.label}: ${modulePath.path})
+Modul: ${keywordRow.module} (link til ${modulePath.label}: ${modulePath.site}${modulePath.path})
 Søgeintent: ${keywordRow.intent}
 Autoritative kilder: ${sourceLabels || "borger.dk, dst.dk, uvm.dk"}
+
+═══════════════════════════════════════════════════════════════
+RIGTIGE DATA FRA VORES DATABASE (BRUG DISSE TAL — OPFIND IKKE):
+═══════════════════════════════════════════════════════════════
+${realData.summary}
+
+${realData.tables ? `TABEL-DATA (brug i HTML <table>):\n${realData.tables}` : ""}
+═══════════════════════════════════════════════════════════════
 
 ${clusterContext ? `TOPICAL AUTHORITY CLUSTER-LINKS (DU SKAL inkludere disse):\n${clusterContext}\n` : ""}
 ${internalLinks ? `RELATEREDE ARTIKLER (link internt med <a href="...">):\n${internalLinks}\n` : ""}
 
+SUITE CROSS-LINKS (inkluder mindst 1-2 i artiklen):
+${crossLinks}
+
 VIGTIGT:
-- Start med <div class="answer-box"> med direkte svar
-- Inkluder mindst én HTML <table> med data/priser
+- Start med <div class="answer-box"> med direkte svar BASERET PÅ RIGTIGE TAL ovenfor
+- Inkluder mindst én HTML <table> med data fra den medfølgende database-kontekst
+- ALDRIG opfind tal — brug KUN de data du har fået
 - Inkluder en "Kilder" sektion med nummererede referencer
 - Inkluder CTA der opfordrer til at bruge ${modulePath.label}
-- CTA-link: <a href="${modulePath.path}">${modulePath.label}</a>
-- Cross-link til suite: <a href="https://parfinans.dk">ParFinans</a>, <a href="https://nemtbudget.nu">NemtBudget</a>, <a href="https://xn--brneskat-54a.dk">Børneskat.dk</a>
+- CTA-link: <a href="${modulePath.site}${modulePath.path}">${modulePath.label}</a>
 - Afslut med "Læs også" med 2-3 relaterede artikellinks
 - Afslut med disclaimer som allersidste afsnit
 - Returner KUN valid JSON med alle felter inkl. "schemas"`;
@@ -476,7 +674,7 @@ VIGTIGT:
       .eq("id", keywordRow.id);
 
     // === STEP 7: Ping IndexNow ===
-    const articleUrl = `https://institutionsguide.dk/blog/${blogResult.slug}`;
+    const articleUrl = `${modulePath.site}/blog/${blogResult.slug}`;
     try {
       const indexNowKey = Deno.env.get("INDEXNOW_KEY") || "";
       await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${indexNowKey}`);
