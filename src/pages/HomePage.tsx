@@ -458,7 +458,7 @@ export default function HomePage() {
       </section>
 
       {/* Filter bar — only when user has actively filtered */}
-      {hasActiveFilter && <div className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}
+      {hasActiveFilter && <div className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}>
         {/* Mobile: filter toggle */}
         <div className="sm:hidden px-4 py-3 flex items-center gap-2">
           <button

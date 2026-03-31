@@ -306,7 +306,7 @@ export default function CategoryPage({ category }: Props) {
       </section></ScrollReveal>
 
       {/* Filter bar with mobile collapse */}
-      <div className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}
+      <div className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}>
         {/* Mobile: search + filter toggle */}
         <div className="sm:hidden px-4 py-3 flex items-center gap-2">
           <div className="relative flex-1">
