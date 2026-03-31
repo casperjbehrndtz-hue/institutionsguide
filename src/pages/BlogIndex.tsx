@@ -45,7 +45,6 @@ export default function BlogIndex() {
         .order("published_at", { ascending: false });
 
       if (error) {
-        console.error("Blog index fetch error:", error);
         setFetchError(true);
       } else if (data) {
         setPosts(data as BlogPostSummary[]);
@@ -135,7 +134,7 @@ export default function BlogIndex() {
           <div className="text-center py-16">
             <BookOpen className="h-10 w-10 text-muted/30 mx-auto mb-4" />
             <p className="text-muted">
-              {isDa ? "Ingen artikler endnu — kom snart tilbage!" : "No articles yet — check back soon!"}
+              {isDa ? "Ingen artikler endnu." : "No articles yet."}
             </p>
           </div>
         ) : (

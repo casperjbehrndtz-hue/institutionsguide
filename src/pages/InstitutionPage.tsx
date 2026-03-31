@@ -101,7 +101,7 @@ function PercentileBar({ label, percentile, value, lang = "da" }: {
         <div
           className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm"
           style={{ left: `${percentile}%`, backgroundColor: color.dot }}
-          role="img"
+          role="presentation"
           aria-label={`${label}: ${value} (${rankLabel})`}
         />
       </div>

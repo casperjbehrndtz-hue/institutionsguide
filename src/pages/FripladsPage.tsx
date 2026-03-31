@@ -44,7 +44,7 @@ const FAQ_DA: FAQItem[] = [
     a: "Fripladstilskud (økonomisk friplads) er en rabat på forældrebetalingen for dagtilbud som vuggestue, børnehave, dagpleje og SFO. Tilskuddet beregnes ud fra husstandens samlede indkomst og reguleres årligt af Børne- og Undervisningsministeriet.",
   },
   {
-    q: "Hvem kan fa fripladstilskud?",
+    q: "Hvem kan få fripladstilskud?",
     a: `I ${FRIPLADS_CONSTANTS.year} kan familier med en husstandsindkomst under ${FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr. få delvist fripladstilskud. Er indkomsten under ${FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr., får man fuld friplads (0 kr. i forældrebetaling). Enlige forsørgere får et tillæg på ${FRIPLADS_CONSTANTS.singleParentSupplement.toLocaleString("da-DK")} kr., og for hvert barn ud over det første tillægges ${FRIPLADS_CONSTANTS.additionalChildSupplement.toLocaleString("da-DK")} kr.`,
   },
   {

@@ -16,12 +16,15 @@ export default function FavoritesPage() {
   const { favorites, toggleFavorite, clearFavorites } = useFavorites();
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const isDa = language === "da";
   const categoryLabels: Record<string, string> = {
     vuggestue: t.categories.vuggestue,
     boernehave: t.categories.boernehave,
     dagpleje: t.categories.dagpleje,
     skole: t.categories.skole,
     sfo: t.categories.sfo,
+    fritidsklub: isDa ? "Fritidsklub" : "Youth club",
+    efterskole: isDa ? "Efterskole" : "Boarding school",
   };
 
   const favoriteInstitutions = useMemo(() => {

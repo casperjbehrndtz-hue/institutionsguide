@@ -16,7 +16,7 @@ const DATA_SOURCES = [
     descEn: "Quality data, grades, well-being and absence for schools from the Ministry of Education.",
   },
   {
-    name: "ISM Brugertilfredshedsundersogelse",
+    name: "ISM Brugertilfredshedsundersøgelse",
     href: "https://www.ism.dk",
     descDa: "Brugertilfredshedsundersøgelser fra kommunale dagtilbud.",
     descEn: "User satisfaction surveys from municipal childcare institutions.",
@@ -49,7 +49,7 @@ const FAQ_DA = [
     a: "Kvalitetsscoren for skoler er baseret på officielle data fra Undervisningsministeriet og inkluderer trivselsmålinger, karaktergennemsnit, fravær, kompetencedækning og undervisningseffekt. Læs mere på vores metode-side.",
   },
   {
-    q: "Kan jeg stole pa priserne?",
+    q: "Kan jeg stole på priserne?",
     a: "Priserne stammer fra Danmarks Statistik og kommunernes egne takstoversigter. De er vejledende — kontakt altid din kommune for de helt aktuelle priser, da der kan være lokale tilskud eller ændringer.",
   },
 ];

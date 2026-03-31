@@ -497,7 +497,7 @@ export default function GuidePage() {
                 </h2>
                 <p className="text-muted text-sm">
                   {isDa
-                    ? `Vaelg op til ${MAX_PRIORITIES} prioriteter (${wizard.priorities.length}/${MAX_PRIORITIES} valgt)`
+                    ? `Vælg op til ${MAX_PRIORITIES} prioriteter (${wizard.priorities.length}/${MAX_PRIORITIES} valgt)`
                     : `Pick up to ${MAX_PRIORITIES} priorities (${wizard.priorities.length}/${MAX_PRIORITIES} selected)`}
                 </p>
               </div>
@@ -538,13 +538,13 @@ export default function GuidePage() {
                 </h2>
                 <p className="text-muted text-sm">
                   {isDa
-                    ? "Vi bruger det til at vise priser og institutioner i dit omrade."
+                    ? "Vi bruger det til at vise priser og institutioner i dit område."
                     : "We use this to show prices and institutions in your area."}
                 </p>
               </div>
               <div className="max-w-sm mx-auto">
                 <label htmlFor="guide-municipality" className="sr-only">
-                  {isDa ? "Vaelg kommune" : "Select municipality"}
+                  {isDa ? "Vælg kommune" : "Select municipality"}
                 </label>
                 <select
                   id="guide-municipality"

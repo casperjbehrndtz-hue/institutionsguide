@@ -116,7 +116,7 @@ export default function HomePage() {
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 14 });
     setRadiusKm(3);
-  }, []));
+  }, [setRadiusKm]));
 
   // Force video play — some browsers block autoPlay even with muted
   useEffect(() => {
