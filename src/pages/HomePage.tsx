@@ -91,8 +91,8 @@ const FAQ_ITEMS_EN = [
 ];
 
 const HERO_VIDEOS: { src: string; focus: string }[] = [
-  { src: "/hero-1.mp4", focus: "40%" },  // kvinde + barn — ansigt sidder lavt
-  { src: "/hero-2.mp4", focus: "20%" },  // mand + skelet — action i midten/toppen
+  { src: "/hero-1.mp4", focus: "60%" },  // kvinde + barn — ansigt sidder lavt
+  { src: "/hero-2.mp4", focus: "45%" },  // mand + skelet — action i midten
 ];
 
 export default function HomePage() {
