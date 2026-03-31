@@ -75,6 +75,7 @@ export function rankInstitutions(
     }
   }
 
+  const distanceWeight = weights["distance"] ?? 0;
   const ranked: ScoredInstitution[] = [];
   const excluded: ScoredInstitution[] = [];
 
@@ -111,7 +112,7 @@ export function rankInstitutions(
     }
 
     const dataCompleteness = activeDims.length > 0 ? dimsWithData / activeDims.length : 0;
-    const totalScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
+    let totalScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
 
     // Distance for display
     let distanceKm: number | null = null;
@@ -119,6 +120,29 @@ export function rankInstitutions(
       const dLat = inst.lat - ctx.userLocation.lat;
       const dLng = (inst.lng - ctx.userLocation.lng) * Math.cos(ctx.userLocation.lat * Math.PI / 180);
       distanceKm = Math.sqrt(dLat * dLat + dLng * dLng) * 111.32;
+    }
+
+    // Apply distance penalty: when distance is an active dimension, schools far away
+    // get their total score multiplied down so they can't beat nearby schools purely
+    // on academic metrics. Without this, a school 200km away with great stats would
+    // rank above a decent local school.
+    if (distanceKm != null && distanceWeight > 0) {
+      let distancePenalty: number;
+      if (distanceKm <= 15) {
+        distancePenalty = 1.0; // no penalty
+      } else if (distanceKm <= 30) {
+        // Linear decay from 1.0 → 0.5 over 15-30km
+        distancePenalty = 1.0 - 0.5 * ((distanceKm - 15) / 15);
+      } else if (distanceKm <= 60) {
+        // Linear decay from 0.5 → 0.15 over 30-60km
+        distancePenalty = 0.5 - 0.35 * ((distanceKm - 30) / 30);
+      } else {
+        distancePenalty = 0.1; // 60km+ effectively eliminated
+      }
+      // Scale penalty by how much the user cares about distance (weight 0-100)
+      const penaltyStrength = distanceWeight / 100;
+      const effectivePenalty = 1 - penaltyStrength * (1 - distancePenalty);
+      totalScore *= effectivePenalty;
     }
 
     const result: ScoredInstitution = {
