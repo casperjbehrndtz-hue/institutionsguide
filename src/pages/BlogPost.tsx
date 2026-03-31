@@ -135,7 +135,7 @@ export default function BlogPost() {
       />
       <JsonLd data={{
         "@context": "https://schema.org",
-        "@type": "Article",
+        "@type": "BlogPosting",
         headline: post.title,
         description: post.meta_description || "",
         url: `https://institutionsguide.dk/blog/${post.slug}`,

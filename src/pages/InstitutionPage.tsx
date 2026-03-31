@@ -416,28 +416,33 @@ export default function InstitutionPage() {
         </section>
       )}
 
-      {/* Compact contact strip */}
+      {/* Contact section with prominent CTA */}
       <section className="max-w-[640px] mx-auto px-4 pb-4">
-        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-sm text-muted">
-          <div className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 shrink-0" />
-            <span>{inst.address}, {inst.postalCode} {inst.city}</span>
+        {(inst.phone || inst.email || inst.web) && (
+          <div className="card p-4 mb-3">
+            <h3 className="text-sm font-semibold text-foreground mb-3">{language === "da" ? "Kontakt" : "Contact"}</h3>
+            <div className="flex flex-col sm:flex-row gap-2">
+              {inst.phone && (
+                <a href={`tel:${inst.phone}`} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]">
+                  <Phone className="w-4 h-4" /> {inst.phone}
+                </a>
+              )}
+              {inst.email && (
+                <a href={`mailto:${inst.email}`} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-border/30 transition-colors min-h-[44px]">
+                  <Mail className="w-4 h-4" /> {language === "da" ? "Send email" : "Send email"}
+                </a>
+              )}
+              {inst.web && (
+                <a href={inst.web.startsWith("http") ? inst.web : `https://${inst.web}`} target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-border/30 transition-colors min-h-[44px]">
+                  <ExternalLink className="w-4 h-4" /> {language === "da" ? "Hjemmeside" : "Website"}
+                </a>
+              )}
+            </div>
           </div>
-          {inst.phone && (
-            <a href={`tel:${inst.phone}`} className="flex items-center gap-1.5 text-primary hover:underline min-h-[44px] sm:min-h-0">
-              <Phone className="w-3.5 h-3.5 shrink-0" /> {inst.phone}
-            </a>
-          )}
-          {inst.email && (
-            <a href={`mailto:${inst.email}`} className="flex items-center gap-1.5 text-primary hover:underline min-h-[44px] sm:min-h-0 break-all">
-              <Mail className="w-3.5 h-3.5 shrink-0" /> {inst.email}
-            </a>
-          )}
-          {inst.web && (
-            <a href={inst.web.startsWith("http") ? inst.web : `https://${inst.web}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary hover:underline min-h-[44px] sm:min-h-0">
-              <ExternalLink className="w-3.5 h-3.5 shrink-0" /> {language === "da" ? "Hjemmeside" : "Website"}
-            </a>
-          )}
+        )}
+        <div className="flex items-center gap-1.5 text-sm text-muted">
+          <MapPin className="w-3.5 h-3.5 shrink-0" />
+          <span>{inst.address}, {inst.postalCode} {inst.city}</span>
         </div>
       </section>
 
