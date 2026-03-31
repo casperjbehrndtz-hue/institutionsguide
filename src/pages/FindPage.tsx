@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, RotateCcw, ChevronDown, ChevronUp, Zap } from "lucide-react";
+import { Lightbulb, RotateCcw, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -226,7 +226,7 @@ export default function FindPage() {
         {/* Hero */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Lightbulb className="w-3.5 h-3.5" />
             {language === "da" ? "Personlig ranking" : "Personal ranking"}
           </div>
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-2">

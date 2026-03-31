@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   MapPin,
   Wallet,
-  Sparkles,
+  Star,
   Users,
   Home,
   Building2,
@@ -393,7 +393,7 @@ export default function GuidePage() {
   }, [rates, recommendation.primary, wizard.income, validMunicipality]);
 
   // Step icons for progress
-  const stepIcons = [Baby, CheckCircle2, MapPin, Wallet, Sparkles];
+  const stepIcons = [Baby, CheckCircle2, MapPin, Wallet, Star];
 
   const ctaUrl = `/${TYPE_URL[recommendation.primary]}/${toSlug(validMunicipality)}`;
 
