@@ -67,11 +67,11 @@ export default function FripladsCalculator({ annualRate, label }: Props) {
           {/* Median reference marker */}
           <div className="absolute top-0 pointer-events-none" style={{ left: `${(550_000 / 1_200_000) * 100}%` }}>
             <div className="w-px h-3 bg-muted/60 mx-auto" />
-            <span className="text-[9px] text-muted whitespace-nowrap -translate-x-1/2 block">{language === "da" ? "Median" : "Median"}</span>
+            <span className="text-[10px] sm:text-[11px] text-muted whitespace-nowrap -translate-x-1/2 block">{language === "da" ? "Median" : "Median"}</span>
           </div>
         </div>
         {/* Step labels */}
-        <div className="flex justify-between text-[9px] text-muted font-mono mt-0.5 px-0.5">
+        <div className="flex justify-between text-[10px] sm:text-[11px] text-muted font-mono mt-0.5 px-0.5">
           <span>200k</span>
           <span>400k</span>
           <span>600k</span>

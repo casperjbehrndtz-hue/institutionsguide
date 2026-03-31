@@ -55,7 +55,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-border/50 mt-auto bg-bg">
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-6 sm:gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-2">
             <span className="font-display font-bold text-lg text-foreground">Institutionsguide</span>

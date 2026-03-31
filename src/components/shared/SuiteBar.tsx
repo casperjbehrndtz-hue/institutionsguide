@@ -94,8 +94,8 @@ export default function SuiteBar() {
   const suiteLinks = useSuiteLinks();
 
   return (
-    <div data-suite-bar className="bg-primary/90 text-primary-foreground text-[10px]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-6 flex items-center justify-end gap-3">
+    <div data-suite-bar className="bg-primary/90 text-primary-foreground text-[11px] sm:text-xs">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-7 sm:h-6 flex items-center justify-end gap-3">
         <span className="text-primary-foreground/70 hidden sm:inline">
           {t.common.partOfFamily}
         </span>

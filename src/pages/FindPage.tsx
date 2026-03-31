@@ -314,7 +314,7 @@ export default function FindPage() {
                     <select
                       value={municipality}
                       onChange={(e) => { setMunicipality(e.target.value); setVisibleCount(20); }}
-                      className="w-full text-sm rounded-lg border border-border bg-bg-card px-3 py-2 text-foreground"
+                      className="w-full text-sm rounded-lg border border-border bg-bg-card px-3 py-2.5 text-foreground min-h-[44px]"
                     >
                       <option value="">{language === "da" ? "Alle kommuner" : "All municipalities"}</option>
                       {municipalities.map((m) => (

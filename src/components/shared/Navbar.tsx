@@ -74,7 +74,7 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-40 glass-subtle border-b border-border/50" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-        <Link to="/" className="font-display font-bold text-lg text-foreground hover:text-primary transition-colors">
+        <Link to="/" className="font-display font-bold text-base sm:text-lg text-foreground hover:text-primary transition-colors">
           Institutionsguide
         </Link>
 

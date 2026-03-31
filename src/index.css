@@ -422,14 +422,16 @@
 .preference-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--color-primary);
   border: 2px solid #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   cursor: grab;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  /* Invisible touch area extends to 44px for mobile accessibility */
+  touch-action: manipulation;
 }
 
 .preference-slider::-webkit-slider-thumb:hover {
@@ -439,12 +441,12 @@
 
 .preference-slider::-webkit-slider-thumb:active {
   cursor: grabbing;
-  transform: scale(1.2);
+  transform: scale(1.1);
 }
 
 .preference-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--color-primary);
   border: 2px solid #fff;

@@ -192,7 +192,7 @@ export default function InstitutionQualitySection({ stats, kommuneStats, municip
                   <p className="font-mono text-sm font-bold">
                     {kommuneStats!.avgSygefravaerDage.toFixed(1).replace(".", ",")} {lang === "da" ? "dage" : "days"}
                   </p>
-                  <p className="text-[9px] text-muted">{lang === "da" ? "Pædagoger/år" : "Pedagogues/yr"}</p>
+                  <p className="text-[10px] text-muted">{lang === "da" ? "Pædagoger/år" : "Pedagogues/yr"}</p>
                 </div>
               )}
               {kommuneStats!.udgiftPrBarn != null && (
@@ -201,7 +201,7 @@ export default function InstitutionQualitySection({ stats, kommuneStats, municip
                   <p className="font-mono text-sm font-bold">
                     {Math.round(kommuneStats!.udgiftPrBarn).toLocaleString("da-DK")} kr.
                   </p>
-                  <p className="text-[9px] text-muted">{lang === "da" ? "0-13 år/år" : "Age 0-13/yr"}</p>
+                  <p className="text-[10px] text-muted">{lang === "da" ? "0-13 år/år" : "Age 0-13/yr"}</p>
                 </div>
               )}
               {kommuneStats!.sprogvurderingPctUdfordret != null && (
@@ -210,7 +210,7 @@ export default function InstitutionQualitySection({ stats, kommuneStats, municip
                   <p className="font-mono text-sm font-bold">
                     {kommuneStats!.sprogvurderingPctUdfordret.toFixed(1).replace(".", ",")}%
                   </p>
-                  <p className="text-[9px] text-muted">{lang === "da" ? "Af børnehaveklasse" : "Of kindergarten class"}</p>
+                  <p className="text-[10px] text-muted">{lang === "da" ? "Af børnehaveklasse" : "Of kindergarten class"}</p>
                 </div>
               )}
             </div>

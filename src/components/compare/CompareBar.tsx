@@ -131,7 +131,7 @@ export function ComparisonTable({ institutions }: { institutions: UnifiedInstitu
           <tr className="border-b border-border">
             <th className="text-left py-3 px-4 text-muted font-medium" scope="col">{t.compare.property}</th>
             {institutions.map((inst) => (
-              <th key={inst.id} className="text-left py-3 px-4 font-semibold text-foreground min-w-[200px]" scope="col">
+              <th key={inst.id} className="text-left py-3 px-4 font-semibold text-foreground min-w-[150px] sm:min-w-[200px]" scope="col">
                 {inst.name}
               </th>
             ))}
