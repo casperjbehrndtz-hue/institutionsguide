@@ -2,67 +2,67 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://institutionsguide.dk/</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/vuggestue</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/boernehave</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/dagpleje</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/skole</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/sfo</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/fritidsklub</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/efterskole</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/sammenlign</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/privatliv</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://institutionsguide.dk/vilkaar</loc>
-    <lastmod>2026-03-31</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -51029,71 +51029,5 @@
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/hvem-kan-faa-friplads-boernehave</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/normering-dagpleje-regler</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/minimumsnormering-hvad-betyder-det</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/normering-bornehave-2026-regler</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/karaktergennemsnit-folkeskole-kommune</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/bedste-folkeskole-i-koebenhavn</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/venteliste-vuggestue-kobenhavn</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/hvornaar-skrive-barn-op-til-vuggestue</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/billigste-bornehave-i-aarhus</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguide.dk/blog/hvad-koster-bornehave-2026</loc>
-    <lastmod>2026-03-31</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
 </urlset>

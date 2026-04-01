@@ -1,10 +1,10 @@
 {
-  "lastRefresh": "2026-03-30T00:00:00Z",
+  "lastRefresh": "2026-04-01T07:17:34Z",
   "dstKommuneStats": "success",
   "normeringFetch": "success",
   "normeringBuild": "success",
   "parentSatisfaction": "success",
-  "triggeredBy": "manual",
-  "runId": null,
-  "runUrl": null
+  "triggeredBy": "schedule",
+  "runId": "23836808837",
+  "runUrl": "https://github.com/casperjbehrndtz-hue/institutionsguide/actions/runs/23836808837"
 }
