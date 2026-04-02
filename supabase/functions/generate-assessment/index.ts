@@ -8,7 +8,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const ALLOWED_ORIGINS = new Set([
   "https://institutionsguide.vercel.app",
-  "https://institutionsguide.dk",
+  "https://institutionsguiden.dk",
 ]);
 
 function getCorsHeaders(req: Request) {

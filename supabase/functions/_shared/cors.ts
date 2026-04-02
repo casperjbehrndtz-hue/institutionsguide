@@ -1,8 +1,8 @@
 // Shared CORS configuration for all edge functions
 
 const ALLOWED_ORIGINS = [
-  "https://institutionsguide.dk",
-  "https://www.institutionsguide.dk",
+  "https://institutionsguiden.dk",
+  "https://www.institutionsguiden.dk",
   "https://institutionsguide.vercel.app",
   "http://localhost:5173",
   "http://localhost:8080",
@@ -13,7 +13,7 @@ export function getCorsHeaders(req: Request): Record<string, string> {
   const isAllowed = ALLOWED_ORIGINS.includes(origin);
 
   return {
-    "Access-Control-Allow-Origin": isAllowed ? origin : "https://institutionsguide.dk",
+    "Access-Control-Allow-Origin": isAllowed ? origin : "https://institutionsguiden.dk",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type, x-admin-key, x-api-key",

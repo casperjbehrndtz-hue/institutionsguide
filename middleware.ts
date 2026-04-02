@@ -5,7 +5,7 @@ const fetchBlog = createArticleFetcher({
   table: "blog_posts",
   select: "title,meta_title,meta_description,content_html,published_at,updated_at,keyword",
   siteName: "Institutionsguide",
-  siteUrl: "https://institutionsguide.dk",
+  siteUrl: "https://institutionsguiden.dk",
   urlPrefix: "/blog",
   parentLabel: "Blog",
   fields: { metaTitle: "meta_title", metaDescription: "meta_description", content: "content_html", publishedAt: "published_at", updatedAt: "updated_at", keyword: "keyword" },
@@ -13,15 +13,15 @@ const fetchBlog = createArticleFetcher({
 
 // ── Middleware ──
 export default createMiddleware({
-  siteUrl: "https://institutionsguide.dk",
+  siteUrl: "https://institutionsguiden.dk",
   siteName: "Institutionsguide",
   defaultOgImage: "/og-image.png",
   supabaseUrl: "https://epkwhvrwcyhlbdvwwvfi.supabase.co",
 
   organization: {
     name: "Institutionsguide",
-    url: "https://institutionsguide.dk",
-    logo: "https://institutionsguide.dk/og-image.png",
+    url: "https://institutionsguiden.dk",
+    logo: "https://institutionsguiden.dk/og-image.png",
     description: "Danmarks mest komplette institutionsoversigt. Sammenlign priser, kvalitet og normeringer for 8.500+ institutioner i alle 98 kommuner.",
     foundingDate: "2025",
   },
@@ -45,7 +45,7 @@ export default createMiddleware({
           "@context": "https://schema.org",
           "@type": "WebApplication",
           name: "Institutionsguide",
-          url: "https://institutionsguide.dk",
+          url: "https://institutionsguiden.dk",
           description: "Sammenlign priser, kvalitetsdata og normeringer for 8.500+ institutioner i alle 98 kommuner.",
           applicationCategory: "EducationalApplication",
           operatingSystem: "Web",
@@ -57,10 +57,10 @@ export default createMiddleware({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "Institutionsguide",
-          url: "https://institutionsguide.dk",
+          url: "https://institutionsguiden.dk",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://institutionsguide.dk/?q={search_term_string}",
+            target: "https://institutionsguiden.dk/?q={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         },
@@ -265,13 +265,13 @@ export default createMiddleware({
 
 <h3>Kategorier</h3>
 <ul>
-  <li><a href="https://institutionsguide.dk/vuggestue">Vuggestuer</a> (0-2 år)</li>
-  <li><a href="https://institutionsguide.dk/boernehave">Børnehaver</a> (3-5 år)</li>
-  <li><a href="https://institutionsguide.dk/dagpleje">Dagplejere</a> (0-2 år)</li>
-  <li><a href="https://institutionsguide.dk/skole">Skoler</a> (6-16 år)</li>
-  <li><a href="https://institutionsguide.dk/sfo">SFO</a> (6-9 år)</li>
-  <li><a href="https://institutionsguide.dk/fritidsklub">Fritidsklubber</a> (10-14 år)</li>
-  <li><a href="https://institutionsguide.dk/efterskole">Efterskoler</a> (14-18 år)</li>
+  <li><a href="https://institutionsguiden.dk/vuggestue">Vuggestuer</a> (0-2 år)</li>
+  <li><a href="https://institutionsguiden.dk/boernehave">Børnehaver</a> (3-5 år)</li>
+  <li><a href="https://institutionsguiden.dk/dagpleje">Dagplejere</a> (0-2 år)</li>
+  <li><a href="https://institutionsguiden.dk/skole">Skoler</a> (6-16 år)</li>
+  <li><a href="https://institutionsguiden.dk/sfo">SFO</a> (6-9 år)</li>
+  <li><a href="https://institutionsguiden.dk/fritidsklub">Fritidsklubber</a> (10-14 år)</li>
+  <li><a href="https://institutionsguiden.dk/efterskole">Efterskoler</a> (14-18 år)</li>
 </ul>
 
 <h3>Officielle datakilder</h3>
@@ -328,12 +328,12 @@ export default createMiddleware({
   },
 
   footerNav: `
-      <a href="https://institutionsguide.dk/vuggestue">Vuggestuer</a> ·
-      <a href="https://institutionsguide.dk/boernehave">Børnehaver</a> ·
-      <a href="https://institutionsguide.dk/skole">Skoler</a> ·
-      <a href="https://institutionsguide.dk/normering">Normeringer</a> ·
-      <a href="https://institutionsguide.dk/friplads">Friplads</a> ·
-      <a href="https://institutionsguide.dk/blog">Blog</a>`,
+      <a href="https://institutionsguiden.dk/vuggestue">Vuggestuer</a> ·
+      <a href="https://institutionsguiden.dk/boernehave">Børnehaver</a> ·
+      <a href="https://institutionsguiden.dk/skole">Skoler</a> ·
+      <a href="https://institutionsguiden.dk/normering">Normeringer</a> ·
+      <a href="https://institutionsguiden.dk/friplads">Friplads</a> ·
+      <a href="https://institutionsguiden.dk/blog">Blog</a>`,
 });
 
 export const config = defaultMatcherConfig;

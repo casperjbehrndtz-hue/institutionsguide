@@ -798,7 +798,7 @@ No platform owns the "parent review" space for Danish institutions. Creating a t
 - **Budget Impact Calculator**: "If you choose privatskole X, here's the monthly impact on your family budget"
 - **Cross-link from school cost pages**: "Plan your education expenses with ParFinans"
 - **Shared user accounts**: Same login across all suite products
-- **Route integration**: institutionsguide.dk could live at parfinans.dk/institutioner initially
+- **Route integration**: institutionsguiden.dk could live at parfinans.dk/institutioner initially
 
 ### NemtBudget.nu Integration
 - **"Pasning" budget category**: Auto-populate with actual municipal rates from Institutionsguide data

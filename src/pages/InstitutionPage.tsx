@@ -314,12 +314,12 @@ export default function InstitutionPage() {
         path={`/institution/${inst.id}`}
       />
 
-      <JsonLd data={institutionSchema(inst, "https://institutionsguide.dk", reviewSummary)} />
+      <JsonLd data={institutionSchema(inst, "https://institutionsguiden.dk", reviewSummary)} />
       <JsonLd data={breadcrumbSchema([
-        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguide.dk/" },
-        { name: categoryLabels[inst.category], url: `https://institutionsguide.dk${categoryPath(inst.category)}` },
-        { name: inst.municipality, url: `https://institutionsguide.dk/kommune/${encodeURIComponent(inst.municipality)}` },
-        { name: inst.name, url: `https://institutionsguide.dk/institution/${inst.id}` },
+        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: categoryLabels[inst.category], url: `https://institutionsguiden.dk${categoryPath(inst.category)}` },
+        { name: inst.municipality, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(inst.municipality)}` },
+        { name: inst.name, url: `https://institutionsguiden.dk/institution/${inst.id}` },
       ])} />
 
       {/* Breadcrumb */}

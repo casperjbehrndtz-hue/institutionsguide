@@ -8,7 +8,7 @@ interface SEOHeadProps {
   noIndex?: boolean;
 }
 
-const BASE_URL = "https://institutionsguide.dk";
+const BASE_URL = "https://institutionsguiden.dk";
 
 export default function SEOHead({ title, description, path = "", noIndex }: SEOHeadProps) {
   const { language } = useLanguage();

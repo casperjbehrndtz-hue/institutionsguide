@@ -136,7 +136,7 @@ export default function BestValuePage() {
       "@type": "ListItem",
       position: idx + 1,
       name: item.school.name,
-      url: `https://institutionsguide.dk/institution/${item.school.id}`,
+      url: `https://institutionsguiden.dk/institution/${item.school.id}`,
     })),
   };
 

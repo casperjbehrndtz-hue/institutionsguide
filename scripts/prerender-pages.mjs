@@ -15,7 +15,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "../dist");
-const SITE_URL = "https://institutionsguide.dk";
+const SITE_URL = "https://institutionsguiden.dk";
 
 function esc(str) {
   return String(str)

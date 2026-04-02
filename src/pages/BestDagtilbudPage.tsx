@@ -214,7 +214,7 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
       "@type": "ListItem",
       position: idx + 1,
       name: entry.inst.name,
-      url: `https://institutionsguide.dk/institution/${entry.inst.id}`,
+      url: `https://institutionsguiden.dk/institution/${entry.inst.id}`,
     })),
   };
 

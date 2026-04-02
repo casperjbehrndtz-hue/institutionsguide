@@ -122,7 +122,7 @@ export default function BestSchoolPage() {
       "@type": "ListItem",
       position: idx + 1,
       name: school.name,
-      url: `https://institutionsguide.dk/institution/${school.id}`,
+      url: `https://institutionsguiden.dk/institution/${school.id}`,
     })),
   };
 

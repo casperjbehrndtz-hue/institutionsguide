@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         ok: true,
-        url: `https://institutionsguide.dk/blog/${result.slug}`,
+        url: `https://institutionsguiden.dk/blog/${result.slug}`,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

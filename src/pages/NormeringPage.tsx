@@ -219,11 +219,11 @@ export default function NormeringPage() {
     "@type": "WebPage",
     name: pageTitle,
     description: pageDesc,
-    url: "https://institutionsguide.dk/normering",
+    url: "https://institutionsguiden.dk/normering",
     publisher: {
       "@type": "Organization",
       name: "Institutionsguide.dk",
-      url: "https://institutionsguide.dk",
+      url: "https://institutionsguiden.dk",
     },
   };
 

@@ -27,4 +27,4 @@ Allow: /
 Disallow: /favoritter
 Disallow: /admin
 
-Sitemap: https://institutionsguide.dk/sitemap.xml
+Sitemap: https://institutionsguiden.dk/sitemap.xml

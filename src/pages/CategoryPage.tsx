@@ -279,15 +279,15 @@ export default function CategoryPage({ category }: Props) {
         path={categoryPaths[category]}
       />
       <JsonLd data={breadcrumbSchema([
-        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguide.dk/" },
-        { name: categoryTitles[category], url: `https://institutionsguide.dk${categoryPaths[category]}` },
+        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: categoryTitles[category], url: `https://institutionsguiden.dk${categoryPaths[category]}` },
       ])} />
       <JsonLd data={itemListSchema(
         filtered.slice(0, 10).map((inst) => ({
           name: inst.name,
           url: `/institution/${inst.id}`,
         })),
-        "https://institutionsguide.dk",
+        "https://institutionsguiden.dk",
         categoryTitles[category],
       )} />
 

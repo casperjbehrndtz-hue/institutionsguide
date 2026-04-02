@@ -200,7 +200,7 @@ async function tryApiEndpoints(cvr) {
         signal: controller.signal,
         headers: {
           Accept: "application/json, text/html",
-          "User-Agent": "Mozilla/5.0 (compatible; Institutionsguide/1.0; +https://institutionsguide.dk)",
+          "User-Agent": "Mozilla/5.0 (compatible; Institutionsguide/1.0; +https://institutionsguiden.dk)",
         },
       });
       clearTimeout(timer);

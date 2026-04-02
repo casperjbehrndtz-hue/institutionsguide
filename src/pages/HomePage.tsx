@@ -293,7 +293,7 @@ export default function HomePage() {
         description={language === "da" ? "Sammenlign 5.000+ vuggestuer, børnehaver, dagplejere, skoler og SFO'er i alle 98 kommuner. Se priser, kvalitetsdata og beregn fripladstilskud." : "Compare 5,000+ nurseries, kindergartens, childminders, schools and after-school care across all 98 municipalities."}
         path="/"
       />
-      <JsonLd data={websiteSchema("https://institutionsguide.dk")} />
+      <JsonLd data={websiteSchema("https://institutionsguiden.dk")} />
       <JsonLd data={faqSchema(FAQ_ITEMS)} />
 
       {/* Hero — video + search */}

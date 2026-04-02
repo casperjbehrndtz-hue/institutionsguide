@@ -1,0 +1,249 @@
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Lock, Check, X, Loader2 } from "lucide-react";
+import { setInstitutionUnlocked, setSuiteEmail, getSuiteEmail } from "@/lib/institutionGate";
+
+const CAPTURE_URL =
+  "https://xahajjypbnrpitzdnpjg.supabase.co/functions/v1/capture-suite-lead";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+interface Props {
+  institutionName: string;
+  open: boolean;
+  onClose: () => void;
+  onUnlocked: () => void;
+}
+
+const FREE_ITEMS = ["Navn og type", "Adresse og kommune", "Overordnet prisniveau"];
+const GATED_ITEMS = [
+  "Faktisk månedspris",
+  "Normering med udvikling over tid",
+  "Tilsynsrapporter og påtaler",
+  "AI-kvalitetsvurdering",
+];
+
+export default function InstitutionGateModal({
+  institutionName,
+  open,
+  onClose,
+  onUnlocked,
+}: Props) {
+  const [email, setEmail] = useState(() => getSuiteEmail() || "");
+  const [marketing, setMarketing] = useState(true);
+  const [crossSell, setCrossSell] = useState(true);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input when opened
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [open]);
+
+  // Escape key
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    },
+    [onClose],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    document.addEventListener("keydown", handleKeyDown);
+    // Prevent body scroll
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [open, handleKeyDown]);
+
+  if (!open) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError("Indtast venligst din email");
+      return;
+    }
+    if (!EMAIL_RE.test(trimmed)) {
+      setError("Indtast en gyldig email-adresse");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(CAPTURE_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: trimmed,
+          source: "institutionsguide",
+          gate: "institution_profile",
+          consent_marketing: marketing,
+          consent_cross_sell: crossSell,
+          meta: { institution: institutionName },
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(body || `HTTP ${res.status}`);
+      }
+
+      setSuiteEmail(trimmed);
+      setInstitutionUnlocked();
+      onUnlocked();
+      onClose();
+    } catch (err) {
+      console.error("Gate capture failed:", err);
+      // Still unlock on failure — don't block the user
+      setSuiteEmail(trimmed);
+      setInstitutionUnlocked();
+      onUnlocked();
+      onClose();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === overlayRef.current) onClose();
+  };
+
+  return (
+    <div
+      ref={overlayRef}
+      onClick={handleOverlayClick}
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Se den fulde profil for ${institutionName}`}
+    >
+      <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-2xl w-full max-w-md relative animate-in fade-in zoom-in-95 duration-200">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+          aria-label="Luk"
+        >
+          <X className="w-5 h-5 text-gray-500" />
+        </button>
+
+        <div className="p-6 sm:p-8">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
+              <Lock className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="font-display text-xl font-bold text-foreground leading-tight">
+              Se den fulde profil for{" "}
+              <span className="text-primary">{institutionName}</span>
+            </h2>
+            <p className="text-sm text-muted mt-1.5">
+              Gratis — vi beder kun om din email
+            </p>
+          </div>
+
+          {/* Two-column: free vs gated */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div>
+              <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
+                Gratis adgang
+              </p>
+              <ul className="space-y-1.5">
+                {FREE_ITEMS.map((item) => (
+                  <li key={item} className="flex items-start gap-1.5 text-xs text-foreground">
+                    <Check className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
+                Med email
+              </p>
+              <ul className="space-y-1.5">
+                {GATED_ITEMS.map((item) => (
+                  <li key={item} className="flex items-start gap-1.5 text-xs text-foreground">
+                    <Lock className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <input
+                ref={inputRef}
+                type="email"
+                placeholder="din@email.dk"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (error) setError("");
+                }}
+                className="w-full px-4 py-3 rounded-lg border border-border bg-white dark:bg-[#0f0f23] text-foreground placeholder:text-muted/60 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
+                autoComplete="email"
+                disabled={loading}
+              />
+              {error && (
+                <p className="text-xs text-red-500 mt-1">{error}</p>
+              )}
+            </div>
+
+            {/* Consent checkboxes */}
+            <label className="flex items-start gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={marketing}
+                onChange={(e) => setMarketing(e.target.checked)}
+                className="mt-0.5 accent-primary"
+              />
+              <span className="text-[11px] text-muted leading-tight">
+                Jeg vil gerne modtage nyttige tips om børnepasning og institutioner
+              </span>
+            </label>
+            <label className="flex items-start gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={crossSell}
+                onChange={(e) => setCrossSell(e.target.checked)}
+                className="mt-0.5 accent-primary"
+              />
+              <span className="text-[11px] text-muted leading-tight">
+                Ja tak, hold mig opdateret om relaterede værktøjer (fx Nemtbudget.nu, ParFinans.dk)
+              </span>
+            </label>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary-light transition-colors disabled:opacity-60 flex items-center justify-center gap-2 min-h-[48px]"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Vent venligst...
+                </>
+              ) : (
+                "Se den fulde profil"
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

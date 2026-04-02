@@ -1,9 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const SITE_URL = "https://institutionsguide.dk";
+const SITE_URL = "https://institutionsguiden.dk";
 const BLOG_TABLE = "blog_posts";
 const BLOG_URL_PREFIX = "/blog/";
-const CORS_ORIGIN = "https://institutionsguide.dk";
+const CORS_ORIGIN = "https://institutionsguiden.dk";
 const AUTH_SECRETS = ["SEO_GENERATE_SECRET"];
 
 function corsHeaders(origin?: string) {

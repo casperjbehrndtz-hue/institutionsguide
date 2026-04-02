@@ -138,13 +138,13 @@ export default function BlogPost() {
         "@type": "BlogPosting",
         headline: post.title,
         description: post.meta_description || "",
-        url: `https://institutionsguide.dk/blog/${post.slug}`,
+        url: `https://institutionsguiden.dk/blog/${post.slug}`,
         datePublished: post.published_at || post.updated_at,
         dateModified: post.updated_at,
         publisher: {
           "@type": "Organization",
           name: "Institutionsguide.dk",
-          url: "https://institutionsguide.dk",
+          url: "https://institutionsguiden.dk",
         },
         inLanguage: language,
       }} />

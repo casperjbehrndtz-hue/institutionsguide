@@ -165,10 +165,10 @@ export default function AboutPage() {
               : "Have questions, suggestions or feedback? We would love to hear from you."}
           </p>
           <a
-            href="mailto:kontakt@institutionsguide.dk"
+            href="mailto:kontakt@institutionsguiden.dk"
             className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
           >
-            kontakt@institutionsguide.dk
+            kontakt@institutionsguiden.dk
           </a>
         </div>
 

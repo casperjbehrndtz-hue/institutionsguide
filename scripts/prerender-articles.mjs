@@ -11,7 +11,7 @@ import { createClient } from "@supabase/supabase-js";
 import { writeFileSync, mkdirSync, readFileSync } from "fs";
 import { resolve } from "path";
 
-const SITE = "https://institutionsguide.dk";
+const SITE = "https://institutionsguiden.dk";
 const DIST = resolve(import.meta.dirname, "../dist");
 
 function escapeHtml(str) {
