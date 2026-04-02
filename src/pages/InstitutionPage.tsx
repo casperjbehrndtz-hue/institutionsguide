@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ArrowRight } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -7,6 +7,9 @@ import { formatDKK } from "@/lib/format";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
 import { dataVersions } from "@/lib/dataVersions";
+import { isInstitutionUnlocked } from "@/lib/institutionGate";
+import InstitutionGateModal from "@/components/shared/InstitutionGateModal";
+import GatedSection from "@/components/shared/GatedSection";
 
 const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
 const PriceHistoryChart = lazy(() => import("@/components/charts/PriceHistoryChart"));
@@ -128,6 +131,11 @@ export default function InstitutionPage() {
   const { addToCompare, removeFromCompare, isInCompare } = useCompare();
   const { reviews } = useReviews(id || "");
   const [compareToast, setCompareToast] = useState<string | false>(false);
+  const [unlocked, setUnlocked] = useState(() => isInstitutionUnlocked());
+  const [gateOpen, setGateOpen] = useState(false);
+
+  const openGate = useCallback(() => setGateOpen(true), []);
+  const handleUnlocked = useCallback(() => setUnlocked(true), []);
 
   const reviewSummary = useMemo(() => {
     if (reviews.length === 0) return undefined;
@@ -402,17 +410,19 @@ export default function InstitutionPage() {
           ═══════════════════════════════════════════ */}
       {scoreResult && (
         <section id="section-overblik" className="px-4 pb-6">
-          <InstitutionReport
-            score={scoreResult}
-            institutionName={inst.name}
-            category={inst.category}
-            municipality={inst.municipality}
-            language={language}
-            nearby={nearby}
-            nearbyScores={nearbyScores}
-            aiAssessment={aiAssessment}
-            aiLoading={aiState === "loading"}
-          />
+          <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+            <InstitutionReport
+              score={scoreResult}
+              institutionName={inst.name}
+              category={inst.category}
+              municipality={inst.municipality}
+              language={language}
+              nearby={nearby}
+              nearbyScores={nearbyScores}
+              aiAssessment={aiAssessment}
+              aiLoading={aiState === "loading"}
+            />
+          </GatedSection>
         </section>
       )}
 
@@ -507,52 +517,59 @@ export default function InstitutionPage() {
         {(inst.monthlyRate != null || inst.yearlyPrice != null) && (
           <div id="section-pris" className="card p-5">
             <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
-            {inst.category === "efterskole" && inst.yearlyPrice ? (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                  <p className="text-xs text-muted mb-1">{language === "da" ? "Ugepris" : "Weekly rate"}</p>
-                  <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.weeklyPrice)}</p>
-                  <p className="text-[10px] text-muted mt-1">{language === "da" ? "~42 uger" : "~42 weeks"}</p>
-                </div>
-                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                  <p className="text-xs text-muted mb-1">{language === "da" ? "Årspris" : "Yearly rate"}</p>
-                  <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.yearlyPrice)}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                  <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
-                  <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
-                  <p className="text-[10px] text-muted mt-1">{language === "da" ? "Før evt. fripladstilskud" : "Before subsidy"}</p>
-                </div>
-                <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
-                  <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
-                  <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
-                </div>
-              </div>
-            )}
-            {/* Municipality average comparison */}
+            {/* The over/under average indicator is always visible */}
             {municipalityAvgPrice != null && inst.monthlyRate != null && (
-              <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 text-center">
-                <p className="text-xs text-muted mb-0.5">
-                  {language === "da" ? `Gennemsnit i ${inst.municipality}` : `Average in ${inst.municipality}`}
-                </p>
-                <p className="font-mono text-lg font-bold text-foreground">{formatDKK(municipalityAvgPrice)}<span className="text-xs font-normal text-muted">{t.common.perMonth}</span></p>
+              <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/15 text-center">
                 {(() => {
                   const diff = inst.monthlyRate! - municipalityAvgPrice;
                   const pct = Math.round((diff / municipalityAvgPrice) * 100);
-                  if (Math.abs(pct) < 2) return <p className="text-[11px] text-muted mt-1">{language === "da" ? "Tæt på gennemsnittet" : "Close to average"}</p>;
+                  if (Math.abs(pct) < 2) return <p className="text-sm font-medium text-muted">{language === "da" ? "Tæt på gennemsnittet for kommunen" : "Close to municipality average"}</p>;
                   return (
-                    <p className={`text-[11px] mt-1 font-medium ${diff < 0 ? "text-green-600" : "text-red-500"}`}>
+                    <p className={`text-sm font-medium ${diff < 0 ? "text-green-600" : "text-red-500"}`}>
                       {diff < 0
-                        ? (language === "da" ? `${Math.abs(pct)}% billigere end gennemsnittet` : `${Math.abs(pct)}% cheaper than average`)
-                        : (language === "da" ? `${pct}% dyrere end gennemsnittet` : `${pct}% more expensive than average`)}
+                        ? (language === "da" ? `${Math.abs(pct)}% billigere end gennemsnittet i ${inst.municipality}` : `${Math.abs(pct)}% cheaper than average in ${inst.municipality}`)
+                        : (language === "da" ? `${pct}% dyrere end gennemsnittet i ${inst.municipality}` : `${pct}% more expensive than average in ${inst.municipality}`)}
                     </p>
                   );
                 })()}
               </div>
             )}
+            <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+              {inst.category === "efterskole" && inst.yearlyPrice ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                    <p className="text-xs text-muted mb-1">{language === "da" ? "Ugepris" : "Weekly rate"}</p>
+                    <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.weeklyPrice)}</p>
+                    <p className="text-[10px] text-muted mt-1">{language === "da" ? "~42 uger" : "~42 weeks"}</p>
+                  </div>
+                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                    <p className="text-xs text-muted mb-1">{language === "da" ? "Årspris" : "Yearly rate"}</p>
+                    <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.yearlyPrice)}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                    <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
+                    <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>
+                    <p className="text-[10px] text-muted mt-1">{language === "da" ? "Før evt. fripladstilskud" : "Before subsidy"}</p>
+                  </div>
+                  <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
+                    <p className="text-xs text-muted mb-1">{t.detail.annualRate}</p>
+                    <p className="font-mono text-2xl font-bold text-foreground">{formatDKK(inst.annualRate)}</p>
+                  </div>
+                </div>
+              )}
+              {/* Municipality average comparison */}
+              {municipalityAvgPrice != null && inst.monthlyRate != null && (
+                <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 text-center">
+                  <p className="text-xs text-muted mb-0.5">
+                    {language === "da" ? `Gennemsnit i ${inst.municipality}` : `Average in ${inst.municipality}`}
+                  </p>
+                  <p className="font-mono text-lg font-bold text-foreground">{formatDKK(municipalityAvgPrice)}<span className="text-xs font-normal text-muted">{t.common.perMonth}</span></p>
+                </div>
+              )}
+            </GatedSection>
             <p className="text-[10px] text-muted mt-3 text-center">
               {language === "da" ? `Priser fra ${dataVersions.prices.year} \u2014 kan afvige fra aktuelle takster` : `Prices from ${dataVersions.prices.year} \u2014 may differ from current rates`}
             </p>
@@ -569,33 +586,35 @@ export default function InstitutionPage() {
         {percentiles && percentiles.length > 0 && (
           <div className="card p-5">
             <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
-            <div className="space-y-3">
-              {percentiles.map((p) => (
-                <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
-              ))}
-            </div>
-            {/* Legend */}
-            <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
-            </div>
-            {q?.sr && (
-              <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15">
-                <p className="text-xs text-muted mb-0.5">{t.detail.socioEconomicRef}</p>
-                <p className="text-sm font-semibold text-foreground">{q.sr}</p>
-                <p className="text-[10px] text-muted mt-1">
-                  {language === "da"
-                    ? "Sammenligner skolens resultater med forventede resultater baseret på elevernes socioøkonomiske baggrund"
-                    : "Compares the school's results with expected results based on students' socioeconomic background"}
-                </p>
+            <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+              <div className="space-y-3">
+                {percentiles.map((p) => (
+                  <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
+                ))}
               </div>
-            )}
-            {q?.el != null && (
-              <div className="text-xs text-muted mt-3">
-                {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
+              {/* Legend */}
+              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
               </div>
-            )}
+              {q?.sr && (
+                <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15">
+                  <p className="text-xs text-muted mb-0.5">{t.detail.socioEconomicRef}</p>
+                  <p className="text-sm font-semibold text-foreground">{q.sr}</p>
+                  <p className="text-[10px] text-muted mt-1">
+                    {language === "da"
+                      ? "Sammenligner skolens resultater med forventede resultater baseret på elevernes socioøkonomiske baggrund"
+                      : "Compares the school's results with expected results based on students' socioeconomic background"}
+                  </p>
+                </div>
+              )}
+              {q?.el != null && (
+                <div className="text-xs text-muted mt-3">
+                  {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
+                </div>
+              )}
+            </GatedSection>
             <div className="flex items-center justify-between mt-3 gap-2">
               <p className="text-[10px] text-muted">{t.detail.dataSource}</p>
               <Link to="/metode" className="text-[10px] text-primary hover:underline shrink-0">
@@ -616,33 +635,41 @@ export default function InstitutionPage() {
           const current = latest[0];
           const prev = latest.length > 1 ? latest[1] : undefined;
           return (
-            <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-              <NormeringBadge
-                municipality={inst.municipality}
-                ageGroup={current.ageGroup}
-                ratio={current.ratio}
-                year={current.year}
-                previousRatio={prev?.ratio}
-              />
-            </Suspense>
+            <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+              <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+                <NormeringBadge
+                  municipality={inst.municipality}
+                  ageGroup={current.ageGroup}
+                  ratio={current.ratio}
+                  year={current.year}
+                  previousRatio={prev?.ratio}
+                />
+              </Suspense>
+            </GatedSection>
           );
         })()}
 
         {/* Quality data — per institution stats (normering, staff education, parent satisfaction) */}
-        <InstitutionQualitySection
-          stats={instStats}
-          kommuneStats={komStats}
-          municipality={inst.municipality}
-          category={inst.category}
-        />
+        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+          <InstitutionQualitySection
+            stats={instStats}
+            kommuneStats={komStats}
+            municipality={inst.municipality}
+            category={inst.category}
+          />
+        </GatedSection>
 
         {/* Arbejdstilsyn — work environment inspections */}
-        <ArbejdstilsynSection institutionId={inst.id} institutionName={inst.name} />
+        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+          <ArbejdstilsynSection institutionId={inst.id} institutionName={inst.name} />
+        </GatedSection>
 
         {/* Price history chart */}
-        <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-          <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
-        </Suspense>
+        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+          <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+            <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
+          </Suspense>
+        </GatedSection>
 
         {/* Price alert */}
         <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
@@ -698,7 +725,9 @@ export default function InstitutionPage() {
         />
 
         {/* Tilsyn */}
-        <TilsynSection institutionId={inst.id} institutionName={inst.name} />
+        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+          <TilsynSection institutionId={inst.id} institutionName={inst.name} />
+        </GatedSection>
 
         {/* Reviews */}
         <div id="section-anmeldelser">
@@ -707,6 +736,14 @@ export default function InstitutionPage() {
       </section>
 
       <CompareBar />
+
+      {/* Gate modal */}
+      <InstitutionGateModal
+        institutionName={inst.name}
+        open={gateOpen}
+        onClose={() => setGateOpen(false)}
+        onUnlocked={handleUnlocked}
+      />
     </>
   );
 }

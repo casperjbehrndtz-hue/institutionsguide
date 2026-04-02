@@ -112,6 +112,7 @@ export default function HomePage() {
   const { lat, lng, zoom: mapZoom, view, setMapView, setView } = useMapParams();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [radiusKm, setRadiusKm] = useState<number | null>(null);
 
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 14 });
@@ -130,7 +131,6 @@ export default function HomePage() {
   const handleMarkerHover = useCallback((id: string | null) => setHoveredId(id), []);
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
-  const [radiusKm, setRadiusKm] = useState<number | null>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
 
   const filtered = useFilteredInstitutions(institutions, { search, category, municipality, qualityFilter, sortKey, ageGroup });
