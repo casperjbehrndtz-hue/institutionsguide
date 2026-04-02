@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ArrowRight } from "lucide-react";
+import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ArrowRight, Lock } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -454,6 +454,17 @@ export default function InstitutionPage() {
           <MapPin className="w-3.5 h-3.5 shrink-0" />
           <span>{inst.address}, {inst.postalCode} {inst.city}</span>
         </div>
+
+        {/* Prominent CTA to unlock full profile */}
+        {!unlocked && (
+          <button
+            onClick={openGate}
+            className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary-light transition-colors min-h-[48px] shadow-md"
+          >
+            <Lock className="w-4 h-4" />
+            {language === "da" ? "Se fuld profil — gratis" : "See full profile — free"}
+          </button>
+        )}
       </section>
 
       {/* Efterskole details card */}
