@@ -29,8 +29,8 @@ export default function InstitutionGateModal({
   onUnlocked,
 }: Props) {
   const [email, setEmail] = useState(() => getSuiteEmail() || "");
-  const [marketing, setMarketing] = useState(true);
-  const [crossSell, setCrossSell] = useState(true);
+  const [marketing, setMarketing] = useState(false);
+  const [crossSell, setCrossSell] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -89,7 +89,7 @@ export default function InstitutionGateModal({
           gate: "institution_profile",
           consent_marketing: marketing,
           consent_cross_sell: crossSell,
-          meta: { institution: institutionName },
+          metadata: { institution: institutionName },
         }),
       });
       if (!res.ok) {
@@ -155,7 +155,7 @@ export default function InstitutionGateModal({
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div>
               <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
-                Gratis adgang
+                Det har du allerede set
               </p>
               <ul className="space-y-1.5">
                 {FREE_ITEMS.map((item) => (
@@ -167,8 +167,8 @@ export default function InstitutionGateModal({
               </ul>
             </div>
             <div>
-              <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
-                Med email
+              <p className="text-[11px] font-semibold text-primary uppercase tracking-wide mb-2">
+                Lås op gratis
               </p>
               <ul className="space-y-1.5">
                 {GATED_ITEMS.map((item) => (
@@ -202,27 +202,16 @@ export default function InstitutionGateModal({
               )}
             </div>
 
-            {/* Consent checkboxes */}
+            {/* Consent */}
             <label className="flex items-start gap-2 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={marketing}
-                onChange={(e) => setMarketing(e.target.checked)}
+                onChange={(e) => { setMarketing(e.target.checked); setCrossSell(e.target.checked); }}
                 className="mt-0.5 accent-primary"
               />
               <span className="text-[11px] text-muted leading-tight">
-                Jeg vil gerne modtage nyttige tips om børnepasning og institutioner
-              </span>
-            </label>
-            <label className="flex items-start gap-2 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={crossSell}
-                onChange={(e) => setCrossSell(e.target.checked)}
-                className="mt-0.5 accent-primary"
-              />
-              <span className="text-[11px] text-muted leading-tight">
-                Ja tak, hold mig opdateret om relaterede værktøjer (fx Nemtbudget.nu, ParFinans.dk)
+                Send mig relevante tips om børnepasning og familieøkonomi
               </span>
             </label>
 
