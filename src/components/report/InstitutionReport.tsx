@@ -129,14 +129,34 @@ export default function InstitutionReport({
       {/* Metric cards — always deterministic */}
       {score.metrics.length > 0 && <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
         {score.metrics.slice(0, 4).map((m) => {
-          const valColor = m.score >= 70 ? "text-[#0F6E56]" : m.score >= 45 ? "text-[#BA7517]" : "text-[#A32D2D]";
+          const bgColor = m.score >= 70 ? "bg-[#E1F5EE]" : m.score >= 45 ? "bg-[#FAEEDA]" : "bg-[#FCEBEB]";
+          const textColor = m.score >= 70 ? "text-[#0F6E56]" : m.score >= 45 ? "text-[#BA7517]" : "text-[#A32D2D]";
+          const dotColor = m.score >= 70 ? "bg-[#0F6E56]" : m.score >= 45 ? "bg-[#BA7517]" : "bg-[#A32D2D]";
+          const munLabel = m.municipalityAvg != null ? `Kom: ${m.municipalityAvg}` : null;
+          const contextText = m.context?.[lang] ?? null;
+          const contextLine = [contextText, munLabel].filter(Boolean).join(" · ");
+
           return (
-            <div key={m.key} className="rounded-lg bg-bg-card p-3.5">
-              <p className="text-[11px] text-muted uppercase tracking-wide">{m.label[lang]}</p>
-              <p className={`font-mono text-xl font-medium mt-1 ${m.score >= 45 ? valColor : "text-foreground"}`}>
+            <div key={m.key} className={`rounded-lg p-3.5 ${bgColor}`}>
+              <div className="flex items-center justify-between mb-1">
+                <p className={`text-[11px] uppercase tracking-wide font-medium ${textColor}`}>{m.label[lang]}</p>
+                <span className="text-sm leading-none">{m.icon}</span>
+              </div>
+              <p className={`font-mono text-xl font-semibold ${textColor}`}>
                 {m.value.split(" ")[0]}
+                <span className="text-[11px] font-normal ml-1">{m.value.split(" ").slice(1).join(" ")}</span>
               </p>
-              <p className="text-[11px] text-muted mt-0.5">{m.value.split(" ").slice(1).join(" ") || ""}</p>
+              {m.percentile != null && (
+                <div className="mt-2 h-1 bg-border/50 rounded-full relative">
+                  <div
+                    className={`absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${dotColor} ring-2 ring-white`}
+                    style={{ left: `${Math.max(4, Math.min(96, m.percentile))}%` }}
+                  />
+                </div>
+              )}
+              {contextLine && (
+                <p className="text-[10px] text-muted mt-1.5 leading-tight truncate">{contextLine}</p>
+              )}
             </div>
           );
         })}

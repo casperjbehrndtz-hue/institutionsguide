@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X, Gamepad2, School } from "lucide-react";
+import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X, Gamepad2, School, Landmark } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -217,6 +217,7 @@ export default function HomePage() {
     { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
     { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
     { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
+    { category: "gymnasium" as const, label: t.categories.gymnasium, icon: Landmark, iconColor: "text-teal-600", bgColor: "bg-teal-100 dark:bg-teal-900/30", href: "/gymnasium", desc: t.ageGroups.gymnasium, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
   ];
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
 

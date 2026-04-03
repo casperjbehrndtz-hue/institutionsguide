@@ -45,6 +45,7 @@ const BestDagtilbudPage = lazyRetry(() => import("@/pages/BestDagtilbudPage"));
 const TotalCostPage = lazyRetry(() => import("@/pages/TotalCostPage"));
 const GuidePage = lazyRetry(() => import("@/pages/GuidePage"));
 const FindPage = lazyRetry(() => import("@/pages/FindPage"));
+const GymnasiumPage = lazyRetry(() => import("@/pages/GymnasiumPage"));
 
 function Loading() {
   return (
@@ -73,6 +74,7 @@ export default function App() {
               <Route path="/sfo" element={<CategoryPage key="sfo" category="sfo" />} />
               <Route path="/fritidsklub" element={<CategoryPage key="fritidsklub" category="fritidsklub" />} />
               <Route path="/efterskole" element={<CategoryPage key="efterskole" category="efterskole" />} />
+              <Route path="/gymnasium" element={<GymnasiumPage />} />
               <Route path="/kommune/:name" element={<KommunePage />} />
               <Route path="/institution/:id" element={<InstitutionPage />} />
               <Route path="/sammenlign" element={<ComparePage />} />

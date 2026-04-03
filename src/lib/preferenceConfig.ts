@@ -219,6 +219,7 @@ export const DIMENSIONS_BY_CATEGORY: Record<InstitutionCategory, DimensionConfig
   sfo: [DISTANCE, PRICE, NORMERING, UDDANNELSE, TILFREDSHED],
   fritidsklub: [], // Not enough quality data for meaningful ranking
   efterskole: [DISTANCE, EFTERSKOLE_PRICE, TRIVSEL, KARAKTERER],
+  gymnasium: [DISTANCE, TRIVSEL, KARAKTERER, FRAVAER],
 };
 
 /** Whether a category has enough dimensions for the finder to be useful */

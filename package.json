@@ -23,7 +23,9 @@
     "refresh:all": "node scripts/refresh-all.mjs",
     "refresh:all:dry": "node scripts/refresh-all.mjs --dry-run",
     "tilsyn:scrape": "node scripts/tilsyn/scrape-kommune.mjs --all",
-    "tilsyn:scrape:kommune": "node scripts/tilsyn/scrape-kommune.mjs --kommune"
+    "tilsyn:scrape:kommune": "node scripts/tilsyn/scrape-kommune.mjs --kommune",
+    "fetch:tilsynsrapporter": "node scripts/fetch-tilsynsrapporter.mjs",
+    "fetch:tilsynsrapporter:dry": "node scripts/fetch-tilsynsrapporter.mjs --dry-run"
   },
   "dependencies": {
     "@sentry/react": "^10.46.0",

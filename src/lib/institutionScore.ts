@@ -3,6 +3,8 @@ import type {
   NormeringEntry,
   SchoolQuality,
   InstitutionStats,
+  SchoolExtraStats,
+  SFOStats,
 } from "@/lib/types";
 
 export interface LocalizedText {
@@ -16,6 +18,10 @@ export interface MetricScore {
   score: number;
   value: string;
   icon: string;
+  percentile: number | null;
+  municipalityAvg: string | null;
+  nationalAvg: string | null;
+  context: LocalizedText | null;
 }
 
 export interface ScoreResult {
@@ -74,7 +80,7 @@ interface WeightedMetric {
   icon: string;
 }
 
-function scoreSchool(q: SchoolQuality): {
+function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
   metrics: MetricScore[];
   overall: number | null;
 } {
@@ -149,6 +155,16 @@ function scoreSchool(q: SchoolQuality): {
           icon: "📈",
         }
       : null,
+    schoolExtra?.transitionGymnasiumPct != null
+      ? {
+          key: "overgang_gymnasium",
+          label: { da: "Overgang til gymnasium", en: "Transition to upper secondary" },
+          weight: 0.1,
+          score: linearMap(schoolExtra.transitionGymnasiumPct, 40, 80),
+          value: `${fmt(schoolExtra.transitionGymnasiumPct)}%`,
+          icon: "🎓",
+        }
+      : null,
   ];
 
   const available = raw.filter((m): m is WeightedMetric => m != null);
@@ -169,6 +185,10 @@ function scoreSchool(q: SchoolQuality): {
     score: Math.round(m.score),
     value: m.value,
     icon: m.icon,
+    percentile: null,
+    municipalityAvg: null,
+    nationalAvg: null,
+    context: null,
   }));
 
   return { metrics, overall };
@@ -181,6 +201,7 @@ function scoreDagtilbud(
   normering: NormeringEntry[],
   municipalityAvgPrice: number | null,
   instStats?: InstitutionStats,
+  sfoStats?: SFOStats,
 ): { metrics: MetricScore[]; overall: number | null } {
   const available: WeightedMetric[] = [];
 
@@ -275,6 +296,19 @@ function scoreDagtilbud(
     });
   }
 
+  // SFO-specific staff quality metric from kommune-level SFO data
+  if (inst.category === "sfo" && sfoStats?.pctPaedagoger != null) {
+    const score = linearMap(sfoStats.pctPaedagoger, 25, 65);
+    available.push({
+      key: "sfo_personale",
+      label: { da: "SFO-personalekvalitet", en: "SFO staff quality" },
+      weight: 0.2,
+      score,
+      value: `${fmt(sfoStats.pctPaedagoger)}% pædagoger`,
+      icon: "👩‍🏫",
+    });
+  }
+
   // If no metrics or only ejerskab, there's not enough meaningful data
   const meaningful = available.filter((m) => m.key !== "ejerskab");
   if (meaningful.length === 0) {
@@ -293,6 +327,10 @@ function scoreDagtilbud(
     score: Math.round(m.score),
     value: m.value,
     icon: m.icon,
+    percentile: null,
+    municipalityAvg: null,
+    nationalAvg: null,
+    context: null,
   }));
 
   return { metrics, overall };
@@ -611,6 +649,141 @@ function dagtilbudRecommendation(
   };
 }
 
+// --- Percentile + context enrichment ---
+
+function contextLabel(percentile: number): LocalizedText {
+  if (percentile >= 90) return { da: "Top 10% nationalt", en: "Top 10% nationally" };
+  if (percentile >= 75) return { da: "Top 25% nationalt", en: "Top 25% nationally" };
+  if (percentile >= 60) return { da: "Over middel", en: "Above average" };
+  if (percentile >= 40) return { da: "Middel", en: "Average" };
+  return { da: "Under middel", en: "Below average" };
+}
+
+function pctRankHigherIsBetter(values: number[], val: number): number {
+  if (values.length === 0) return 50;
+  const below = values.filter((v) => v < val).length;
+  return Math.round((below / values.length) * 100);
+}
+
+function pctRankLowerIsBetter(values: number[], val: number): number {
+  if (values.length === 0) return 50;
+  const above = values.filter((v) => v > val).length;
+  return Math.round((above / values.length) * 100);
+}
+
+// Keys where lower raw values are better
+const LOWER_IS_BETTER_KEYS = new Set(["pris", "normering", "fravaer", "klassestorrelse"]);
+
+interface EnrichOpts {
+  inst: UnifiedInstitution;
+  allInstitutions?: UnifiedInstitution[];
+  allInstitutionStats?: Record<string, InstitutionStats>;
+  normering: NormeringEntry[];
+}
+
+function enrichMetrics(metrics: MetricScore[], opts: EnrichOpts): MetricScore[] {
+  const { inst, allInstitutions, allInstitutionStats, normering } = opts;
+  if (!allInstitutions || allInstitutions.length === 0) return metrics;
+
+  const sameCategory = allInstitutions.filter((i) => i.category === inst.category && i.id !== inst.id);
+  const sameMunCat = sameCategory.filter((i) => i.municipality.toLowerCase() === inst.municipality.toLowerCase());
+
+  return metrics.map((m) => {
+    const rawValues = collectMetricValues(m.key, sameCategory, allInstitutionStats, normering);
+    const munValues = collectMetricValues(m.key, sameMunCat, allInstitutionStats, normering);
+
+    const numericVal = extractNumericValue(m);
+    if (numericVal == null || rawValues.length === 0) {
+      return { ...m, percentile: null, municipalityAvg: null, nationalAvg: null, context: null };
+    }
+
+    const lowerBetter = LOWER_IS_BETTER_KEYS.has(m.key);
+    const percentile = lowerBetter
+      ? pctRankLowerIsBetter(rawValues, numericVal)
+      : pctRankHigherIsBetter(rawValues, numericVal);
+
+    const natAvg = rawValues.length > 0 ? rawValues.reduce((a, b) => a + b, 0) / rawValues.length : null;
+    const munAvg = munValues.length > 0 ? munValues.reduce((a, b) => a + b, 0) / munValues.length : null;
+
+    return {
+      ...m,
+      percentile,
+      municipalityAvg: munAvg != null ? formatMetricValue(m.key, munAvg) : null,
+      nationalAvg: natAvg != null ? formatMetricValue(m.key, natAvg) : null,
+      context: contextLabel(percentile),
+    };
+  });
+}
+
+function extractNumericValue(m: MetricScore): number | null {
+  // Parse the first numeric part from value string like "5,8 børn/voksen" or "3.200 kr./md."
+  const cleaned = m.value.replace(/\./g, "").replace(",", ".");
+  const match = cleaned.match(/[\d.]+/);
+  return match ? parseFloat(match[0]) : null;
+}
+
+function formatMetricValue(key: string, val: number): string {
+  if (key === "pris") return `${Math.round(val).toLocaleString("da-DK")} kr.`;
+  if (key === "normering") return fmt(val);
+  if (key === "uddannelse" || key === "kompetence" || key === "fravaer") return `${fmt(val, 0)}%`;
+  if (key === "tilfredshed") return fmt(val);
+  if (key === "trivsel") return fmt(val);
+  if (key === "karakterer") return fmt(val);
+  if (key === "klassestorrelse") return fmt(val, 1);
+  return fmt(val);
+}
+
+function collectMetricValues(
+  key: string,
+  institutions: UnifiedInstitution[],
+  allStats?: Record<string, InstitutionStats>,
+  normering?: NormeringEntry[],
+): number[] {
+  const values: number[] = [];
+
+  for (const inst of institutions) {
+    if (key === "pris") {
+      if (inst.monthlyRate != null && inst.monthlyRate > 0) values.push(inst.monthlyRate);
+    } else if (key === "normering") {
+      const statsId = inst.id.replace(/^(vug|bh|dag|sfo)-/, "");
+      const stats = allStats?.[statsId];
+      const ageGroup = inst.category === "vuggestue" || inst.category === "dagpleje" ? "0-2" : "3-5";
+      const instN = stats ? (ageGroup === "0-2" ? stats.normering02 : stats.normering35) : null;
+      if (instN != null) { values.push(instN); continue; }
+      if (normering) {
+        const entries = normering.filter(
+          (n) => n.municipality.toLowerCase() === inst.municipality.toLowerCase() && n.ageGroup === ageGroup,
+        );
+        const latest = entries.sort((a, b) => b.year - a.year)[0];
+        if (latest) values.push(latest.ratio);
+      }
+    } else if (key === "uddannelse") {
+      const statsId = inst.id.replace(/^(vug|bh|dag|sfo)-/, "");
+      const stats = allStats?.[statsId];
+      if (stats?.pctPaedagoger != null) values.push(stats.pctPaedagoger);
+    } else if (key === "tilfredshed") {
+      const statsId = inst.id.replace(/^(vug|bh|dag|sfo)-/, "");
+      const stats = allStats?.[statsId];
+      if (stats?.parentSatisfaction != null) values.push(stats.parentSatisfaction);
+    } else if (key === "trivsel" && inst.quality?.ts != null) {
+      values.push(inst.quality.ts);
+    } else if (key === "karakterer" && inst.quality?.k != null) {
+      values.push(inst.quality.k);
+    } else if (key === "fravaer" && inst.quality?.fp != null) {
+      values.push(inst.quality.fp);
+    } else if (key === "kompetence" && inst.quality?.kp != null) {
+      values.push(inst.quality.kp);
+    } else if (key === "klassestorrelse" && inst.quality?.kv != null) {
+      values.push(inst.quality.kv);
+    } else if (key === "undervisningseffekt" && inst.quality?.sr != null) {
+      const score = inst.quality.sr === "Over niveau" ? 100 : inst.quality.sr === "På niveau" ? 60 : inst.quality.sr === "Under niveau" ? 20 : 50;
+      values.push(score);
+    }
+  }
+
+  return values;
+}
+
 // --- Main export ---
 
 export function computeScore(
@@ -619,6 +792,10 @@ export function computeScore(
   normering: NormeringEntry[],
   municipalityAvgPrice: number | null,
   instStats?: InstitutionStats,
+  allInstitutions?: UnifiedInstitution[],
+  allInstitutionStats?: Record<string, InstitutionStats>,
+  schoolExtraStats?: SchoolExtraStats,
+  sfoStats?: SFOStats,
 ): ScoreResult {
   const noDataResult: ScoreResult = {
     overall: null,
@@ -634,22 +811,25 @@ export function computeScore(
   };
 
   const isSchool = inst.category === "skole";
+  const enrichOpts: EnrichOpts = { inst, allInstitutions, allInstitutionStats, normering };
 
   if (isSchool && inst.quality) {
-    const { metrics, overall } = scoreSchool(inst.quality);
+    const { metrics: rawMetrics, overall } = scoreSchool(inst.quality, schoolExtraStats);
     if (overall == null) {
       return noDataResult;
     }
+    const metrics = allInstitutions ? enrichMetrics(rawMetrics, enrichOpts) : rawMetrics;
     const { pros, cons } = schoolProsAndCons(inst.quality);
     const recommendation = schoolRecommendation(overall, inst.quality);
     return { overall, grade: toGrade(overall), hasData: true, metrics, pros, cons, recommendation };
   }
 
   if (DAGTILBUD_CATEGORIES.has(inst.category)) {
-    const { metrics, overall } = scoreDagtilbud(inst, normering, municipalityAvgPrice, instStats);
+    const { metrics: rawMetrics, overall } = scoreDagtilbud(inst, normering, municipalityAvgPrice, instStats, sfoStats);
     if (overall == null) {
       return noDataResult;
     }
+    const metrics = allInstitutions ? enrichMetrics(rawMetrics, enrichOpts) : rawMetrics;
     const { pros, cons } = dagtilbudProsAndCons(inst, normering, municipalityAvgPrice, instStats);
     const recommendation = dagtilbudRecommendation(overall, inst, normering, municipalityAvgPrice);
     return { overall, grade: toGrade(overall), hasData: true, metrics, pros, cons, recommendation };

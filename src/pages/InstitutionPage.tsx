@@ -11,6 +11,7 @@ import { isInstitutionUnlocked } from "@/lib/institutionGate";
 import InstitutionGateModal from "@/components/shared/InstitutionGateModal";
 import GatedSection from "@/components/shared/GatedSection";
 
+const InstitutionChat = lazy(() => import("@/components/chat/InstitutionChat"));
 const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
 const PriceHistoryChart = lazy(() => import("@/components/charts/PriceHistoryChart"));
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
@@ -27,7 +28,10 @@ import { SkeletonDetail } from "@/components/shared/Skeletons";
 import ReviewListV2 from "@/components/reviews/ReviewListV2";
 import ReviewFormV2 from "@/components/reviews/ReviewFormV2";
 import { useReviews } from "@/hooks/useReviews";
+import { useReviewAnalysis } from "@/hooks/useReviewAnalysis";
+import ReviewThemes from "@/components/reviews/ReviewThemes";
 import TilsynSection from "@/components/tilsyn/TilsynSection";
+import TilsynRapportSection from "@/components/tilsyn/TilsynRapportSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
 import InstitutionQualitySection from "@/components/detail/InstitutionQualitySection";
 import ArbejdstilsynSection from "@/components/detail/ArbejdstilsynSection";
@@ -42,7 +46,7 @@ import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
     vuggestue: "/vuggestue", boernehave: "/boernehave", dagpleje: "/dagpleje",
-    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub", efterskole: "/efterskole",
+    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub", efterskole: "/efterskole", gymnasium: "/gymnasium",
   };
   return paths[cat] || "/";
 }
@@ -124,7 +128,7 @@ export default function InstitutionPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const cameFrom = (location.state as { from?: string })?.from;
-  const { institutions, normering, institutionStats, kommuneStats, loading } = useData();
+  const { institutions, normering, institutionStats, kommuneStats, schoolExtraStats, sfoStats, tilsynRapporter, nationalAverages, loading } = useData();
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { addViewed } = useRecentlyViewed();
@@ -162,6 +166,7 @@ export default function InstitutionPage() {
     dagpleje: t.categories.dagpleje, skole: t.categories.skole, sfo: t.categories.sfo,
     fritidsklub: t.categories.fritidsklub,
     efterskole: t.categories.efterskole,
+    gymnasium: t.categories.gymnasium,
   };
 
   const inst = useMemo(
@@ -193,13 +198,17 @@ export default function InstitutionPage() {
   const instStats = inst ? institutionStats[inst.id.replace(/^(vug|bh|dag|sfo)-/, "")] : undefined;
   const komStats = inst ? kommuneStats[inst.municipality] : undefined;
 
+  const instSchoolExtra = inst ? schoolExtraStats[inst.municipality] : undefined;
+  const instSfoStats = inst ? sfoStats[inst.municipality] : undefined;
+
   const scoreResult = useMemo(() => {
     if (!inst) return null;
-    return computeScore(inst, nearby, normering, municipalityAvgPrice, instStats);
-  }, [inst, nearby, normering, municipalityAvgPrice, instStats]);
+    return computeScore(inst, nearby, normering, municipalityAvgPrice, instStats, institutions, institutionStats, instSchoolExtra, instSfoStats);
+  }, [inst, nearby, normering, municipalityAvgPrice, instStats, institutions, institutionStats, instSchoolExtra, instSfoStats]);
 
   const { assessment: aiAssessment, state: aiState } = useAssessment(
     inst, scoreResult, nearby, normering, municipalityAvgPrice,
+    institutions, institutionStats, nationalAverages,
   );
 
   // Determine which quality section has data
@@ -422,6 +431,47 @@ export default function InstitutionPage() {
               aiAssessment={aiAssessment}
               aiLoading={aiState === "loading"}
             />
+          </GatedSection>
+        </section>
+      )}
+
+      {/* AI Chat */}
+      {scoreResult && (
+        <section className="px-4 pb-4">
+          <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+            <Suspense fallback={null}>
+              <InstitutionChat
+                institutionId={inst.id}
+                category={inst.category}
+                language={language}
+                context={{
+                  name: inst.name,
+                  category: inst.category,
+                  municipality: inst.municipality,
+                  monthly_rate: inst.monthlyRate ?? null,
+                  municipality_avg_price: municipalityAvgPrice,
+                  yearly_price: inst.yearlyPrice ?? null,
+                  ownership: inst.ownership ?? null,
+                  normering_ratio: instStats?.normering02 ?? instStats?.normering35 ?? null,
+                  normering_age_group: instStats?.normering02 != null ? "0-2" : instStats?.normering35 != null ? "3-5" : null,
+                  pct_paedagoger: instStats?.pctPaedagoger ?? null,
+                  pct_uden_paed_udd: instStats?.pctUdenPaedUdd ?? null,
+                  parent_satisfaction: instStats?.parentSatisfaction ?? null,
+                  antal_boern: instStats?.antalBoern ?? null,
+                  trivsel: inst.quality?.ts ?? null,
+                  trivsel_social: inst.quality?.tsi ?? null,
+                  karakterer: inst.quality?.k ?? null,
+                  fravaer_pct: inst.quality?.fp ?? null,
+                  kompetencedaekning_pct: inst.quality?.kp ?? null,
+                  klassestorrelse: inst.quality?.kv ?? null,
+                  undervisningseffekt: inst.quality?.sr ?? null,
+                  elever_pr_laerer: inst.quality?.epl ?? null,
+                  score: scoreResult.overall,
+                  grade: scoreResult.grade,
+                  address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
+                }}
+              />
+            </Suspense>
           </GatedSection>
         </section>
       )}
@@ -735,7 +785,14 @@ export default function InstitutionPage() {
           category={inst.category}
         />
 
-        {/* Tilsyn */}
+        {/* Tilsynsrapporter (from JSON) */}
+        {tilsynRapporter[inst.id]?.length > 0 && (
+          <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+            <TilsynRapportSection reports={tilsynRapporter[inst.id]} institutionName={inst.name} />
+          </GatedSection>
+        )}
+
+        {/* Tilsyn (from Supabase) */}
         <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
           <TilsynSection institutionId={inst.id} institutionName={inst.name} />
         </GatedSection>
@@ -761,6 +818,8 @@ export default function InstitutionPage() {
 
 function ReviewSection({ institutionId }: { institutionId: string }) {
   const [showForm, setShowForm] = useState(false);
+  const { reviews } = useReviews(institutionId);
+  const { analysis } = useReviewAnalysis(institutionId, reviews);
 
   return (
     <div className="space-y-6">
@@ -768,6 +827,7 @@ function ReviewSection({ institutionId }: { institutionId: string }) {
         institutionId={institutionId}
         onWriteReview={() => setShowForm((v) => !v)}
       />
+      {analysis && <ReviewThemes analysis={analysis} />}
       {showForm && (
         <ReviewFormV2
           institutionId={institutionId}

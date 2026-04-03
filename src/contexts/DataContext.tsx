@@ -6,6 +6,11 @@ import type {
   NormeringEntry,
   InstitutionStats,
   KommuneStats,
+  SchoolExtraStats,
+  SFOStats,
+  TilsynRapport,
+  GymnasiumInstitution,
+  GymnasiumQuality,
 } from "@/lib/types";
 import { CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
 
@@ -50,6 +55,9 @@ interface DataContextValue {
   normering: NormeringEntry[];
   institutionStats: Record<string, InstitutionStats>;
   kommuneStats: Record<string, KommuneStats>;
+  schoolExtraStats: Record<string, SchoolExtraStats>;
+  sfoStats: Record<string, SFOStats>;
+  tilsynRapporter: Record<string, TilsynRapport[]>;
   loading: boolean;
   error: string | null;
   nationalAverages: { trivsel: number; karakterer: number; fravaer: number };
@@ -136,6 +144,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [normering, setNormering] = useState<NormeringEntry[]>([]);
   const [institutionStats, setInstitutionStats] = useState<Record<string, InstitutionStats>>({});
   const [kommuneStats, setKommuneStats] = useState<Record<string, KommuneStats>>({});
+  const [schoolExtraStats, setSchoolExtraStats] = useState<Record<string, SchoolExtraStats>>({});
+  const [sfoStats, setSfoStats] = useState<Record<string, SFOStats>>({});
+  const [tilsynRapporter, setTilsynRapporter] = useState<Record<string, TilsynRapport[]>>({});
   const [nationalAverages, setNationalAverages] = useState({ trivsel: 3.6, karakterer: 7.4, fravaer: 7.4 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,7 +154,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function loadData() {
       try {
-        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes, normeringRes, instStatsRes, komStatsRes] = await Promise.all([
+        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes, normeringRes, instStatsRes, komStatsRes, schoolExtraRes, sfoStatsRes, tilsynRes, gymnasiumRes] = await Promise.all([
           fetch("/data/skole-data.json"),
           fetch("/data/vuggestue-data.json"),
           fetch("/data/boernehave-data.json"),
@@ -152,6 +163,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
           fetch("/data/normering-data.json").catch(() => null),
           fetch("/data/institution-stats.json").catch(() => null),
           fetch("/data/kommune-stats.json").catch(() => null),
+          fetch("/data/school-extra-stats.json").catch(() => null),
+          fetch("/data/sfo-stats.json").catch(() => null),
+          fetch("/data/tilsynsrapporter.json").catch(() => null),
+          fetch("/data/gymnasium-data.json").catch(() => null),
         ]);
 
         if (!skoleRes.ok || !vuggestueRes.ok || !boernehaveRes.ok || !dagplejeRes.ok) {
@@ -289,6 +304,72 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }
         }
 
+        // Gymnasiums (from gymnasium-data.json)
+        if (gymnasiumRes && gymnasiumRes.ok && gymnasiumRes.headers.get("content-type")?.includes("json")) {
+          const gymData = await gymnasiumRes.json();
+          const gymList: GymnasiumInstitution[] = gymData.gymnasiums ?? [];
+          const seenGym = new Set<string>();
+          for (const g of gymList) {
+            const id = g.id;
+            if (seenGym.has(id)) continue;
+            if (!g.lat && !g.lng) continue; // skip entries without coordinates (unless we want to show them anyway)
+            seenGym.add(id);
+
+            const gymQuality = g.quality as GymnasiumQuality | undefined;
+            // Map gymnasium quality to SchoolQuality-compatible format for unified display
+            const quality = gymQuality ? {
+              k: gymQuality.karaktersnit ?? undefined,
+              fp: gymQuality.frafaldPct ?? undefined,
+            } : undefined;
+
+            unified.push({
+              id,
+              name: g.name,
+              category: "gymnasium",
+              subtype: g.type, // stx, hhx, htx, hf, eux
+              municipality: g.municipality,
+              address: g.address || "",
+              postalCode: g.postalCode || "",
+              city: g.city || "",
+              lat: g.lat,
+              lng: g.lng,
+              monthlyRate: null,
+              annualRate: null,
+              web: g.web,
+              email: g.email,
+              quality,
+            });
+          }
+          // Also include gymnasiums without coordinates so they appear in list views
+          for (const g of gymList) {
+            if (!seenGym.has(g.id) && g.name) {
+              seenGym.add(g.id);
+              const gymQuality = g.quality as GymnasiumQuality | undefined;
+              const quality = gymQuality ? {
+                k: gymQuality.karaktersnit ?? undefined,
+                fp: gymQuality.frafaldPct ?? undefined,
+              } : undefined;
+              unified.push({
+                id: g.id,
+                name: g.name,
+                category: "gymnasium",
+                subtype: g.type,
+                municipality: g.municipality || "",
+                address: g.address || "",
+                postalCode: g.postalCode || "",
+                city: g.city || "",
+                lat: g.lat || 0,
+                lng: g.lng || 0,
+                monthlyRate: null,
+                annualRate: null,
+                web: g.web,
+                email: g.email,
+                quality,
+              });
+            }
+          }
+        }
+
         // Load normering data
         if (normeringRes && normeringRes.ok && normeringRes.headers.get("content-type")?.includes("json")) {
           const normeringRaw: CompactNormering[] = await normeringRes.json();
@@ -367,6 +448,65 @@ export function DataProvider({ children }: { children: ReactNode }) {
           setKommuneStats(mappedKom);
         }
 
+        // Load school extra stats (class sizes, special education, transition rates)
+        if (schoolExtraRes && schoolExtraRes.ok && schoolExtraRes.headers.get("content-type")?.includes("json")) {
+          const seData = await schoolExtraRes.json();
+          const rawSe = seData.kommuner ?? {};
+          const mappedSe: Record<string, SchoolExtraStats> = {};
+          for (const [name, raw] of Object.entries(rawSe)) {
+            const r = raw as Record<string, unknown>;
+            mappedSe[name] = {
+              municipality: (r.municipality as string) ?? name,
+              avgClassSize: (r.avgClassSize as number) ?? null,
+              specialEducationPct: (r.specialEducationPct as number) ?? null,
+              transitionGymnasiumPct: (r.transitionGymnasiumPct as number) ?? null,
+              transitionErhvervPct: (r.transitionErhvervPct as number) ?? null,
+            };
+          }
+          setSchoolExtraStats(mappedSe);
+        }
+
+        // Load SFO stats (enrollment, staff composition)
+        if (sfoStatsRes && sfoStatsRes.ok && sfoStatsRes.headers.get("content-type")?.includes("json")) {
+          const sfoData2 = await sfoStatsRes.json();
+          const rawSfo = sfoData2.kommuner ?? {};
+          const mappedSfo: Record<string, SFOStats> = {};
+          for (const [name, raw] of Object.entries(rawSfo)) {
+            const r = raw as Record<string, unknown>;
+            mappedSfo[name] = {
+              municipality: (r.municipality as string) ?? name,
+              enrolledChildren: (r.enrolledChildren as number) ?? null,
+              pctPaedagoger: (r.pctPaedagoger as number) ?? null,
+              pctMedhjaelpere: (r.pctMedhjaelpere as number) ?? null,
+              pctAssistenter: (r.pctAssistenter as number) ?? null,
+              totalStaff: (r.totalStaff as number) ?? null,
+            };
+          }
+          setSfoStats(mappedSfo);
+        }
+
+        // Load tilsynsrapporter
+        if (tilsynRes && tilsynRes.ok && tilsynRes.headers.get("content-type")?.includes("json")) {
+          const tilsynData = await tilsynRes.json();
+          const rawInst = tilsynData.institutions ?? {};
+          const mapped: Record<string, TilsynRapport[]> = {};
+          for (const [id, reports] of Object.entries(rawInst)) {
+            mapped[id] = (reports as TilsynRapport[]).map((r) => ({
+              institutionName: r.institutionName ?? "",
+              municipality: r.municipality ?? "",
+              tilsynDate: r.tilsynDate ?? null,
+              overallVerdict: r.overallVerdict ?? "tilfredsstillende",
+              strengths: r.strengths ?? [],
+              concerns: r.concerns ?? [],
+              followUpRequired: !!r.followUpRequired,
+              skaerpetTilsyn: !!r.skaerpetTilsyn,
+              summary: r.summary ?? "",
+              sourceUrl: r.sourceUrl,
+            }));
+          }
+          setTilsynRapporter(mapped);
+        }
+
         setInstitutions(unified);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Ukendt fejl ved indlæsning af data.");
@@ -396,6 +536,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           sfoCount: 0,
           fritidsklubCount: 0,
           efterskoleCount: 0,
+          gymnasiumCount: 0,
           folkeskoleCount: 0,
           friskoleCount: 0,
           rates: {
@@ -415,6 +556,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         case "sfo": m.sfoCount++; break;
         case "fritidsklub": m.fritidsklubCount++; break;
         case "efterskole": m.efterskoleCount++; break;
+        case "gymnasium": m.gymnasiumCount++; break;
         case "skole":
           if (inst.subtype === "folkeskole") m.folkeskoleCount++;
           else m.friskoleCount++;
@@ -431,10 +573,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     normering,
     institutionStats,
     kommuneStats,
+    schoolExtraStats,
+    sfoStats,
+    tilsynRapporter,
     loading,
     error,
     nationalAverages,
-  }), [institutions, municipalities, normering, institutionStats, kommuneStats, loading, error, nationalAverages]);
+  }), [institutions, municipalities, normering, institutionStats, kommuneStats, schoolExtraStats, sfoStats, tilsynRapporter, loading, error, nationalAverages]);
 
   return <DataContext value={value}>{children}</DataContext>;
 }

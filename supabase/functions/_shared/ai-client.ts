@@ -24,7 +24,7 @@ export function getAIConfig(): AIConfig {
 }
 
 export function resolveModel(): string {
-  return "claude-sonnet-4-6";
+  return "claude-sonnet-4-20250514";
 }
 
 // Fetch with timeout — prevents edge functions from hanging indefinitely

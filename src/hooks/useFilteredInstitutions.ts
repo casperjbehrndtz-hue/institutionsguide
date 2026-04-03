@@ -19,6 +19,7 @@ const AGE_GROUP_CATEGORIES: Record<Exclude<AgeGroup, "">, InstitutionCategory[]>
   "3-5": ["boernehave"],
   "6-9": ["skole", "sfo"],
   "10-16": ["skole", "fritidsklub", "efterskole"],
+  "16-19": ["gymnasium"],
 };
 
 interface FilterOptions {

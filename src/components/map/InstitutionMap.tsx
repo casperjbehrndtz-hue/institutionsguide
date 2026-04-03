@@ -45,6 +45,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   sfo: "#8B5CF6",
   fritidsklub: "#EA580C",
   efterskole: "#DB2777",
+  gymnasium: "#0D9488",
 };
 
 function getSchoolColor(quality?: { o?: number }): string {
@@ -240,6 +241,7 @@ function InstitutionMap({
     { category: "sfo", color: "#8B5CF6", label: t.map.legendSfo },
     { category: "fritidsklub", color: "#EA580C", label: t.map.legendFritidsklub },
     { category: "efterskole", color: "#DB2777", label: t.map.legendEfterskole },
+    { category: "gymnasium", color: "#0D9488", label: t.map.legendGymnasium },
   ], [t]);
 
   const instById = useMemo(() => {

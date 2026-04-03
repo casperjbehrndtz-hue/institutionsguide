@@ -38,6 +38,7 @@ const CATEGORY_SYMBOL: Record<string, string> = {
   sfo: "📚",
   fritidsklub: "⚽",
   efterskole: "🏫",
+  gymnasium: "🏛",
 };
 
 // SVG pin marker — teardrop shape with category symbol

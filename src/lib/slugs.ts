@@ -27,7 +27,7 @@ export function buildSlugMap(municipalityNames: string[]): Map<string, string> {
   return map;
 }
 
-export const CATEGORY_SLUGS = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole"] as const;
+export const CATEGORY_SLUGS = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole", "gymnasium"] as const;
 export type CategorySlug = (typeof CATEGORY_SLUGS)[number];
 
 export const DAYCARE_CATEGORY_SLUGS = ["vuggestue", "boernehave", "dagpleje"] as const;
@@ -41,6 +41,7 @@ export const CATEGORY_LABELS_DA: Record<CategorySlug, string> = {
   sfo: "SFO",
   fritidsklub: "Fritidsklubber",
   efterskole: "Efterskoler",
+  gymnasium: "Gymnasier",
 };
 
 export const CATEGORY_SINGULAR_DA: Record<CategorySlug, string> = {
@@ -51,6 +52,7 @@ export const CATEGORY_SINGULAR_DA: Record<CategorySlug, string> = {
   sfo: "SFO",
   fritidsklub: "fritidsklub",
   efterskole: "efterskole",
+  gymnasium: "gymnasium",
 };
 
 export const VS_PAIRS: [CategorySlug, CategorySlug][] = [

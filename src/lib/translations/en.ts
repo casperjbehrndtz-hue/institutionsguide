@@ -48,6 +48,7 @@ export const en: TranslationStrings = {
     sfo: "After-school care",
     fritidsklub: "Youth clubs",
     efterskole: "Boarding schools",
+    gymnasium: "Gymnasiums",
     alle: "All",
     normering: "Staff ratios",
   },
@@ -59,6 +60,7 @@ export const en: TranslationStrings = {
     sfo: "Find after-school care (age 6-9) in your municipality. See prices and compare different options.",
     fritidsklub: "Find youth clubs for ages 10-14 in your municipality. See prices and compare options.",
     efterskole: "Compare boarding schools across Denmark. See profiles, prices and contact info for all 119+ schools.",
+    gymnasium: "Compare upper secondary schools across Denmark. See dropout rates, grade averages and transition to higher education for STX, HHX, HTX and HF.",
   },
   ageGroups: {
     vuggestue: "Age 0–2",
@@ -68,6 +70,7 @@ export const en: TranslationStrings = {
     sfo: "Age 6–9",
     fritidsklub: "Age 10–14",
     efterskole: "Age 14–18",
+    gymnasium: "Age 16–19",
   },
   home: {
     heroTagline: "Denmark's most complete institution overview",
@@ -329,6 +332,7 @@ export const en: TranslationStrings = {
     legendSfo: "After-school care",
     legendFritidsklub: "Youth club",
     legendEfterskole: "Boarding school",
+    legendGymnasium: "Gymnasium",
     addToCompare: "Compare",
     saveFavorite: "Save",
     removeFavorite: "Remove favorite",

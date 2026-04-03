@@ -72,6 +72,7 @@ export interface MunicipalitySummary {
   sfoCount: number;
   fritidsklubCount: number;
   efterskoleCount: number;
+  gymnasiumCount: number;
   folkeskoleCount: number;
   friskoleCount: number;
   rates: {
@@ -87,7 +88,7 @@ export interface MunicipalitySummary {
 export interface UnifiedInstitution {
   id: string;
   name: string;
-  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub" | "efterskole";
+  category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub" | "efterskole" | "gymnasium";
   subtype: string; // "folkeskole", "friskole", "kommunal", "privat" etc.
   municipality: string;
   address: string;
@@ -159,9 +160,62 @@ export interface KommuneStats {
   antalBoern35: number | null;
 }
 
-export type InstitutionCategory = "alle" | "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub" | "efterskole";
-export type AgeGroup = "" | "0-2" | "3-5" | "6-9" | "10-16";
+export interface SchoolExtraStats {
+  municipality: string;
+  avgClassSize: number | null;
+  specialEducationPct: number | null;
+  transitionGymnasiumPct: number | null;
+  transitionErhvervPct: number | null;
+}
+
+export interface SFOStats {
+  municipality: string;
+  enrolledChildren: number | null;
+  pctPaedagoger: number | null;
+  pctMedhjaelpere: number | null;
+  pctAssistenter: number | null;
+  totalStaff: number | null;
+}
+
+// Gymnasium (upper secondary) institution format (from gymnasium-data.json)
+export interface GymnasiumInstitution {
+  id: string;
+  name: string;
+  type: 'stx' | 'hhx' | 'htx' | 'hf' | 'eux';
+  municipality: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  lat: number;
+  lng: number;
+  web?: string;
+  email?: string;
+  quality?: GymnasiumQuality;
+}
+
+export interface GymnasiumQuality {
+  frafaldPct: number | null;
+  karaktersnit: number | null;
+  overgangVideregaaendePct: number | null;
+}
+
+export type InstitutionCategory = "alle" | "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub" | "efterskole" | "gymnasium";
+export type AgeGroup = "" | "0-2" | "3-5" | "6-9" | "10-16" | "16-19";
 export type SortKey = "name" | "price" | "municipality" | "rating" | "grades" | "absence" | "distance";
+
+// Tilsynsrapport (pedagogical inspection report)
+export interface TilsynRapport {
+  institutionName: string;
+  municipality: string;
+  tilsynDate: string | null;
+  overallVerdict: "tilfredsstillende" | "delvist tilfredsstillende" | "ikke tilfredsstillende";
+  strengths: string[];
+  concerns: string[];
+  followUpRequired: boolean;
+  skaerpetTilsyn: boolean;
+  summary: string;
+  sourceUrl?: string;
+}
 
 // Reviews
 export interface Review {
