@@ -6,8 +6,10 @@
  * free API (no authentication needed):
  *
  *   1. KVOTIEN  — Klassekvotienter (class sizes per municipality)
- *   2. SPECIAL1 — Specialundervisning (special education rates)
- *   3. FORLOB10 — Overgang fra grundskole til videre uddannelse
+ *   2. FORLOB10 — Overgang fra grundskole til videre uddannelse (regional)
+ *
+ * Note: SPECIAL1 does not have municipality-level data, only school type.
+ * Note: FORLOB10 only has regional data (5 regions), not municipality.
  *
  * Usage:
  *   node scripts/fetch-dst-school-extra.mjs
@@ -32,11 +34,6 @@ const DST_API = "https://api.statbank.dk/v1/data";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
-// ---------------------------------------------------------------------------
-// Helpers (same pattern as fetch-dst-kommune-stats.mjs)
-// ---------------------------------------------------------------------------
-
-/** Post JSON to DST API and return parsed response */
 async function dstFetch(body) {
   const res = await fetch(DST_API, {
     method: "POST",
@@ -50,10 +47,6 @@ async function dstFetch(body) {
   return res.json();
 }
 
-/**
- * Parse JSONSTAT format from DST.
- * Returns an array of flat row objects with dimension labels + value.
- */
 function parseJsonStat(jsonstat) {
   const ds = jsonstat.dataset ?? jsonstat;
   const dims = ds.dimension;
@@ -110,7 +103,8 @@ function isKommune(code) {
 }
 
 // ---------------------------------------------------------------------------
-// KVOTIEN — Klassekvotienter (class sizes)
+// KVOTIEN — Klassekvotienter (class sizes per municipality)
+// Variables: OMRÅDE, KLASSE, SKTPE, Tid
 // ---------------------------------------------------------------------------
 
 async function fetchKVOTIEN(year) {
@@ -120,7 +114,8 @@ async function fetchKVOTIEN(year) {
     format: "JSONSTAT",
     variables: [
       { code: "OMRÅDE", values: ["*"] },
-      { code: "KLASSETRIN", values: ["TOT"] },
+      { code: "KLASSE", values: ["0000"] },     // I alt
+      { code: "SKTPE", values: ["ANTALSUM"] },  // I alt (alle skoletyper)
       { code: "Tid", values: [String(year)] },
     ],
   };
@@ -131,9 +126,9 @@ async function fetchKVOTIEN(year) {
 
   const result = {};
   for (const r of rows) {
-    const code = r.OMRÅDE_code;
+    const code = r["OMRÅDE_code"];
     if (!isKommune(code)) continue;
-    const name = r.OMRÅDE_label;
+    const name = r["OMRÅDE_label"];
     result[name] = { code, avgClassSize: Math.round(r.value * 10) / 10 };
   }
 
@@ -142,77 +137,85 @@ async function fetchKVOTIEN(year) {
 }
 
 // ---------------------------------------------------------------------------
-// SPECIAL1 — Specialundervisning (special education rates)
+// FORLOB10 — Overgang fra grundskole (regional, not municipality)
+// Variables: AFGAARG, AFGKLAS, AFGREG, UDDSTAT, STATUSTID, UDDANNELSE, KOEN, HERKOMST, Tid
+// We get: % in gymnasium + % in erhverv 1 year after graduation, per region
 // ---------------------------------------------------------------------------
 
-async function fetchSPECIAL1(year) {
-  console.log(`[SPECIAL1] Fetching special education rates for ${year}...`);
-  const body = {
-    table: "SPECIAL1",
-    format: "JSONSTAT",
-    variables: [
-      { code: "OMRÅDE", values: ["*"] },
-      { code: "FORANST", values: ["TOT"] },
-      { code: "ENHED", values: ["1"] }, // Andel (pct)
-      { code: "Tid", values: [String(year)] },
-    ],
-  };
-
-  const raw = await dstFetch(body);
-  const rows = parseJsonStat(raw);
-  console.log(`[SPECIAL1] Parsed ${rows.length} cells`);
-
-  const result = {};
-  for (const r of rows) {
-    const code = r.OMRÅDE_code;
-    if (!isKommune(code)) continue;
-    const name = r.OMRÅDE_label;
-    result[name] = { code, specialEducationPct: Math.round(r.value * 10) / 10 };
-  }
-
-  console.log(`[SPECIAL1] Got special ed rates for ${Object.keys(result).length} kommuner`);
-  return result;
-}
-
-// ---------------------------------------------------------------------------
-// FORLOB10 — Overgang fra grundskole til videre uddannelse
-// ---------------------------------------------------------------------------
-// UDDGRUPPE codes:
-//   10 = Gymnasiale uddannelser
-//   20 = Erhvervsuddannelser
+const REGION_MAP = {
+  "084": "Region Hovedstaden",
+  "085": "Region Sjælland",
+  "083": "Region Syddanmark",
+  "082": "Region Midtjylland",
+  "081": "Region Nordjylland",
+};
 
 async function fetchFORLOB10(year) {
-  console.log(`[FORLOB10] Fetching transition rates for ${year}...`);
+  console.log(`[FORLOB10] Fetching national transition rates for afgangsårgang ${year}...`);
+
+  // Fetch national totals: "i gang med uddannelse" 1 year after grundskole
+  // Use CSV format which is simpler to parse than JSONSTAT for this table
   const body = {
     table: "FORLOB10",
-    format: "JSONSTAT",
+    format: "CSV",
     variables: [
-      { code: "BOPKOMM", values: ["*"] },
-      { code: "UDDGRUPPE", values: ["10", "20"] },
-      { code: "KØN", values: ["TOT"] },
-      { code: "Tid", values: [String(year)] },
+      { code: "AFGAARG", values: [String(year)] },
+      { code: "AFGKLAS", values: ["TOT"] },
+      { code: "AFGREG", values: ["000", "084", "085", "083", "082", "081"] },
+      { code: "UDDSTAT", values: ["1"] },          // I gang med uddannelse
+      { code: "STATUSTID", values: ["015"] },       // 1 år efter
+      { code: "UDDANNELSE", values: ["TOT", "H20", "H30"] },
+      { code: "KOEN", values: ["10"] },
+      { code: "HERKOMST", values: ["00"] },
+      { code: "Tid", values: [String(year + 2)] },  // Tid is publication year
     ],
   };
 
-  const raw = await dstFetch(body);
-  const rows = parseJsonStat(raw);
-  console.log(`[FORLOB10] Parsed ${rows.length} cells`);
-
-  const result = {};
-  for (const r of rows) {
-    const code = r.BOPKOMM_code;
-    if (!isKommune(code)) continue;
-    const name = r.BOPKOMM_label;
-    if (!result[name]) result[name] = { code };
-
-    if (r.UDDGRUPPE_code === "10") {
-      result[name].transitionGymnasiumPct = Math.round(r.value * 10) / 10;
-    } else if (r.UDDGRUPPE_code === "20") {
-      result[name].transitionErhvervPct = Math.round(r.value * 10) / 10;
-    }
+  const res = await fetch(DST_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`DST API ${res.status}: ${text.slice(0, 500)}`);
   }
 
-  console.log(`[FORLOB10] Got transition rates for ${Object.keys(result).length} kommuner`);
+  const csv = await res.text();
+  const lines = csv.trim().split("\n");
+  console.log(`[FORLOB10] Got ${lines.length - 1} rows`);
+
+  // Parse CSV (semicolon-separated, with header)
+  const header = lines[0].split(";").map((h) => h.replace(/"/g, "").trim());
+  const regionIdx = header.findIndex((h) => h.includes("region") || h.includes("AFGREG"));
+  const uddIdx = header.findIndex((h) => h.includes("UDDANNELSE") || h.includes("uddannelse"));
+  const valIdx = header.length - 1; // Value is always last
+
+  const totals = {}; // regionCode -> { total, gymnasium, erhverv }
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(";").map((c) => c.replace(/"/g, "").trim());
+    const region = cols[regionIdx] || cols[2] || ""; // Fallback to column index
+    const udd = cols[uddIdx] || cols[5] || "";
+    const val = parseInt(cols[valIdx], 10);
+    if (isNaN(val)) continue;
+
+    // Use the region text as key
+    if (!totals[region]) totals[region] = { total: 0, gymnasium: 0, erhverv: 0 };
+    if (udd.includes("I alt") || udd.includes("TOT")) totals[region].total = val;
+    else if (udd.includes("Gymnasiale") || udd.includes("H20")) totals[region].gymnasium = val;
+    else if (udd.includes("Erhvervsfaglige") || udd.includes("H30")) totals[region].erhverv = val;
+  }
+
+  const result = {};
+  for (const [name, data] of Object.entries(totals)) {
+    if (data.total === 0) continue;
+    result[name] = {
+      transitionGymnasiumPct: Math.round((data.gymnasium / data.total) * 1000) / 10,
+      transitionErhvervPct: Math.round((data.erhverv / data.total) * 1000) / 10,
+    };
+  }
+
+  console.log(`[FORLOB10] Got transition rates for ${Object.keys(result).length} regions`);
   return result;
 }
 
@@ -227,41 +230,51 @@ async function main() {
     console.log("DRY RUN: will fetch data but not write files\n");
   }
 
-  const YEAR = 2024;
+  // Try 2024 first, fall back to 2023
+  let kvYear = 2024;
+  let klassekv;
+  try {
+    klassekv = await fetchKVOTIEN(kvYear);
+  } catch (e) {
+    console.log(`[KVOTIEN] ${kvYear} failed, trying ${kvYear - 1}...`);
+    kvYear = 2023;
+    klassekv = await fetchKVOTIEN(kvYear);
+  }
 
-  // Fetch all three in parallel
-  const [klassekv, special, forlob] = await Promise.all([
-    fetchKVOTIEN(YEAR),
-    fetchSPECIAL1(YEAR),
-    fetchFORLOB10(YEAR),
-  ]);
+  let fYear = 2022; // FORLOB10 typically lags 2 years
+  let forlob;
+  try {
+    forlob = await fetchFORLOB10(fYear);
+  } catch (e) {
+    console.log(`[FORLOB10] ${fYear} failed, trying ${fYear - 1}...`);
+    fYear = 2021;
+    forlob = await fetchFORLOB10(fYear);
+  }
 
-  // Combine into unified structure
-  const allNames = new Set([
-    ...Object.keys(klassekv),
-    ...Object.keys(special),
-    ...Object.keys(forlob),
-  ]);
-
+  // Combine into output: municipality-level class sizes + national transition rates
   const kommuner = {};
-  for (const name of [...allNames].sort()) {
-    const k = klassekv[name] || {};
-    const s = special[name] || {};
-    const f = forlob[name] || {};
-
+  for (const [name, data] of Object.entries(klassekv)) {
     kommuner[name] = {
       municipality: name,
-      avgClassSize: k.avgClassSize ?? null,
-      specialEducationPct: s.specialEducationPct ?? null,
-      transitionGymnasiumPct: f.transitionGymnasiumPct ?? null,
-      transitionErhvervPct: f.transitionErhvervPct ?? null,
+      avgClassSize: data.avgClassSize,
+      specialEducationPct: null, // Not available at municipality level from SPECIAL1
+      transitionGymnasiumPct: null,
+      transitionErhvervPct: null,
     };
   }
 
+  // National transition rates (applied to all)
+  const national = forlob["Hele landet"] ?? {};
+
   const output = {
-    year: YEAR,
+    kvotienYear: kvYear,
+    forlobYear: fYear,
     fetchedAt: new Date().toISOString(),
     kommuner,
+    transitionRates: {
+      national,
+      regions: forlob,
+    },
   };
 
   // Print sample
@@ -269,20 +282,20 @@ async function main() {
   if (sample) {
     console.log("\nSample — København:");
     console.log(`  Avg class size: ${sample.avgClassSize}`);
-    console.log(`  Special education: ${sample.specialEducationPct}%`);
-    console.log(`  Transition gymnasium: ${sample.transitionGymnasiumPct}%`);
-    console.log(`  Transition erhverv: ${sample.transitionErhvervPct}%`);
+  }
+  if (national.transitionGymnasiumPct) {
+    console.log(`\nNational transition rates:`);
+    console.log(`  Gymnasium: ${national.transitionGymnasiumPct}%`);
+    console.log(`  Erhverv: ${national.transitionErhvervPct}%`);
   }
 
   console.log(`\nTotal kommuner: ${Object.keys(kommuner).length}`);
 
   if (DRY_RUN) {
     console.log("\nDRY RUN — skipping file write");
-    console.log("Would write to:", OUTPUT_PATH);
     return;
   }
 
-  // Ensure output directory exists
   const outputDir = dirname(OUTPUT_PATH);
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
@@ -290,7 +303,6 @@ async function main() {
 
   writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf-8");
   console.log(`\nSaved to: ${OUTPUT_PATH}`);
-
   console.log("\nDone.\n");
 }
 

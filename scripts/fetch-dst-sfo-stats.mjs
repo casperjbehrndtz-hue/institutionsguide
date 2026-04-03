@@ -31,11 +31,6 @@ const DST_API = "https://api.statbank.dk/v1/data";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 
-// ---------------------------------------------------------------------------
-// Helpers (same pattern as fetch-dst-kommune-stats.mjs)
-// ---------------------------------------------------------------------------
-
-/** Post JSON to DST API and return parsed response */
 async function dstFetch(body) {
   const res = await fetch(DST_API, {
     method: "POST",
@@ -49,10 +44,6 @@ async function dstFetch(body) {
   return res.json();
 }
 
-/**
- * Parse JSONSTAT format from DST.
- * Returns an array of flat row objects with dimension labels + value.
- */
 function parseJsonStat(jsonstat) {
   const ds = jsonstat.dataset ?? jsonstat;
   const dims = ds.dimension;
@@ -98,18 +89,16 @@ function parseJsonStat(jsonstat) {
   return rows;
 }
 
-// Region codes to skip (only want actual kommuner)
-const SKIP_CODES = new Set([
-  "000", "084", "085", "083", "081", "082",
-  "910", "920", "930", "940", "960",
-]);
+// Codes to skip (regions, national totals)
+const SKIP_CODES = new Set(["00"]);
 
 function isKommune(code) {
-  return !SKIP_CODES.has(code);
+  return code.length === 3 && !SKIP_CODES.has(code);
 }
 
 // ---------------------------------------------------------------------------
 // BOERN5 — SFO enrollment by municipality
+// Variables: AMT, PASKAT, EJERFORM, ALDER1, Tid
 // ---------------------------------------------------------------------------
 
 async function fetchBOERN5(year) {
@@ -118,8 +107,10 @@ async function fetchBOERN5(year) {
     table: "BOERN5",
     format: "JSONSTAT",
     variables: [
-      { code: "OMRÅDE", values: ["*"] },
-      { code: "PASKAT", values: ["TOT"] },
+      { code: "AMT", values: ["*"] },
+      { code: "PASKAT", values: ["63"] },        // SFO only
+      { code: "EJERFORM", values: ["TOTA"] },    // All ownership forms
+      { code: "ALDER1", values: ["IALT"] },      // All ages
       { code: "Tid", values: [String(year)] },
     ],
   };
@@ -130,9 +121,9 @@ async function fetchBOERN5(year) {
 
   const result = {};
   for (const r of rows) {
-    const code = r.OMRÅDE_code;
+    const code = r["AMT_code"];
     if (!isKommune(code)) continue;
-    const name = r.OMRÅDE_label;
+    const name = r["AMT_label"];
     result[name] = { code, enrolledChildren: r.value };
   }
 
@@ -142,20 +133,13 @@ async function fetchBOERN5(year) {
 
 // ---------------------------------------------------------------------------
 // BOERN61 — SFO pedagogical staff by municipality
+// Variables: AMT, STILKAT, Tid
+// STILKAT codes:
+//   STOT = I alt
+//   86   = Pædagog, omsorgsassistent
+//   87   = Pædagogmedhjælper
+//   88   = Social- og sundhedsassistent
 // ---------------------------------------------------------------------------
-// OVERENS (stillingskategori):
-//   TOT = I alt
-//   7   = Pædagog
-//   920 = Pædagogmedhjælper
-//   930 = Pædagogisk assistent
-
-const BOERN61_STAFF_CODES = ["TOT", "7", "920", "930"];
-const BOERN61_STAFF_MAP = {
-  TOT: "total",
-  "7": "paedagoger",
-  "920": "medhjaelpere",
-  "930": "assistenter",
-};
 
 async function fetchBOERN61(year) {
   console.log(`[BOERN61] Fetching SFO staff for ${year}...`);
@@ -163,9 +147,8 @@ async function fetchBOERN61(year) {
     table: "BOERN61",
     format: "JSONSTAT",
     variables: [
-      { code: "OMRÅDE", values: ["*"] },
-      { code: "OVERENS", values: BOERN61_STAFF_CODES },
-      { code: "UDDANNELSE", values: ["TOT"] },
+      { code: "AMT", values: ["*"] },
+      { code: "STILKAT", values: ["STOT", "86", "87", "88"] },
       { code: "Tid", values: [String(year)] },
     ],
   };
@@ -176,23 +159,25 @@ async function fetchBOERN61(year) {
 
   const result = {};
   for (const r of rows) {
-    const code = r.OMRÅDE_code;
+    const code = r["AMT_code"];
     if (!isKommune(code)) continue;
-    const name = r.OMRÅDE_label;
+    const name = r["AMT_label"];
     if (!result[name]) result[name] = {};
-    const field = BOERN61_STAFF_MAP[r.OVERENS_code];
-    if (field) {
-      result[name][field] = r.value;
-    }
+
+    const stilkat = r["STILKAT_code"];
+    if (stilkat === "STOT") result[name].total = r.value;
+    else if (stilkat === "86") result[name].paedagoger = r.value;
+    else if (stilkat === "87") result[name].medhjaelpere = r.value;
+    else if (stilkat === "88") result[name].assistenter = r.value;
   }
 
   // Calculate percentages
-  for (const [name, d] of Object.entries(result)) {
+  for (const d of Object.values(result)) {
     const total = d.total || 0;
     if (total > 0) {
-      d.pctPaedagoger = Math.round((d.paedagoger / total) * 1000) / 10;
-      d.pctMedhjaelpere = Math.round((d.medhjaelpere / total) * 1000) / 10;
-      d.pctAssistenter = Math.round((d.assistenter / total) * 1000) / 10;
+      d.pctPaedagoger = Math.round(((d.paedagoger || 0) / total) * 1000) / 10;
+      d.pctMedhjaelpere = Math.round(((d.medhjaelpere || 0) / total) * 1000) / 10;
+      d.pctAssistenter = Math.round(((d.assistenter || 0) / total) * 1000) / 10;
     } else {
       d.pctPaedagoger = null;
       d.pctMedhjaelpere = null;
@@ -215,19 +200,25 @@ async function main() {
     console.log("DRY RUN: will fetch data but not write files\n");
   }
 
-  const YEAR = 2024;
+  let YEAR = 2024;
 
-  // Fetch both in parallel
-  const [enrollment, staff] = await Promise.all([
-    fetchBOERN5(YEAR),
-    fetchBOERN61(YEAR),
-  ]);
+  let enrollment, staff;
+  try {
+    [enrollment, staff] = await Promise.all([
+      fetchBOERN5(YEAR),
+      fetchBOERN61(YEAR),
+    ]);
+  } catch (e) {
+    console.log(`${YEAR} failed for one source, trying ${YEAR - 1}...`);
+    YEAR = 2023;
+    [enrollment, staff] = await Promise.all([
+      fetchBOERN5(YEAR),
+      fetchBOERN61(YEAR),
+    ]);
+  }
 
-  // Combine into unified structure
-  const allNames = new Set([
-    ...Object.keys(enrollment),
-    ...Object.keys(staff),
-  ]);
+  // Combine
+  const allNames = new Set([...Object.keys(enrollment), ...Object.keys(staff)]);
 
   const kommuner = {};
   for (const name of [...allNames].sort()) {
@@ -250,14 +241,12 @@ async function main() {
     kommuner,
   };
 
-  // Print sample
   const sample = kommuner["København"];
   if (sample) {
     console.log("\nSample — København:");
     console.log(`  Enrolled children: ${sample.enrolledChildren}`);
     console.log(`  Pædagoger: ${sample.pctPaedagoger}%`);
     console.log(`  Medhjælpere: ${sample.pctMedhjaelpere}%`);
-    console.log(`  Assistenter: ${sample.pctAssistenter}%`);
     console.log(`  Total staff: ${sample.totalStaff}`);
   }
 
@@ -265,11 +254,9 @@ async function main() {
 
   if (DRY_RUN) {
     console.log("\nDRY RUN — skipping file write");
-    console.log("Would write to:", OUTPUT_PATH);
     return;
   }
 
-  // Ensure output directory exists
   const outputDir = dirname(OUTPUT_PATH);
   if (!existsSync(outputDir)) {
     mkdirSync(outputDir, { recursive: true });
@@ -277,7 +264,6 @@ async function main() {
 
   writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf-8");
   console.log(`\nSaved to: ${OUTPUT_PATH}`);
-
   console.log("\nDone.\n");
 }
 

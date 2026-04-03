@@ -1,0 +1,790 @@
+{
+  "year": 2024,
+  "fetchedAt": "2026-04-03T17:30:43.006Z",
+  "kommuner": {
+    "Aabenraa": {
+      "municipality": "Aabenraa",
+      "enrolledChildren": 2394,
+      "pctPaedagoger": 61.6,
+      "pctMedhjaelpere": 29.1,
+      "pctAssistenter": 0,
+      "totalStaff": 86
+    },
+    "Aalborg": {
+      "municipality": "Aalborg",
+      "enrolledChildren": 7836,
+      "pctPaedagoger": 76.1,
+      "pctMedhjaelpere": 18.9,
+      "pctAssistenter": 0,
+      "totalStaff": 763
+    },
+    "Aarhus": {
+      "municipality": "Aarhus",
+      "enrolledChildren": 14023,
+      "pctPaedagoger": 70.5,
+      "pctMedhjaelpere": 23.3,
+      "pctAssistenter": 0,
+      "totalStaff": 922
+    },
+    "Albertslund": {
+      "municipality": "Albertslund",
+      "enrolledChildren": 1006,
+      "pctPaedagoger": 84.5,
+      "pctMedhjaelpere": 11.3,
+      "pctAssistenter": 0,
+      "totalStaff": 71
+    },
+    "Allerød": {
+      "municipality": "Allerød",
+      "enrolledChildren": 1486,
+      "pctPaedagoger": 46.2,
+      "pctMedhjaelpere": 49,
+      "pctAssistenter": 0,
+      "totalStaff": 104
+    },
+    "Assens": {
+      "municipality": "Assens",
+      "enrolledChildren": 1464,
+      "pctPaedagoger": 53.4,
+      "pctMedhjaelpere": 39.7,
+      "pctAssistenter": 0,
+      "totalStaff": 73
+    },
+    "Ballerup": {
+      "municipality": "Ballerup",
+      "enrolledChildren": 2542,
+      "pctPaedagoger": 71,
+      "pctMedhjaelpere": 20,
+      "pctAssistenter": 0,
+      "totalStaff": 155
+    },
+    "Billund": {
+      "municipality": "Billund",
+      "enrolledChildren": 1035,
+      "pctPaedagoger": 53.4,
+      "pctMedhjaelpere": 37.9,
+      "pctAssistenter": 0,
+      "totalStaff": 58
+    },
+    "Bornholm": {
+      "municipality": "Bornholm",
+      "enrolledChildren": 1198,
+      "pctPaedagoger": 67.9,
+      "pctMedhjaelpere": 32.1,
+      "pctAssistenter": 0,
+      "totalStaff": 28
+    },
+    "Brøndby": {
+      "municipality": "Brøndby",
+      "enrolledChildren": 1913,
+      "pctPaedagoger": 71.6,
+      "pctMedhjaelpere": 21.6,
+      "pctAssistenter": 0,
+      "totalStaff": 148
+    },
+    "Brønderslev": {
+      "municipality": "Brønderslev",
+      "enrolledChildren": 1526,
+      "pctPaedagoger": 64.7,
+      "pctMedhjaelpere": 31.4,
+      "pctAssistenter": 0,
+      "totalStaff": 102
+    },
+    "Dragør": {
+      "municipality": "Dragør",
+      "enrolledChildren": 731,
+      "pctPaedagoger": 56.9,
+      "pctMedhjaelpere": 39.7,
+      "pctAssistenter": 0,
+      "totalStaff": 58
+    },
+    "Egedal": {
+      "municipality": "Egedal",
+      "enrolledChildren": 2277,
+      "pctPaedagoger": 60.5,
+      "pctMedhjaelpere": 32.6,
+      "pctAssistenter": 0,
+      "totalStaff": 129
+    },
+    "Esbjerg": {
+      "municipality": "Esbjerg",
+      "enrolledChildren": 4111,
+      "pctPaedagoger": 57.6,
+      "pctMedhjaelpere": 34.6,
+      "pctAssistenter": 0,
+      "totalStaff": 205
+    },
+    "Faaborg-Midtfyn": {
+      "municipality": "Faaborg-Midtfyn",
+      "enrolledChildren": 2044,
+      "pctPaedagoger": 52.1,
+      "pctMedhjaelpere": 43.8,
+      "pctAssistenter": 0,
+      "totalStaff": 73
+    },
+    "Fanø": {
+      "municipality": "Fanø",
+      "enrolledChildren": 113,
+      "pctPaedagoger": 50,
+      "pctMedhjaelpere": 33.3,
+      "pctAssistenter": 0,
+      "totalStaff": 6
+    },
+    "Favrskov": {
+      "municipality": "Favrskov",
+      "enrolledChildren": 2615,
+      "pctPaedagoger": 60.9,
+      "pctMedhjaelpere": 37.6,
+      "pctAssistenter": 0,
+      "totalStaff": 133
+    },
+    "Faxe": {
+      "municipality": "Faxe",
+      "enrolledChildren": 1526,
+      "pctPaedagoger": 45.6,
+      "pctMedhjaelpere": 44.4,
+      "pctAssistenter": 0,
+      "totalStaff": 90
+    },
+    "Fredensborg": {
+      "municipality": "Fredensborg",
+      "enrolledChildren": 2496,
+      "pctPaedagoger": 56.1,
+      "pctMedhjaelpere": 37.4,
+      "pctAssistenter": 0,
+      "totalStaff": 123
+    },
+    "Fredericia": {
+      "municipality": "Fredericia",
+      "enrolledChildren": 2584,
+      "pctPaedagoger": 58.1,
+      "pctMedhjaelpere": 37.1,
+      "pctAssistenter": 0,
+      "totalStaff": 124
+    },
+    "Frederiksberg": {
+      "municipality": "Frederiksberg",
+      "enrolledChildren": 5761,
+      "pctPaedagoger": 74.2,
+      "pctMedhjaelpere": 20.4,
+      "pctAssistenter": 0,
+      "totalStaff": 260
+    },
+    "Frederikshavn": {
+      "municipality": "Frederikshavn",
+      "enrolledChildren": 1827,
+      "pctPaedagoger": 52.5,
+      "pctMedhjaelpere": 47.5,
+      "pctAssistenter": 0,
+      "totalStaff": 61
+    },
+    "Frederikssund": {
+      "municipality": "Frederikssund",
+      "enrolledChildren": 1634,
+      "pctPaedagoger": 50,
+      "pctMedhjaelpere": 42.5,
+      "pctAssistenter": 0,
+      "totalStaff": 80
+    },
+    "Furesø": {
+      "municipality": "Furesø",
+      "enrolledChildren": 3026,
+      "pctPaedagoger": 66.7,
+      "pctMedhjaelpere": 28.8,
+      "pctAssistenter": 0,
+      "totalStaff": 177
+    },
+    "Gentofte": {
+      "municipality": "Gentofte",
+      "enrolledChildren": 3782,
+      "pctPaedagoger": 60.2,
+      "pctMedhjaelpere": 35.5,
+      "pctAssistenter": 0,
+      "totalStaff": 186
+    },
+    "Gladsaxe": {
+      "municipality": "Gladsaxe",
+      "enrolledChildren": 4576,
+      "pctPaedagoger": 74.9,
+      "pctMedhjaelpere": 25.1,
+      "pctAssistenter": 0,
+      "totalStaff": 251
+    },
+    "Glostrup": {
+      "municipality": "Glostrup",
+      "enrolledChildren": 1538,
+      "pctPaedagoger": 80.6,
+      "pctMedhjaelpere": 14.8,
+      "pctAssistenter": 0,
+      "totalStaff": 108
+    },
+    "Greve": {
+      "municipality": "Greve",
+      "enrolledChildren": 2381,
+      "pctPaedagoger": 64.1,
+      "pctMedhjaelpere": 35.9,
+      "pctAssistenter": 0,
+      "totalStaff": 103
+    },
+    "Gribskov": {
+      "municipality": "Gribskov",
+      "enrolledChildren": 1651,
+      "pctPaedagoger": 48.8,
+      "pctMedhjaelpere": 47.7,
+      "pctAssistenter": 0,
+      "totalStaff": 86
+    },
+    "Guldborgsund": {
+      "municipality": "Guldborgsund",
+      "enrolledChildren": 2473,
+      "pctPaedagoger": 70.7,
+      "pctMedhjaelpere": 24,
+      "pctAssistenter": 0,
+      "totalStaff": 150
+    },
+    "Haderslev": {
+      "municipality": "Haderslev",
+      "enrolledChildren": 1818,
+      "pctPaedagoger": 50,
+      "pctMedhjaelpere": 46.9,
+      "pctAssistenter": 0,
+      "totalStaff": 64
+    },
+    "Halsnæs": {
+      "municipality": "Halsnæs",
+      "enrolledChildren": 1217,
+      "pctPaedagoger": 64.6,
+      "pctMedhjaelpere": 33.8,
+      "pctAssistenter": 0,
+      "totalStaff": 65
+    },
+    "Hedensted": {
+      "municipality": "Hedensted",
+      "enrolledChildren": 2037,
+      "pctPaedagoger": 50.4,
+      "pctMedhjaelpere": 40.2,
+      "pctAssistenter": 0,
+      "totalStaff": 127
+    },
+    "Helsingør": {
+      "municipality": "Helsingør",
+      "enrolledChildren": 2749,
+      "pctPaedagoger": 56.9,
+      "pctMedhjaelpere": 39,
+      "pctAssistenter": 0,
+      "totalStaff": 123
+    },
+    "Herlev": {
+      "municipality": "Herlev",
+      "enrolledChildren": 1803,
+      "pctPaedagoger": 90.8,
+      "pctMedhjaelpere": 7.9,
+      "pctAssistenter": 0,
+      "totalStaff": 76
+    },
+    "Herning": {
+      "municipality": "Herning",
+      "enrolledChildren": 4130,
+      "pctPaedagoger": 50.9,
+      "pctMedhjaelpere": 46.7,
+      "pctAssistenter": 0,
+      "totalStaff": 212
+    },
+    "Hillerød": {
+      "municipality": "Hillerød",
+      "enrolledChildren": 3581,
+      "pctPaedagoger": 62.1,
+      "pctMedhjaelpere": 32.3,
+      "pctAssistenter": 0,
+      "totalStaff": 124
+    },
+    "Hjørring": {
+      "municipality": "Hjørring",
+      "enrolledChildren": 2255,
+      "pctPaedagoger": 75.8,
+      "pctMedhjaelpere": 22,
+      "pctAssistenter": 0,
+      "totalStaff": 91
+    },
+    "Holbæk": {
+      "municipality": "Holbæk",
+      "enrolledChildren": 3803,
+      "pctPaedagoger": 65.1,
+      "pctMedhjaelpere": 32.1,
+      "pctAssistenter": 0,
+      "totalStaff": 212
+    },
+    "Holstebro": {
+      "municipality": "Holstebro",
+      "enrolledChildren": 2688,
+      "pctPaedagoger": 53.6,
+      "pctMedhjaelpere": 36.7,
+      "pctAssistenter": 0,
+      "totalStaff": 196
+    },
+    "Horsens": {
+      "municipality": "Horsens",
+      "enrolledChildren": 4187,
+      "pctPaedagoger": 78.1,
+      "pctMedhjaelpere": 20.6,
+      "pctAssistenter": 0,
+      "totalStaff": 228
+    },
+    "Hvidovre": {
+      "municipality": "Hvidovre",
+      "enrolledChildren": 2892,
+      "pctPaedagoger": 68.8,
+      "pctMedhjaelpere": 29.1,
+      "pctAssistenter": 0,
+      "totalStaff": 234
+    },
+    "Høje-Taastrup": {
+      "municipality": "Høje-Taastrup",
+      "enrolledChildren": 2273,
+      "pctPaedagoger": 65.3,
+      "pctMedhjaelpere": 30,
+      "pctAssistenter": 0,
+      "totalStaff": 150
+    },
+    "Hørsholm": {
+      "municipality": "Hørsholm",
+      "enrolledChildren": 1497,
+      "pctPaedagoger": 53.7,
+      "pctMedhjaelpere": 43.3,
+      "pctAssistenter": 0,
+      "totalStaff": 67
+    },
+    "Ikast-Brande": {
+      "municipality": "Ikast-Brande",
+      "enrolledChildren": 1927,
+      "pctPaedagoger": 69.7,
+      "pctMedhjaelpere": 26.1,
+      "pctAssistenter": 0,
+      "totalStaff": 119
+    },
+    "Ishøj": {
+      "municipality": "Ishøj",
+      "enrolledChildren": 1121,
+      "pctPaedagoger": 71.9,
+      "pctMedhjaelpere": 24.7,
+      "pctAssistenter": 0,
+      "totalStaff": 89
+    },
+    "Jammerbugt": {
+      "municipality": "Jammerbugt",
+      "enrolledChildren": 1356,
+      "pctPaedagoger": 66.4,
+      "pctMedhjaelpere": 27.7,
+      "pctAssistenter": 0,
+      "totalStaff": 119
+    },
+    "Kalundborg": {
+      "municipality": "Kalundborg",
+      "enrolledChildren": 1930,
+      "pctPaedagoger": 53.8,
+      "pctMedhjaelpere": 43.6,
+      "pctAssistenter": 0,
+      "totalStaff": 78
+    },
+    "Kerteminde": {
+      "municipality": "Kerteminde",
+      "enrolledChildren": 828,
+      "pctPaedagoger": 71.4,
+      "pctMedhjaelpere": 28.6,
+      "pctAssistenter": 0,
+      "totalStaff": 35
+    },
+    "Kolding": {
+      "municipality": "Kolding",
+      "enrolledChildren": 3913,
+      "pctPaedagoger": 55.7,
+      "pctMedhjaelpere": 38.7,
+      "pctAssistenter": 0,
+      "totalStaff": 253
+    },
+    "København": {
+      "municipality": "København",
+      "enrolledChildren": 22155,
+      "pctPaedagoger": 55.9,
+      "pctMedhjaelpere": 39.2,
+      "pctAssistenter": 0,
+      "totalStaff": 1300
+    },
+    "Køge": {
+      "municipality": "Køge",
+      "enrolledChildren": 4145,
+      "pctPaedagoger": 59.5,
+      "pctMedhjaelpere": 34.1,
+      "pctAssistenter": 0,
+      "totalStaff": 205
+    },
+    "Langeland": {
+      "municipality": "Langeland",
+      "enrolledChildren": 236,
+      "pctPaedagoger": 33.3,
+      "pctMedhjaelpere": 61.1,
+      "pctAssistenter": 0,
+      "totalStaff": 18
+    },
+    "Lejre": {
+      "municipality": "Lejre",
+      "enrolledChildren": 2236,
+      "pctPaedagoger": 57.3,
+      "pctMedhjaelpere": 37.5,
+      "pctAssistenter": 0,
+      "totalStaff": 96
+    },
+    "Lemvig": {
+      "municipality": "Lemvig",
+      "enrolledChildren": 539,
+      "pctPaedagoger": 61.1,
+      "pctMedhjaelpere": 22.2,
+      "pctAssistenter": 0,
+      "totalStaff": 18
+    },
+    "Lolland": {
+      "municipality": "Lolland",
+      "enrolledChildren": 1273,
+      "pctPaedagoger": 80,
+      "pctMedhjaelpere": 20,
+      "pctAssistenter": 0,
+      "totalStaff": 65
+    },
+    "Lyngby-Taarbæk": {
+      "municipality": "Lyngby-Taarbæk",
+      "enrolledChildren": 5026,
+      "pctPaedagoger": 72.5,
+      "pctMedhjaelpere": 22.7,
+      "pctAssistenter": 0,
+      "totalStaff": 207
+    },
+    "Læsø": {
+      "municipality": "Læsø",
+      "enrolledChildren": 32,
+      "pctPaedagoger": 60,
+      "pctMedhjaelpere": 40,
+      "pctAssistenter": 0,
+      "totalStaff": 5
+    },
+    "Mariagerfjord": {
+      "municipality": "Mariagerfjord",
+      "enrolledChildren": 1365,
+      "pctPaedagoger": 55.6,
+      "pctMedhjaelpere": 44.4,
+      "pctAssistenter": 0,
+      "totalStaff": 54
+    },
+    "Middelfart": {
+      "municipality": "Middelfart",
+      "enrolledChildren": 1472,
+      "pctPaedagoger": 52.9,
+      "pctMedhjaelpere": 40,
+      "pctAssistenter": 0,
+      "totalStaff": 70
+    },
+    "Morsø": {
+      "municipality": "Morsø",
+      "enrolledChildren": 681,
+      "pctPaedagoger": 61.1,
+      "pctMedhjaelpere": 33.3,
+      "pctAssistenter": 0,
+      "totalStaff": 18
+    },
+    "Norddjurs": {
+      "municipality": "Norddjurs",
+      "enrolledChildren": 1095,
+      "pctPaedagoger": 66.7,
+      "pctMedhjaelpere": 30,
+      "pctAssistenter": 0,
+      "totalStaff": 60
+    },
+    "Nordfyns": {
+      "municipality": "Nordfyns",
+      "enrolledChildren": 1282,
+      "pctPaedagoger": 55.4,
+      "pctMedhjaelpere": 44.6,
+      "pctAssistenter": 0,
+      "totalStaff": 65
+    },
+    "Nyborg": {
+      "municipality": "Nyborg",
+      "enrolledChildren": 1147,
+      "pctPaedagoger": 70.5,
+      "pctMedhjaelpere": 29.5,
+      "pctAssistenter": 0,
+      "totalStaff": 44
+    },
+    "Næstved": {
+      "municipality": "Næstved",
+      "enrolledChildren": 3412,
+      "pctPaedagoger": 61.2,
+      "pctMedhjaelpere": 34.6,
+      "pctAssistenter": 0,
+      "totalStaff": 214
+    },
+    "Odder": {
+      "municipality": "Odder",
+      "enrolledChildren": 1127,
+      "pctPaedagoger": 65.6,
+      "pctMedhjaelpere": 32.8,
+      "pctAssistenter": 0,
+      "totalStaff": 61
+    },
+    "Odense": {
+      "municipality": "Odense",
+      "enrolledChildren": 8203,
+      "pctPaedagoger": 64,
+      "pctMedhjaelpere": 35.2,
+      "pctAssistenter": 0,
+      "totalStaff": 369
+    },
+    "Odsherred": {
+      "municipality": "Odsherred",
+      "enrolledChildren": 1297,
+      "pctPaedagoger": 71,
+      "pctMedhjaelpere": 22.6,
+      "pctAssistenter": 0,
+      "totalStaff": 62
+    },
+    "Randers": {
+      "municipality": "Randers",
+      "enrolledChildren": 3419,
+      "pctPaedagoger": 63.9,
+      "pctMedhjaelpere": 31,
+      "pctAssistenter": 0,
+      "totalStaff": 416
+    },
+    "Rebild": {
+      "municipality": "Rebild",
+      "enrolledChildren": 1701,
+      "pctPaedagoger": 67.4,
+      "pctMedhjaelpere": 29.3,
+      "pctAssistenter": 0,
+      "totalStaff": 92
+    },
+    "Ringkøbing-Skjern": {
+      "municipality": "Ringkøbing-Skjern",
+      "enrolledChildren": 2205,
+      "pctPaedagoger": 38,
+      "pctMedhjaelpere": 45.6,
+      "pctAssistenter": 0,
+      "totalStaff": 79
+    },
+    "Ringsted": {
+      "municipality": "Ringsted",
+      "enrolledChildren": 2063,
+      "pctPaedagoger": 60.2,
+      "pctMedhjaelpere": 35,
+      "pctAssistenter": 0,
+      "totalStaff": 103
+    },
+    "Roskilde": {
+      "municipality": "Roskilde",
+      "enrolledChildren": 4200,
+      "pctPaedagoger": 62.8,
+      "pctMedhjaelpere": 31.2,
+      "pctAssistenter": 0,
+      "totalStaff": 231
+    },
+    "Rudersdal": {
+      "municipality": "Rudersdal",
+      "enrolledChildren": 2810,
+      "pctPaedagoger": 49.7,
+      "pctMedhjaelpere": 47.9,
+      "pctAssistenter": 0,
+      "totalStaff": 165
+    },
+    "Rødovre": {
+      "municipality": "Rødovre",
+      "enrolledChildren": 2334,
+      "pctPaedagoger": 78.6,
+      "pctMedhjaelpere": 17.6,
+      "pctAssistenter": 0,
+      "totalStaff": 187
+    },
+    "Samsø": {
+      "municipality": "Samsø",
+      "enrolledChildren": 147,
+      "pctPaedagoger": 77.8,
+      "pctMedhjaelpere": 11.1,
+      "pctAssistenter": 0,
+      "totalStaff": 9
+    },
+    "Silkeborg": {
+      "municipality": "Silkeborg",
+      "enrolledChildren": 6356,
+      "pctPaedagoger": 59.6,
+      "pctMedhjaelpere": 34.8,
+      "pctAssistenter": 0,
+      "totalStaff": 282
+    },
+    "Skanderborg": {
+      "municipality": "Skanderborg",
+      "enrolledChildren": 5741,
+      "pctPaedagoger": 66.4,
+      "pctMedhjaelpere": 28.3,
+      "pctAssistenter": 0,
+      "totalStaff": 244
+    },
+    "Skive": {
+      "municipality": "Skive",
+      "enrolledChildren": 1468,
+      "pctPaedagoger": 43.7,
+      "pctMedhjaelpere": 46.6,
+      "pctAssistenter": 0,
+      "totalStaff": 103
+    },
+    "Slagelse": {
+      "municipality": "Slagelse",
+      "enrolledChildren": 2931,
+      "pctPaedagoger": 61,
+      "pctMedhjaelpere": 34.8,
+      "pctAssistenter": 0,
+      "totalStaff": 141
+    },
+    "Solrød": {
+      "municipality": "Solrød",
+      "enrolledChildren": 1824,
+      "pctPaedagoger": 76.6,
+      "pctMedhjaelpere": 19.5,
+      "pctAssistenter": 0,
+      "totalStaff": 77
+    },
+    "Sorø": {
+      "municipality": "Sorø",
+      "enrolledChildren": 1369,
+      "pctPaedagoger": 56.5,
+      "pctMedhjaelpere": 38.7,
+      "pctAssistenter": 0,
+      "totalStaff": 62
+    },
+    "Stevns": {
+      "municipality": "Stevns",
+      "enrolledChildren": 1054,
+      "pctPaedagoger": 57.9,
+      "pctMedhjaelpere": 39.5,
+      "pctAssistenter": 0,
+      "totalStaff": 38
+    },
+    "Struer": {
+      "municipality": "Struer",
+      "enrolledChildren": 759,
+      "pctPaedagoger": 50,
+      "pctMedhjaelpere": 43.8,
+      "pctAssistenter": 0,
+      "totalStaff": 32
+    },
+    "Svendborg": {
+      "municipality": "Svendborg",
+      "enrolledChildren": 2128,
+      "pctPaedagoger": 67.1,
+      "pctMedhjaelpere": 30.6,
+      "pctAssistenter": 0,
+      "totalStaff": 85
+    },
+    "Syddjurs": {
+      "municipality": "Syddjurs",
+      "enrolledChildren": 1711,
+      "pctPaedagoger": 69,
+      "pctMedhjaelpere": 28.2,
+      "pctAssistenter": 0,
+      "totalStaff": 71
+    },
+    "Sønderborg": {
+      "municipality": "Sønderborg",
+      "enrolledChildren": 2696,
+      "pctPaedagoger": 58.4,
+      "pctMedhjaelpere": 40.7,
+      "pctAssistenter": 0,
+      "totalStaff": 113
+    },
+    "Thisted": {
+      "municipality": "Thisted",
+      "enrolledChildren": 1766,
+      "pctPaedagoger": 46.3,
+      "pctMedhjaelpere": 47.8,
+      "pctAssistenter": 0,
+      "totalStaff": 67
+    },
+    "Tårnby": {
+      "municipality": "Tårnby",
+      "enrolledChildren": 2075,
+      "pctPaedagoger": 53.8,
+      "pctMedhjaelpere": 31.9,
+      "pctAssistenter": 0,
+      "totalStaff": 160
+    },
+    "Tønder": {
+      "municipality": "Tønder",
+      "enrolledChildren": 1002,
+      "pctPaedagoger": 51.7,
+      "pctMedhjaelpere": 37.9,
+      "pctAssistenter": 0,
+      "totalStaff": 29
+    },
+    "Vallensbæk": {
+      "municipality": "Vallensbæk",
+      "enrolledChildren": 1083,
+      "pctPaedagoger": 71.2,
+      "pctMedhjaelpere": 24.2,
+      "pctAssistenter": 0,
+      "totalStaff": 66
+    },
+    "Varde": {
+      "municipality": "Varde",
+      "enrolledChildren": 1391,
+      "pctPaedagoger": 63.8,
+      "pctMedhjaelpere": 26.7,
+      "pctAssistenter": 0,
+      "totalStaff": 105
+    },
+    "Vejen": {
+      "municipality": "Vejen",
+      "enrolledChildren": 1528,
+      "pctPaedagoger": 47.4,
+      "pctMedhjaelpere": 47.4,
+      "pctAssistenter": 0,
+      "totalStaff": 76
+    },
+    "Vejle": {
+      "municipality": "Vejle",
+      "enrolledChildren": 6009,
+      "pctPaedagoger": 65.9,
+      "pctMedhjaelpere": 27.6,
+      "pctAssistenter": 0,
+      "totalStaff": 279
+    },
+    "Vesthimmerlands": {
+      "municipality": "Vesthimmerlands",
+      "enrolledChildren": 1283,
+      "pctPaedagoger": 67.9,
+      "pctMedhjaelpere": 29.2,
+      "pctAssistenter": 0,
+      "totalStaff": 106
+    },
+    "Viborg": {
+      "municipality": "Viborg",
+      "enrolledChildren": 4393,
+      "pctPaedagoger": 64.9,
+      "pctMedhjaelpere": 29.9,
+      "pctAssistenter": 0,
+      "totalStaff": 154
+    },
+    "Vordingborg": {
+      "municipality": "Vordingborg",
+      "enrolledChildren": 1797,
+      "pctPaedagoger": 70.4,
+      "pctMedhjaelpere": 23.9,
+      "pctAssistenter": 0,
+      "totalStaff": 71
+    },
+    "Ærø": {
+      "municipality": "Ærø",
+      "enrolledChildren": 136,
+      "pctPaedagoger": 42.9,
+      "pctMedhjaelpere": 42.9,
+      "pctAssistenter": 0,
+      "totalStaff": 7
+    }
+  }
+}

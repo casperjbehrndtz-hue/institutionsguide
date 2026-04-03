@@ -1,0 +1,725 @@
+{
+  "kvotienYear": 2024,
+  "forlobYear": 2022,
+  "fetchedAt": "2026-04-03T17:32:42.151Z",
+  "kommuner": {
+    "København": {
+      "municipality": "København",
+      "avgClassSize": 21.7,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Frederiksberg": {
+      "municipality": "Frederiksberg",
+      "avgClassSize": 21.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Dragør": {
+      "municipality": "Dragør",
+      "avgClassSize": 22.4,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Tårnby": {
+      "municipality": "Tårnby",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Albertslund": {
+      "municipality": "Albertslund",
+      "avgClassSize": 21.3,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Ballerup": {
+      "municipality": "Ballerup",
+      "avgClassSize": 21.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Brøndby": {
+      "municipality": "Brøndby",
+      "avgClassSize": 21.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Gentofte": {
+      "municipality": "Gentofte",
+      "avgClassSize": 22.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Gladsaxe": {
+      "municipality": "Gladsaxe",
+      "avgClassSize": 21.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Glostrup": {
+      "municipality": "Glostrup",
+      "avgClassSize": 19.7,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Herlev": {
+      "municipality": "Herlev",
+      "avgClassSize": 21.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Hvidovre": {
+      "municipality": "Hvidovre",
+      "avgClassSize": 21.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Høje-Taastrup": {
+      "municipality": "Høje-Taastrup",
+      "avgClassSize": 21.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Ishøj": {
+      "municipality": "Ishøj",
+      "avgClassSize": 21.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Lyngby-Taarbæk": {
+      "municipality": "Lyngby-Taarbæk",
+      "avgClassSize": 21.5,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Rødovre": {
+      "municipality": "Rødovre",
+      "avgClassSize": 20.9,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Vallensbæk": {
+      "municipality": "Vallensbæk",
+      "avgClassSize": 22.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Allerød": {
+      "municipality": "Allerød",
+      "avgClassSize": 21.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Egedal": {
+      "municipality": "Egedal",
+      "avgClassSize": 22.7,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Fredensborg": {
+      "municipality": "Fredensborg",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Frederikssund": {
+      "municipality": "Frederikssund",
+      "avgClassSize": 20.5,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Furesø": {
+      "municipality": "Furesø",
+      "avgClassSize": 22.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Gribskov": {
+      "municipality": "Gribskov",
+      "avgClassSize": 19.3,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Halsnæs": {
+      "municipality": "Halsnæs",
+      "avgClassSize": 20.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Helsingør": {
+      "municipality": "Helsingør",
+      "avgClassSize": 21.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Hillerød": {
+      "municipality": "Hillerød",
+      "avgClassSize": 20.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Hørsholm": {
+      "municipality": "Hørsholm",
+      "avgClassSize": 21.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Rudersdal": {
+      "municipality": "Rudersdal",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Bornholm": {
+      "municipality": "Bornholm",
+      "avgClassSize": 19.4,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Greve": {
+      "municipality": "Greve",
+      "avgClassSize": 22.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Køge": {
+      "municipality": "Køge",
+      "avgClassSize": 20.7,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Lejre": {
+      "municipality": "Lejre",
+      "avgClassSize": 19.4,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Roskilde": {
+      "municipality": "Roskilde",
+      "avgClassSize": 20.4,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Solrød": {
+      "municipality": "Solrød",
+      "avgClassSize": 23.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Faxe": {
+      "municipality": "Faxe",
+      "avgClassSize": 19.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Guldborgsund": {
+      "municipality": "Guldborgsund",
+      "avgClassSize": 19.7,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Holbæk": {
+      "municipality": "Holbæk",
+      "avgClassSize": 18.9,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Kalundborg": {
+      "municipality": "Kalundborg",
+      "avgClassSize": 17,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Lolland": {
+      "municipality": "Lolland",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Næstved": {
+      "municipality": "Næstved",
+      "avgClassSize": 19.7,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Odsherred": {
+      "municipality": "Odsherred",
+      "avgClassSize": 16.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Ringsted": {
+      "municipality": "Ringsted",
+      "avgClassSize": 19.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Slagelse": {
+      "municipality": "Slagelse",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Sorø": {
+      "municipality": "Sorø",
+      "avgClassSize": 20.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Stevns": {
+      "municipality": "Stevns",
+      "avgClassSize": 19.9,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Vordingborg": {
+      "municipality": "Vordingborg",
+      "avgClassSize": 18.3,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Assens": {
+      "municipality": "Assens",
+      "avgClassSize": 19.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Faaborg-Midtfyn": {
+      "municipality": "Faaborg-Midtfyn",
+      "avgClassSize": 17.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Kerteminde": {
+      "municipality": "Kerteminde",
+      "avgClassSize": 20,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Langeland": {
+      "municipality": "Langeland",
+      "avgClassSize": 19,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Middelfart": {
+      "municipality": "Middelfart",
+      "avgClassSize": 20.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Nordfyns": {
+      "municipality": "Nordfyns",
+      "avgClassSize": 20.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Nyborg": {
+      "municipality": "Nyborg",
+      "avgClassSize": 19.5,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Odense": {
+      "municipality": "Odense",
+      "avgClassSize": 21.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Svendborg": {
+      "municipality": "Svendborg",
+      "avgClassSize": 21.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Ærø": {
+      "municipality": "Ærø",
+      "avgClassSize": 17.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Billund": {
+      "municipality": "Billund",
+      "avgClassSize": 19.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Esbjerg": {
+      "municipality": "Esbjerg",
+      "avgClassSize": 20.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Fanø": {
+      "municipality": "Fanø",
+      "avgClassSize": 17.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Fredericia": {
+      "municipality": "Fredericia",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Haderslev": {
+      "municipality": "Haderslev",
+      "avgClassSize": 18.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Kolding": {
+      "municipality": "Kolding",
+      "avgClassSize": 20.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Sønderborg": {
+      "municipality": "Sønderborg",
+      "avgClassSize": 18.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Tønder": {
+      "municipality": "Tønder",
+      "avgClassSize": 17.7,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Varde": {
+      "municipality": "Varde",
+      "avgClassSize": 19.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Vejen": {
+      "municipality": "Vejen",
+      "avgClassSize": 19.3,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Vejle": {
+      "municipality": "Vejle",
+      "avgClassSize": 20.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Aabenraa": {
+      "municipality": "Aabenraa",
+      "avgClassSize": 17.4,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Favrskov": {
+      "municipality": "Favrskov",
+      "avgClassSize": 19.5,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Hedensted": {
+      "municipality": "Hedensted",
+      "avgClassSize": 18,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Horsens": {
+      "municipality": "Horsens",
+      "avgClassSize": 22.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Norddjurs": {
+      "municipality": "Norddjurs",
+      "avgClassSize": 19.5,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Odder": {
+      "municipality": "Odder",
+      "avgClassSize": 19.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Randers": {
+      "municipality": "Randers",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Samsø": {
+      "municipality": "Samsø",
+      "avgClassSize": 14.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Silkeborg": {
+      "municipality": "Silkeborg",
+      "avgClassSize": 21,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Skanderborg": {
+      "municipality": "Skanderborg",
+      "avgClassSize": 20.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Syddjurs": {
+      "municipality": "Syddjurs",
+      "avgClassSize": 20.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Aarhus": {
+      "municipality": "Aarhus",
+      "avgClassSize": 21.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Herning": {
+      "municipality": "Herning",
+      "avgClassSize": 19.3,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Holstebro": {
+      "municipality": "Holstebro",
+      "avgClassSize": 20,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Ikast-Brande": {
+      "municipality": "Ikast-Brande",
+      "avgClassSize": 19,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Lemvig": {
+      "municipality": "Lemvig",
+      "avgClassSize": 16.4,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Ringkøbing-Skjern": {
+      "municipality": "Ringkøbing-Skjern",
+      "avgClassSize": 17.2,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Skive": {
+      "municipality": "Skive",
+      "avgClassSize": 17.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Struer": {
+      "municipality": "Struer",
+      "avgClassSize": 17.8,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Viborg": {
+      "municipality": "Viborg",
+      "avgClassSize": 20.1,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Brønderslev": {
+      "municipality": "Brønderslev",
+      "avgClassSize": 19.3,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Frederikshavn": {
+      "municipality": "Frederikshavn",
+      "avgClassSize": 18.9,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Hjørring": {
+      "municipality": "Hjørring",
+      "avgClassSize": 18,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Jammerbugt": {
+      "municipality": "Jammerbugt",
+      "avgClassSize": 17,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Læsø": {
+      "municipality": "Læsø",
+      "avgClassSize": 13,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Mariagerfjord": {
+      "municipality": "Mariagerfjord",
+      "avgClassSize": 18.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Morsø": {
+      "municipality": "Morsø",
+      "avgClassSize": 18.9,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Rebild": {
+      "municipality": "Rebild",
+      "avgClassSize": 19,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Thisted": {
+      "municipality": "Thisted",
+      "avgClassSize": 15.6,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Vesthimmerlands": {
+      "municipality": "Vesthimmerlands",
+      "avgClassSize": 17.9,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    },
+    "Aalborg": {
+      "municipality": "Aalborg",
+      "avgClassSize": 20.4,
+      "specialEducationPct": null,
+      "transitionGymnasiumPct": null,
+      "transitionErhvervPct": null
+    }
+  },
+  "transitionRates": {
+    "national": {
+      "transitionGymnasiumPct": 75.7,
+      "transitionErhvervPct": 16.4
+    },
+    "regions": {
+      "Hele landet": {
+        "transitionGymnasiumPct": 75.7,
+        "transitionErhvervPct": 16.4
+      },
+      "Region Hovedstaden": {
+        "transitionGymnasiumPct": 82.6,
+        "transitionErhvervPct": 11.1
+      },
+      "Region Sjælland": {
+        "transitionGymnasiumPct": 74.7,
+        "transitionErhvervPct": 15.9
+      },
+      "Region Syddanmark": {
+        "transitionGymnasiumPct": 75.4,
+        "transitionErhvervPct": 17.3
+      },
+      "Region Midtjylland": {
+        "transitionGymnasiumPct": 73.3,
+        "transitionErhvervPct": 18.3
+      },
+      "Region Nordjylland": {
+        "transitionGymnasiumPct": 69.5,
+        "transitionErhvervPct": 21.2
+      }
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "fetchedAt": "2026-04-03T17:35:32.891Z",
+  "totalReports": 20,
+  "matchedReports": 10,
+  "unmatchedReports": 10,
+  "institutions": {
+    "bh-G17189": [
+      {
+        "institutionName": "Børnehuset Adilsvej",
+        "municipality": "Frederiksberg",
+        "tilsynDate": null,
+        "overallVerdict": "tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": false,
+        "skaerpetTilsyn": false,
+        "summary": "",
+        "sourceUrl": "https://www.frederiksberg.dk/media/01cfxanu/adilsvej_tilsynsrapport_web.pdf?format=noformat"
+      }
+    ],
+    "bh-G17163": [
+      {
+        "institutionName": "Børnehuset Æblehaven",
+        "municipality": "Frederiksberg",
+        "tilsynDate": null,
+        "overallVerdict": "tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": false,
+        "skaerpetTilsyn": false,
+        "summary": "",
+        "sourceUrl": "https://www.frederiksberg.dk/media/ll3hqmf4/aeblehaven_tilsynsrapport_web.pdf?format=noformat"
+      }
+    ],
+    "bh-G17185": [
+      {
+        "institutionName": "Børnehaven Brumbazzen",
+        "municipality": "Frederiksberg",
+        "tilsynDate": null,
+        "overallVerdict": "tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": false,
+        "skaerpetTilsyn": false,
+        "summary": "",
+        "sourceUrl": "https://www.frederiksberg.dk/media/4r5hlu34/brumbazzen_tilsynsrapport_web.pdf?format=noformat"
+      }
+    ],
+    "bh-G17165": [
+      {
+        "institutionName": "Bryghuset",
+        "municipality": "Frederiksberg",
+        "tilsynDate": null,
+        "overallVerdict": "tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": false,
+        "skaerpetTilsyn": false,
+        "summary": "",
+        "sourceUrl": "https://www.frederiksberg.dk/media/qvvopwty/tilsynsrapport_bryghuset_web.pdf?format=noformat"
+      }
+    ],
+    "bh-G17137": [
+      {
+        "institutionName": "Børneambassaden",
+        "municipality": "Frederiksberg",
+        "tilsynDate": null,
+        "overallVerdict": "tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": false,
+        "skaerpetTilsyn": false,
+        "summary": "",
+        "sourceUrl": "https://www.frederiksberg.dk/media/rwlbo4sk/borneambassaden_tilsynsrapport_web.pdf?format=noformat"
+      }
+    ],
+    "bh-G20095": [
+      {
+        "institutionName": "BØRNEHUSET ELMEHAVEN",
+        "municipality": "Randers",
+        "tilsynDate": "2025-04-01",
+        "overallVerdict": "ikke tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": true,
+        "skaerpetTilsyn": true,
+        "summary": "",
+        "sourceUrl": "https://www.randers.dk/media/juwdeyey/paedagogisk-tilsynsrapport-2025-boernehuset-elmehaven.pdf"
+      }
+    ],
+    "bh-G20542": [
+      {
+        "institutionName": "BØRNEHUSET JENNUMPARKEN",
+        "municipality": "Randers",
+        "tilsynDate": "2025-01-28",
+        "overallVerdict": "ikke tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": true,
+        "skaerpetTilsyn": true,
+        "summary": "",
+        "sourceUrl": "https://www.randers.dk/media/nxfivs0n/paedagogisk-tilsynsrapport-2025-boernehuset-jennumparken.pdf"
+      }
+    ],
+    "bh-G20549": [
+      {
+        "institutionName": "BØRNEHUSET LERVANGEN",
+        "municipality": "Randers",
+        "tilsynDate": "2025-01-20",
+        "overallVerdict": "ikke tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": true,
+        "skaerpetTilsyn": true,
+        "summary": "",
+        "sourceUrl": "https://www.randers.dk/media/ejghgkfw/paedagogisk-tilsynsrapport-2025-boernehuset-lervangen.pdf"
+      }
+    ],
+    "bh-G19812": [
+      {
+        "institutionName": "BØRNEHUSET LINDEHUSET",
+        "municipality": "Randers",
+        "tilsynDate": "2025-01-29",
+        "overallVerdict": "ikke tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": true,
+        "skaerpetTilsyn": true,
+        "summary": "",
+        "sourceUrl": "https://www.randers.dk/media/zq2aaqlg/paedagogisk-tilsynsrapport-2025-boernehuset-lindehuset.pdf"
+      }
+    ],
+    "bh-G12470": [
+      {
+        "institutionName": "Børnehuset Atlantis",
+        "municipality": "Roskilde",
+        "tilsynDate": null,
+        "overallVerdict": "ikke tilfredsstillende",
+        "strengths": [],
+        "concerns": [],
+        "followUpRequired": true,
+        "skaerpetTilsyn": true,
+        "summary": "",
+        "sourceUrl": "https://www.roskilde.dk/media/y0zbc1t0/tilsynsnotat-for-omfattende-paedagogisk-tilsyn-i-bornehuset-atlantis-2025.pdf"
+      }
+    ]
+  }
+}
