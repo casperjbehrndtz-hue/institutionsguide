@@ -10,6 +10,7 @@ import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { formatDKK } from "@/lib/format";
+import MetricIcon from "@/components/shared/MetricIcon";
 import { computeScore, type ScoreResult } from "@/lib/institutionScore";
 import {
   buildSlugMap,
@@ -458,8 +459,8 @@ function RankedCard({
               </span>
             )}
             {keyMetrics.map((m) => (
-              <span key={m.key} className="text-xs text-muted">
-                {m.icon} {m.value}
+              <span key={m.key} className="inline-flex items-center gap-1 text-xs text-muted">
+                <MetricIcon name={m.icon} className="w-3 h-3" /> {m.value}
               </span>
             ))}
           </div>

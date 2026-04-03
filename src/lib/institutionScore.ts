@@ -92,7 +92,7 @@ function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
           weight: 0.2,
           score: linearMap(q.ts, 3.5, 4.3),
           value: fmt(q.ts),
-          icon: "😊",
+          icon: "smile",
         }
       : null,
     q.k != null
@@ -102,7 +102,7 @@ function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
           weight: 0.2,
           score: linearMap(q.k, 5.0, 10.0),
           value: fmt(q.k),
-          icon: "📝",
+          icon: "pencil-line",
         }
       : null,
     q.fp != null
@@ -112,7 +112,7 @@ function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
           weight: 0.15,
           score: linearMap(q.fp, 12, 3),
           value: `${fmt(q.fp)}%`,
-          icon: "📅",
+          icon: "calendar-x",
         }
       : null,
     q.kp != null
@@ -125,7 +125,7 @@ function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
           weight: 0.15,
           score: linearMap(q.kp, 70, 100),
           value: `${fmt(q.kp, 0)}%`,
-          icon: "🎓",
+          icon: "graduation-cap",
         }
       : null,
     q.kv != null
@@ -135,7 +135,7 @@ function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
           weight: 0.15,
           score: linearMap(q.kv, 28, 12),
           value: `${fmt(q.kv, 1)} elever`,
-          icon: "👥",
+          icon: "users",
         }
       : null,
     q.sr != null
@@ -152,7 +152,7 @@ function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
                   ? 20
                   : 50,
           value: q.sr,
-          icon: "📈",
+          icon: "trending-up",
         }
       : null,
     schoolExtra?.transitionGymnasiumPct != null
@@ -162,7 +162,7 @@ function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
           weight: 0.1,
           score: linearMap(schoolExtra.transitionGymnasiumPct, 40, 80),
           value: `${fmt(schoolExtra.transitionGymnasiumPct)}%`,
-          icon: "🎓",
+          icon: "arrow-up-right",
         }
       : null,
   ];
@@ -214,7 +214,7 @@ function scoreDagtilbud(
       weight: 0.25,
       score,
       value: `${Math.round(inst.monthlyRate).toLocaleString("da-DK")} kr./md.`,
-      icon: "💰",
+      icon: "coins",
     });
   }
 
@@ -248,7 +248,7 @@ function scoreDagtilbud(
       weight: 0.25,
       score,
       value: `${fmt(normeringRatio)} børn/voksen`,
-      icon: "👶",
+      icon: "baby",
     });
   }
 
@@ -261,7 +261,7 @@ function scoreDagtilbud(
       weight: 0.2,
       score,
       value: `${instStats.pctPaedagoger.toFixed(0)}% pædagoger`,
-      icon: "🎓",
+      icon: "graduation-cap",
     });
   }
 
@@ -274,7 +274,7 @@ function scoreDagtilbud(
       weight: 0.2,
       score,
       value: `${fmt(instStats.parentSatisfaction)} / 5`,
-      icon: "❤️",
+      icon: "heart",
     });
   }
 
@@ -292,7 +292,7 @@ function scoreDagtilbud(
       weight: 0.1,
       score,
       value: inst.ownership,
-      icon: "🏛️",
+      icon: "landmark",
     });
   }
 
@@ -305,7 +305,7 @@ function scoreDagtilbud(
       weight: 0.2,
       score,
       value: `${fmt(sfoStats.pctPaedagoger)}% pædagoger`,
-      icon: "👩‍🏫",
+      icon: "user-check",
     });
   }
 

@@ -13,6 +13,9 @@ import {
   Building2,
   GraduationCap,
   ChevronRight,
+  Coins,
+  Clock,
+  TreePine,
 } from "lucide-react";
 import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
@@ -51,21 +54,21 @@ interface WizardState {
 
 const STEPS = 5;
 
-const AGE_OPTIONS: { value: AgeGroup; da: string; en: string; emoji: string }[] = [
-  { value: "0-1", da: "0-1 år", en: "0-1 years", emoji: "👶" },
-  { value: "1-2", da: "1-2 år", en: "1-2 years", emoji: "🧒" },
-  { value: "2-3", da: "2-3 år", en: "2-3 years", emoji: "🧒" },
-  { value: "3-5", da: "3-5 år", en: "3-5 years", emoji: "👧" },
-  { value: "6+", da: "6+ år", en: "6+ years", emoji: "🎒" },
+const AGE_OPTIONS: { value: AgeGroup; da: string; en: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { value: "0-1", da: "0-1 år", en: "0-1 years", icon: Baby },
+  { value: "1-2", da: "1-2 år", en: "1-2 years", icon: Baby },
+  { value: "2-3", da: "2-3 år", en: "2-3 years", icon: Users },
+  { value: "3-5", da: "3-5 år", en: "3-5 years", icon: Users },
+  { value: "6+", da: "6+ år", en: "6+ years", icon: GraduationCap },
 ];
 
-const PRIORITY_OPTIONS: { value: Priority; da: string; en: string; icon: string }[] = [
-  { value: "lav-pris", da: "Lav pris", en: "Low price", icon: "💰" },
-  { value: "lille-gruppe", da: "Lille gruppe", en: "Small group", icon: "👥" },
-  { value: "uddannet-personale", da: "Uddannet personale", en: "Qualified staff", icon: "🎓" },
-  { value: "taet-paa-hjemmet", da: "Tæt på hjemmet", en: "Close to home", icon: "🏠" },
-  { value: "fleksible-tider", da: "Fleksible åbningstider", en: "Flexible hours", icon: "🕐" },
-  { value: "naturoplevelser", da: "Naturoplevelser", en: "Nature experiences", icon: "🌿" },
+const PRIORITY_OPTIONS: { value: Priority; da: string; en: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { value: "lav-pris", da: "Lav pris", en: "Low price", icon: Coins },
+  { value: "lille-gruppe", da: "Lille gruppe", en: "Small group", icon: Users },
+  { value: "uddannet-personale", da: "Uddannet personale", en: "Qualified staff", icon: GraduationCap },
+  { value: "taet-paa-hjemmet", da: "Tæt på hjemmet", en: "Close to home", icon: Home },
+  { value: "fleksible-tider", da: "Fleksible åbningstider", en: "Flexible hours", icon: Clock },
+  { value: "naturoplevelser", da: "Naturoplevelser", en: "Nature experiences", icon: TreePine },
 ];
 
 const MAX_PRIORITIES = 3;
@@ -478,7 +481,7 @@ export default function GuidePage() {
                         : "hover:border-primary/30"
                     }`}
                   >
-                    <span className="text-2xl block mb-2">{opt.emoji}</span>
+                    <opt.icon className="w-6 h-6 text-muted mb-2" />
                     <span className="font-semibold text-foreground text-sm">
                       {isDa ? opt.da : opt.en}
                     </span>
@@ -518,7 +521,7 @@ export default function GuidePage() {
                           : "hover:border-primary/30"
                       }`}
                     >
-                      <span className="text-lg block mb-1">{opt.icon}</span>
+                      <opt.icon className="w-5 h-5 text-muted mb-1" />
                       <span className="font-semibold text-foreground text-sm">
                         {isDa ? opt.da : opt.en}
                       </span>

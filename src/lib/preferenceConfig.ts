@@ -73,7 +73,7 @@ function fmt(n: number, d = 1): string {
 const DISTANCE: DimensionConfig = {
   key: "distance",
   label: { da: "Afstand", en: "Distance" },
-  icon: "📍",
+  icon: "map-pin",
   extract: (inst, ctx) => {
     if (!ctx.userLocation) return null;
     return haversineKm(ctx.userLocation.lat, ctx.userLocation.lng, inst.lat, inst.lng);
@@ -86,7 +86,7 @@ const DISTANCE: DimensionConfig = {
 const PRICE: DimensionConfig = {
   key: "price",
   label: { da: "Pris", en: "Price" },
-  icon: "💰",
+  icon: "coins",
   extract: (inst) => inst.monthlyRate,
   range: null, // dynamic — computed from data (p90 → p10)
   format: (v) => `${Math.round(v).toLocaleString("da-DK")} kr/md`,
@@ -96,7 +96,7 @@ const PRICE: DimensionConfig = {
 const EFTERSKOLE_PRICE: DimensionConfig = {
   key: "price",
   label: { da: "Årspris", en: "Yearly price" },
-  icon: "💰",
+  icon: "coins",
   extract: (inst) => inst.yearlyPrice ?? null,
   range: null, // dynamic
   format: (v) => `${Math.round(v).toLocaleString("da-DK")} kr/år`,
@@ -106,7 +106,7 @@ const EFTERSKOLE_PRICE: DimensionConfig = {
 const TRIVSEL: DimensionConfig = {
   key: "trivsel",
   label: { da: "Trivsel", en: "Well-being" },
-  icon: "😊",
+  icon: "smile",
   extract: (inst) => inst.quality?.ts ?? null,
   range: [3.5, 4.3],
   format: (v) => fmt(v),
@@ -116,7 +116,7 @@ const TRIVSEL: DimensionConfig = {
 const KARAKTERER: DimensionConfig = {
   key: "karakterer",
   label: { da: "Karakterer", en: "Grades" },
-  icon: "📝",
+  icon: "pencil-line",
   extract: (inst) => inst.quality?.k ?? null,
   range: [5.0, 10.0],
   format: (v) => fmt(v),
@@ -126,7 +126,7 @@ const KARAKTERER: DimensionConfig = {
 const FRAVAER: DimensionConfig = {
   key: "fravaer",
   label: { da: "Fravær", en: "Absence" },
-  icon: "📅",
+  icon: "calendar-x",
   extract: (inst) => inst.quality?.fp ?? null,
   range: [12, 3], // 12% worst, 3% best
   format: (v) => `${fmt(v)}%`,
@@ -136,7 +136,7 @@ const FRAVAER: DimensionConfig = {
 const KOMPETENCE: DimensionConfig = {
   key: "kompetence",
   label: { da: "Kompetencedækning", en: "Teacher qualifications" },
-  icon: "🎓",
+  icon: "graduation-cap",
   extract: (inst) => inst.quality?.kp ?? null,
   range: [70, 100],
   format: (v) => `${fmt(v, 0)}%`,
@@ -146,7 +146,7 @@ const KOMPETENCE: DimensionConfig = {
 const KLASSESTORRELSE: DimensionConfig = {
   key: "klassestorrelse",
   label: { da: "Klassestørrelse", en: "Class size" },
-  icon: "👥",
+  icon: "users",
   extract: (inst) => inst.quality?.kv ?? null,
   range: [28, 12], // 28 worst, 12 best
   format: (v) => `${fmt(v, 1)} elever`,
@@ -156,7 +156,7 @@ const KLASSESTORRELSE: DimensionConfig = {
 const ELEV_PR_LAERER: DimensionConfig = {
   key: "elevPrLaerer",
   label: { da: "Elever pr. lærer", en: "Students per teacher" },
-  icon: "🧑‍🏫",
+  icon: "user-check",
   extract: (inst) => inst.quality?.epl ?? null,
   range: [18, 6], // 18 worst, 6 best
   format: (v) => `${fmt(v, 1)} elever/lærer`,
@@ -166,7 +166,7 @@ const ELEV_PR_LAERER: DimensionConfig = {
 const UNDERVISNINGSTID: DimensionConfig = {
   key: "undervisningstid",
   label: { da: "Undervisningstid", en: "Teaching time" },
-  icon: "⏱️",
+  icon: "clock",
   extract: (inst) => inst.quality?.upe ?? null,
   range: [40, 90], // 40h worst, 90h best
   format: (v) => `${fmt(v, 0)} timer/elev`,
@@ -176,7 +176,7 @@ const UNDERVISNINGSTID: DimensionConfig = {
 const NORMERING: DimensionConfig = {
   key: "normering",
   label: { da: "Normering", en: "Staff ratio" },
-  icon: "👶",
+  icon: "baby",
   extract: (inst, ctx) => getNormeringRatio(inst, ctx),
   range: [5, 2.5], // 5 worst, 2.5 best (children per adult)
   format: (v) => `${fmt(v)} børn/voksen`,
@@ -186,7 +186,7 @@ const NORMERING: DimensionConfig = {
 const UDDANNELSE: DimensionConfig = {
   key: "uddannelse",
   label: { da: "Personaleuddannelse", en: "Staff education" },
-  icon: "🎓",
+  icon: "graduation-cap",
   extract: (inst, ctx) => {
     const rawId = inst.id.replace(/^(vug|bh|dag|sfo)-/, "");
     return ctx.institutionStats[rawId]?.pctPaedagoger ?? null;
@@ -199,7 +199,7 @@ const UDDANNELSE: DimensionConfig = {
 const TILFREDSHED: DimensionConfig = {
   key: "tilfredshed",
   label: { da: "Forældretilfredshed", en: "Parent satisfaction" },
-  icon: "❤️",
+  icon: "heart",
   extract: (inst, ctx) => {
     const rawId = inst.id.replace(/^(vug|bh|dag|sfo)-/, "");
     return ctx.institutionStats[rawId]?.parentSatisfaction ?? null;

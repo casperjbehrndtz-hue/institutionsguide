@@ -29,16 +29,16 @@ function formatPrice(price: number | null): string {
   return String(price);
 }
 
-// Category emoji/symbols for pin markers
+// Category abbreviations for pin markers
 const CATEGORY_SYMBOL: Record<string, string> = {
-  vuggestue: "👶",
-  boernehave: "🧒",
-  dagpleje: "🏠",
-  skole: "🎓",
-  sfo: "📚",
-  fritidsklub: "⚽",
-  efterskole: "🏫",
-  gymnasium: "🏛",
+  vuggestue: "V",
+  boernehave: "B",
+  dagpleje: "D",
+  skole: "S",
+  sfo: "F",
+  fritidsklub: "FK",
+  efterskole: "EF",
+  gymnasium: "G",
 };
 
 // SVG pin marker — teardrop shape with category symbol
@@ -62,7 +62,7 @@ function getPinIcon(color: string, category: string, highlighted: boolean): L.Di
   if (cached) return cached;
 
   const size = highlighted ? 34 : 28;
-  const symbol = CATEGORY_SYMBOL[category] || "📍";
+  const symbol = CATEGORY_SYMBOL[category] || "•";
   const svg = pinSvg(color, symbol, size);
 
   const icon = L.divIcon({

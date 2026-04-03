@@ -1,15 +1,15 @@
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, Baby, Users, Home, GraduationCap, BookOpen, School, type LucideIcon } from "lucide-react";
 import PreferenceSlider from "./PreferenceSlider";
 import type { DimensionConfig, InstitutionCategory } from "@/lib/preferenceConfig";
 import { DIMENSIONS_BY_CATEGORY, categoryHasFinder } from "@/lib/preferenceConfig";
 
-const ALL_CATEGORY_OPTIONS: { key: InstitutionCategory; da: string; en: string; emoji: string }[] = [
-  { key: "vuggestue", da: "Vuggestue", en: "Nursery", emoji: "👶" },
-  { key: "boernehave", da: "Børnehave", en: "Kindergarten", emoji: "🧒" },
-  { key: "dagpleje", da: "Dagpleje", en: "Childminder", emoji: "🏠" },
-  { key: "skole", da: "Skole", en: "School", emoji: "🎓" },
-  { key: "sfo", da: "SFO", en: "After-school", emoji: "📚" },
-  { key: "efterskole", da: "Efterskole", en: "Boarding school", emoji: "🏫" },
+const ALL_CATEGORY_OPTIONS: { key: InstitutionCategory; da: string; en: string; icon: LucideIcon }[] = [
+  { key: "vuggestue", da: "Vuggestue", en: "Nursery", icon: Baby },
+  { key: "boernehave", da: "Børnehave", en: "Kindergarten", icon: Users },
+  { key: "dagpleje", da: "Dagpleje", en: "Childminder", icon: Home },
+  { key: "skole", da: "Skole", en: "School", icon: GraduationCap },
+  { key: "sfo", da: "SFO", en: "After-school", icon: BookOpen },
+  { key: "efterskole", da: "Efterskole", en: "Boarding school", icon: School },
 ];
 const CATEGORY_OPTIONS = ALL_CATEGORY_OPTIONS.filter((o) => categoryHasFinder(o.key));
 
@@ -70,7 +70,7 @@ export default function PreferencePanel({
                   : "bg-bg-card border-border text-muted hover:border-primary/40 hover:text-foreground"
               }`}
             >
-              {opt.emoji} {language === "da" ? opt.da : opt.en}
+              <opt.icon className="w-3.5 h-3.5 inline-block -mt-0.5" /> {language === "da" ? opt.da : opt.en}
             </button>
           ))}
         </div>

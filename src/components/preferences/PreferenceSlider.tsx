@@ -1,4 +1,5 @@
 import { useCallback, useId } from "react";
+import MetricIcon from "@/components/shared/MetricIcon";
 
 interface Props {
   dimKey: string;
@@ -30,7 +31,9 @@ export default function PreferenceSlider({ dimKey, icon, label, goodLabel, value
 
   return (
     <div className={`group flex items-center gap-3 py-2.5 px-3 rounded-xl transition-colors ${isActive ? "bg-primary/5" : "bg-transparent"}`}>
-      <span className="text-lg shrink-0 w-7 text-center" aria-hidden>{icon}</span>
+      <span className="shrink-0 w-7 flex items-center justify-center text-muted" aria-hidden>
+        <MetricIcon name={icon} className="w-5 h-5" />
+      </span>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between mb-1">

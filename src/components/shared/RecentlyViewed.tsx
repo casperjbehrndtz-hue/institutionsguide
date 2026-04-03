@@ -1,18 +1,18 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Clock } from "lucide-react";
+import { Clock, Baby, Users, Home, GraduationCap, BookOpen, Trophy, School, MapPin, type LucideIcon } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { formatDKK } from "@/lib/format";
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  vuggestue: "👶",
-  boernehave: "🧒",
-  dagpleje: "🏠",
-  skole: "🎓",
-  sfo: "📚",
-  fritidsklub: "⚽",
-  efterskole: "🏫",
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  vuggestue: Baby,
+  boernehave: Users,
+  dagpleje: Home,
+  skole: GraduationCap,
+  sfo: BookOpen,
+  fritidsklub: Trophy,
+  efterskole: School,
 };
 
 export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
@@ -43,7 +43,7 @@ export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
             className="card p-3 min-w-[200px] max-w-[240px] shrink-0 hover:bg-primary/5 transition-colors"
           >
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm">{CATEGORY_EMOJI[inst.category] || "📍"}</span>
+              {(() => { const Icon = CATEGORY_ICON[inst.category] || MapPin; return <Icon className="w-4 h-4 text-muted shrink-0" />; })()}
               <p className="font-medium text-sm text-foreground truncate">{inst.name}</p>
             </div>
             <p className="text-xs text-muted truncate">{inst.municipality}</p>

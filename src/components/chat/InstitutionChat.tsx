@@ -91,6 +91,9 @@ export default function InstitutionChat({ institutionId, category, context, lang
     : ["Is it good for a child with special needs?", "What's the daily routine like?", "Is there a waiting list?"];
   const suggestions = language === "da" ? suggestionsDA : suggestionsEN;
 
+  // Hide entirely if we failed to load and have nothing to show
+  if (insightError && !insight && !insightLoading) return null;
+
   return (
     <div className="max-w-[640px] mx-auto">
       <div className="card rounded-xl overflow-hidden border border-primary/20">
@@ -124,13 +127,7 @@ export default function InstitutionChat({ institutionId, category, context, lang
                   </span>
                 </div>
               )}
-              {insightError && !insight && (
-                <p className="text-sm text-muted italic py-2">
-                  {language === "da"
-                    ? "Kunne ikke generere indsigt lige nu."
-                    : "Could not generate insight right now."}
-                </p>
-              )}
+              {/* On error with no insight, render nothing — silence is better than "we failed" */}
               {insight && (
                 <div className="space-y-3">
                   <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">

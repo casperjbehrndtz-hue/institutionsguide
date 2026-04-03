@@ -1,17 +1,17 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, Baby, Users, Home, GraduationCap, BookOpen, Trophy, School, MapPin, type LucideIcon } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { formatDKK } from "@/lib/format";
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  vuggestue: "👶",
-  boernehave: "🧒",
-  dagpleje: "🏠",
-  skole: "🎓",
-  sfo: "📚",
-  fritidsklub: "⚽",
-  efterskole: "🏫",
+const CATEGORY_ICON: Record<string, LucideIcon> = {
+  vuggestue: Baby,
+  boernehave: Users,
+  dagpleje: Home,
+  skole: GraduationCap,
+  sfo: BookOpen,
+  fritidsklub: Trophy,
+  efterskole: School,
 };
 
 interface Props {
@@ -65,7 +65,7 @@ export default function PopularInMunicipality({ municipality, excludeId, categor
             to={`/institution/${inst.id}`}
             className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
           >
-            <span className="text-lg shrink-0">{CATEGORY_EMOJI[inst.category] || "📍"}</span>
+            {(() => { const Icon = CATEGORY_ICON[inst.category] || MapPin; return <Icon className="w-5 h-5 text-muted shrink-0" />; })()}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{inst.name}</p>
               <p className="text-xs text-muted">{inst.address}</p>

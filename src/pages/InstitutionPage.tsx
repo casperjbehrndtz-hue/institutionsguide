@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, ArrowRight, Lock } from "lucide-react";
+import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, Lock } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -40,7 +40,6 @@ import { useAssessment } from "@/hooks/useAssessment";
 import StreetViewImage from "@/components/shared/StreetViewImage";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataSourceBadges from "@/components/shared/DataSourceBadges";
-import PopularInMunicipality from "@/components/shared/PopularInMunicipality";
 import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
 
 function categoryPath(cat: string): string {
@@ -259,18 +258,7 @@ export default function InstitutionPage() {
     return result;
   }, [inst, institutions, t]);
 
-  const nearbyScores = useMemo(() => {
-    if (!inst) return [];
-    return nearby.slice(0, 5).map((n) => {
-      const sameCategory = institutions.filter((i) => i.municipality === n.municipality && i.category === n.category && i.id !== n.id);
-      const prices = sameCategory.map((i) => i.monthlyRate).filter((p): p is number => p != null && p > 0);
-      const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : null;
-      const s = computeScore(n, [], normering, avgPrice);
-      return { id: n.id, overall: s.overall };
-    });
-  }, [inst, nearby, institutions, normering]);
-
-  // Build section nav definitions — only sections with content
+  // Build section nav — 3 tabs: Overblik, Data (pris+kvalitet+kort), Anmeldelser
   const sectionDefs = useMemo<SectionDef[]>(() => {
     if (!inst) return [];
     const defs: SectionDef[] = [];
@@ -278,15 +266,12 @@ export default function InstitutionPage() {
     if (scoreResult) {
       defs.push({ id: "section-overblik", labelDA: "Overblik", labelEN: "Overview" });
     }
-    if (inst.monthlyRate != null || inst.yearlyPrice != null) {
-      defs.push({ id: "section-pris", labelDA: "Pris", labelEN: "Price" });
+    // "Data" covers pris, kvalitet, kort — anchor to whichever comes first
+    const hasPrice = inst.monthlyRate != null || inst.yearlyPrice != null;
+    const hasQuality = (percentiles && percentiles.length > 0) || hasInstitutionQuality || inst.category !== "skole";
+    if (hasPrice || hasQuality) {
+      defs.push({ id: "section-data", labelDA: "Data", labelEN: "Data" });
     }
-    if ((percentiles && percentiles.length > 0) || hasInstitutionQuality || inst.category !== "skole") {
-      defs.push({ id: "section-kvalitet", labelDA: "Kvalitet", labelEN: "Quality" });
-    }
-    // Map is always shown
-    defs.push({ id: "section-kort", labelDA: "Kort", labelEN: "Map" });
-    // Reviews always shown
     defs.push({ id: "section-anmeldelser", labelDA: "Anmeldelser", labelEN: "Reviews" });
     return defs;
   }, [inst, scoreResult, percentiles, hasInstitutionQuality]);
@@ -426,8 +411,6 @@ export default function InstitutionPage() {
               category={inst.category}
               municipality={inst.municipality}
               language={language}
-              nearby={nearby}
-              nearbyScores={nearbyScores}
               aiAssessment={aiAssessment}
               aiLoading={aiState === "loading"}
             />
@@ -576,7 +559,7 @@ export default function InstitutionPage() {
       <section className="max-w-[640px] mx-auto px-4 pb-12 space-y-6">
         {/* Prices */}
         {(inst.monthlyRate != null || inst.yearlyPrice != null) && (
-          <div id="section-pris" className="card p-5">
+          <div id="section-data" className="card p-5">
             <h2 className="font-display text-lg font-semibold mb-4">{t.detail.prices}</h2>
             {/* The over/under average indicator is always visible */}
             {municipalityAvgPrice != null && inst.monthlyRate != null && (
@@ -643,9 +626,8 @@ export default function InstitutionPage() {
         )}
 
         {/* Quality data — percentile bars (schools only) */}
-        <div id="section-kvalitet" />
         {percentiles && percentiles.length > 0 && (
-          <div className="card p-5">
+          <div id={inst.monthlyRate == null && inst.yearlyPrice == null ? "section-data" : undefined} className="card p-5">
             <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
             <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
               <div className="space-y-3">
@@ -733,11 +715,14 @@ export default function InstitutionPage() {
         </GatedSection>
 
         {/* Price alert */}
-        <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
+        {/* Price alert — only for categories with price tracking */}
+        {!["skole", "efterskole", "gymnasium"].includes(inst.category) && (
+          <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
+        )}
 
         {/* Map */}
         <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-          <div id="section-kort" className="h-[250px] rounded-xl overflow-hidden border border-border">
+          <div className="h-[250px] rounded-xl overflow-hidden border border-border">
             <InstitutionMap
               institutions={[inst, ...nearby]}
               onSelect={() => {}}
@@ -746,44 +731,6 @@ export default function InstitutionPage() {
           </div>
         </Suspense>
 
-        {/* Nearby alternatives list */}
-        {nearby.length > 0 && (
-          <div className="card p-5">
-            <h2 className="font-display text-lg font-semibold mb-3">
-              {language === "da" ? "Lignende i nærheden" : "Similar nearby"}
-            </h2>
-            <div className="space-y-2">
-              {nearby.slice(0, 5).map((n) => (
-                <Link
-                  key={n.id}
-                  to={`/institution/${n.id}`}
-                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-primary/5 transition-colors group"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-bold text-primary">{n.name.charAt(0)}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{n.name}</p>
-                    <p className="text-xs text-muted">{n.city} · {n.dist.toFixed(1).replace(".", ",")} km</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    {n.monthlyRate != null && (
-                      <p className="font-mono text-xs font-bold text-primary">{formatDKK(n.monthlyRate)}</p>
-                    )}
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-muted group-hover:text-primary shrink-0 transition-colors" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Popular in municipality */}
-        <PopularInMunicipality
-          municipality={inst.municipality}
-          excludeId={inst.id}
-          category={inst.category}
-        />
 
         {/* Tilsynsrapporter (from JSON) */}
         {tilsynRapporter[inst.id]?.length > 0 && (

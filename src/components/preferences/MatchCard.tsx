@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
+import MetricIcon from "@/components/shared/MetricIcon";
 import type { ScoredInstitution } from "@/lib/preferenceScore";
 
 interface Props {
@@ -74,7 +75,7 @@ export default function MatchCard({ result, rank, language }: Props) {
                 key={d.key}
                 className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md font-medium ${dimPillColor(d.normalizedScore)}`}
               >
-                {d.icon} {d.formattedValue}
+                <MetricIcon name={d.icon} className="w-3 h-3" /> {d.formattedValue}
               </span>
             ))}
           </div>
@@ -98,7 +99,7 @@ export default function MatchCard({ result, rank, language }: Props) {
           </p>
           {dimensions.map((d) => (
             <div key={d.key} className="flex items-center gap-2">
-              <span className="text-sm w-5 text-center">{d.icon}</span>
+              <MetricIcon name={d.icon} className="w-4 h-4 text-muted" />
               <span className="text-xs text-muted w-28 sm:w-36 truncate">
                 {language === "da" ? d.label.da : d.label.en}
               </span>

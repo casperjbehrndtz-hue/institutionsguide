@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Lightbulb, RotateCcw, ChevronDown, ChevronUp, Zap } from "lucide-react";
+import { Lightbulb, RotateCcw, ChevronDown, ChevronUp, Zap, PencilLine, Heart, UserCheck, Star, Coins, type LucideIcon } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -18,7 +18,7 @@ const STORAGE_KEY = "preference-weights-v2";
 interface Preset {
   id: string;
   label: { da: string; en: string };
-  emoji: string;
+  icon: LucideIcon;
   weights: Record<string, number>;
   categories: InstitutionCategory[];
 }
@@ -27,49 +27,49 @@ const PRESETS: Preset[] = [
   {
     id: "academic",
     label: { da: "Akademisk fokus", en: "Academic focus" },
-    emoji: "📝",
+    icon: PencilLine,
     weights: { karakterer: 90, kompetence: 70, trivsel: 40, fravaer: 50, klassestorrelse: 30, elevPrLaerer: 40 },
     categories: ["skole"],
   },
   {
     id: "wellbeing",
     label: { da: "Trygt miljø", en: "Safe environment" },
-    emoji: "🤗",
+    icon: Heart,
     weights: { trivsel: 90, fravaer: 70, klassestorrelse: 60, elevPrLaerer: 50, karakterer: 20, kompetence: 30 },
     categories: ["skole"],
   },
   {
     id: "individual",
     label: { da: "Individuel opmærksomhed", en: "Individual attention" },
-    emoji: "🧑‍🏫",
+    icon: UserCheck,
     weights: { elevPrLaerer: 100, undervisningstid: 80, klassestorrelse: 70, trivsel: 40, karakterer: 30 },
     categories: ["skole"],
   },
   {
     id: "allround",
     label: { da: "Bedste overalt", en: "Best overall" },
-    emoji: "⭐",
+    icon: Star,
     weights: { trivsel: 70, karakterer: 70, fravaer: 60, kompetence: 60, klassestorrelse: 50, elevPrLaerer: 50 },
     categories: ["skole"],
   },
   {
     id: "quality-care",
     label: { da: "Bedste kvalitet", en: "Best quality" },
-    emoji: "⭐",
+    icon: Star,
     weights: { normering: 90, uddannelse: 80, tilfredshed: 70, price: 20 },
     categories: ["vuggestue", "boernehave", "dagpleje", "sfo"],
   },
   {
     id: "budget",
     label: { da: "Billigst muligt", en: "Lowest price" },
-    emoji: "💰",
+    icon: Coins,
     weights: { price: 100, normering: 30, uddannelse: 10, tilfredshed: 20 },
     categories: ["vuggestue", "boernehave", "dagpleje", "sfo", "efterskole"],
   },
   {
     id: "nearby-care",
     label: { da: "God og billig", en: "Good and affordable" },
-    emoji: "💡",
+    icon: Lightbulb,
     weights: { normering: 60, tilfredshed: 50, price: 60, uddannelse: 30 },
     categories: ["vuggestue", "boernehave", "dagpleje", "sfo"],
   },
@@ -298,7 +298,7 @@ export default function FindPage() {
                           onClick={() => handlePreset(preset)}
                           className="text-xs px-3 py-1.5 rounded-full border border-accent/30 text-accent hover:bg-accent/10 hover:border-accent/50 transition-all font-medium"
                         >
-                          {preset.emoji} {language === "da" ? preset.label.da : preset.label.en}
+                          <preset.icon className="w-3.5 h-3.5 inline-block -mt-0.5" /> {language === "da" ? preset.label.da : preset.label.en}
                         </button>
                       ))}
                     </div>
