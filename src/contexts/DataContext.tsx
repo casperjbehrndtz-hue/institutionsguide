@@ -154,7 +154,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function loadData() {
       try {
-        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes, normeringRes, instStatsRes, komStatsRes, schoolExtraRes, sfoStatsRes, tilsynRes, gymnasiumRes] = await Promise.all([
+        const [skoleRes, vuggestueRes, boernehaveRes, dagplejeRes, sfoRes, normeringRes, instStatsRes, komStatsRes, schoolExtraRes, sfoStatsRes, tilsynRes, gymnasiumRes, fritidsklubSupRes] = await Promise.all([
           fetch("/data/skole-data.json"),
           fetch("/data/vuggestue-data.json"),
           fetch("/data/boernehave-data.json"),
@@ -167,6 +167,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           fetch("/data/sfo-stats.json").catch(() => null),
           fetch("/data/tilsynsrapporter.json").catch(() => null),
           fetch("/data/gymnasium-data.json").catch(() => null),
+          fetch("/data/fritidsklub-supplement.json").catch(() => null),
         ]);
 
         if (!skoleRes.ok || !vuggestueRes.ok || !boernehaveRes.ok || !dagplejeRes.ok) {
@@ -302,6 +303,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
               unified.push(u);
             }
           }
+        }
+
+        // Fritidsklub supplement (from municipal websites, not in Dagtilbudsregisteret)
+        if (fritidsklubSupRes && fritidsklubSupRes.ok) {
+          try {
+            const supData: CompactDagtilbudData = await fritidsklubSupRes.json();
+            for (const d of (supData.i || [])) {
+              const u = compactDagtilbudToUnified(d, "klub");
+              if (u && !seenFritidsklub.has(u.id)) {
+                u.category = "fritidsklub";
+                if (!u.monthlyRate || !u.annualRate) {
+                  const rates = CHILDCARE_RATES_2025.find((r) => r.municipality === u.municipality);
+                  if (rates?.fritidshjem) {
+                    u.monthlyRate = Math.round(rates.fritidshjem / 12);
+                    u.annualRate = rates.fritidshjem;
+                  }
+                }
+                seenFritidsklub.add(u.id);
+                unified.push(u);
+              }
+            }
+          } catch { /* ignore parse errors */ }
         }
 
         // Gymnasiums (from gymnasium-data.json)
