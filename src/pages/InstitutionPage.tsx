@@ -10,6 +10,7 @@ import { dataVersions } from "@/lib/dataVersions";
 import { isInstitutionUnlocked } from "@/lib/institutionGate";
 import InstitutionGateModal from "@/components/shared/InstitutionGateModal";
 import GatedSection from "@/components/shared/GatedSection";
+import { useGoogleRating } from "@/hooks/useGoogleRating";
 
 const InstitutionChat = lazy(() => import("@/components/chat/InstitutionChat"));
 const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
@@ -220,6 +221,10 @@ export default function InstitutionPage() {
     inst, scoreResult, nearby, normering, municipalityAvgPrice,
     institutions, institutionStats, nationalAverages,
   );
+
+  // Google rating
+  const googleAddr = inst ? `${inst.address}, ${inst.postalCode} ${inst.city}` : undefined;
+  const { rating: googleRating } = useGoogleRating(inst?.id, inst?.name, googleAddr);
 
   // Determine which quality section has data
   const hasInstStats = !!(instStats && (instStats.normering02 != null || instStats.pctPaedagoger != null || instStats.parentSatisfaction != null));
@@ -480,6 +485,7 @@ export default function InstitutionPage() {
               language={language}
               aiAssessment={aiAssessment}
               aiLoading={aiState === "loading"}
+              googleRating={googleRating}
             />
 
             {/* 2-column: metrics left, sidebar right */}
@@ -541,6 +547,7 @@ export default function InstitutionPage() {
                     instStats={instStats}
                     tilsynCount={tilsynCount}
                     tilsynClear={tilsynCount === 0 && (tilsynRapporter[inst.id]?.length ?? 0) >= 0}
+                    googleRating={googleRating}
                   />
                 </div>
               </div>

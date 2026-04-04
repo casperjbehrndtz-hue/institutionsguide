@@ -3,6 +3,7 @@ import type { Assessment } from "@/hooks/useAssessment";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import ScoreRing from "@/components/shared/ScoreRing";
 import MetricBar from "@/components/shared/MetricBar";
+import GoogleRatingBadge from "@/components/shared/GoogleRatingBadge";
 
 interface Props {
   score: ScoreResult;
@@ -12,6 +13,7 @@ interface Props {
   language: "da" | "en";
   aiAssessment?: Assessment | null;
   aiLoading?: boolean;
+  googleRating?: { rating: number; review_count: number; maps_url: string | null } | null;
 }
 
 const SCORE_COLOR = (s: number) =>
@@ -66,6 +68,7 @@ export default function InstitutionReport({
   language: lang,
   aiAssessment,
   aiLoading,
+  googleRating,
 }: Props) {
   const hasData = score.hasData;
   const s10 = hasData && score.overall != null ? Math.round(score.overall / 10 * 10) / 10 : null;
@@ -125,9 +128,19 @@ export default function InstitutionReport({
               {institutionName}
             </h1>
 
-            <p className="text-base text-muted mb-6">
-              {CATEGORY_LABELS[category]?.[lang] ?? category} · {municipality} Kommune
-            </p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-6">
+              <p className="text-base text-muted">
+                {CATEGORY_LABELS[category]?.[lang] ?? category} · {municipality} Kommune
+              </p>
+              {googleRating && (
+                <GoogleRatingBadge
+                  rating={googleRating.rating}
+                  reviewCount={googleRating.review_count}
+                  mapsUrl={googleRating.maps_url}
+                  compact
+                />
+              )}
+            </div>
 
             <p className="text-[15px] text-foreground/70 leading-relaxed mb-7 max-w-[440px]">
               {aiLoading ? (

@@ -1,6 +1,7 @@
 import { Phone, Mail, ExternalLink, MapPin, Shield } from "lucide-react";
 import { formatDKK } from "@/lib/format";
 import type { UnifiedInstitution, KommuneStats, InstitutionStats } from "@/lib/types";
+import GoogleRatingBadge from "@/components/shared/GoogleRatingBadge";
 
 interface Props {
   inst: UnifiedInstitution;
@@ -9,9 +10,10 @@ interface Props {
   instStats?: InstitutionStats;
   tilsynCount: number;
   tilsynClear: boolean;
+  googleRating?: { rating: number; review_count: number; maps_url: string | null } | null;
 }
 
-export default function InstitutionSidebar({ inst, language: lang, kommuneStats: ks, instStats, tilsynCount, tilsynClear }: Props) {
+export default function InstitutionSidebar({ inst, language: lang, kommuneStats: ks, instStats, tilsynCount, tilsynClear, googleRating }: Props) {
   const q = inst.quality;
 
   return (
@@ -144,6 +146,20 @@ export default function InstitutionSidebar({ inst, language: lang, kommuneStats:
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Google rating */}
+      {googleRating && (
+        <div className="bg-bg-card rounded-2xl border border-border/50 p-5 shadow-sm">
+          <h3 className="font-display text-base font-medium text-foreground mb-3">
+            Google
+          </h3>
+          <GoogleRatingBadge
+            rating={googleRating.rating}
+            reviewCount={googleRating.review_count}
+            mapsUrl={googleRating.maps_url}
+          />
         </div>
       )}
 
