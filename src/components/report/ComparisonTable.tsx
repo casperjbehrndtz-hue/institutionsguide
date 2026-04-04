@@ -52,7 +52,7 @@ export default function ComparisonTable({ current, currentScore, nearby, languag
           : `The nearest comparable institutions`}
       </p>
       <div className="overflow-x-auto -mx-2">
-        <table className="w-full text-sm" style={{ minWidth: 480 }}>
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border/60">
               <th className="text-left py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
@@ -60,13 +60,13 @@ export default function ComparisonTable({ current, currentScore, nearby, languag
               </th>
               <th className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">Score</th>
               {isSchool && <>
-                <th className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
+                <th className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
                   {lang === "da" ? "Trivsel" : "Well-being"}
                 </th>
-                <th className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
+                <th className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
                   {lang === "da" ? "Fravær" : "Absence"}
                 </th>
-                <th className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
+                <th className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
                   {lang === "da" ? "Karakter" : "Grades"}
                 </th>
               </>}
@@ -102,13 +102,13 @@ export default function ComparisonTable({ current, currentScore, nearby, languag
                   )}
                 </td>
                 {isSchool && <>
-                  <td className="py-3 px-2 text-right font-mono text-muted">
+                  <td className="hidden sm:table-cell py-3 px-2 text-right font-mono text-muted">
                     {r.trivsel?.toLocaleString("da-DK") ?? "—"}
                   </td>
-                  <td className="py-3 px-2 text-right font-mono text-muted">
+                  <td className="hidden sm:table-cell py-3 px-2 text-right font-mono text-muted">
                     {r.fravaer != null ? `${r.fravaer.toLocaleString("da-DK")}%` : "—"}
                   </td>
-                  <td className="py-3 px-2 text-right font-mono text-muted">
+                  <td className="hidden sm:table-cell py-3 px-2 text-right font-mono text-muted">
                     {r.karakter?.toLocaleString("da-DK") ?? "—"}
                   </td>
                 </>}

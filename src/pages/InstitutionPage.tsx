@@ -531,7 +531,7 @@ export default function InstitutionPage() {
                 )}
               </div>
 
-              {/* Sidebar */}
+              {/* Sidebar — desktop: sticky column */}
               <div className="hidden lg:block">
                 <div className="sticky top-16">
                   <InstitutionSidebar
@@ -544,6 +544,18 @@ export default function InstitutionPage() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Sidebar — mobile: stacked below content */}
+            <div className="lg:hidden mt-6">
+              <InstitutionSidebar
+                inst={inst}
+                language={language}
+                kommuneStats={komStats}
+                instStats={instStats}
+                tilsynCount={tilsynCount}
+                tilsynClear={tilsynCount === 0 && (tilsynRapporter[inst.id]?.length ?? 0) >= 0}
+              />
             </div>
           </GatedSection>
 
@@ -640,7 +652,7 @@ export default function InstitutionPage() {
             )}
             <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
               {inst.category === "efterskole" && inst.yearlyPrice ? (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
                     <p className="text-xs text-muted mb-1">{language === "da" ? "Ugepris" : "Weekly rate"}</p>
                     <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.weeklyPrice)}</p>
@@ -652,7 +664,7 @@ export default function InstitutionPage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
                     <p className="text-xs text-muted mb-1">{t.detail.monthlyRate}</p>
                     <p className="font-mono text-2xl font-bold text-primary">{formatDKK(inst.monthlyRate)}</p>

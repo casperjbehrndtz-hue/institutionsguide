@@ -31,13 +31,13 @@ export default function MetricBar({ label, value, percentileLabel, color, fillPc
 
   return (
     <div ref={ref} className="mb-5">
-      <div className="flex justify-between items-baseline mb-2">
-        <span className="text-sm text-foreground font-medium">{label}</span>
-        <div className="flex items-center gap-2.5">
-          <span className="font-mono text-lg font-medium text-foreground">{value}</span>
+      <div className="flex flex-wrap justify-between items-baseline gap-x-2 gap-y-1 mb-2">
+        <span className="text-xs sm:text-sm text-foreground font-medium min-w-0">{label}</span>
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <span className="font-mono text-base sm:text-lg font-medium text-foreground">{value}</span>
           {percentileLabel && (
             <span
-              className="text-[11px] font-medium px-2.5 py-0.5 rounded-full text-white"
+              className="text-[10px] sm:text-[11px] font-medium px-2 sm:px-2.5 py-0.5 rounded-full text-white whitespace-nowrap"
               style={{ background: color }}
             >
               {percentileLabel}
