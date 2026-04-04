@@ -74,7 +74,16 @@ Deno.serve(async (req) => {
     if (context.kompetencedaekning_pct != null) contextLines.push(`Kompetencedækning: ${context.kompetencedaekning_pct}%`);
     if (context.klassestorrelse != null) contextLines.push(`Klassestørrelse: ${context.klassestorrelse} elever`);
     if (context.undervisningseffekt) contextLines.push(`Undervisningseffekt: ${context.undervisningseffekt}`);
+    if (context.undervisningstid_pr_elev != null) contextLines.push(`Undervisningstid pr. elev: ${context.undervisningstid_pr_elev} t`);
     if (context.address) contextLines.push(`Adresse: ${context.address}`);
+
+    // Add percentile rankings if available — these are authoritative
+    if (context.percentile_rankings && Array.isArray(context.percentile_rankings) && context.percentile_rankings.length > 0) {
+      contextLines.push(`\nPercentil-placeringer (nationalt):`);
+      for (const r of context.percentile_rankings) {
+        contextLines.push(`  ${r}`);
+      }
+    }
 
     // Detect if this is the initial insight request (long question about overall assessment)
     const isInsightRequest = question.length > 100;
@@ -82,15 +91,17 @@ Deno.serve(async (req) => {
 
     const systemPrompt = `Du er en erfaren rådgiver for danske forældre der vælger institution til deres barn.
 
+VIGTIGT: Percentil-placeringerne i dataen er beregnet på tværs af ALLE danske institutioner i samme kategori. De er autoritative — brug dem direkte. Hvis trivsel er i 99. percentil, er det exceptionelt (top 1% nationalt), ikke "almindeligt". Din vurdering SKAL være konsistent med percentilerne.
+
 ${isInsightRequest ? `Du skal give en DYBDEGÅENDE indsigt om institutionen. Fokusér på:
-- Hvad tallene BETYDER i praksis (ikke bare gentag dem)
-- Kontekst: hvordan klarer institutionen sig sammenlignet med lignende?
+- Hvad tallene og percentilerne BETYDER i praksis (ikke bare gentag dem)
+- Kontekst: percentilerne fortæller præcis hvordan institutionen ligger ift. alle andre
 - Hvad er vigtigt for en forælder at vide som IKKE er umiddelbart synligt i tallene?
 - Giv et ærligt, nuanceret billede — både styrker og svagheder
 - Afslut med et konkret råd om hvem institutionen passer godt til
 
-Skriv 4-6 sætninger. Brug afsnit for læsbarhed. Vær konkret og handlingsorienteret.` : `Svar kort og præcist (maks 3-4 sætninger). Brug konkrete tal fra dataen.
-Hvis du ikke har data nok til at svare, sig det ærligt.`}
+Skriv 4-6 sætninger. Brug afsnit for læsbarhed. Vær konkret og handlingsorienteret.` : `Svar kort og præcist (maks 3-4 sætninger). Brug konkrete tal og percentiler fra dataen.
+Hvis du ikke har data nok til at svare, sig det ærligt. Vær altid konsistent med percentil-placeringerne.`}
 
 Svar på samme sprog som spørgsmålet. Skriv aldrig som en AI-chatbot — skriv som en kyndig rådgiver.`;
 

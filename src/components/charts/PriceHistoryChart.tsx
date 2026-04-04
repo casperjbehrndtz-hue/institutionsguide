@@ -37,13 +37,7 @@ export default function PriceHistoryChart({
   if (error) return null;
 
   if (data.length === 0) {
-    return (
-      <div className="w-full rounded-lg border border-border bg-card p-6 text-center">
-        <p className="text-sm text-muted">
-          {isDa ? "Prishistorik kommer snart" : "Price history coming soon"}
-        </p>
-      </div>
-    );
+    return null;
   }
 
   if (data.length === 1) {

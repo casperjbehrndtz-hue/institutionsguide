@@ -31,7 +31,6 @@ import ReviewFormV2 from "@/components/reviews/ReviewFormV2";
 import { useReviews } from "@/hooks/useReviews";
 import { useReviewAnalysis } from "@/hooks/useReviewAnalysis";
 import ReviewThemes from "@/components/reviews/ReviewThemes";
-import TilsynSection from "@/components/tilsyn/TilsynSection";
 import TilsynRapportSection from "@/components/tilsyn/TilsynRapportSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
 import InstitutionSidebar from "@/components/report/InstitutionSidebar";
@@ -337,9 +336,11 @@ export default function InstitutionPage() {
     if (hasPrice || hasQuality) {
       defs.push({ id: "section-data", labelDA: "Data", labelEN: "Data" });
     }
-    defs.push({ id: "section-anmeldelser", labelDA: "Anmeldelser", labelEN: "Reviews" });
+    if (reviews.length > 0) {
+      defs.push({ id: "section-anmeldelser", labelDA: "Anmeldelser", labelEN: "Reviews" });
+    }
     return defs;
-  }, [inst, scoreResult, percentiles, hasInstitutionQuality]);
+  }, [inst, scoreResult, percentiles, hasInstitutionQuality, reviews.length]);
 
   if (loading) {
     return (
@@ -536,9 +537,12 @@ export default function InstitutionPage() {
                       klassestorrelse: inst.quality?.kv ?? null,
                       undervisningseffekt: inst.quality?.sr ?? null,
                       elever_pr_laerer: inst.quality?.epl ?? null,
+                      undervisningstid_pr_elev: inst.quality?.upe ?? null,
                       score: scoreResult.overall,
                       grade: scoreResult.grade,
                       address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
+                      // Percentile rankings so AI chat is consistent with displayed data
+                      percentile_rankings: percentiles?.map(p => `${p.label}: ${p.value} (${p.percentile}. percentil)`) ?? [],
                     }}
                   />
                 </Suspense>
@@ -855,15 +859,12 @@ export default function InstitutionPage() {
           </GatedSection>
         )}
 
-        {/* Tilsyn (from Supabase) */}
-        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-          <TilsynSection institutionId={inst.id} institutionName={inst.name} />
-        </GatedSection>
-
-        {/* Reviews */}
-        <div id="section-anmeldelser">
-          <ReviewSection institutionId={inst.id} />
-        </div>
+        {/* Reviews — only show if there are actual reviews */}
+        {reviews.length > 0 && (
+          <div id="section-anmeldelser">
+            <ReviewSection institutionId={inst.id} />
+          </div>
+        )}
       </section>
 
       <CompareBar />
