@@ -116,11 +116,11 @@ function QualityMetricRow({ label, percentile, value, delay = 0, lang = "da" }: 
   return (
     <div
       ref={rowRef}
-      className="grid items-center gap-2 sm:gap-3 py-3 border-b border-border/20"
-      style={{ gridTemplateColumns: "minmax(90px, 140px) 1fr 50px 80px" }}
+      className="grid items-center gap-1.5 sm:gap-3 py-3 border-b border-border/20"
+      style={{ gridTemplateColumns: "minmax(70px, 140px) 1fr auto auto" }}
     >
-      <span className="text-[13px] text-muted font-medium truncate">{label}</span>
-      <div className="h-1 bg-border/30 rounded-full overflow-hidden min-w-[60px]">
+      <span className="text-xs sm:text-[13px] text-muted font-medium truncate">{label}</span>
+      <div className="h-1 bg-border/30 rounded-full overflow-hidden min-w-[40px]">
         <div
           className="h-full rounded-full"
           style={{
@@ -130,9 +130,9 @@ function QualityMetricRow({ label, percentile, value, delay = 0, lang = "da" }: 
           }}
         />
       </div>
-      <span className="font-mono text-sm font-medium text-foreground text-right">{value}</span>
+      <span className="font-mono text-xs sm:text-sm font-medium text-foreground text-right">{value}</span>
       <span
-        className="text-[10px] font-bold text-center px-2 py-0.5 rounded-full tracking-wide whitespace-nowrap"
+        className="text-[9px] sm:text-[10px] font-bold text-center px-1.5 sm:px-2 py-0.5 rounded-full tracking-wide whitespace-nowrap"
         style={{ color, backgroundColor: bg }}
       >
         {rankLabel}
@@ -559,7 +559,7 @@ export default function InstitutionPage() {
                     {/* Header row */}
                     <div
                       className="hidden sm:grid gap-3 pb-2 border-b border-border/40"
-                      style={{ gridTemplateColumns: "minmax(90px, 140px) 1fr 50px 80px" }}
+                      style={{ gridTemplateColumns: "minmax(70px, 140px) 1fr auto auto" }}
                     >
                       <span className="text-[10px] text-muted/50 uppercase tracking-widest font-semibold" />
                       <span className="text-[10px] text-muted/50 uppercase tracking-widest font-semibold" />
