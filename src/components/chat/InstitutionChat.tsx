@@ -91,34 +91,38 @@ export default function InstitutionChat({ institutionId, category, context, lang
     : ["Is it good for a child with special needs?", "What's the daily routine like?", "Is there a waiting list?"];
   const suggestions = language === "da" ? suggestionsDA : suggestionsEN;
 
-  // Hide entirely if we failed to load and have nothing to show
-  if (insightError && !insight && !insightLoading) return null;
+  // Show retry state instead of hiding entirely
+  const showRetry = insightError && !insight && !insightLoading;
 
   return (
-    <div className="max-w-[640px] mx-auto">
-      <div className="card rounded-xl overflow-hidden border border-primary/20">
+    <div>
+      <div className="rounded-2xl overflow-hidden border border-primary/10 bg-primary/[0.02]">
         {/* Header */}
-        <button
-          onClick={() => setIsOpen((o) => !o)}
-          className="w-full flex items-center justify-between gap-3 px-4 py-3.5 bg-primary/5 hover:bg-primary/10 transition-colors min-h-[48px] cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5">
-            <Sparkles className="w-5 h-5 text-primary shrink-0" />
-            <span className="text-sm font-semibold text-foreground">
-              {language === "da" ? "AI-indsigt" : "AI Insight"}
-            </span>
+        <div className="px-5 py-4 flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-primary-foreground" />
           </div>
-          {isOpen ? (
-            <ChevronUp className="w-4 h-4 text-muted shrink-0" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-muted shrink-0" />
-          )}
-        </button>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-primary">
+              {language === "da" ? `Spørg om ${context.name || "institutionen"}` : `Ask about ${context.name || "the institution"}`}
+            </div>
+            <div className="text-[11px] text-muted">
+              {language === "da" ? "AI-indsigt baseret på officielle data" : "AI insight based on official data"}
+            </div>
+          </div>
+          <button onClick={() => setIsOpen((o) => !o)} className="p-1 cursor-pointer">
+            {isOpen ? (
+              <ChevronUp className="w-4 h-4 text-muted" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted" />
+            )}
+          </button>
+        </div>
 
         {isOpen && (
           <div className="border-t border-primary/15">
             {/* Auto-generated insight */}
-            <div className="px-4 py-4">
+            <div className="px-5 py-4">
               {insightLoading && (
                 <div className="flex items-center gap-2.5 text-muted py-4">
                   <Loader2 className="w-4 h-4 animate-spin text-primary" />
@@ -127,7 +131,19 @@ export default function InstitutionChat({ institutionId, category, context, lang
                   </span>
                 </div>
               )}
-              {/* On error with no insight, render nothing — silence is better than "we failed" */}
+              {showRetry && (
+                <div className="text-center py-3">
+                  <p className="text-sm text-muted mb-2">
+                    {language === "da" ? "Kunne ikke hente AI-indsigt." : "Could not load AI insight."}
+                  </p>
+                  <button
+                    onClick={() => { fetchedRef.current = false; fetchInsight(); }}
+                    className="text-sm text-primary font-medium hover:underline cursor-pointer"
+                  >
+                    {language === "da" ? "Prøv igen" : "Try again"}
+                  </button>
+                </div>
+              )}
               {insight && (
                 <div className="space-y-3">
                   <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">
@@ -143,14 +159,14 @@ export default function InstitutionChat({ institutionId, category, context, lang
 
             {/* Divider + follow-up section */}
             {insight && (
-              <div className="border-t border-border/50">
+              <div className="border-t border-primary/10">
                 {!showChat ? (
                   <button
                     onClick={() => {
                       setShowChat(true);
                       setTimeout(() => inputRef.current?.focus(), 100);
                     }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer min-h-[44px]"
+                    className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors cursor-pointer min-h-[44px]"
                   >
                     <MessageCircle className="w-4 h-4" />
                     {language === "da" ? "Stil et opfølgende spørgsmål" : "Ask a follow-up question"}
@@ -159,7 +175,7 @@ export default function InstitutionChat({ institutionId, category, context, lang
                   <div className="px-4 py-3 space-y-3">
                     {/* Suggestion chips when no follow-ups yet */}
                     {messages.length === 0 && (
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-2">
                         {suggestions.map((q) => (
                           <button
                             key={q}
@@ -167,7 +183,7 @@ export default function InstitutionChat({ institutionId, category, context, lang
                               if (!isLoading && canSendMore) sendMessage(q, context);
                             }}
                             disabled={isLoading}
-                            className="text-xs px-3 py-1.5 rounded-full border border-border text-foreground hover:bg-primary/10 hover:border-primary/30 transition-colors min-h-[32px] disabled:opacity-50 cursor-pointer"
+                            className="text-xs px-3.5 py-2 rounded-full border border-primary/15 bg-primary/[0.04] text-primary font-medium hover:bg-primary/10 hover:border-primary/25 transition-all min-h-[32px] disabled:opacity-50 cursor-pointer"
                           >
                             {q}
                           </button>
