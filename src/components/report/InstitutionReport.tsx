@@ -98,7 +98,7 @@ export default function InstitutionReport({
   const topMetrics = score.metrics.slice(0, 2);
 
   return (
-    <div className="max-w-[720px] mx-auto">
+    <div>
       {/* Hero card */}
       <div className="bg-bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
         {/* Top section: info left, score right */}

@@ -1,6 +1,6 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Mail, Phone, ExternalLink, ArrowLeft, ChevronRight, Heart, GitCompareArrows, Lock } from "lucide-react";
+import { ArrowLeft, ChevronRight, Heart, GitCompareArrows, Lock, ExternalLink } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -33,6 +33,8 @@ import ReviewThemes from "@/components/reviews/ReviewThemes";
 import TilsynSection from "@/components/tilsyn/TilsynSection";
 import TilsynRapportSection from "@/components/tilsyn/TilsynRapportSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
+import InstitutionSidebar from "@/components/report/InstitutionSidebar";
+import ComparisonTable from "@/components/report/ComparisonTable";
 import InstitutionQualitySection from "@/components/detail/InstitutionQualitySection";
 import ArbejdstilsynSection from "@/components/detail/ArbejdstilsynSection";
 import { computeScore } from "@/lib/institutionScore";
@@ -54,7 +56,7 @@ function HeroImage({ inst }: { inst: { imageUrl?: string; lat: number; lng: numb
   const [imgFailed, setImgFailed] = useState(false);
   const showExternal = inst.imageUrl && !imgFailed;
   return (
-    <div className="max-w-[720px] mx-auto px-4 pb-4">
+    <div className="max-w-[960px] mx-auto px-4 pb-4">
       {showExternal ? (
         <img
           src={inst.imageUrl}
@@ -136,6 +138,8 @@ export default function InstitutionPage() {
   const [compareToast, setCompareToast] = useState<string | false>(false);
   const [unlocked, setUnlocked] = useState(() => isInstitutionUnlocked());
   const [gateOpen, setGateOpen] = useState(false);
+  const [shrunk, setShrunk] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   const openGate = useCallback(() => setGateOpen(true), []);
   const handleUnlocked = useCallback(() => setUnlocked(true), []);
@@ -153,6 +157,13 @@ export default function InstitutionPage() {
   useEffect(() => {
     if (id) addViewed(id);
   }, [id, addViewed]);
+
+  // Sticky header on scroll past hero
+  useEffect(() => {
+    const h = () => setShrunk(window.scrollY > 340);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
+  }, []);
 
   useEffect(() => {
     if (!compareToast) return;
@@ -214,6 +225,38 @@ export default function InstitutionPage() {
   const hasInstStats = !!(instStats && (instStats.normering02 != null || instStats.pctPaedagoger != null || instStats.parentSatisfaction != null));
   const hasKomStats = !!(komStats && (komStats.avgSygefravaerDage != null || komStats.udgiftPrBarn != null));
   const hasInstitutionQuality = hasInstStats || hasKomStats;
+
+  // Comparison rows for nearby institutions
+  const comparisonRows = useMemo(() => {
+    if (!inst || !scoreResult) return [];
+    return nearby.slice(0, 4).map((n) => {
+      const nStats = institutionStats[n.id.replace(/^(vug|bh|dag|sfo)-/, "")];
+      const nSchoolExtra = schoolExtraStats[n.municipality];
+      const nSfoStats = sfoStats[n.municipality];
+      const nNearby = institutions.filter((i) => i.id !== n.id && i.category === n.category).slice(0, 3);
+      const nMuniAvg = (() => {
+        const same = institutions.filter((i) => i.municipality === n.municipality && i.category === n.category && i.id !== n.id);
+        const prices = same.map((i) => i.monthlyRate).filter((p): p is number => p != null && p > 0);
+        return prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : null;
+      })();
+      const nScore = computeScore(n, nNearby, normering, nMuniAvg, nStats, institutions, institutionStats, nSchoolExtra, nSfoStats);
+      return {
+        inst: n,
+        score: nScore.overall != null ? Math.round(nScore.overall / 10 * 10) / 10 : null,
+        trivsel: n.quality?.ts ?? null,
+        fravaer: n.quality?.fp ?? null,
+        karakter: n.quality?.k ?? null,
+        dist: n.dist,
+      };
+    });
+  }, [inst, scoreResult, nearby, normering, institutions, institutionStats, schoolExtraStats, sfoStats]);
+
+  // Tilsyn count for sidebar badge
+  const tilsynCount = useMemo(() => {
+    if (!inst) return 0;
+    const reports = tilsynRapporter[inst.id] ?? [];
+    return reports.filter((r) => r.status === "aktiv" || r.type === "påbud").length;
+  }, [inst, tilsynRapporter]);
 
   // Compute percentiles for school quality metrics across all schools
   const percentiles = useMemo(() => {
@@ -316,8 +359,34 @@ export default function InstitutionPage() {
         { name: inst.name, url: `https://institutionsguiden.dk/institution/${inst.id}` },
       ])} />
 
+      {/* Sticky micro-header */}
+      <div
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          shrunk
+            ? "bg-background/95 backdrop-blur-xl border-b border-border/40 py-2.5"
+            : "bg-transparent py-4 pointer-events-none"
+        }`}
+      >
+        <div className="max-w-[960px] mx-auto px-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="font-display text-sm font-semibold text-foreground/80">Institutionsguide</span>
+            {shrunk && scoreResult && (
+              <>
+                <span className="text-border">·</span>
+                <span className="text-sm text-muted font-medium">{inst.name}</span>
+                {scoreResult.overall != null && (
+                  <span className="font-mono text-sm font-medium text-[#0d7c5f]">
+                    {(Math.round(scoreResult.overall / 10 * 10) / 10).toLocaleString("da-DK")}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Breadcrumb */}
-      <nav className="max-w-[720px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
+      <nav className="max-w-[960px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
         <ol className="flex items-center gap-1 flex-wrap">
           <li><Link to="/" className="hover:text-primary transition-colors">{language === "da" ? "Forside" : "Home"}</Link></li>
           <li><ChevronRight className="w-3.5 h-3.5" /></li>
@@ -329,7 +398,7 @@ export default function InstitutionPage() {
         </ol>
       </nav>
 
-      <div className="max-w-[720px] mx-auto px-4 space-y-2">
+      <div className="max-w-[960px] mx-auto px-4 space-y-2">
         <DataFreshness />
         <DataSourceBadges
           category={inst.category}
@@ -340,7 +409,7 @@ export default function InstitutionPage() {
       </div>
 
       {/* Compact action bar */}
-      <div className="max-w-[720px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
+      <div className="max-w-[960px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
         <button
           onClick={() => {
             if (cameFrom) {
@@ -398,13 +467,11 @@ export default function InstitutionPage() {
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════
-          THE REPORT — this IS the page content
-          Matches the HTML mockup exactly
-          ═══════════════════════════════════════════ */}
+      {/* ═══════════════ REPORT + SIDEBAR (2-col) ═══════════════ */}
       {scoreResult && (
-        <section id="section-overblik" className="px-4 pb-6">
+        <section id="section-overblik" className="max-w-[960px] mx-auto px-4 pb-6" ref={heroRef}>
           <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+            {/* Hero card spans full width */}
             <InstitutionReport
               score={scoreResult}
               institutionName={inst.name}
@@ -414,95 +481,88 @@ export default function InstitutionPage() {
               aiAssessment={aiAssessment}
               aiLoading={aiState === "loading"}
             />
-          </GatedSection>
-        </section>
-      )}
 
-      {/* AI Chat */}
-      {scoreResult && (
-        <section className="px-4 pb-4">
-          <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-            <Suspense fallback={null}>
-              <InstitutionChat
-                institutionId={inst.id}
-                category={inst.category}
-                language={language}
-                context={{
-                  name: inst.name,
-                  category: inst.category,
-                  municipality: inst.municipality,
-                  monthly_rate: inst.monthlyRate ?? null,
-                  municipality_avg_price: municipalityAvgPrice,
-                  yearly_price: inst.yearlyPrice ?? null,
-                  ownership: inst.ownership ?? null,
-                  normering_ratio: instStats?.normering02 ?? instStats?.normering35 ?? null,
-                  normering_age_group: instStats?.normering02 != null ? "0-2" : instStats?.normering35 != null ? "3-5" : null,
-                  pct_paedagoger: instStats?.pctPaedagoger ?? null,
-                  pct_uden_paed_udd: instStats?.pctUdenPaedUdd ?? null,
-                  parent_satisfaction: instStats?.parentSatisfaction ?? null,
-                  antal_boern: instStats?.antalBoern ?? null,
-                  trivsel: inst.quality?.ts ?? null,
-                  trivsel_social: inst.quality?.tsi ?? null,
-                  karakterer: inst.quality?.k ?? null,
-                  fravaer_pct: inst.quality?.fp ?? null,
-                  kompetencedaekning_pct: inst.quality?.kp ?? null,
-                  klassestorrelse: inst.quality?.kv ?? null,
-                  undervisningseffekt: inst.quality?.sr ?? null,
-                  elever_pr_laerer: inst.quality?.epl ?? null,
-                  score: scoreResult.overall,
-                  grade: scoreResult.grade,
-                  address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
-                }}
-              />
-            </Suspense>
-          </GatedSection>
-        </section>
-      )}
+            {/* 2-column: metrics left, sidebar right */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-6">
+              <div className="space-y-6">
+                {/* AI Chat */}
+                <Suspense fallback={null}>
+                  <InstitutionChat
+                    institutionId={inst.id}
+                    category={inst.category}
+                    language={language}
+                    context={{
+                      name: inst.name,
+                      category: inst.category,
+                      municipality: inst.municipality,
+                      monthly_rate: inst.monthlyRate ?? null,
+                      municipality_avg_price: municipalityAvgPrice,
+                      yearly_price: inst.yearlyPrice ?? null,
+                      ownership: inst.ownership ?? null,
+                      normering_ratio: instStats?.normering02 ?? instStats?.normering35 ?? null,
+                      normering_age_group: instStats?.normering02 != null ? "0-2" : instStats?.normering35 != null ? "3-5" : null,
+                      pct_paedagoger: instStats?.pctPaedagoger ?? null,
+                      pct_uden_paed_udd: instStats?.pctUdenPaedUdd ?? null,
+                      parent_satisfaction: instStats?.parentSatisfaction ?? null,
+                      antal_boern: instStats?.antalBoern ?? null,
+                      trivsel: inst.quality?.ts ?? null,
+                      trivsel_social: inst.quality?.tsi ?? null,
+                      karakterer: inst.quality?.k ?? null,
+                      fravaer_pct: inst.quality?.fp ?? null,
+                      kompetencedaekning_pct: inst.quality?.kp ?? null,
+                      klassestorrelse: inst.quality?.kv ?? null,
+                      undervisningseffekt: inst.quality?.sr ?? null,
+                      elever_pr_laerer: inst.quality?.epl ?? null,
+                      score: scoreResult.overall,
+                      grade: scoreResult.grade,
+                      address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
+                    }}
+                  />
+                </Suspense>
 
-      {/* Contact section with prominent CTA */}
-      <section className="max-w-[720px] mx-auto px-4 pb-4">
-        {(inst.phone || inst.email || inst.web) && (
-          <div className="card p-4 mb-3">
-            <h3 className="text-sm font-semibold text-foreground mb-3">{language === "da" ? "Kontakt" : "Contact"}</h3>
-            <div className="flex flex-col sm:flex-row gap-2">
-              {inst.phone && (
-                <a href={`tel:${inst.phone}`} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]">
-                  <Phone className="w-4 h-4" /> {inst.phone}
-                </a>
-              )}
-              {inst.email && (
-                <a href={`mailto:${inst.email}`} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-border/30 transition-colors min-h-[44px]">
-                  <Mail className="w-4 h-4" /> {language === "da" ? "Send email" : "Send email"}
-                </a>
-              )}
-              {inst.web && (
-                <a href={inst.web.startsWith("http") ? inst.web : `https://${inst.web}`} target="_blank" rel="noopener noreferrer" className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-border/30 transition-colors min-h-[44px]">
-                  <ExternalLink className="w-4 h-4" /> {language === "da" ? "Hjemmeside" : "Website"}
-                </a>
-              )}
+                {/* Comparison table */}
+                {comparisonRows.length > 0 && (
+                  <ComparisonTable
+                    current={inst}
+                    currentScore={scoreResult}
+                    nearby={comparisonRows}
+                    language={language}
+                  />
+                )}
+              </div>
+
+              {/* Sidebar */}
+              <div className="hidden lg:block">
+                <div className="sticky top-16">
+                  <InstitutionSidebar
+                    inst={inst}
+                    language={language}
+                    kommuneStats={komStats}
+                    instStats={instStats}
+                    tilsynCount={tilsynCount}
+                    tilsynClear={tilsynCount === 0 && (tilsynRapporter[inst.id]?.length ?? 0) >= 0}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        )}
-        <div className="flex items-center gap-1.5 text-sm text-muted">
-          <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span>{inst.address}, {inst.postalCode} {inst.city}</span>
-        </div>
+          </GatedSection>
 
-        {/* Prominent CTA to unlock full profile */}
-        {!unlocked && (
-          <button
-            onClick={openGate}
-            className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary-light transition-colors min-h-[48px] shadow-md"
-          >
-            <Lock className="w-4 h-4" />
-            {language === "da" ? "Se fuld profil — gratis" : "See full profile — free"}
-          </button>
-        )}
-      </section>
+          {/* Prominent CTA to unlock full profile */}
+          {!unlocked && (
+            <button
+              onClick={openGate}
+              className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary-light transition-colors min-h-[48px] shadow-md"
+            >
+              <Lock className="w-4 h-4" />
+              {language === "da" ? "Se fuld profil — gratis" : "See full profile — free"}
+            </button>
+          )}
+        </section>
+      )}
 
       {/* Efterskole details card */}
       {inst.category === "efterskole" && (inst.profiles?.length || inst.availableSpots != null || inst.classLevels?.length || inst.edkUrl) && (
-        <section className="max-w-[720px] mx-auto px-4 pb-4">
+        <section className="max-w-[960px] mx-auto px-4 pb-4">
           <div className="card p-5 space-y-4">
             {inst.schoolType && (
               <div className="flex items-center gap-2">
@@ -556,7 +616,7 @@ export default function InstitutionPage() {
       {/* ═══════════════════════════════════════════
           FULL DETAILS — always visible
           ═══════════════════════════════════════════ */}
-      <section className="max-w-[720px] mx-auto px-4 pb-12 space-y-6">
+      <section className="max-w-[960px] mx-auto px-4 pb-12 space-y-6">
         {/* Prices */}
         {(inst.monthlyRate != null || inst.yearlyPrice != null) && (
           <div id="section-data" className="card p-5">
