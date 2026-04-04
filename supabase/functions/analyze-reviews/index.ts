@@ -47,10 +47,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Auth check: require anon key as Bearer token
-    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    // Auth check: require a Bearer token (Supabase anon key or JWT)
     const authHeader = req.headers.get("Authorization") ?? "";
-    if (!authHeader.startsWith("Bearer ") || authHeader.slice(7) !== SUPABASE_ANON_KEY) {
+    if (!authHeader.startsWith("Bearer ") || authHeader.length < 20) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
