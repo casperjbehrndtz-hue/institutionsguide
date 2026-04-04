@@ -255,7 +255,7 @@ export default function InstitutionPage() {
   const tilsynCount = useMemo(() => {
     if (!inst) return 0;
     const reports = tilsynRapporter[inst.id] ?? [];
-    return reports.filter((r) => r.status === "aktiv" || r.type === "påbud").length;
+    return reports.filter((r) => r.followUpRequired || r.skaerpetTilsyn).length;
   }, [inst, tilsynRapporter]);
 
   // Compute percentiles for school quality metrics across all schools

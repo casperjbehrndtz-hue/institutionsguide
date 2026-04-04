@@ -10,7 +10,7 @@ interface Props {
   delay?: number;
 }
 
-export default function MetricBar({ label, value, percentile, percentileLabel, color, fillPct, delay = 0 }: Props) {
+export default function MetricBar({ label, value, percentileLabel, color, fillPct, delay = 0 }: Props) {
   const [width, setWidth] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 

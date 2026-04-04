@@ -1,8 +1,6 @@
 import { Phone, Mail, ExternalLink, MapPin, Shield } from "lucide-react";
 import { formatDKK } from "@/lib/format";
-import type { UnifiedInstitution } from "@/lib/types";
-import type { KommuneStats, InstitutionStats } from "@/lib/types";
-import type { TilsynRapport } from "@/lib/types";
+import type { UnifiedInstitution, KommuneStats, InstitutionStats } from "@/lib/types";
 
 interface Props {
   inst: UnifiedInstitution;
