@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": GOOGLE_MAPS_KEY,
-        "X-Goog-FieldMask": "places.id,places.rating,places.userRatingCount,places.googleMapsUri",
+        "X-Goog-FieldMask": "places.id,places.rating,places.userRatingCount,places.googleMapsUri,places.displayName",
       },
       body: JSON.stringify({
         textQuery: query,
