@@ -526,6 +526,57 @@ export default function InstitutionPage() {
                   />
                 </Suspense>
 
+                {/* Quality data — detailed percentile bars */}
+                {percentiles && percentiles.length > 0 && (
+                  <div className="bg-bg-card rounded-2xl border border-border/50 p-5 sm:p-8 shadow-sm">
+                    <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
+                    <div className="space-y-3">
+                      {percentiles.map((p) => (
+                        <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
+                    </div>
+                    {q?.sr && (
+                      <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15">
+                        <p className="text-xs text-muted mb-0.5">{t.detail.socioEconomicRef}</p>
+                        <p className="text-sm font-semibold text-foreground">{q.sr}</p>
+                        <p className="text-[10px] text-muted mt-1">
+                          {language === "da"
+                            ? "Sammenligner skolens resultater med forventede resultater baseret på elevernes socioøkonomiske baggrund"
+                            : "Compares the school's results with expected results based on students' socioeconomic background"}
+                        </p>
+                      </div>
+                    )}
+                    {q?.el != null && (
+                      <div className="text-xs text-muted mt-3">
+                        {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between mt-3 gap-2">
+                      <p className="text-[10px] text-muted">{t.detail.dataSource}</p>
+                      <Link to="/metode" className="text-[10px] text-primary hover:underline shrink-0">
+                        {language === "da" ? "Se metode" : "See method"} &rarr;
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {/* Dagtilbud quality — institution-level normering, staff, satisfaction */}
+                {inst.category !== "skole" && hasInstitutionQuality && (
+                  <div className="bg-bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+                    <InstitutionQualitySection
+                      stats={instStats}
+                      kommuneStats={komStats}
+                      municipality={inst.municipality}
+                      category={inst.category}
+                    />
+                  </div>
+                )}
+
                 {/* Comparison table */}
                 {comparisonRows.length > 0 && (
                   <ComparisonTable
@@ -704,47 +755,6 @@ export default function InstitutionPage() {
           <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
         )}
 
-        {/* Quality data — percentile bars (schools only) */}
-        {percentiles && percentiles.length > 0 && (
-          <div id={inst.monthlyRate == null && inst.yearlyPrice == null ? "section-data" : undefined} className="card p-5">
-            <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
-            <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-              <div className="space-y-3">
-                {percentiles.map((p) => (
-                  <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
-                ))}
-              </div>
-              {/* Legend */}
-              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
-              </div>
-              {q?.sr && (
-                <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15">
-                  <p className="text-xs text-muted mb-0.5">{t.detail.socioEconomicRef}</p>
-                  <p className="text-sm font-semibold text-foreground">{q.sr}</p>
-                  <p className="text-[10px] text-muted mt-1">
-                    {language === "da"
-                      ? "Sammenligner skolens resultater med forventede resultater baseret på elevernes socioøkonomiske baggrund"
-                      : "Compares the school's results with expected results based on students' socioeconomic background"}
-                  </p>
-                </div>
-              )}
-              {q?.el != null && (
-                <div className="text-xs text-muted mt-3">
-                  {t.detail.studentCount}: <strong className="text-foreground font-mono">{q.el.toLocaleString("da-DK")}</strong>
-                </div>
-              )}
-            </GatedSection>
-            <div className="flex items-center justify-between mt-3 gap-2">
-              <p className="text-[10px] text-muted">{t.detail.dataSource}</p>
-              <Link to="/metode" className="text-[10px] text-primary hover:underline shrink-0">
-                {language === "da" ? "Se metode" : "See method"} &rarr;
-              </Link>
-            </div>
-          </div>
-        )}
 
         {/* Normering badge (dagtilbud only) */}
         {inst.category !== "skole" && (() => {
@@ -771,15 +781,6 @@ export default function InstitutionPage() {
           );
         })()}
 
-        {/* Quality data — per institution stats (normering, staff education, parent satisfaction) */}
-        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-          <InstitutionQualitySection
-            stats={instStats}
-            kommuneStats={komStats}
-            municipality={inst.municipality}
-            category={inst.category}
-          />
-        </GatedSection>
 
         {/* Arbejdstilsyn — work environment inspections */}
         <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>

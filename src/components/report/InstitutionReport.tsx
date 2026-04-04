@@ -2,7 +2,6 @@ import type { ScoreResult, LocalizedText } from "@/lib/institutionScore";
 import type { Assessment } from "@/hooks/useAssessment";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import ScoreRing from "@/components/shared/ScoreRing";
-import MetricBar from "@/components/shared/MetricBar";
 import GoogleRatingBadge from "@/components/shared/GoogleRatingBadge";
 
 interface Props {
@@ -48,16 +47,6 @@ function pctLabel(p: number, lang: string): string {
   if (p >= 40) return lang === "da" ? "Middel" : "Average";
   if (p >= 25) return lang === "da" ? "Under middel" : "Below avg";
   return lang === "da" ? "Bund 25%" : "Bottom 25%";
-}
-
-function pctColor(p: number): string {
-  if (p >= 60) return "#0d7c5f";
-  if (p >= 40) return "#b8860b";
-  return "#c0392b";
-}
-
-function metricFillPct(m: { score: number }): number {
-  return Math.max(5, Math.min(100, m.score));
 }
 
 export default function InstitutionReport({
@@ -208,51 +197,7 @@ export default function InstitutionReport({
         )}
       </div>
 
-      {/* Metric bars */}
-      {score.metrics.length > 0 && (
-        <div className="mt-8 bg-bg-card rounded-2xl border border-border/50 p-6 sm:p-10 shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="font-display text-xl font-medium text-foreground tracking-tight">
-              {lang === "da" ? "Kvalitetsdata" : "Quality Data"}
-            </h2>
-            <span className="text-[11px] text-muted uppercase tracking-wider">
-              {lang === "da" ? "Undervisningsministeriet" : "Ministry of Education"} {dateStr}
-            </span>
-          </div>
-
-          {score.metrics.map((m, i) => {
-            const color = m.percentile != null ? pctColor(m.percentile) : (m.score >= 70 ? "#0d7c5f" : m.score >= 45 ? "#b8860b" : "#c0392b");
-            return (
-              <MetricBar
-                key={m.key}
-                label={m.label[lang]}
-                value={m.value}
-                percentile={m.percentile}
-                percentileLabel={m.percentile != null ? pctLabel(m.percentile, lang) : (m.context?.[lang] ?? null)}
-                color={color}
-                fillPct={metricFillPct(m)}
-                delay={i * 150}
-              />
-            );
-          })}
-
-          {/* Legend */}
-          <div className="flex gap-4 mt-4 pt-4 border-t border-border/40">
-            {[
-              { color: "#0d7c5f", label: "Top 25%" },
-              { color: "#b8860b", label: lang === "da" ? "Middel" : "Average" },
-              { color: "#c0392b", label: lang === "da" ? "Bund 25%" : "Bottom 25%" },
-            ].map((l) => (
-              <div key={l.label} className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full" style={{ background: l.color }} />
-                <span className="text-[11px] text-muted">{l.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Concerns (if any) — below metrics */}
+      {/* Concerns (if any) */}
       {cons.length > 0 && (
         <div className="mt-4 bg-[#FEF3E2] rounded-2xl border border-[#b8860b]/10 p-6 sm:p-8">
           <p className="text-sm font-semibold text-[#8A5A12] mb-3">
