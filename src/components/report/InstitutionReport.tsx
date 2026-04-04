@@ -1,7 +1,8 @@
 import type { ScoreResult, LocalizedText } from "@/lib/institutionScore";
 import type { Assessment } from "@/hooks/useAssessment";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
-import MetricIcon from "@/components/shared/MetricIcon";
+import ScoreRing from "@/components/shared/ScoreRing";
+import MetricBar from "@/components/shared/MetricBar";
 
 interface Props {
   score: ScoreResult;
@@ -9,20 +10,15 @@ interface Props {
   category: string;
   municipality: string;
   language: "da" | "en";
-  /** AI-generated assessment — overrides deterministic text when present */
   aiAssessment?: Assessment | null;
   aiLoading?: boolean;
 }
 
-const SCORE_RING = (s: number) =>
-  s >= 8 ? "border-[#1D9E75]" :
-  s >= 6 ? "border-[#BA7517]" :
-  "border-[#A32D2D]";
+const SCORE_COLOR = (s: number) =>
+  s >= 7 ? "#0d7c5f" : s >= 5 ? "#b8860b" : "#c0392b";
 
-const SCORE_TEXT = (s: number) =>
-  s >= 8 ? "text-[#0F6E56]" :
-  s >= 6 ? "text-[#8A5A12]" :
-  "text-[#A32D2D]";
+const SCORE_BG = (s: number) =>
+  s >= 7 ? "rgba(13,124,95,0.08)" : s >= 5 ? "rgba(184,134,11,0.08)" : "rgba(192,57,43,0.08)";
 
 const FALLBACK_HEADLINE: Record<string, Record<string, string>> = {
   A: { da: "Fremragende valg i området", en: "Excellent choice in the area" },
@@ -38,15 +34,28 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
   dagpleje: { da: "Dagpleje · 0–2 år", en: "Childminder · Age 0–2" },
   skole: { da: "Skole · 6–16 år", en: "School · Age 6–16" },
   sfo: { da: "SFO · 6–9 år", en: "After-school · Age 6–9" },
+  fritidsklub: { da: "Fritidsklub · 10+ år", en: "Leisure club · Age 10+" },
+  efterskole: { da: "Efterskole · 14–18 år", en: "Boarding school · Age 14–18" },
+  gymnasium: { da: "Gymnasium · 16–19 år", en: "Upper secondary · Age 16–19" },
 };
 
-function percentileLabel(p: number, lang: string): string {
-  if (p >= 90) return lang === "da" ? "Top 10% i Danmark" : "Top 10% in Denmark";
-  if (p >= 75) return lang === "da" ? "Top 25% i Danmark" : "Top 25% in Denmark";
-  if (p >= 60) return lang === "da" ? "Over middel" : "Above average";
+function pctLabel(p: number, lang: string): string {
+  if (p >= 90) return "Top 10%";
+  if (p >= 75) return "Top 25%";
+  if (p >= 60) return lang === "da" ? "Over middel" : "Above avg";
   if (p >= 40) return lang === "da" ? "Middel" : "Average";
-  if (p >= 25) return lang === "da" ? "Under middel" : "Below average";
+  if (p >= 25) return lang === "da" ? "Under middel" : "Below avg";
   return lang === "da" ? "Bund 25%" : "Bottom 25%";
+}
+
+function pctColor(p: number): string {
+  if (p >= 60) return "#0d7c5f";
+  if (p >= 40) return "#b8860b";
+  return "#c0392b";
+}
+
+function metricFillPct(m: { score: number }): number {
+  return Math.max(5, Math.min(100, m.score));
 }
 
 export default function InstitutionReport({
@@ -81,163 +90,204 @@ export default function InstitutionReport({
       ? "Vi anbefaler at kontakte institutionen direkte eller besøge den for at danne dit eget indtryk."
       : "We recommend contacting the institution directly or visiting to form your own impression.");
 
-  const dateStr = `${lang === "da" ? "Opdateret" : "Updated"} ${formatDataDate(dataVersions.overall.lastUpdated, lang)}`;
+  const dateStr = formatDataDate(dataVersions.overall.lastUpdated, lang);
+  const headlineColor = s10 != null ? SCORE_COLOR(s10) : "#888";
+  const headlineBg = s10 != null ? SCORE_BG(s10) : "rgba(0,0,0,0.04)";
+
+  // Top 2 metrics for the mini-badges next to score ring
+  const topMetrics = score.metrics.slice(0, 2);
 
   return (
-    <div className="max-w-[640px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <p className="text-[11px] text-muted uppercase tracking-wider">
-            {lang === "da" ? "Områdevurdering" : "Area Assessment"}
-          </p>
-          <h2 className="text-lg font-medium text-foreground mt-1">
-            {institutionName} · {municipality} Kommune
-          </h2>
-        </div>
-        <div className="text-[11px] text-muted text-right">
-          <div>{CATEGORY_LABELS[category]?.[lang] ?? category}</div>
-          <div className="mt-0.5">{dateStr}</div>
-        </div>
-      </div>
-
-      <div className="border-t border-border/40 my-3" />
-
-      {/* Hero score — large, centered, dominant */}
-      <div className="flex flex-col items-center text-center rounded-xl bg-bg-card p-6 sm:p-8 mb-5">
-        <div
-          className="mb-4"
-          title={s10 != null ? (lang === "da" ? `Score: ${s10.toFixed(1)}/10 baseret på pris, kvalitet og placering` : `Score: ${s10.toFixed(1)}/10 based on price, quality and location`) : (lang === "da" ? "Ingen data" : "No data")}
-        >
-          {s10 != null ? (
-            <div className={`w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] rounded-full border-4 flex items-center justify-center mx-auto ${SCORE_RING(s10)}`}>
-              <span className={`font-mono text-[40px] sm:text-[48px] font-semibold ${SCORE_TEXT(s10)}`}>{s10.toFixed(1)}</span>
-            </div>
-          ) : (
-            <div className="w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] rounded-full border-4 border-border/50 flex items-center justify-center mx-auto">
-              <span className="font-mono text-[36px] sm:text-[40px] font-medium text-muted">&mdash;</span>
-            </div>
-          )}
-          <p className="text-xs text-muted mt-2">{s10 != null ? (lang === "da" ? "af 10" : "of 10") : (lang === "da" ? "Ingen data" : "No data")}</p>
-        </div>
-        <p className="text-lg font-semibold text-foreground mb-1.5">{headline}</p>
-        <p className="text-sm text-muted leading-relaxed max-w-md">
-          {aiLoading ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              {lang === "da" ? "Genererer vurdering..." : "Generating assessment..."}
-            </span>
-          ) : summary}
-        </p>
-      </div>
-
-      {/* Metric cards */}
-      {score.metrics.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
-          {score.metrics.slice(0, 4).map((m) => {
-            const bgColor = m.score >= 70 ? "bg-[#E1F5EE]" : m.score >= 45 ? "bg-[#FAEEDA]" : "bg-[#FCEBEB]";
-            const textColor = m.score >= 70 ? "text-[#0F6E56]" : m.score >= 45 ? "text-[#BA7517]" : "text-[#A32D2D]";
-            const dotColor = m.score >= 70 ? "bg-[#0F6E56]" : m.score >= 45 ? "bg-[#BA7517]" : "bg-[#A32D2D]";
-            const pctLabel = m.percentile != null ? percentileLabel(m.percentile, lang) : null;
-            const munLabel = m.municipalityAvg != null ? `${lang === "da" ? "Kom." : "Mun."}: ${m.municipalityAvg}` : null;
-            const contextText = m.context?.[lang] ?? null;
-
-            return (
-              <div key={m.key} className={`rounded-lg p-3.5 ${bgColor}`}>
-                <div className="flex items-center justify-between mb-1">
-                  <p className={`text-[11px] uppercase tracking-wide font-medium ${textColor}`}>{m.label[lang]}</p>
-                  <MetricIcon name={m.icon} className={`w-3.5 h-3.5 ${textColor}`} />
-                </div>
-                <p className={`font-mono text-xl font-semibold ${textColor}`}>
-                  {m.value.split(" ")[0]}
-                  <span className="text-[11px] font-normal ml-1">{m.value.split(" ").slice(1).join(" ")}</span>
-                </p>
-                {m.percentile != null && (
-                  <div className="mt-2 h-1 bg-border/50 rounded-full relative">
-                    <div
-                      className={`absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${dotColor} ring-2 ring-white`}
-                      style={{ left: `${Math.max(4, Math.min(96, m.percentile))}%` }}
-                    />
-                  </div>
-                )}
-                {pctLabel && (
-                  <p className={`text-[10px] font-medium mt-1.5 ${textColor}`}>{pctLabel}</p>
-                )}
-                {!pctLabel && (contextText || munLabel) && (
-                  <p className="text-[10px] text-muted mt-1.5 leading-tight truncate">
-                    {[contextText, munLabel].filter(Boolean).join(" · ")}
-                  </p>
-                )}
+    <div className="max-w-[720px] mx-auto">
+      {/* Hero card */}
+      <div className="bg-bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
+        {/* Top section: info left, score right */}
+        <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-8 sm:gap-12 items-start">
+          {/* Left: Info */}
+          <div className="flex-1 min-w-0">
+            {/* Grade badge */}
+            {s10 != null && (
+              <div
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-5"
+                style={{ background: headlineBg }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: headlineColor }} />
+                <span
+                  className="text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ color: headlineColor }}
+                >
+                  {headline}
+                </span>
               </div>
+            )}
+
+            <h1 className="font-display text-3xl sm:text-[38px] font-medium text-foreground leading-tight tracking-tight mb-3">
+              {institutionName}
+            </h1>
+
+            <p className="text-base text-muted mb-6">
+              {CATEGORY_LABELS[category]?.[lang] ?? category} · {municipality} Kommune
+            </p>
+
+            <p className="text-[15px] text-foreground/70 leading-relaxed mb-7 max-w-[440px]">
+              {aiLoading ? (
+                <span className="inline-flex items-center gap-2 text-muted">
+                  <span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  {lang === "da" ? "Genererer vurdering..." : "Generating assessment..."}
+                </span>
+              ) : summary}
+            </p>
+          </div>
+
+          {/* Right: Score ring + mini metrics */}
+          <div className="flex flex-col items-center gap-4 shrink-0">
+            {s10 != null ? (
+              <ScoreRing score={s10} size={160} />
+            ) : (
+              <div className="w-[160px] h-[160px] rounded-full border-[8px] border-border/20 flex items-center justify-center">
+                <span className="font-mono text-4xl text-muted">&mdash;</span>
+              </div>
+            )}
+
+            {/* Mini metric badges under ring */}
+            {topMetrics.length > 0 && (
+              <div className="flex gap-6 mt-2">
+                {topMetrics.map((m) => {
+                  const mColor = m.score >= 70 ? "#0d7c5f" : m.score >= 45 ? "#b8860b" : "#c0392b";
+                  const mBg = m.score >= 70 ? "rgba(13,124,95,0.08)" : m.score >= 45 ? "rgba(184,134,11,0.08)" : "rgba(192,57,43,0.08)";
+                  return (
+                    <div key={m.key} className="text-center">
+                      <div className="font-mono text-xl font-medium text-foreground leading-none">
+                        {m.value.split(" ")[0]}
+                      </div>
+                      <div className="text-[10px] text-muted uppercase tracking-wider mt-1">
+                        {m.label[lang]}
+                      </div>
+                      {m.percentile != null && (
+                        <div
+                          className="text-[10px] font-semibold mt-1.5 px-2 py-0.5 rounded-full tracking-wide"
+                          style={{ color: mColor, background: mBg }}
+                        >
+                          {pctLabel(m.percentile, lang)}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Strengths strip */}
+        {pros.length > 0 && (
+          <div className="border-t border-[#0d7c5f]/10 bg-[#0d7c5f]/[0.03] px-6 sm:px-10 py-4 flex flex-wrap gap-x-8 gap-y-2">
+            {pros.map((pro, i) => (
+              <div key={i} className="flex items-center gap-2.5">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
+                  <circle cx="8" cy="8" r="8" fill="#0d7c5f" fillOpacity="0.12" />
+                  <path d="M5 8l2 2 4-4" stroke="#0d7c5f" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-[13px] text-[#2a5a4a] font-medium">{pro[lang]}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Metric bars */}
+      {score.metrics.length > 0 && (
+        <div className="mt-8 bg-bg-card rounded-2xl border border-border/50 p-6 sm:p-10 shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-display text-xl font-medium text-foreground tracking-tight">
+              {lang === "da" ? "Kvalitetsdata" : "Quality Data"}
+            </h2>
+            <span className="text-[11px] text-muted uppercase tracking-wider">
+              {lang === "da" ? "Undervisningsministeriet" : "Ministry of Education"} {dateStr}
+            </span>
+          </div>
+
+          {score.metrics.map((m, i) => {
+            const color = m.percentile != null ? pctColor(m.percentile) : (m.score >= 70 ? "#0d7c5f" : m.score >= 45 ? "#b8860b" : "#c0392b");
+            return (
+              <MetricBar
+                key={m.key}
+                label={m.label[lang]}
+                value={m.value}
+                percentile={m.percentile}
+                percentileLabel={m.percentile != null ? pctLabel(m.percentile, lang) : (m.context?.[lang] ?? null)}
+                color={color}
+                fillPct={metricFillPct(m)}
+                delay={i * 150}
+              />
             );
           })}
+
+          {/* Legend */}
+          <div className="flex gap-4 mt-4 pt-4 border-t border-border/40">
+            {[
+              { color: "#0d7c5f", label: "Top 25%" },
+              { color: "#b8860b", label: lang === "da" ? "Middel" : "Average" },
+              { color: "#c0392b", label: lang === "da" ? "Bund 25%" : "Bottom 25%" },
+            ].map((l) => (
+              <div key={l.label} className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full" style={{ background: l.color }} />
+                <span className="text-[11px] text-muted">{l.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Fordele & Opmærksomhedspunkter — prominent colored backgrounds */}
-      {(pros.length > 0 || cons.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-          {pros.length > 0 && (
-            <div className="rounded-xl bg-[#E1F5EE] p-4">
-              <p className="text-sm font-semibold text-[#0F6E56] mb-3">
-                {lang === "da" ? "Fordele" : "Strengths"}
-              </p>
-              <div className="space-y-2.5">
-                {pros.map((pro, i) => (
-                  <div key={i} className="flex gap-2.5 text-sm text-[#085041] leading-relaxed">
-                    <span className="w-5 h-5 rounded-full bg-[#0F6E56]/15 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-[#0F6E56] text-[11px] font-bold">&#10003;</span>
-                    </span>
-                    <span>{pro[lang]}</span>
-                  </div>
-                ))}
+      {/* Concerns (if any) — below metrics */}
+      {cons.length > 0 && (
+        <div className="mt-4 bg-[#FEF3E2] rounded-2xl border border-[#b8860b]/10 p-6 sm:p-8">
+          <p className="text-sm font-semibold text-[#8A5A12] mb-3">
+            {lang === "da" ? "Opmærksomhedspunkter" : "Areas of concern"}
+          </p>
+          <div className="space-y-2.5">
+            {cons.map((con, i) => (
+              <div key={i} className="flex gap-2.5 text-sm text-[#633806] leading-relaxed">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0 mt-0.5">
+                  <circle cx="8" cy="8" r="8" fill="#b8860b" fillOpacity="0.15" />
+                  <text x="8" y="12" textAnchor="middle" fill="#b8860b" fontSize="11" fontWeight="700">!</text>
+                </svg>
+                <span>{con[lang]}</span>
               </div>
-            </div>
-          )}
-          {cons.length > 0 && (
-            <div className="rounded-xl bg-[#FEF3E2] p-4">
-              <p className="text-sm font-semibold text-[#8A5A12] mb-3">
-                {lang === "da" ? "Opmærksomhedspunkter" : "Areas of concern"}
-              </p>
-              <div className="space-y-2.5">
-                {cons.map((con, i) => (
-                  <div key={i} className="flex gap-2.5 text-sm text-[#633806] leading-relaxed">
-                    <span className="w-5 h-5 rounded-full bg-[#BA7517]/15 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-[#BA7517] text-[11px] font-bold">!</span>
-                    </span>
-                    <span>{con[lang]}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Vores vurdering */}
-      <div className="rounded-r-lg border border-primary/20 border-l-[3px] border-l-primary p-4 mb-5">
-        <p className="text-[13px] font-medium text-primary mb-1.5">
+      {/* Assessment */}
+      <div className="mt-4 bg-bg-card rounded-2xl border border-border/50 p-6 sm:p-8 shadow-sm">
+        <p className="text-sm font-semibold text-foreground mb-2">
           {lang === "da" ? "Vores vurdering" : "Our assessment"}
         </p>
-        <p className="text-[13px] text-foreground leading-relaxed">
+        <p className="text-[15px] text-foreground/70 leading-relaxed">
           {aiLoading ? (
             <span className="inline-block w-full h-12 bg-border/30 rounded animate-pulse" />
           ) : recommendation}
         </p>
         {aiAssessment && (
-          <p className="text-[10px] text-muted mt-2 flex items-center gap-1">
+          <p className="text-[10px] text-muted mt-3 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-primary/60 inline-block" />
             {lang === "da" ? "AI-genereret vurdering" : "AI-generated assessment"}
           </p>
         )}
       </div>
 
-      {/* Disclaimer */}
-      <p className="text-xs text-muted leading-relaxed">
-        {lang === "da"
-          ? "Vurderingen er baseret på offentligt tilgængelige data fra Undervisningsministeriet, kommunale nøgletal og geografisk analyse. Scoren er vejledende og erstatter ikke et personligt besøg."
-          : "The assessment is based on publicly available data from the Danish Ministry of Education, municipal statistics and geographical analysis. The score is advisory and does not replace a personal visit."}
-      </p>
+      {/* Footer */}
+      <div className="mt-6 flex items-center justify-between text-[11px] text-muted">
+        <span>
+          {lang === "da"
+            ? "Scoren er vejledende og erstatter ikke et personligt besøg"
+            : "The score is advisory and does not replace a personal visit"}
+        </span>
+        <span className="text-muted/60">
+          {lang === "da" ? "Opdateret" : "Updated"} {dateStr}
+        </span>
+      </div>
     </div>
   );
 }

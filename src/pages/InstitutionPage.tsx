@@ -54,7 +54,7 @@ function HeroImage({ inst }: { inst: { imageUrl?: string; lat: number; lng: numb
   const [imgFailed, setImgFailed] = useState(false);
   const showExternal = inst.imageUrl && !imgFailed;
   return (
-    <div className="max-w-[640px] mx-auto px-4 pb-4">
+    <div className="max-w-[720px] mx-auto px-4 pb-4">
       {showExternal ? (
         <img
           src={inst.imageUrl}
@@ -317,7 +317,7 @@ export default function InstitutionPage() {
       ])} />
 
       {/* Breadcrumb */}
-      <nav className="max-w-[640px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
+      <nav className="max-w-[720px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
         <ol className="flex items-center gap-1 flex-wrap">
           <li><Link to="/" className="hover:text-primary transition-colors">{language === "da" ? "Forside" : "Home"}</Link></li>
           <li><ChevronRight className="w-3.5 h-3.5" /></li>
@@ -329,7 +329,7 @@ export default function InstitutionPage() {
         </ol>
       </nav>
 
-      <div className="max-w-[640px] mx-auto px-4 space-y-2">
+      <div className="max-w-[720px] mx-auto px-4 space-y-2">
         <DataFreshness />
         <DataSourceBadges
           category={inst.category}
@@ -340,7 +340,7 @@ export default function InstitutionPage() {
       </div>
 
       {/* Compact action bar */}
-      <div className="max-w-[640px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
+      <div className="max-w-[720px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
         <button
           onClick={() => {
             if (cameFrom) {
@@ -460,7 +460,7 @@ export default function InstitutionPage() {
       )}
 
       {/* Contact section with prominent CTA */}
-      <section className="max-w-[640px] mx-auto px-4 pb-4">
+      <section className="max-w-[720px] mx-auto px-4 pb-4">
         {(inst.phone || inst.email || inst.web) && (
           <div className="card p-4 mb-3">
             <h3 className="text-sm font-semibold text-foreground mb-3">{language === "da" ? "Kontakt" : "Contact"}</h3>
@@ -502,7 +502,7 @@ export default function InstitutionPage() {
 
       {/* Efterskole details card */}
       {inst.category === "efterskole" && (inst.profiles?.length || inst.availableSpots != null || inst.classLevels?.length || inst.edkUrl) && (
-        <section className="max-w-[640px] mx-auto px-4 pb-4">
+        <section className="max-w-[720px] mx-auto px-4 pb-4">
           <div className="card p-5 space-y-4">
             {inst.schoolType && (
               <div className="flex items-center gap-2">
@@ -556,7 +556,7 @@ export default function InstitutionPage() {
       {/* ═══════════════════════════════════════════
           FULL DETAILS — always visible
           ═══════════════════════════════════════════ */}
-      <section className="max-w-[640px] mx-auto px-4 pb-12 space-y-6">
+      <section className="max-w-[720px] mx-auto px-4 pb-12 space-y-6">
         {/* Prices */}
         {(inst.monthlyRate != null || inst.yearlyPrice != null) && (
           <div id="section-data" className="card p-5">
