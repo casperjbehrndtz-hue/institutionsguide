@@ -21,8 +21,8 @@ export default function InstitutionSidebar({ inst, language: lang, kommuneStats:
       {/* Grades card — schools only */}
       {q?.k != null && (
         <div className="bg-bg-card rounded-2xl border border-border/50 p-6 shadow-sm">
-          <h3 className="font-display text-base font-medium text-foreground mb-4">
-            {lang === "da" ? "Afgangsprøve" : "Final exams"}
+          <h3 className="font-display text-[15px] font-medium text-foreground mb-4">
+            {lang === "da" ? "Nøgletal" : "Key figures"}
           </h3>
           <div className="text-center mb-4">
             <span className="font-mono text-4xl font-medium text-foreground">{q.k.toLocaleString("da-DK")}</span>

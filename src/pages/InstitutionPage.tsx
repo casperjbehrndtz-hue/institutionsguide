@@ -57,7 +57,7 @@ function HeroImage({ inst }: { inst: { imageUrl?: string; lat: number; lng: numb
   const [imgFailed, setImgFailed] = useState(false);
   const showExternal = inst.imageUrl && !imgFailed;
   return (
-    <div className="max-w-[960px] mx-auto px-4 pb-4">
+    <div className="max-w-[1020px] mx-auto px-4 pb-4">
       {showExternal ? (
         <img
           src={inst.imageUrl}
@@ -77,17 +77,28 @@ function HeroImage({ inst }: { inst: { imageUrl?: string; lat: number; lng: numb
   );
 }
 
-function PercentileBar({ label, percentile, value, lang = "da" }: {
+function QualityMetricRow({ label, percentile, value, delay = 0, lang = "da" }: {
   label: string;
   percentile: number;
   value: string;
+  delay?: number;
   lang?: string;
 }) {
-  const color = percentile >= 75
-    ? { dot: "#0F6E56", bg: "#E1F5EE", text: "#085041" }
-    : percentile >= 40
-    ? { dot: "#BA7517", bg: "#FAEEDA", text: "#633806" }
-    : { dot: "#A32D2D", bg: "#FCEBEB", text: "#791F1F" };
+  const [barWidth, setBarWidth] = useState(0);
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) setTimeout(() => setBarWidth(percentile), delay);
+    }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [percentile, delay]);
+
+  const color = percentile >= 75 ? "#0d7c5f" : percentile >= 40 ? "#b8860b" : "#c0392b";
+  const bg = percentile >= 75 ? "rgba(13,124,95,0.07)" : percentile >= 40 ? "rgba(184,134,11,0.07)" : "rgba(192,57,43,0.07)";
 
   const rankLabel = percentile >= 90
     ? "Top 10%"
@@ -104,20 +115,26 @@ function PercentileBar({ label, percentile, value, lang = "da" }: {
     : (lang === "da" ? "Bund 10%" : "Bottom 10%");
 
   return (
-    <div className="flex items-center gap-2 sm:gap-3">
-      <span className="text-xs sm:text-sm text-muted w-24 sm:w-36 text-right shrink-0">{label}</span>
-      <div className="flex-1 relative h-1.5 bg-border/50 rounded-full min-w-[60px]">
+    <div
+      ref={rowRef}
+      className="grid items-center gap-2 sm:gap-3 py-3 border-b border-border/20"
+      style={{ gridTemplateColumns: "minmax(90px, 140px) 1fr 50px 80px" }}
+    >
+      <span className="text-[13px] text-muted font-medium truncate">{label}</span>
+      <div className="h-1 bg-border/30 rounded-full overflow-hidden min-w-[60px]">
         <div
-          className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm"
-          style={{ left: `${percentile}%`, backgroundColor: color.dot }}
-          role="presentation"
-          aria-label={`${label}: ${value} (${rankLabel})`}
+          className="h-full rounded-full"
+          style={{
+            width: `${barWidth}%`,
+            backgroundColor: color,
+            transition: "width 0.9s cubic-bezier(0.4,0,0.2,1)",
+          }}
         />
       </div>
-      <span className="font-mono text-xs text-muted shrink-0 w-10 sm:w-12 text-right">{value}</span>
+      <span className="font-mono text-sm font-medium text-foreground text-right">{value}</span>
       <span
-        className="text-[10px] px-1.5 sm:px-2 py-0.5 rounded-md shrink-0 min-w-[60px] sm:min-w-[72px] text-center font-medium"
-        style={{ backgroundColor: color.bg, color: color.text }}
+        className="text-[10px] font-bold text-center px-2 py-0.5 rounded-full tracking-wide whitespace-nowrap"
+        style={{ color, backgroundColor: bg }}
       >
         {rankLabel}
       </span>
@@ -372,7 +389,7 @@ export default function InstitutionPage() {
             : "bg-transparent py-4 pointer-events-none"
         }`}
       >
-        <div className="max-w-[960px] mx-auto px-4 flex items-center justify-between">
+        <div className="max-w-[1020px] mx-auto px-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="font-display text-sm font-semibold text-foreground/80">Institutionsguide</span>
             {shrunk && scoreResult && (
@@ -391,7 +408,7 @@ export default function InstitutionPage() {
       </div>
 
       {/* Breadcrumb */}
-      <nav className="max-w-[960px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
+      <nav className="max-w-[1020px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
         <ol className="flex items-center gap-1 flex-wrap">
           <li><Link to="/" className="hover:text-primary transition-colors">{language === "da" ? "Forside" : "Home"}</Link></li>
           <li><ChevronRight className="w-3.5 h-3.5" /></li>
@@ -403,7 +420,7 @@ export default function InstitutionPage() {
         </ol>
       </nav>
 
-      <div className="max-w-[960px] mx-auto px-4 space-y-2">
+      <div className="max-w-[1020px] mx-auto px-4 space-y-2">
         <DataFreshness />
         <DataSourceBadges
           category={inst.category}
@@ -414,7 +431,7 @@ export default function InstitutionPage() {
       </div>
 
       {/* Compact action bar */}
-      <div className="max-w-[960px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
+      <div className="max-w-[1020px] mx-auto px-4 pt-4 pb-2 flex items-center justify-between">
         <button
           onClick={() => {
             if (cameFrom) {
@@ -474,7 +491,7 @@ export default function InstitutionPage() {
 
       {/* ═══════════════ REPORT + SIDEBAR (2-col) ═══════════════ */}
       {scoreResult && (
-        <section id="section-overblik" className="max-w-[960px] mx-auto px-4 pb-6" ref={heroRef}>
+        <section id="section-overblik" className="max-w-[1020px] mx-auto px-4 pb-6" ref={heroRef}>
           <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
             {/* Hero card spans full width */}
             <InstitutionReport
@@ -526,19 +543,38 @@ export default function InstitutionPage() {
                   />
                 </Suspense>
 
-                {/* Quality data — detailed percentile bars */}
+                {/* Quality data — v3 animated bar grid */}
                 {percentiles && percentiles.length > 0 && (
-                  <div className="bg-bg-card rounded-2xl border border-border/50 p-5 sm:p-8 shadow-sm">
-                    <h2 className="font-display text-lg font-semibold mb-4">{t.detail.qualityData}</h2>
-                    <div className="space-y-3">
-                      {percentiles.map((p) => (
-                        <PercentileBar key={p.label} label={p.label} percentile={p.percentile} value={p.value} lang={language} />
+                  <div className="bg-bg-card rounded-2xl border border-border/50 p-6 sm:p-9 shadow-sm">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <h2 className="font-display text-xl font-medium">{t.detail.qualityData}</h2>
+                      <span className="text-[11px] text-muted/50 tracking-wide">UVM {dataVersions.schoolQuality.schoolYear}</span>
+                    </div>
+                    <div className="text-[11px] text-muted/50 mb-4">{percentiles.length} {language === "da" ? "metrikker" : "metrics"}</div>
+
+                    {/* Header row */}
+                    <div
+                      className="hidden sm:grid gap-3 pb-2 border-b border-border/40"
+                      style={{ gridTemplateColumns: "minmax(90px, 140px) 1fr 50px 80px" }}
+                    >
+                      <span className="text-[10px] text-muted/50 uppercase tracking-widest font-semibold" />
+                      <span className="text-[10px] text-muted/50 uppercase tracking-widest font-semibold" />
+                      <span className="text-[10px] text-muted/50 uppercase tracking-widest font-semibold text-right">{language === "da" ? "Værdi" : "Value"}</span>
+                      <span className="text-[10px] text-muted/50 uppercase tracking-widest font-semibold text-center" />
+                    </div>
+
+                    {/* Metric rows */}
+                    <div>
+                      {percentiles.map((p, i) => (
+                        <QualityMetricRow key={p.label} label={p.label} percentile={p.percentile} value={p.value} delay={i * 80} lang={language} />
                       ))}
                     </div>
-                    <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/40 text-[10px] text-muted">
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0F6E56]" /> Top 25%</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#BA7517]" /> {language === "da" ? "Middel" : "Average"}</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#A32D2D]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
+
+                    {/* Legend */}
+                    <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border/30 text-[10px] text-muted/60">
+                      <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#0d7c5f]" /> Top 25%</span>
+                      <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#b8860b]" /> {language === "da" ? "Middel" : "Average"}</span>
+                      <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#c0392b]" /> {language === "da" ? "Bund 25%" : "Bottom 25%"}</span>
                     </div>
                     {q?.sr && (
                       <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15">
@@ -632,7 +668,7 @@ export default function InstitutionPage() {
 
       {/* Efterskole details card */}
       {inst.category === "efterskole" && (inst.profiles?.length || inst.availableSpots != null || inst.classLevels?.length || inst.edkUrl) && (
-        <section className="max-w-[960px] mx-auto px-4 pb-4">
+        <section className="max-w-[1020px] mx-auto px-4 pb-4">
           <div className="card p-5 space-y-4">
             {inst.schoolType && (
               <div className="flex items-center gap-2">
@@ -686,7 +722,7 @@ export default function InstitutionPage() {
       {/* ═══════════════════════════════════════════
           FULL DETAILS — always visible
           ═══════════════════════════════════════════ */}
-      <section className="max-w-[960px] mx-auto px-4 pb-12 space-y-6">
+      <section className="max-w-[1020px] mx-auto px-4 pb-12 space-y-6">
         {/* Prices */}
         {(inst.monthlyRate != null || inst.yearlyPrice != null) && (
           <div id="section-data" className="card p-5">

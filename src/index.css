@@ -21,8 +21,8 @@
   --color-warning: #D4A017;
   --color-destructive: #C53030;
 
-  --font-display: "Playfair Display", Georgia, serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
   --font-mono: "DM Mono", ui-monospace, Consolas, monospace;
 }
 

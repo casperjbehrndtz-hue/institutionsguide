@@ -113,7 +113,7 @@ export default function InstitutionReport({
               </div>
             )}
 
-            <h1 className="font-display text-3xl sm:text-[38px] font-medium text-foreground leading-tight tracking-tight mb-3">
+            <h1 className="font-display text-3xl sm:text-[40px] font-medium text-foreground leading-[1.05] tracking-[-0.03em] mb-2">
               {institutionName}
             </h1>
 
@@ -217,18 +217,23 @@ export default function InstitutionReport({
         </div>
       )}
 
-      {/* Assessment */}
-      <div className="mt-4 bg-bg-card rounded-2xl border border-border/50 p-6 sm:p-8 shadow-sm">
-        <p className="text-sm font-semibold text-foreground mb-2">
+      {/* Assessment — left border accent */}
+      <div className="mt-4 bg-primary/[0.03] rounded-2xl p-6 sm:p-7 border-l-[3px] border-primary">
+        <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
           {lang === "da" ? "Vores vurdering" : "Our assessment"}
         </p>
-        <p className="text-[15px] text-foreground/70 leading-relaxed">
+        <p className="text-sm text-foreground/70 leading-relaxed">
           {aiLoading ? (
             <span className="inline-block w-full h-12 bg-border/30 rounded animate-pulse" />
           ) : recommendation}
         </p>
+        <p className="text-[11px] text-muted/60 mt-3 leading-relaxed">
+          {lang === "da"
+            ? "Baseret på offentlige data fra Undervisningsministeriet, kommunale nøgletal og geografisk analyse. Scoren er vejledende og erstatter ikke et personligt besøg."
+            : "Based on public data from the Ministry of Education, municipal statistics and geographic analysis. The score is advisory and does not replace a personal visit."}
+        </p>
         {aiAssessment && (
-          <p className="text-[10px] text-muted mt-3 flex items-center gap-1.5">
+          <p className="text-[10px] text-muted mt-2 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-primary/60 inline-block" />
             {lang === "da" ? "AI-genereret vurdering" : "AI-generated assessment"}
           </p>
@@ -236,15 +241,15 @@ export default function InstitutionReport({
       </div>
 
       {/* Footer */}
-      <div className="mt-6 flex items-center justify-between text-[11px] text-muted">
+      <div className="mt-8 pt-5 border-t border-border/30 flex items-center justify-between flex-wrap gap-3 text-[11px] text-muted/60">
         <span>
-          {lang === "da"
-            ? "Scoren er vejledende og erstatter ikke et personligt besøg"
-            : "The score is advisory and does not replace a personal visit"}
+          Data: {lang === "da" ? "Undervisningsministeriet" : "Ministry of Education"} · {lang === "da" ? "Opdateret" : "Updated"} {dateStr}
         </span>
-        <span className="text-muted/60">
-          {lang === "da" ? "Opdateret" : "Updated"} {dateStr}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="font-display text-xs text-primary font-medium">Institutionsguide</span>
+          <span className="text-border">·</span>
+          <span>{lang === "da" ? "Del af ParFinans-familien" : "Part of the ParFinans family"}</span>
+        </div>
       </div>
     </div>
   );
