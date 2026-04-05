@@ -103,7 +103,7 @@
 
 **Missing:**
 - **P2-CODE-1**: 19 files over 400 lines (worst: GuidePage 918, InstitutionPage 911, HomePage 841, institutionScore.ts 839)
-- **P2-CODE-2**: Only 2 test files exist. Missing: institutionScore.ts, preferenceScore.ts, friplads.ts tests
+- ~~**P2-CODE-2**: Core test coverage~~ ✅ DONE — 5 test files, 74 tests total
 - **P3-CODE-3**: Lighthouse audit needed (Performance ≥ 90, Accessibility ≥ 90)
 
 ---
@@ -135,11 +135,8 @@ Replaced spinner loading states with skeleton screens on 7 pages: CategoryMunici
 #### ~~P1-5: Add DataFreshness to 11 data-driven pages missing it~~ ✅ DONE
 Added DataFreshness component to CategoryMunicipalityPage, CheapestPage, VsPage, KommunePage, BestValuePage, NormeringKommunePage, TotalCostPage, PrissammenligningPage, ComparePage, FindPage, and FripladsPage.
 
-#### P1-6: Add core test coverage
-**What**: Add unit tests for the most critical calculation logic.
-**Files**: New files: `src/lib/__tests__/institutionScore.test.ts`, `src/lib/__tests__/friplads.test.ts`, `src/lib/__tests__/preferenceScore.test.ts`
-**Acceptance**: Tests cover school scoring, dagtilbud scoring, friplads calculation at income thresholds, sibling discounts, preference matching.
-**Verify**: `npm run test:run` — all pass
+#### ~~P1-6: Add core test coverage~~ ✅ DONE
+Added 3 test files with 40 new tests (74 total): friplads.test.ts (income thresholds, sibling discounts, age-based rates), institutionScore.test.ts (school/dagtilbud scoring, grade boundaries), preferenceScore.test.ts (ranking, distance filtering, data completeness).
 
 ### P2 — Conversion + Data + Code Polish
 
