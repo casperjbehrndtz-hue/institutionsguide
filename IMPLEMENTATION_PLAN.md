@@ -149,40 +149,28 @@ Added 3-card cross-sell section (NemtBudget, ParFinans, Børneskat) on Instituti
 #### ~~P2-3: Gate modal mobile optimization~~ ✅ DONE
 Made gate modal full-screen on mobile (h-full, items-end), close button 44px touch target, replaced 2 ad-hoc dark mode hex values with theme tokens (dark:bg-card, dark:bg-background).
 
-#### P2-4: Blog template — table of contents + related articles
-**What**: Add auto-generated table of contents for posts with >3 headings. Add related articles section at bottom.
-**Files**: `src/pages/BlogPost.tsx`
-**Acceptance**: Long posts show ToC; all posts show related articles.
-**Verify**: Visual check on a blog post
+#### P2-4: Blog template — table of contents + related articles ⏳ DEFERRED
+**Blocked**: Requires Supabase credentials for blog post pre-rendering and testing. Cannot verify without running blog data.
 
 #### ~~P2-5: Title/description length validation~~ ✅ DONE
 Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 chars (with ellipsis).
 
-#### P2-6: Refactor large files (>400 lines)
-**What**: Split the 19 files exceeding 400 lines. Extract sub-components, move calculation helpers to utils.
-**Priority targets**: GuidePage (918→wizard steps), InstitutionPage (911→sections), HomePage (841→hero/FAQ/sections), institutionScore.ts (839→school/dagtilbud modules), TotalCostPage (694), FripladsPage (622), DataContext (614→smaller contexts), CategoryPage (607)
-**Acceptance**: No file over 400 lines.
-**Verify**: `find src/ -name "*.tsx" -o -name "*.ts" | xargs wc -l | sort -rn | head -5` shows max ≤ 400
+#### P2-6: Refactor large files (>400 lines) ⏳ DEFERRED
+**What**: Split the 19 files exceeding 400 lines. Significant effort — requires careful extraction of sub-components and utils without breaking functionality. Best done as a dedicated refactoring pass.
 
 ### P3 — Polish
 
 #### ~~P3-1: "Similar institutions" internal linking on detail pages~~ ✅ DONE
 Added "Lignende institutioner i nærheden" section showing up to 5 nearby same-category institutions with name, address, price, and distance. Links to category/municipality page at bottom.
 
-#### P3-2: Dynamic og:image per page type
-**What**: Generate or select page-specific og:image (e.g., category icon, municipality name). Currently all pages use static `/og-image.svg`.
-**Files**: `src/components/shared/SEOHead.tsx`, potentially API route or build-time generation
-**Acceptance**: Different og:image for at least institution, category, and kommune page types.
-**Verify**: Check og:image meta tag on different page types
+#### P3-2: Dynamic og:image per page type ⏳ DEFERRED
+**Blocked**: Requires image generation infrastructure (Vercel OG, Satori, or build-time generation). Not achievable without API routes or build-time tooling.
 
 #### ~~P3-3: NotFoundPage search + navigation~~ ✅ DONE
 Added search input (navigates to homepage with query), popular category links with icons, and improved layout on 404 page.
 
-#### P3-4: Lighthouse audit and optimization
-**What**: Run Lighthouse on /, /vuggestue, /institution/[slug]. Target Performance ≥ 90, Accessibility ≥ 90.
-**Files**: Various (depends on findings)
-**Acceptance**: Lighthouse scores ≥ 90 on key page types.
-**Verify**: `npx lighthouse` on key URLs
+#### P3-4: Lighthouse audit and optimization ⏳ DEFERRED
+**Blocked**: Requires running production server to audit. Should be done post-deploy.
 
 ---
 

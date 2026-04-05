@@ -55,7 +55,7 @@ npm run lint             # ESLint
 - Vercel middleware: `dk-seo/middleware.ts` serves bot-specific HTML with rich structured data
 - Test coverage: 5 test files, 74 tests. Core scoring (institutionScore, preferenceScore) and friplads calculator covered.
 - Analytics: PostHog + Umami in `initAnalytics.ts`. Autocapture enabled. Custom gate events: gate_impression, gate_email_submitted, gate_unlocked, gated_content_viewed.
-- JSON-LD schemas in `src/lib/schema.ts` (breadcrumbSchema, itemListSchema, institutionSchema, websiteSchema, faqSchema). 14/28 pages have JSON-LD.
+- JSON-LD schemas in `src/lib/schema.ts` (breadcrumbSchema, itemListSchema, institutionSchema, websiteSchema, faqSchema). All 28 pages have JSON-LD.
 - 19 files exceed 400-line limit (GuidePage 918, InstitutionPage 911, HomePage 841, institutionScore.ts 839 are worst).
 
 <!-- Ralph: update this section when you discover new patterns or pitfalls -->
