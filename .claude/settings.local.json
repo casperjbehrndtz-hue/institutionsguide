@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude --dangerously-skip-permissions)",
+      "Bash(claude -p \"Read PROMPT_build.md and follow its instructions exactly.\" --dangerously-skip-permissions)",
+      "Bash(xargs wc:*)"
+    ]
+  }
+}

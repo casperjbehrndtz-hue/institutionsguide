@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, HelpCircle, Calculator, PiggyBank, Wallet, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X, Gamepad2, School, Landmark } from "lucide-react";
+import { Building2, GraduationCap, Users, Home, BookOpen, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X, Gamepad2, School, Landmark } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -8,8 +8,7 @@ import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
-import { dataVersions, formatDataDate, getFripladsYear } from "@/lib/dataVersions";
-import ScrollReveal from "@/components/shared/ScrollReveal";
+import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
@@ -24,71 +23,14 @@ import NoResults from "@/components/filters/NoResults";
 import EmailCapture from "@/components/shared/EmailCapture";
 import RecentlyViewed from "@/components/shared/RecentlyViewed";
 import InstitutionListCard from "@/components/shared/InstitutionListCard";
-import { toSlug } from "@/lib/slugs";
 import type { UnifiedInstitution } from "@/lib/types";
 import { haversineKm } from "@/lib/geo";
-
-const FAQ_ITEMS_DA = [
-  {
-    q: "Hvad er fripladstilskud, og hvem kan få det?",
-    a: `Fripladstilskud er en rabat på forældrebetalingen for dagtilbud. Tilskuddet afhænger af husstandsindkomsten. I ${getFripladsYear()} kan familier med en indkomst under 677.500 kr. få delvist tilskud, og under 218.100 kr. får man fuld friplads.`,
-  },
-  {
-    q: "Hvad er forskellen på dagpleje og vuggestue?",
-    a: "Dagpleje foregår i en dagplejers private hjem med maks 4-5 børn, mens en vuggestue er en institution med flere børn og personale. Dagpleje er ofte billigere, mens vuggestuer typisk har flere pædagoger og faciliteter.",
-  },
-  {
-    q: "Hvordan beregnes kvalitetsscoren for skoler?",
-    a: "Kvalitetsscoren er baseret på officielle data fra Undervisningsministeriet og inkluderer trivselsmålinger, karaktergennemsnit, fravær, kompetencedækning og undervisningseffekt (socioøkonomisk reference).",
-  },
-  {
-    q: "Er priserne opdaterede?",
-    a: `Priserne er baseret på data fra Danmarks Statistik (${dataVersions.prices.year}-tal) og Dagtilbudsregisteret. Kommunerne regulerer typisk taksterne årligt, så der kan forekomme mindre afvigelser.`,
-  },
-  {
-    q: "Hvornår skal jeg skrive mit barn op til vuggestue eller børnehave?",
-    a: "Det varierer fra kommune til kommune, men som tommelfingerregel bør du skrive op så tidligt som muligt — gerne lige efter fødslen. I de store byer som København, Aarhus og Odense kan ventelisterne være lange, og mange kommuner bruger Digital Pladsanvisning.",
-  },
-  {
-    q: "Kan jeg se normeringen for en institution?",
-    a: "Vi viser ikke normering direkte, da kommunerne offentliggør det forskelligt. For skoler viser vi klassestørrelse. Kontakt den enkelte institution eller kommune for aktuel normering.",
-  },
-  {
-    q: "Hvad er søskenderabat?",
-    a: "Har du flere børn i dagtilbud, betaler du typisk kun 50% for barn nr. 2 og derefter. Rabatten gælder automatisk og er indregnet i vores fripladstilskudsberegner.",
-  },
-];
-
-const FAQ_ITEMS_EN = [
-  {
-    q: "What is childcare subsidy, and who can get it?",
-    a: `Childcare subsidy (fripladstilskud) is a discount on parental fees for daycare. The subsidy depends on household income. In ${getFripladsYear()}, families with an income below DKK 677,500 can receive partial subsidy, and below DKK 218,100 full subsidy.`,
-  },
-  {
-    q: "What is the difference between childminder and nursery?",
-    a: "Childminders (dagpleje) care for children in their private home with max 4-5 children, while nurseries (vuggestue) are institutions with more children and staff. Childminders are often cheaper, while nurseries typically have more pedagogues and facilities.",
-  },
-  {
-    q: "How is the quality score for schools calculated?",
-    a: "The quality score is based on official data from the Danish Ministry of Education and includes well-being surveys, grade averages, absence, competence coverage and teaching effectiveness (socio-economic reference).",
-  },
-  {
-    q: "Are the prices up to date?",
-    a: `Prices are based on data from Statistics Denmark (${dataVersions.prices.year} figures) and the Daycare Registry. Municipalities typically adjust rates annually, so minor deviations may occur.`,
-  },
-  {
-    q: "When should I sign up my child for daycare?",
-    a: "It varies by municipality, but as a rule of thumb, sign up as early as possible — ideally right after birth. Waiting lists can be long in larger cities like Copenhagen, Aarhus and Odense.",
-  },
-  {
-    q: "Can I see the staff-to-child ratio?",
-    a: "We don't currently display staff ratios directly as municipalities publish this differently. For schools, we show class size. Contact the individual institution for current ratios.",
-  },
-  {
-    q: "What is sibling discount?",
-    a: "If you have multiple children in daycare, you typically pay only 50% for the second child onwards. The discount applies automatically and is included in our subsidy calculator.",
-  },
-];
+import { FAQ_ITEMS_DA, FAQ_ITEMS_EN } from "@/lib/faqData";
+import PopularSearches from "@/components/home/PopularSearches";
+import UseCases from "@/components/home/UseCases";
+import HomeToolsSection from "@/components/home/HomeToolsSection";
+import HomeFAQ from "@/components/home/HomeFAQ";
+import SEOLinks from "@/components/home/SEOLinks";
 
 const HERO_VIDEOS: { src: string; focus: string }[] = [
   { src: "/hero-1.mp4", focus: "90%" },
@@ -637,187 +579,22 @@ export default function HomePage() {
 
 
       {/* Populære søgninger — dynamic data cards */}
-      {popularData && (
-        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
-          <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1 text-center">
-            {language === "da" ? "Populære søgninger" : "Popular searches"}
-          </h2>
-          <p className="text-muted text-sm text-center mb-5">
-            {language === "da" ? "Baseret på officielle data" : "Based on official data"}
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {/* Bedste trivsel */}
-            <div className="card p-4 sm:p-5">
-              <h3 className="font-semibold text-foreground text-sm mb-3">{language === "da" ? "Bedste trivsel" : "Best well-being"}</h3>
-              <div className="space-y-1">
-                {popularData.bestTrivsel.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={`/institution/${item.id}`}
-                    className="flex justify-between text-xs py-1 px-1.5 -mx-1.5 rounded hover:bg-primary/5 transition-colors group/row"
-                  >
-                    <span className="text-muted truncate mr-2 group-hover/row:text-foreground transition-colors">{item.navn}</span>
-                    <span className="font-mono font-medium text-foreground shrink-0">{item.score.toFixed(1).replace(".", ",")}</span>
-                  </Link>
-                ))}
-              </div>
-              <Link to="/skole" className="text-[11px] text-primary font-medium mt-3 flex items-center gap-0.5 hover:underline">
-                {language === "da" ? "Se alle skoler" : "See all schools"} <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-
-            {/* Bedste skoler */}
-            <div className="card p-4 sm:p-5">
-              <h3 className="font-semibold text-foreground text-sm mb-3">{language === "da" ? "Højeste karaktersnit" : "Highest grade average"}</h3>
-              <div className="space-y-1">
-                {popularData.bestSchools.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={`/institution/${item.id}`}
-                    className="flex justify-between text-xs py-1 px-1.5 -mx-1.5 rounded hover:bg-primary/5 transition-colors group/row"
-                  >
-                    <span className="text-muted truncate mr-2 group-hover/row:text-foreground transition-colors">{item.navn}</span>
-                    <span className="font-mono font-medium text-foreground shrink-0">{item.score.toFixed(1).replace(".", ",")}</span>
-                  </Link>
-                ))}
-              </div>
-              <Link to="/skole?sort=grades" className="text-[11px] text-primary font-medium mt-3 flex items-center gap-0.5 hover:underline">
-                {language === "da" ? "Se alle skoler sorteret på karakterer" : "See all schools sorted by grades"} <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-
-            {/* Normering */}
-            <Link to="/normering" className="card p-4 sm:p-5 hover:border-primary/30 transition-all group">
-              <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Børn pr. voksen" : "Children per adult"}</h3>
-              <p className="text-xs text-muted mb-3">{language === "da" ? "Sammenlign normering i alle kommuner" : "Compare staff ratios in all municipalities"}</p>
-              <p className="text-[11px] text-primary font-medium flex items-center gap-0.5">
-                {language === "da" ? "Se normering" : "See ratios"} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </p>
-            </Link>
-
-            {/* Prissammenligning */}
-            <Link to="/prissammenligning" className="card p-4 sm:p-5 hover:border-primary/30 transition-all group">
-              <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Prissammenligning" : "Price comparison"}</h3>
-              <p className="text-xs text-muted mb-3">{language === "da" ? "Sammenlign takster på tværs af alle 98 kommuner" : "Compare rates across all 98 municipalities"}</p>
-              <p className="text-[11px] text-primary font-medium flex items-center gap-0.5">
-                {language === "da" ? "Sammenlign priser" : "Compare prices"} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </p>
-            </Link>
-          </div>
-        </section></ScrollReveal>
-      )}
+      {popularData && <PopularSearches data={popularData} language={language} />}
 
       {/* Use cases — what parents can do */}
-      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
-        <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-5 text-center">
-          {language === "da" ? "Sådan bruger forældre Institutionsguide" : "How parents use Institutionsguide"}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          <Link to="/prissammenligning" className="card p-5 hover:bg-primary/5 transition-colors group">
-            <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Sammenlign priser" : "Compare prices"}</h3>
-            <p className="text-xs text-muted mb-3">{language === "da" ? "Find den billigste vuggestue eller børnehave i din kommune" : "Find the cheapest nursery or kindergarten in your municipality"}</p>
-            <span className="text-[11px] text-primary font-medium">{language === "da" ? "Prøv prissammenligning" : "Try price comparison"} →</span>
-          </Link>
-          <Link to="/skole" className="card p-5 hover:bg-primary/5 transition-colors group">
-            <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Se kvalitetsdata for skoler" : "See school quality data"}</h3>
-            <p className="text-xs text-muted mb-3">{language === "da" ? `Trivsel, karakterer, fravær og normering for alle ${categoryStats.skole?.count.toLocaleString("da-DK") ?? ""} skoler` : `Well-being, grades, absence and ratios for all ${categoryStats.skole?.count.toLocaleString("da-DK") ?? ""} schools`}</p>
-            <span className="text-[11px] text-primary font-medium">{language === "da" ? "Se skoledata" : "See school data"} →</span>
-          </Link>
-          <Link to="/friplads" className="card p-5 hover:bg-primary/5 transition-colors group">
-            <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Beregn fripladstilskud" : "Calculate subsidy"}</h3>
-            <p className="text-xs text-muted mb-3">{language === "da" ? "Tjek om du har ret til tilskud baseret på din husstandsindkomst" : "Check if you qualify for a subsidy based on household income"}</p>
-            <span className="text-[11px] text-primary font-medium">{language === "da" ? "Beregn nu" : "Calculate now"} →</span>
-          </Link>
-        </div>
-      </section></ScrollReveal>
+      <UseCases language={language} schoolCount={categoryStats.skole?.count.toLocaleString("da-DK") ?? ""} />
 
       {/* Cross-sell: Suite products */}
-      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
-        <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1 text-center">
-          {t.home.moreTools}
-        </h2>
-        <p className="text-muted text-sm text-center mb-5">
-          {t.home.moreToolsSubtitle}
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <a
-            href="https://nemtbudget.nu"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card p-5 transition-transform group"
-          >
-            <Wallet className="w-8 h-8 text-blue-500 mb-3" />
-            <p className="font-semibold text-foreground group-hover:text-primary transition-colors">NemtBudget</p>
-            <p className="text-sm text-muted mt-1">{t.suiteProducts.nemtbudget}</p>
-          </a>
-          <a
-            href="https://parfinans.dk"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card p-5 transition-transform group"
-          >
-            <Calculator className="w-8 h-8 text-amber-600 mb-3" />
-            <p className="font-semibold text-foreground group-hover:text-primary transition-colors">ParFinans</p>
-            <p className="text-sm text-muted mt-1">{t.suiteProducts.parfinans}</p>
-          </a>
-          <a
-            href="https://xn--brneskat-54a.dk"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="card p-5 transition-transform group"
-          >
-            <PiggyBank className="w-8 h-8 text-success mb-3" />
-            <p className="font-semibold text-foreground group-hover:text-primary transition-colors">Børneskat</p>
-            <p className="text-sm text-muted mt-1">{t.suiteProducts.boerneskat}</p>
-          </a>
-        </div>
-      </section></ScrollReveal>
+      <HomeToolsSection />
 
       {/* Recently viewed */}
       <RecentlyViewed />
 
-      {/* FAQ — moved down */}
-      <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-8 sm:py-10">
-        <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-          <HelpCircle className="w-5 h-5 text-primary" />
-          {t.home.faq}
-        </h2>
-        <div className="space-y-4">
-          {FAQ_ITEMS.map((faq) => (
-            <details key={faq.q} className="card card-static p-4 group">
-              <summary className="font-semibold text-foreground cursor-pointer list-none flex justify-between items-center min-h-[44px]">
-                {faq.q}
-                <span className="text-muted group-open:rotate-180 transition-transform ml-2 shrink-0">&#x25BC;</span>
-              </summary>
-              <p className="text-muted text-sm mt-3 leading-relaxed">{faq.a}</p>
-            </details>
-          ))}
-        </div>
-      </section></ScrollReveal>
+      {/* FAQ */}
+      <HomeFAQ items={FAQ_ITEMS} title={t.home.faq} />
 
-      {/* Populære sider / SEO links */}
-      <section className="max-w-5xl mx-auto px-4 py-8">
-        <div className="flex flex-wrap gap-2 justify-center">
-          {[
-            { label: language === "da" ? "Billigste vuggestue i København" : "Cheapest nursery in Copenhagen", to: `/billigste-vuggestue/${toSlug("København")}` },
-            { label: language === "da" ? "Billigste vuggestue i Aarhus" : "Cheapest nursery in Aarhus", to: `/billigste-vuggestue/${toSlug("Aarhus")}` },
-            { label: language === "da" ? "Bedste skoler i København" : "Best schools in Copenhagen", to: `/bedste-skole/${toSlug("København")}` },
-            { label: language === "da" ? "Bedste skoler i Aarhus" : "Best schools in Aarhus", to: `/bedste-skole/${toSlug("Aarhus")}` },
-            { label: language === "da" ? "Bedste skoler i Odense" : "Best schools in Odense", to: `/bedste-skole/${toSlug("Odense")}` },
-            { label: language === "da" ? "Normering i hele Danmark" : "Staff ratios in Denmark", to: "/normering" },
-            { label: language === "da" ? "Beregn samlet udgift 0-14 år" : "Calculate total cost 0-14 years", to: "/samlet-pris" },
-            { label: language === "da" ? "Vuggestue vs dagpleje" : "Nursery vs childminder", to: `/sammenlign/vuggestue-vs-dagpleje/${toSlug("København")}` },
-          ].map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* SEO links */}
+      <SEOLinks language={language} />
 
       {/* Email capture */}
       <section className="max-w-xl mx-auto px-4 py-8">

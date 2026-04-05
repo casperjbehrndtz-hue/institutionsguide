@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, ChevronRight, Heart, GitCompareArrows, Lock, ExternalLink } from "lucide-react";
+import { ArrowLeft, ChevronRight, Heart, GitCompareArrows, Lock } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -11,7 +11,6 @@ import { isInstitutionUnlocked } from "@/lib/institutionGate";
 import InstitutionGateModal from "@/components/shared/InstitutionGateModal";
 import GatedSection from "@/components/shared/GatedSection";
 import { useGoogleRating } from "@/hooks/useGoogleRating";
-import { toSlug } from "@/lib/slugs";
 
 const InstitutionChat = lazy(() => import("@/components/chat/InstitutionChat"));
 const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
@@ -25,13 +24,8 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useCompare } from "@/contexts/CompareContext";
 import CompareBar from "@/components/compare/CompareBar";
-import ReviewSummaryV2 from "@/components/reviews/ReviewSummaryV2";
 import { SkeletonDetail } from "@/components/shared/Skeletons";
-import ReviewListV2 from "@/components/reviews/ReviewListV2";
-import ReviewFormV2 from "@/components/reviews/ReviewFormV2";
 import { useReviews } from "@/hooks/useReviews";
-import { useReviewAnalysis } from "@/hooks/useReviewAnalysis";
-import ReviewThemes from "@/components/reviews/ReviewThemes";
 import TilsynRapportSection from "@/components/tilsyn/TilsynRapportSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
 import InstitutionSidebar from "@/components/report/InstitutionSidebar";
@@ -40,10 +34,15 @@ import InstitutionQualitySection from "@/components/detail/InstitutionQualitySec
 import ArbejdstilsynSection from "@/components/detail/ArbejdstilsynSection";
 import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
-import StreetViewImage from "@/components/shared/StreetViewImage";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataSourceBadges from "@/components/shared/DataSourceBadges";
 import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
+import HeroImage from "@/components/detail/HeroImage";
+import QualityMetricRow from "@/components/detail/QualityMetricRow";
+import ReviewSection from "@/components/detail/ReviewSection";
+import SimilarInstitutions from "@/components/detail/SimilarInstitutions";
+import CrossSellNudges from "@/components/detail/CrossSellNudges";
+import EfterskoleDetails from "@/components/detail/EfterskoleDetails";
 
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
@@ -53,94 +52,6 @@ function categoryPath(cat: string): string {
   return paths[cat] || "/";
 }
 
-function HeroImage({ inst }: { inst: { imageUrl?: string; lat: number; lng: number; name: string } }) {
-  const [imgFailed, setImgFailed] = useState(false);
-  const showExternal = inst.imageUrl && !imgFailed;
-  return (
-    <div className="max-w-[1020px] mx-auto px-4 pb-4">
-      {showExternal ? (
-        <img
-          src={inst.imageUrl}
-          alt={inst.name}
-          className="w-full h-[200px] sm:h-[260px] rounded-xl object-cover"
-          onError={() => setImgFailed(true)}
-        />
-      ) : (
-        <StreetViewImage
-          lat={inst.lat}
-          lng={inst.lng}
-          alt={inst.name}
-          className="w-full h-[200px] sm:h-[260px] rounded-xl"
-        />
-      )}
-    </div>
-  );
-}
-
-function QualityMetricRow({ label, percentile, value, delay = 0, lang = "da" }: {
-  label: string;
-  percentile: number;
-  value: string;
-  delay?: number;
-  lang?: string;
-}) {
-  const [barWidth, setBarWidth] = useState(0);
-  const rowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = rowRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) setTimeout(() => setBarWidth(percentile), delay);
-    }, { threshold: 0.1 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [percentile, delay]);
-
-  const color = percentile >= 75 ? "#0d7c5f" : percentile >= 40 ? "#b8860b" : "#c0392b";
-  const bg = percentile >= 75 ? "rgba(13,124,95,0.07)" : percentile >= 40 ? "rgba(184,134,11,0.07)" : "rgba(192,57,43,0.07)";
-
-  const rankLabel = percentile >= 90
-    ? "Top 10%"
-    : percentile >= 75
-    ? "Top 25%"
-    : percentile >= 60
-    ? (lang === "da" ? "Over middel" : "Above avg")
-    : percentile >= 40
-    ? (lang === "da" ? "Middel" : "Average")
-    : percentile >= 25
-    ? (lang === "da" ? "Under middel" : "Below avg")
-    : percentile >= 10
-    ? (lang === "da" ? "Bund 25%" : "Bottom 25%")
-    : (lang === "da" ? "Bund 10%" : "Bottom 10%");
-
-  return (
-    <div
-      ref={rowRef}
-      className="grid items-center gap-1.5 sm:gap-3 py-3 border-b border-border/20"
-      style={{ gridTemplateColumns: "minmax(70px, 140px) 1fr auto auto" }}
-    >
-      <span className="text-xs sm:text-[13px] text-muted font-medium truncate">{label}</span>
-      <div className="h-1 bg-border/30 rounded-full overflow-hidden min-w-[40px]">
-        <div
-          className="h-full rounded-full"
-          style={{
-            width: `${barWidth}%`,
-            backgroundColor: color,
-            transition: "width 0.9s cubic-bezier(0.4,0,0.2,1)",
-          }}
-        />
-      </div>
-      <span className="font-mono text-xs sm:text-sm font-medium text-foreground text-right">{value}</span>
-      <span
-        className="text-[9px] sm:text-[10px] font-bold text-center px-1.5 sm:px-2 py-0.5 rounded-full tracking-wide whitespace-nowrap"
-        style={{ color, backgroundColor: bg }}
-      >
-        {rankLabel}
-      </span>
-    </div>
-  );
-}
 
 export default function InstitutionPage() {
   const { id } = useParams<{ id: string }>();
@@ -683,57 +594,7 @@ export default function InstitutionPage() {
       )}
 
       {/* Efterskole details card */}
-      {inst.category === "efterskole" && (inst.profiles?.length || inst.availableSpots != null || inst.classLevels?.length || inst.edkUrl) && (
-        <section className="max-w-[1020px] mx-auto px-4 pb-4">
-          <div className="card p-5 space-y-4">
-            {inst.schoolType && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted">{language === "da" ? "Type" : "Type"}:</span>
-                <span className="text-sm font-medium text-foreground">{inst.schoolType}</span>
-              </div>
-            )}
-            {inst.classLevels && inst.classLevels.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted">{language === "da" ? "Klassetrin" : "Grades"}:</span>
-                <span className="text-sm font-medium text-foreground">{inst.classLevels.join(". + ")}. klasse</span>
-              </div>
-            )}
-            {inst.availableSpots != null && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted">{language === "da" ? "Ledige pladser" : "Available spots"}:</span>
-                <span className={`text-sm font-medium ${inst.availableSpots > 0 ? "text-green-600" : "text-red-500"}`}>
-                  {inst.availableSpots > 0
-                    ? `${inst.availableSpots} ${language === "da" ? "ledige linjer" : "available lines"}`
-                    : (language === "da" ? "Ingen ledige" : "No availability")}
-                </span>
-              </div>
-            )}
-            {inst.profiles && inst.profiles.length > 0 && (
-              <div>
-                <span className="text-xs text-muted block mb-2">{language === "da" ? "Profiler" : "Profiles"}:</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {inst.profiles.map((p) => (
-                    <span key={p} className="text-xs px-2.5 py-1 rounded-full bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-400 font-medium">
-                      {p.charAt(0).toUpperCase() + p.slice(1)}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {inst.edkUrl && (
-              <a
-                href={inst.edkUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline font-medium min-h-[44px]"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                {language === "da" ? "Se på efterskolerne.dk" : "View on efterskolerne.dk"}
-              </a>
-            )}
-          </div>
-        </section>
-      )}
+      <EfterskoleDetails inst={inst} language={language} />
 
       {/* ═══════════════════════════════════════════
           FULL DETAILS — always visible
@@ -880,87 +741,10 @@ export default function InstitutionPage() {
       </section>
 
       {/* Similar institutions — internal linking for SEO */}
-      {nearby.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 py-8">
-          <h2 className="font-display text-xl font-bold text-foreground mb-4">
-            {language === "da" ? "Lignende institutioner i nærheden" : "Similar institutions nearby"}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {nearby.slice(0, 5).map((n) => (
-              <Link
-                key={n.id}
-                to={`/institution/${n.id}`}
-                className="card p-4 hover:bg-primary/5 transition-colors block"
-              >
-                <p className="font-semibold text-sm text-foreground">{n.name}</p>
-                <p className="text-xs text-muted">{n.address}, {n.postalCode} {n.city}</p>
-                <div className="flex items-center gap-3 mt-2">
-                  {n.monthlyRate && (
-                    <span className="font-mono text-sm text-primary">{formatDKK(n.monthlyRate)}/md</span>
-                  )}
-                  <span className="text-xs text-muted">{n.dist.toFixed(1)} km</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-          {inst && (
-            <div className="mt-4 text-center">
-              <Link
-                to={`/${inst.category}/${toSlug(inst.municipality)}`}
-                className="text-sm text-primary hover:underline"
-              >
-                {language === "da"
-                  ? `Se alle ${categoryLabels[inst.category] || inst.category} i ${inst.municipality}`
-                  : `See all ${categoryLabels[inst.category] || inst.category} in ${inst.municipality}`}
-              </Link>
-            </div>
-          )}
-        </section>
-      )}
+      <SimilarInstitutions inst={inst} nearby={nearby} categoryLabels={categoryLabels} language={language} />
 
       {/* Cross-sell nudges — only after gate unlock */}
-      {unlocked && (
-        <section className="max-w-4xl mx-auto px-4 py-6">
-          <p className="text-xs text-muted mb-3 text-center">
-            {language === "da" ? "Nyttige værktøjer til din familieøkonomi" : "Useful tools for your family finances"}
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <a
-              href="https://nemtbudget.nu?source=institutionsguide"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="card p-4 text-center hover:bg-primary/5 transition-colors"
-            >
-              <p className="font-semibold text-sm text-foreground">NemtBudget</p>
-              <p className="text-xs text-muted mt-1">
-                {language === "da" ? "Lav et familiebudget med pasningsudgifter" : "Create a family budget with childcare costs"}
-              </p>
-            </a>
-            <a
-              href="https://parfinans.dk?source=institutionsguide"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="card p-4 text-center hover:bg-primary/5 transition-colors"
-            >
-              <p className="font-semibold text-sm text-foreground">ParFinans</p>
-              <p className="text-xs text-muted mt-1">
-                {language === "da" ? "Privatøkonomi for forældre" : "Personal finance for parents"}
-              </p>
-            </a>
-            <a
-              href={"https://xn--brneskat-54a.dk?source=institutionsguide"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="card p-4 text-center hover:bg-primary/5 transition-colors"
-            >
-              <p className="font-semibold text-sm text-foreground">Børneskat</p>
-              <p className="text-xs text-muted mt-1">
-                {language === "da" ? "Spar på skat med børnefradrag" : "Save on taxes with child deductions"}
-              </p>
-            </a>
-          </div>
-        </section>
-      )}
+      {unlocked && <CrossSellNudges language={language} />}
 
       <CompareBar />
 
@@ -972,28 +756,5 @@ export default function InstitutionPage() {
         onUnlocked={handleUnlocked}
       />
     </>
-  );
-}
-
-function ReviewSection({ institutionId }: { institutionId: string }) {
-  const [showForm, setShowForm] = useState(false);
-  const { reviews } = useReviews(institutionId);
-  const { analysis } = useReviewAnalysis(institutionId, reviews);
-
-  return (
-    <div className="space-y-6">
-      <ReviewSummaryV2
-        institutionId={institutionId}
-        onWriteReview={() => setShowForm((v) => !v)}
-      />
-      {analysis && <ReviewThemes analysis={analysis} />}
-      {showForm && (
-        <ReviewFormV2
-          institutionId={institutionId}
-          onClose={() => setShowForm(false)}
-        />
-      )}
-      <ReviewListV2 institutionId={institutionId} />
-    </div>
   );
 }

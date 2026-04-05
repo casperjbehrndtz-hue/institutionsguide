@@ -10,10 +10,11 @@ interface Props {
   instStats?: InstitutionStats;
   tilsynCount: number;
   tilsynClear: boolean;
+  hasTilsynData?: boolean;
   googleRating?: { rating: number; review_count: number; maps_url: string | null } | null;
 }
 
-export default function InstitutionSidebar({ inst, language: lang, kommuneStats: ks, instStats, tilsynCount, tilsynClear, googleRating }: Props) {
+export default function InstitutionSidebar({ inst, language: lang, kommuneStats: ks, instStats, tilsynCount, tilsynClear, hasTilsynData, googleRating }: Props) {
   const q = inst.quality;
 
   return (
@@ -163,23 +164,21 @@ export default function InstitutionSidebar({ inst, language: lang, kommuneStats:
         </div>
       )}
 
-      {/* Tilsyn badge */}
-      <div className={`rounded-2xl p-4 flex items-center gap-3 border ${
-        tilsynClear
-          ? "bg-[#0d7c5f]/[0.04] border-[#0d7c5f]/10"
-          : tilsynCount > 0
-          ? "bg-amber-50 border-amber-200/50"
-          : "bg-bg-card border-border/50"
-      }`}>
-        <Shield className={`w-5 h-5 shrink-0 ${tilsynClear ? "text-[#0d7c5f]" : tilsynCount > 0 ? "text-amber-600" : "text-muted"}`} />
-        <span className={`text-[13px] font-medium ${tilsynClear ? "text-[#2a5a4a]" : tilsynCount > 0 ? "text-amber-800" : "text-muted"}`}>
-          {tilsynClear
-            ? (lang === "da" ? "Ingen aktive påbud" : "No active orders")
-            : tilsynCount > 0
-            ? (lang === "da" ? `${tilsynCount} aktive påbud` : `${tilsynCount} active orders`)
-            : (lang === "da" ? "Tilsynsstatus ukendt" : "Inspection status unknown")}
-        </span>
-      </div>
+      {/* Tilsyn badge — only show when we have real tilsyn data */}
+      {hasTilsynData && (
+        <div className={`rounded-2xl p-4 flex items-center gap-3 border ${
+          tilsynClear
+            ? "bg-[#0d7c5f]/[0.04] border-[#0d7c5f]/10"
+            : "bg-amber-50 border-amber-200/50"
+        }`}>
+          <Shield className={`w-5 h-5 shrink-0 ${tilsynClear ? "text-[#0d7c5f]" : "text-amber-600"}`} />
+          <span className={`text-[13px] font-medium ${tilsynClear ? "text-[#2a5a4a]" : "text-amber-800"}`}>
+            {tilsynClear
+              ? (lang === "da" ? "Ingen aktive påbud" : "No active orders")
+              : (lang === "da" ? `${tilsynCount} aktive påbud` : `${tilsynCount} active orders`)}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

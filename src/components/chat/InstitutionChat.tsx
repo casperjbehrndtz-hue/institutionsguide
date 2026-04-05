@@ -17,6 +17,18 @@ const SCHOOL_CATEGORIES = new Set(["skole", "efterskole", "gymnasium"]);
  * focusing on what the data MEANS for parents, not just repeating numbers.
  * Also allows follow-up questions.
  */
+// Check if we have enough data to generate a meaningful auto-insight
+function hasEnoughData(ctx: Record<string, unknown>): boolean {
+  const dataFields = [
+    "normering_ratio", "pct_paedagoger", "parent_satisfaction",
+    "antal_boern", "trivsel", "karakterer", "fravaer_pct",
+    "kompetencedaekning_pct", "klassestorrelse", "undervisningseffekt",
+    "monthly_rate", "score",
+  ];
+  const filled = dataFields.filter(f => ctx[f] != null && ctx[f] !== "—").length;
+  return filled >= 2;
+}
+
 export default function InstitutionChat({ institutionId, category, context, language }: Props) {
   const [isOpen, setIsOpen] = useState(true);
   const [insight, setInsight] = useState<string | null>(null);
@@ -31,10 +43,11 @@ export default function InstitutionChat({ institutionId, category, context, lang
 
   const isSchool = SCHOOL_CATEGORIES.has(category);
   const userCount = messages.filter((m) => m.role === "user").length;
+  const hasData = hasEnoughData(context);
 
-  // Auto-fetch insight on mount
+  // Auto-fetch insight on mount — only when we have meaningful data
   const fetchInsight = useCallback(async () => {
-    if (fetchedRef.current || !supabase) return;
+    if (fetchedRef.current || !supabase || !hasData) return;
     fetchedRef.current = true;
     setInsightLoading(true);
     setInsightError(false);
@@ -107,7 +120,9 @@ export default function InstitutionChat({ institutionId, category, context, lang
               {language === "da" ? `Spørg om ${context.name || "institutionen"}` : `Ask about ${context.name || "the institution"}`}
             </div>
             <div className="text-[11px] text-muted">
-              {language === "da" ? "AI-indsigt baseret på officielle data" : "AI insight based on official data"}
+              {hasData
+                ? (language === "da" ? "AI-indsigt baseret på officielle data" : "AI insight based on official data")
+                : (language === "da" ? "Stil spørgsmål om denne institution" : "Ask questions about this institution")}
             </div>
           </div>
           <button onClick={() => setIsOpen((o) => !o)} className="p-1 cursor-pointer">
@@ -122,45 +137,47 @@ export default function InstitutionChat({ institutionId, category, context, lang
         {isOpen && (
           <div className="border-t border-primary/15">
             {/* Auto-generated insight */}
-            <div className="px-5 py-4">
-              {insightLoading && (
-                <div className="flex items-center gap-2.5 text-muted py-4">
-                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  <span className="text-sm">
-                    {language === "da" ? "Analyserer institution..." : "Analyzing institution..."}
-                  </span>
-                </div>
-              )}
-              {showRetry && (
-                <div className="text-center py-3">
-                  <p className="text-sm text-muted mb-2">
-                    {language === "da" ? "Kunne ikke hente AI-indsigt." : "Could not load AI insight."}
-                  </p>
-                  <button
-                    onClick={() => { fetchedRef.current = false; fetchInsight(); }}
-                    className="text-sm text-primary font-medium hover:underline cursor-pointer"
-                  >
-                    {language === "da" ? "Prøv igen" : "Try again"}
-                  </button>
-                </div>
-              )}
-              {insight && (
-                <div className="space-y-3">
-                  <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">
-                    {insight}
-                  </p>
-                  <p className="text-[10px] text-muted flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary/60 inline-block" />
-                    {language === "da" ? "AI-genereret indsigt baseret på offentlige data" : "AI-generated insight based on public data"}
-                  </p>
-                </div>
-              )}
-            </div>
+            {hasData && (
+              <div className="px-5 py-4">
+                {insightLoading && (
+                  <div className="flex items-center gap-2.5 text-muted py-4">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span className="text-sm">
+                      {language === "da" ? "Analyserer institution..." : "Analyzing institution..."}
+                    </span>
+                  </div>
+                )}
+                {showRetry && (
+                  <div className="text-center py-3">
+                    <p className="text-sm text-muted mb-2">
+                      {language === "da" ? "Kunne ikke hente AI-indsigt." : "Could not load AI insight."}
+                    </p>
+                    <button
+                      onClick={() => { fetchedRef.current = false; fetchInsight(); }}
+                      className="text-sm text-primary font-medium hover:underline cursor-pointer"
+                    >
+                      {language === "da" ? "Prøv igen" : "Try again"}
+                    </button>
+                  </div>
+                )}
+                {insight && (
+                  <div className="space-y-3">
+                    <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-line">
+                      {insight}
+                    </p>
+                    <p className="text-[10px] text-muted flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/60 inline-block" />
+                      {language === "da" ? "AI-genereret indsigt baseret på offentlige data" : "AI-generated insight based on public data"}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Divider + follow-up section */}
-            {insight && (
+            {(insight || !hasData) && (
               <div className="border-t border-primary/10">
-                {!showChat ? (
+                {!showChat && hasData ? (
                   <button
                     onClick={() => {
                       setShowChat(true);

@@ -416,7 +416,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               pctPaedagoger: (r.pctPaedagoger ?? r.pctPaedagog ?? null) as number | null,
               pctPaedAssistenter: (r.pctPaedAssistenter ?? r.pctPaedAssistent ?? null) as number | null,
               pctUdenPaedUdd: (r.pctUdenPaedUdd ?? r.pctIngenPaedUdd ?? null) as number | null,
-              antalBoern: (r.antalBoern ?? r.boernVedNedslag ?? r.helaarBoern ?? null) as number | null,
+              antalBoern: (r.antalBoern ?? null) as number | null,
               parentSatisfaction: (r.parentSatisfaction as number) ?? null,
               parentSatisfactionYear: (r.parentSatisfactionYear as number) ?? null,
             };

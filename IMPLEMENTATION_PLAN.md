@@ -4,9 +4,10 @@
 
 ## Status: Active — Generated 2026-04-05
 
-## Backpressure Status (all green)
+## Backpressure Status (all green — verified 2026-04-05)
 - `npm run build` — 0 errors, 0 warnings, 1939 pages pre-rendered
 - `npx tsc -b` — 0 type errors
+- `npm run test:run` — 74 tests passed (5 files)
 - `console.log` grep — 0 hits
 - `TODO/FIXME/HACK` grep — 0 hits
 - Bundle: react-vendor 220KB (known acceptable), chart-vendor 436KB (lazy), map-vendor 187KB (lazy)
@@ -102,7 +103,7 @@
 - No commented-out code blocks
 
 **Missing:**
-- **P2-CODE-1**: 19 files over 400 lines (worst: GuidePage 918, InstitutionPage 911, HomePage 841, institutionScore.ts 839)
+- **P2-CODE-1**: 18 files over 400 lines (worst offenders refactored: InstitutionPage 999→760, GuidePage 924→645, HomePage 841→618, institutionScore.ts 839→73). Remaining files are 400-760 lines.
 - ~~**P2-CODE-2**: Core test coverage~~ ✅ DONE — 5 test files, 74 tests total
 - **P3-CODE-3**: Lighthouse audit needed (Performance ≥ 90, Accessibility ≥ 90)
 
@@ -155,8 +156,13 @@ Made gate modal full-screen on mobile (h-full, items-end), close button 44px tou
 #### ~~P2-5: Title/description length validation~~ ✅ DONE
 Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 chars (with ellipsis).
 
-#### P2-6: Refactor large files (>400 lines) ⏳ DEFERRED
-**What**: Split the 19 files exceeding 400 lines. Significant effort — requires careful extraction of sub-components and utils without breaking functionality. Best done as a dedicated refactoring pass.
+#### P2-6: Refactor large files (>400 lines) — PARTIALLY DONE
+**Done**: Refactored the 4 worst offenders (>800 lines):
+- `institutionScore.ts` (839→73): Split into `src/lib/scoring/` — types, utils, school, dagtilbud, enrichment modules
+- `InstitutionPage.tsx` (999→760): Extracted HeroImage, QualityMetricRow, ReviewSection, SimilarInstitutions, CrossSellNudges, EfterskoleDetails to `src/components/detail/`
+- `GuidePage.tsx` (924→645): Extracted types, constants, recommendation engine to `src/lib/guideEngine.ts`
+- `HomePage.tsx` (841→618): Extracted FAQ data to `src/lib/faqData.ts`, sections to `src/components/home/` (PopularSearches, UseCases, HomeToolsSection, HomeFAQ, SEOLinks)
+**Remaining**: 18 files still 400-760 lines. Further splitting would require deeper architectural changes.
 
 ### P3 — Polish
 

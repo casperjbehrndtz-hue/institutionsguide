@@ -20,8 +20,8 @@ interface MarkerClusterGroupProps {
   onMarkerHover?: (id: string | null) => void;
 }
 
-function formatPrice(price: number | null): string {
-  if (price === null) return "?";
+function formatPrice(price: number | null): string | null {
+  if (price === null) return null;
   if (price >= 1000) {
     const k = (price / 1000).toFixed(1).replace(".", ",");
     return k.replace(",0", "") + "k";
@@ -49,7 +49,7 @@ function pinSvg(color: string, symbol: string, size: number, shadow = true): str
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s * 1.3}" viewBox="0 0 ${s} ${s * 1.3}">
     ${shadow ? `<ellipse cx="${half}" cy="${s * 1.22}" rx="${s * 0.22}" ry="${s * 0.06}" fill="rgba(0,0,0,0.2)"/>` : ""}
     <path d="M${half} ${s * 1.15} C${half} ${s * 1.15} ${s * 0.05} ${half * 1.1} ${s * 0.05} ${half * 0.85} C${s * 0.05} ${s * 0.15} ${s * 0.15} ${s * 0.05} ${half} ${s * 0.05} C${s * 0.85} ${s * 0.05} ${s * 0.95} ${s * 0.15} ${s * 0.95} ${half * 0.85} C${s * 0.95} ${half * 1.1} ${half} ${s * 1.15} ${half} ${s * 1.15} Z" fill="${color}" stroke="#fff" stroke-width="1.5"/>
-    <text x="${half}" y="${half * 0.95}" text-anchor="middle" dominant-baseline="central" font-size="${s * 0.38}">${symbol}</text>
+    <text x="${half}" y="${half * 0.95}" text-anchor="middle" dominant-baseline="central" font-size="${s * 0.38}" fill="#fff" font-weight="600" font-family="Inter,system-ui,sans-serif">${symbol}</text>
   </svg>`;
 }
 
@@ -78,11 +78,12 @@ function getPinIcon(color: string, category: string, highlighted: boolean): L.Di
 
 function createPriceIcon(color: string, price: number | null, highlighted: boolean, category = ""): L.DivIcon {
   const label = formatPrice(price);
-  const symbol = CATEGORY_SYMBOL[category] || "";
+  // No price → fall back to pin marker (color already shows category)
+  if (!label) return getPinIcon(color, category, highlighted);
   const scale = highlighted ? "transform:scale(1.15);" : "";
   return L.divIcon({
     className: "custom-circle-marker price-marker",
-    html: `<span style="background:${color};color:#fff;font-size:11px;font-weight:600;font-family:Inter,system-ui,sans-serif;padding:2px 8px;border-radius:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:2px;border:2px solid #fff;line-height:1.3;box-shadow:0 1px 4px rgba(0,0,0,0.25);${scale}transition:transform 0.15s ease;">${symbol ? `<span style="font-size:12px;">${symbol}</span>` : ""}${label}</span>`,
+    html: `<span style="background:${color};color:#fff;font-size:11px;font-weight:600;font-family:Inter,system-ui,sans-serif;padding:2px 8px;border-radius:12px;white-space:nowrap;display:inline-flex;align-items:center;border:2px solid #fff;line-height:1.3;box-shadow:0 1px 4px rgba(0,0,0,0.25);${scale}transition:transform 0.15s ease;">${label}</span>`,
     iconSize: [70, 28],
     iconAnchor: [35, 14],
     popupAnchor: [0, -16],
