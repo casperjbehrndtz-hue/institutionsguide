@@ -33,7 +33,7 @@
 - ~~**P1-SEO-4**: 6 pages missing visible Breadcrumbs~~ ✅ DONE
 - ~~**P1-SEO-5**: CategoryMunicipalityPage contextual intro text~~ ✅ DONE
 - **P1-SEO-6**: og:image is same static SVG on all pages — no page-specific images
-- **P2-SEO-7**: No title/description length validation (dynamic titles can exceed 60/155 chars)
+- ~~**P2-SEO-7**: Title/description length validation~~ ✅ DONE
 - **P2-SEO-8**: Blog template missing table of contents for long articles
 - ~~**P2-SEO-9**: BlogPost BreadcrumbList JSON-LD~~ ✅ DONE (covered in P1-1)
 - **P2-SEO-10**: No "Similar institutions" internal linking component on detail pages
@@ -155,11 +155,8 @@ Made gate modal full-screen on mobile (h-full, items-end), close button 44px tou
 **Acceptance**: Long posts show ToC; all posts show related articles.
 **Verify**: Visual check on a blog post
 
-#### P2-5: Title/description length validation
-**What**: Add truncation logic in SEOHead to enforce max 60 char titles and 155 char descriptions. Log warning if truncated.
-**Files**: `src/components/shared/SEOHead.tsx`
-**Acceptance**: No title >60 chars, no description >155 chars in rendered HTML.
-**Verify**: `npm run build`, spot-check pre-rendered HTML
+#### ~~P2-5: Title/description length validation~~ ✅ DONE
+Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 chars (with ellipsis).
 
 #### P2-6: Refactor large files (>400 lines)
 **What**: Split the 19 files exceeding 400 lines. Extract sub-components, move calculation helpers to utils.

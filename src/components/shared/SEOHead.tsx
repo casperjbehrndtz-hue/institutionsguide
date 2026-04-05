@@ -10,9 +10,16 @@ interface SEOHeadProps {
 
 const BASE_URL = "https://institutionsguiden.dk";
 
+function truncate(str: string, max: number): string {
+  if (str.length <= max) return str;
+  return str.slice(0, max - 1).trimEnd() + "…";
+}
+
 export default function SEOHead({ title, description, path = "", noIndex }: SEOHeadProps) {
   const { language } = useLanguage();
-  const fullTitle = title.includes("Institutionsguide") ? title : `${title} | Institutionsguide`;
+  const rawTitle = title.includes("Institutionsguide") ? title : `${title} | Institutionsguide`;
+  const fullTitle = truncate(rawTitle, 60);
+  const safeDescription = truncate(description, 155);
   const url = `${BASE_URL}${path}`;
 
   useEffect(() => {
@@ -28,9 +35,9 @@ export default function SEOHead({ title, description, path = "", noIndex }: SEOH
       el.setAttribute("content", content);
     };
 
-    setMeta("name", "description", description);
+    setMeta("name", "description", safeDescription);
     setMeta("property", "og:title", fullTitle);
-    setMeta("property", "og:description", description);
+    setMeta("property", "og:description", safeDescription);
     setMeta("property", "og:url", url);
     setMeta("property", "og:type", "website");
     setMeta("property", "og:image", `${BASE_URL}/og-image.png`);
@@ -74,7 +81,7 @@ export default function SEOHead({ title, description, path = "", noIndex }: SEOH
 
     // lang attribute
     document.documentElement.lang = language;
-  }, [fullTitle, description, url, noIndex, language]);
+  }, [fullTitle, safeDescription, url, noIndex, language]);
 
   return null;
 }
