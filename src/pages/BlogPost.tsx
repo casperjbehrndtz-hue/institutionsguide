@@ -6,6 +6,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
+import { SkeletonDetail } from "@/components/shared/Skeletons";
 import { Calendar, ArrowLeft, Clock, ArrowRight } from "lucide-react";
 import DOMPurify from "dompurify";
 
@@ -95,11 +96,7 @@ export default function BlogPost() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <SkeletonDetail />;
   }
 
   if (notFound || !post) {

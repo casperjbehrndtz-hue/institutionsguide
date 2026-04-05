@@ -5,6 +5,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import JsonLd from "@/components/shared/JsonLd";
 import { buildSlugMap, toSlug } from "@/lib/slugs";
+import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import {
   LineChart,
   Line,
@@ -189,11 +190,7 @@ export default function NormeringKommunePage() {
   }, [kommuneData]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return (<><SkeletonHero /><SkeletonTable /></>);
   }
 
   if (!kommuneName || kommuneData.length === 0) {

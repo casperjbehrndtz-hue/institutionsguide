@@ -7,6 +7,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import {
   buildSlugMap,
   CATEGORY_SLUGS,
@@ -104,11 +105,7 @@ export default function CategoryMunicipalityPage() {
   }, [municipalities, institutions, munName, cat]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return (<><SkeletonHero /><SkeletonCardGrid /></>);
   }
 
   if (!isValidCat || !munName || filtered.length === 0) {

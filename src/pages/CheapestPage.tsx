@@ -4,6 +4,7 @@ import { useData } from "@/contexts/DataContext";
 import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { formatDKK } from "@/lib/format";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import {
   buildSlugMap,
   DAYCARE_CATEGORY_SLUGS,
@@ -97,11 +98,7 @@ export default function CheapestPage() {
   }, [sorted]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return (<><SkeletonHero /><SkeletonCardGrid /></>);
   }
 
   if (!isValidCat || !munName || sorted.length === 0) {

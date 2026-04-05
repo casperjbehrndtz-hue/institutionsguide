@@ -6,6 +6,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
+import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import {
   buildSlugMap,
   CATEGORY_LABELS_DA,
@@ -126,11 +127,7 @@ export default function VsPage() {
   const statsB = useMemo(() => computeStats(itemsB), [itemsB]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return (<><SkeletonHero /><SkeletonTable /></>);
   }
 
   if (!catA || !catB || !munName || (itemsA.length === 0 && itemsB.length === 0)) {

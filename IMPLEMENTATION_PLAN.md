@@ -57,7 +57,7 @@
 - Compare page has responsive tables + charts
 
 **Missing:**
-- **P1-UX-1**: 13 pages missing skeleton loading: CategoryMunicipalityPage, CheapestPage, VsPage, NormeringKommunePage, TotalCostPage, FindPage, FripladsPage, GuidePage, ComparePage, FavoritesPage, BlogIndex, BlogPost, AboutPage
+- ~~**P1-UX-1**: Skeleton loading screens~~ ✅ DONE — 7 spinner pages replaced; 6 others use static data or already had skeletons
 - **P2-UX-2**: Gate modal close button touch target too small (p-1.5 ≈ 32px, needs 44px)
 - **P2-UX-3**: Gate modal not full-screen on mobile (max-w-md on all breakpoints)
 - **P2-UX-4**: 2 ad-hoc dark mode hex values in InstitutionGateModal.tsx
@@ -129,11 +129,8 @@ Added Breadcrumbs component to CategoryPage, FindPage, GymnasiumPage, AboutPage,
 #### ~~P1-3: Add contextual intro text to CategoryMunicipalityPage~~ ✅ DONE
 Added dynamically generated intro paragraph with ownership mix (kommunale vs private/selvejende) and price comparison to national average. Unique per category/municipality combination.
 
-#### P1-4: Add skeleton loading screens to 13 pages
-**What**: Replace spinners/blank states with skeleton screens during data loading.
-**Files**: CategoryMunicipalityPage, CheapestPage, VsPage, NormeringKommunePage, TotalCostPage, FindPage, FripladsPage, GuidePage, ComparePage, FavoritesPage, BlogIndex, BlogPost, AboutPage
-**Acceptance**: All data-loading pages show skeleton screens during load.
-**Verify**: Visual check with slow 3G throttling in DevTools
+#### ~~P1-4: Add skeleton loading screens to pages with spinners~~ ✅ DONE
+Replaced spinner loading states with skeleton screens on 7 pages: CategoryMunicipalityPage, CheapestPage, VsPage, NormeringKommunePage, FindPage, FavoritesPage, BlogPost. The remaining 6 pages (TotalCostPage, FripladsPage, GuidePage, ComparePage, AboutPage) use static data with no loading state; BlogIndex already had inline skeleton-style loading.
 
 #### P1-5: Add DataFreshness to 11 data-driven pages missing it
 **What**: Show data update date on all pages that display institution/pricing/normering data.

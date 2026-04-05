@@ -13,6 +13,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 
 const STORAGE_KEY = "preference-weights-v2";
 
@@ -208,11 +209,7 @@ export default function FindPage() {
   const presetsForCategory = PRESETS.filter((p) => p.categories.includes(category));
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return (<><SkeletonHero /><SkeletonCardGrid /></>);
   }
 
   return (

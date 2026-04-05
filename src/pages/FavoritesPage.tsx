@@ -8,6 +8,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
+import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { formatDKK } from "@/lib/format";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import RecentlyViewed from "@/components/shared/RecentlyViewed";
@@ -36,11 +37,7 @@ export default function FavoritesPage() {
   }, [favorites, institutions]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return (<><SkeletonHero /><SkeletonCardGrid count={3} /></>);
   }
 
   return (
