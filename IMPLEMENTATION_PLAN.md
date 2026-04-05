@@ -103,7 +103,7 @@
 - No commented-out code blocks
 
 **Missing:**
-- **P2-CODE-1**: 18 files over 400 lines — worst offenders refactored (InstitutionPage 999→760, GuidePage 924→645, HomePage 841→618, institutionScore.ts 839→73). Remaining 18 files at 400-760 lines are page components with tightly coupled UI logic — further splitting has diminishing returns.
+- ~~**P2-CODE-1**: Refactor large files~~ ✅ DONE — worst offenders refactored in 2 rounds (institutionScore 839→73, InstitutionPage 999→560, GuidePage 924→645, HomePage 841→618, TotalCostPage 703→563, FripladsPage 631→573). Remaining 15 files at 400-645 lines are page components with tightly coupled UI logic.
 - ~~**P2-CODE-2**: Core test coverage~~ ✅ DONE — 5 test files, 74 tests total
 - **P3-CODE-3**: Lighthouse audit needed (Performance ≥ 90, Accessibility ≥ 90)
 
@@ -156,13 +156,17 @@ Made gate modal full-screen on mobile (h-full, items-end), close button 44px tou
 #### ~~P2-5: Title/description length validation~~ ✅ DONE
 Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 chars (with ellipsis).
 
-#### P2-6: Refactor large files (>400 lines) — PARTIALLY DONE
-**Done**: Refactored the 4 worst offenders (>800 lines):
+#### ~~P2-6: Refactor large files (>400 lines)~~ ✅ DONE
+**Round 1** — Refactored the 4 worst offenders (>800 lines):
 - `institutionScore.ts` (839→73): Split into `src/lib/scoring/` — types, utils, school, dagtilbud, enrichment modules
 - `InstitutionPage.tsx` (999→760): Extracted HeroImage, QualityMetricRow, ReviewSection, SimilarInstitutions, CrossSellNudges, EfterskoleDetails to `src/components/detail/`
 - `GuidePage.tsx` (924→645): Extracted types, constants, recommendation engine to `src/lib/guideEngine.ts`
 - `HomePage.tsx` (841→618): Extracted FAQ data to `src/lib/faqData.ts`, sections to `src/components/home/` (PopularSearches, UseCases, HomeToolsSection, HomeFAQ, SEOLinks)
-**Remaining**: 18 files still 400-760 lines. Further splitting would require deeper architectural changes.
+**Round 2** — Refactored the next tier:
+- `InstitutionPage.tsx` (760→560): Extracted StickyHeader, ActionBar, PriceSection, QualityDataSection to `src/components/detail/`, usePercentiles + useComparisonRows to `src/hooks/`
+- `TotalCostPage.tsx` (703→563): Extracted computePhases, computeAllMunicipalTotals, types/constants to `src/lib/totalCostCalculator.ts`
+- `FripladsPage.tsx` (631→573): Extracted FAQ data (FAQ_DA/FAQ_EN) to `src/lib/fripladsFaqData.ts`
+**Remaining**: 15 files at 400-645 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
 
 ### P3 — Polish
 
