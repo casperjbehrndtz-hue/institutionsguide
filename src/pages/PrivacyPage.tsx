@@ -1,12 +1,19 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
+import SEOHead from "@/components/shared/SEOHead";
 
 export default function PrivacyPage() {
   const { t, language } = useLanguage();
 
   return (
-    <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
+    <>
+      <SEOHead
+        title="Privatlivspolitik — Institutionsguide.dk"
+        description="Læs om hvordan Institutionsguide.dk behandler dine personoplysninger, cookies og lokalt lagrede data."
+        path="/privatliv"
+      />
+      <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
       {language === "en" && t.privacy.englishBanner && (
         <div className="mb-6 rounded-lg bg-primary/10 border border-primary/20 px-4 py-3 text-sm text-primary">
           {t.privacy.englishBanner}
@@ -181,5 +188,6 @@ export default function PrivacyPage() {
         </Link>
       </div>
     </section>
+    </>
   );
 }

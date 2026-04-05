@@ -1,9 +1,16 @@
 import { Link } from "react-router-dom";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
+import SEOHead from "@/components/shared/SEOHead";
 
 export default function TermsPage() {
   return (
-    <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
+    <>
+      <SEOHead
+        title="Vilkår — Institutionsguide.dk"
+        description="Læs vilkår for brug af Institutionsguide.dk. Alle priser er vejledende og baseret på offentligt tilgængelige data."
+        path="/vilkaar"
+      />
+      <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
       <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-8">
         Vilkår
       </h1>
@@ -75,5 +82,6 @@ export default function TermsPage() {
         </Link>
       </div>
     </section>
+    </>
   );
 }

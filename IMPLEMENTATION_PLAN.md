@@ -28,7 +28,7 @@
 
 **Missing:**
 - ~~**P0-SEO-1**: CategoryMunicipalityPage JSON-LD~~ ✅ DONE — BreadcrumbList + ItemList added
-- **P0-SEO-2**: PrivacyPage + TermsPage — no SEOHead (no title/desc/canonical/og)
+- ~~**P0-SEO-2**: PrivacyPage + TermsPage SEOHead~~ ✅ DONE
 - **P1-SEO-3**: 9 pages missing JSON-LD: VsPage, ComparePage, FindPage, FripladsPage, GuidePage, MetodePage, TotalCostPage, AboutPage, FavoritesPage
 - **P1-SEO-4**: 5 pages missing visible Breadcrumbs: CategoryPage, FindPage, GymnasiumPage, AboutPage (+ PrivacyPage/TermsPage)
 - **P1-SEO-5**: CategoryMunicipalityPage has stats + list but spec wants "unique intro text, not just a list"
@@ -115,11 +115,8 @@
 #### ~~P0-1: Add JSON-LD to CategoryMunicipalityPage~~ ✅ DONE
 Added BreadcrumbList (Forside → Kategori → Kommune → Page) + ItemList (top 10 institutions) JSON-LD to both the React component (`CategoryMunicipalityPage.tsx`) and the prerender script (`prerender-pages.mjs`). Verified in `dist/vuggestue/koebenhavn/index.html`.
 
-#### P0-2: Add SEOHead to PrivacyPage and TermsPage
-**What**: These pages have zero SEO meta tags — no title, no description, no canonical, no og tags.
-**Files**: `src/pages/PrivacyPage.tsx`, `src/pages/TermsPage.tsx`
-**Acceptance**: Both pages render unique title + description + canonical + og tags.
-**Verify**: `npm run build`, `npx tsc -b`
+#### ~~P0-2: Add SEOHead to PrivacyPage and TermsPage~~ ✅ DONE
+Added SEOHead with unique title, description, canonical URL, and OG tags to both PrivacyPage (`/privatliv`) and TermsPage (`/vilkaar`).
 
 ### P1 — High Impact SEO + UX
 
