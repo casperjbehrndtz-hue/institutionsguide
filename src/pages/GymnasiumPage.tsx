@@ -5,6 +5,7 @@ import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import DataFreshness from "@/components/shared/DataFreshness";
@@ -155,6 +156,11 @@ export default function GymnasiumPage() {
           title
         )}
       />
+
+      <Breadcrumbs items={[
+        { label: language === "da" ? "Forside" : "Home", href: "/" },
+        { label: language === "da" ? "Gymnasier" : "Gymnasiums" },
+      ]} />
 
       {/* Hero */}
       <ScrollReveal>

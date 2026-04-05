@@ -30,7 +30,7 @@
 - ~~**P0-SEO-1**: CategoryMunicipalityPage JSON-LD~~ ✅ DONE — BreadcrumbList + ItemList added
 - ~~**P0-SEO-2**: PrivacyPage + TermsPage SEOHead~~ ✅ DONE
 - ~~**P1-SEO-3**: 9 pages + BlogPost missing BreadcrumbList JSON-LD~~ ✅ DONE
-- **P1-SEO-4**: 5 pages missing visible Breadcrumbs: CategoryPage, FindPage, GymnasiumPage, AboutPage (+ PrivacyPage/TermsPage)
+- ~~**P1-SEO-4**: 6 pages missing visible Breadcrumbs~~ ✅ DONE
 - **P1-SEO-5**: CategoryMunicipalityPage has stats + list but spec wants "unique intro text, not just a list"
 - **P1-SEO-6**: og:image is same static SVG on all pages — no page-specific images
 - **P2-SEO-7**: No title/description length validation (dynamic titles can exceed 60/155 chars)
@@ -123,11 +123,8 @@ Added SEOHead with unique title, description, canonical URL, and OG tags to both
 #### ~~P1-1: Add JSON-LD BreadcrumbList to 9 remaining content pages~~ ✅ DONE
 Added BreadcrumbList JSON-LD to all 10 pages: VsPage, ComparePage, FindPage, FripladsPage, GuidePage, MetodePage, TotalCostPage, AboutPage, FavoritesPage, and BlogPost.
 
-#### P1-2: Add visible Breadcrumbs to 5 pages missing them
-**What**: CategoryPage, FindPage, GymnasiumPage, AboutPage need the Breadcrumbs component. PrivacyPage/TermsPage too (after P0-2 adds SEOHead).
-**Files**: `src/pages/CategoryPage.tsx`, `src/pages/FindPage.tsx`, `src/pages/GymnasiumPage.tsx`, `src/pages/AboutPage.tsx`, `src/pages/PrivacyPage.tsx`, `src/pages/TermsPage.tsx`
-**Acceptance**: Breadcrumbs visible on all 6 pages.
-**Verify**: Visual check, `npm run build`
+#### ~~P1-2: Add visible Breadcrumbs to 6 pages missing them~~ ✅ DONE
+Added Breadcrumbs component to CategoryPage, FindPage, GymnasiumPage, AboutPage, PrivacyPage, and TermsPage.
 
 #### P1-3: Add contextual intro text to CategoryMunicipalityPage
 **What**: Spec requires "unique intro text, not just a list". Add 1-2 sentences of dynamically generated contextual text about the category in the municipality (mention count, price range, normering where available).

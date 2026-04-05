@@ -13,6 +13,7 @@ const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import CompareBar from "@/components/compare/CompareBar";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -290,6 +291,11 @@ export default function CategoryPage({ category }: Props) {
         "https://institutionsguiden.dk",
         categoryTitles[category],
       )} />
+
+      <Breadcrumbs items={[
+        { label: language === "da" ? "Forside" : "Home", href: "/" },
+        { label: categoryTitles[category] },
+      ]} />
 
       {/* Category header */}
       <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">

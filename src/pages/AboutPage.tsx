@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
 
 const DATA_SOURCES = [
@@ -93,6 +94,10 @@ export default function AboutPage() {
         { name: isDa ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
         { name: isDa ? "Om os" : "About", url: "https://institutionsguiden.dk/om" },
       ])} />
+      <Breadcrumbs items={[
+        { label: isDa ? "Forside" : "Home", href: "/" },
+        { label: isDa ? "Om os" : "About" },
+      ]} />
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
         {/* About section */}
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import SEOHead from "@/components/shared/SEOHead";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 
 export default function PrivacyPage() {
   const { t, language } = useLanguage();
@@ -13,6 +14,10 @@ export default function PrivacyPage() {
         description="Læs om hvordan Institutionsguide.dk behandler dine personoplysninger, cookies og lokalt lagrede data."
         path="/privatliv"
       />
+      <Breadcrumbs items={[
+        { label: "Forside", href: "/" },
+        { label: "Privatlivspolitik" },
+      ]} />
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
       {language === "en" && t.privacy.englishBanner && (
         <div className="mb-6 rounded-lg bg-primary/10 border border-primary/20 px-4 py-3 text-sm text-primary">

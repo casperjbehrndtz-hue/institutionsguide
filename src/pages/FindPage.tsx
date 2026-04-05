@@ -11,6 +11,7 @@ import PreferencePanel from "@/components/preferences/PreferencePanel";
 import MatchCard from "@/components/preferences/MatchCard";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
 
 const STORAGE_KEY = "preference-weights-v2";
@@ -227,6 +228,11 @@ export default function FindPage() {
         { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
         { name: language === "da" ? "Find institution" : "Find institution", url: "https://institutionsguiden.dk/find" },
       ])} />
+
+      <Breadcrumbs items={[
+        { label: language === "da" ? "Forside" : "Home", href: "/" },
+        { label: language === "da" ? "Find institution" : "Find institution" },
+      ]} />
 
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-10">
         {/* Hero */}

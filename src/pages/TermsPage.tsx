@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import SEOHead from "@/components/shared/SEOHead";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 
 export default function TermsPage() {
   return (
@@ -10,6 +11,10 @@ export default function TermsPage() {
         description="Læs vilkår for brug af Institutionsguide.dk. Alle priser er vejledende og baseret på offentligt tilgængelige data."
         path="/vilkaar"
       />
+      <Breadcrumbs items={[
+        { label: "Forside", href: "/" },
+        { label: "Vilkår" },
+      ]} />
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
       <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-8">
         Vilkår
