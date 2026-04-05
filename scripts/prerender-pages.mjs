@@ -164,6 +164,29 @@ function buildPage(shellHtml, page) {
       { name: "Forside", url: `${SITE_URL}/` },
       { name: page.title.split(" — ")[0], url: `${SITE_URL}${page.path}` },
     ]));
+  } else if (page.jsonLdType === "categoryMunicipality") {
+    // Category + Municipality page: BreadcrumbList + ItemList
+    const catSegment = page.path.split("/")[1]; // e.g. "vuggestue"
+    jsonLd = jsonLdTag(breadcrumbJsonLd([
+      { name: "Forside", url: `${SITE_URL}/` },
+      { name: page.catLabel, url: `${SITE_URL}/${catSegment}` },
+      { name: page.municipality, url: `${SITE_URL}/kommune/${encodeURIComponent(page.municipality)}` },
+      { name: `${page.catLabel} i ${page.municipality}`, url: `${SITE_URL}${page.path}` },
+    ]));
+    if (page.institutions && page.institutions.length > 0) {
+      jsonLd += "\n" + jsonLdTag({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: `${page.catLabel} i ${page.municipality}`,
+        numberOfItems: page.institutions.length,
+        itemListElement: page.institutions.map((inst, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: inst.name,
+          url: `${SITE_URL}/institution/${inst.id}`,
+        })),
+      });
+    }
   } else if (page.jsonLdType === "institution" && page.instData) {
     const d = page.instData;
     const schemaType = ["Folkeskole", "Privatskole", "Efterskole"].includes(d.type) ? "School" : "ChildCare";
@@ -255,18 +278,19 @@ function loadAllData() {
   // Build municipality -> category -> institution count + price stats
   const munCatMap = new Map(); // munName -> { catName -> { count, prices[] } }
 
-  function addInst(munName, cat, monthlyRate) {
+  function addInst(munName, cat, monthlyRate, instName, instId) {
     if (!munCatMap.has(munName)) munCatMap.set(munName, {});
     const mc = munCatMap.get(munName);
-    if (!mc[cat]) mc[cat] = { count: 0, prices: [] };
+    if (!mc[cat]) mc[cat] = { count: 0, prices: [], names: [] };
     mc[cat].count++;
     if (monthlyRate && monthlyRate > 0) mc[cat].prices.push(monthlyRate);
+    if (instName && instId) mc[cat].names.push({ name: instName, id: instId });
   }
 
   // Schools
   for (const s of skoleData.s) {
     const m = s.m ? s.m.replace(" Kommune", "") : null;
-    if (m) addInst(m, "skole", s.sfo || null);
+    if (m) addInst(m, "skole", s.sfo || null, s.n, s.id ? `school-${s.id}` : null);
     if (s.id && s.n && m) {
       allInstitutions.push({
         id: `school-${s.id}`,
@@ -292,7 +316,7 @@ function loadAllData() {
   function processDagtilbud(data, forceCat) {
     for (const d of data.i) {
       const cat = forceCat || (d.tp === "dagpleje" ? "dagpleje" : d.tp === "sfo" || d.tp === "klub" ? "sfo" : d.tp === "boernehave" ? "boernehave" : "vuggestue");
-      if (d.m) addInst(d.m, cat, d.mr || null);
+      if (d.m) addInst(d.m, cat, d.mr || null, d.n, d.id);
       if (d.id && d.n && d.m) {
         allInstitutions.push({
           id: d.id,
@@ -369,6 +393,10 @@ function generateProgrammaticPages() {
         path: `/${cat}/${slug}`,
         title: `${label} i ${mun} 2026 — Priser og sammenligning | Institutionsguide`,
         description: `Der er ${data.count} ${label.toLowerCase()} i ${mun} Kommune.${avg ? ` Gennemsnitlig månedlig takst: ${avg} kr.` : ""} Se priser, kontakt og sammenlign.`,
+        jsonLdType: "categoryMunicipality",
+        catLabel: label,
+        municipality: mun,
+        institutions: (data.names || []).slice(0, 10),
       });
     }
   }

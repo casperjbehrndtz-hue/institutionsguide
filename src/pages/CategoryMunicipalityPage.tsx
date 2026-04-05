@@ -3,7 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import {
   buildSlugMap,
@@ -137,6 +139,20 @@ export default function CategoryMunicipalityPage() {
         description={pageDesc}
         path={`/${cat}/${munSlug}`}
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Forside", url: "https://institutionsguiden.dk/" },
+        { name: catLabel, url: `https://institutionsguiden.dk/${cat}` },
+        { name: munName, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(munName)}` },
+        { name: `${catLabel} i ${munName}`, url: `https://institutionsguiden.dk/${cat}/${munSlug}` },
+      ])} />
+      <JsonLd data={itemListSchema(
+        filtered.slice(0, 10).map((inst) => ({
+          name: inst.name,
+          url: `/institution/${inst.id}`,
+        })),
+        "https://institutionsguiden.dk",
+        `${catLabel} i ${munName}`,
+      )} />
 
       <Breadcrumbs
         items={[

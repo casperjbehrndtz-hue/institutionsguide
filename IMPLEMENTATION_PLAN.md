@@ -1,0 +1,244 @@
+# IMPLEMENTATION_PLAN.md — Institutionsguide.dk
+
+<!-- Generated and maintained by Ralph. Do not edit while Ralph is running. -->
+
+## Status: Active — Generated 2026-04-05
+
+## Backpressure Status (all green)
+- `npm run build` — 0 errors, 0 warnings, 1939 pages pre-rendered
+- `npx tsc -b` — 0 type errors
+- `console.log` grep — 0 hits
+- `TODO/FIXME/HACK` grep — 0 hits
+- Bundle: react-vendor 220KB (known acceptable), chart-vendor 436KB (lazy), map-vendor 187KB (lazy)
+
+---
+
+## Gap Analysis Summary
+
+### 1. SEO (specs/seo-dominance.md) — HIGHEST PRIORITY
+
+**Done:**
+- SEOHead on all pages except PrivacyPage, TermsPage
+- Canonical URLs + og:title/description/url/image + hreflang da/x-default on all SEOHead pages
+- JsonLd on 14 pages: HomePage (WebSite+SearchAction, FAQ), InstitutionPage (ChildCare/School + BreadcrumbList), CategoryPage (BreadcrumbList + ItemList), KommunePage (BreadcrumbList + ItemList), BlogPost (BlogPosting), BlogIndex (ItemList), GymnasiumPage, NormeringPage, NormeringKommunePage (+ FAQ), PrissammenligningPage, BestSchoolPage, BestDagtilbudPage, BestValuePage, CheapestPage
+- Visible Breadcrumbs on 18 pages (most content pages)
+- Sitemap.xml with ~8500 URLs
+- RelatedSearches component on category/kommune pages
+- 1939 pre-rendered pages with unique titles + descriptions
+
+**Missing:**
+- ~~**P0-SEO-1**: CategoryMunicipalityPage JSON-LD~~ ✅ DONE — BreadcrumbList + ItemList added
+- **P0-SEO-2**: PrivacyPage + TermsPage — no SEOHead (no title/desc/canonical/og)
+- **P1-SEO-3**: 9 pages missing JSON-LD: VsPage, ComparePage, FindPage, FripladsPage, GuidePage, MetodePage, TotalCostPage, AboutPage, FavoritesPage
+- **P1-SEO-4**: 5 pages missing visible Breadcrumbs: CategoryPage, FindPage, GymnasiumPage, AboutPage (+ PrivacyPage/TermsPage)
+- **P1-SEO-5**: CategoryMunicipalityPage has stats + list but spec wants "unique intro text, not just a list"
+- **P1-SEO-6**: og:image is same static SVG on all pages — no page-specific images
+- **P2-SEO-7**: No title/description length validation (dynamic titles can exceed 60/155 chars)
+- **P2-SEO-8**: Blog template missing table of contents for long articles
+- **P2-SEO-9**: BlogPost has BlogPosting schema but no BreadcrumbList JSON-LD
+- **P2-SEO-10**: No "Similar institutions" internal linking component on detail pages
+
+### 2. UX/Design (specs/ux-design.md)
+
+**Done:**
+- Fraunces + DM Sans fonts properly configured and used everywhere
+- Color system consistent (CSS variables: primary, accent, success, warning, destructive, muted)
+- Card design consistent (.card class in index.css, used everywhere)
+- Filter bar visible + sticky on category pages
+- Score ring on institution pages
+- Map toggle on category pages
+- Skeleton screens on 10 pages
+- Mobile responsive layout with 375px support
+- Dark mode support
+- ErrorBoundary wraps all routes
+- All images have alt text
+- Touch targets mostly ≥44px
+- No horizontal overflow at 375px
+- Compare page has responsive tables + charts
+
+**Missing:**
+- **P1-UX-1**: 13 pages missing skeleton loading: CategoryMunicipalityPage, CheapestPage, VsPage, NormeringKommunePage, TotalCostPage, FindPage, FripladsPage, GuidePage, ComparePage, FavoritesPage, BlogIndex, BlogPost, AboutPage
+- **P2-UX-2**: Gate modal close button touch target too small (p-1.5 ≈ 32px, needs 44px)
+- **P2-UX-3**: Gate modal not full-screen on mobile (max-w-md on all breakpoints)
+- **P2-UX-4**: 2 ad-hoc dark mode hex values in InstitutionGateModal.tsx
+
+### 3. Conversion/Gating (specs/conversion-gating.md)
+
+**Done:**
+- InstitutionGateModal with single email field + clear value prop
+- GatedSection with blur effect + "Lås op med email" CTA
+- Gate state persists in localStorage (7-day expiry)
+- Post-gate immediate access (no email confirmation)
+- Cross-sell consent checkbox in gate modal
+- Free vs gated content split exists
+- SuiteBar with ParFinans/Børneskat/NemtBudget links (in footer)
+
+**Missing:**
+- **P2-CONV-1**: Zero gate conversion analytics events (PostHog exists but no custom gate events)
+- **P2-CONV-2**: Cross-sell nudges only in footer/SuiteBar — not strategically placed after gate unlock on report pages
+- **P3-CONV-3**: Gate modal not full-screen on mobile
+
+### 4. Data Quality (specs/data-quality.md)
+
+**Done:**
+- DataFreshness + DataAttribution components exist and work
+- institutionScore.ts computes composite scores with MetricScore breakdown
+- /metode page explains scoring methodology
+- Build succeeds without Supabase credentials (graceful null fallback)
+- Missing values handled with conditional rendering / "–" fallback
+
+**Missing:**
+- **P1-DATA-1**: DataFreshness only on 7/28 pages. Missing from: CategoryMunicipalityPage, CheapestPage, VsPage, KommunePage, BestValuePage, NormeringKommunePage, TotalCostPage, PrissammenligningPage, ComparePage, FindPage, FripladsPage
+
+### 5. Performance/Code (specs/performance-code.md)
+
+**Done:**
+- All routes lazy-loaded via lazyRetry()
+- Leaflet lazy-loaded on map pages only
+- Recharts lazy-loaded on chart pages only
+- ErrorBoundary wraps all routes
+- Zero console.log in production
+- No `any` types in scoring/pricing core (only in analytics window casts)
+- No commented-out code blocks
+
+**Missing:**
+- **P2-CODE-1**: 19 files over 400 lines (worst: GuidePage 918, InstitutionPage 911, HomePage 841, institutionScore.ts 839)
+- **P2-CODE-2**: Only 2 test files exist. Missing: institutionScore.ts, preferenceScore.ts, friplads.ts tests
+- **P3-CODE-3**: Lighthouse audit needed (Performance ≥ 90, Accessibility ≥ 90)
+
+---
+
+## Prioritized Task List
+
+### P0 — SEO-Critical (fix first)
+
+#### ~~P0-1: Add JSON-LD to CategoryMunicipalityPage~~ ✅ DONE
+Added BreadcrumbList (Forside → Kategori → Kommune → Page) + ItemList (top 10 institutions) JSON-LD to both the React component (`CategoryMunicipalityPage.tsx`) and the prerender script (`prerender-pages.mjs`). Verified in `dist/vuggestue/koebenhavn/index.html`.
+
+#### P0-2: Add SEOHead to PrivacyPage and TermsPage
+**What**: These pages have zero SEO meta tags — no title, no description, no canonical, no og tags.
+**Files**: `src/pages/PrivacyPage.tsx`, `src/pages/TermsPage.tsx`
+**Acceptance**: Both pages render unique title + description + canonical + og tags.
+**Verify**: `npm run build`, `npx tsc -b`
+
+### P1 — High Impact SEO + UX
+
+#### P1-1: Add JSON-LD BreadcrumbList to 9 remaining content pages
+**What**: Add at minimum BreadcrumbList JSON-LD to: VsPage, ComparePage, FindPage, FripladsPage, GuidePage, MetodePage, TotalCostPage, AboutPage, FavoritesPage. Add BreadcrumbList to BlogPost (it has BlogPosting but no breadcrumb schema).
+**Files**: 10 page files in `src/pages/`, import `breadcrumbSchema` from `src/lib/schema.ts`
+**Acceptance**: All pages have valid BreadcrumbList JSON-LD.
+**Verify**: `npm run build`, `npx tsc -b`
+
+#### P1-2: Add visible Breadcrumbs to 5 pages missing them
+**What**: CategoryPage, FindPage, GymnasiumPage, AboutPage need the Breadcrumbs component. PrivacyPage/TermsPage too (after P0-2 adds SEOHead).
+**Files**: `src/pages/CategoryPage.tsx`, `src/pages/FindPage.tsx`, `src/pages/GymnasiumPage.tsx`, `src/pages/AboutPage.tsx`, `src/pages/PrivacyPage.tsx`, `src/pages/TermsPage.tsx`
+**Acceptance**: Breadcrumbs visible on all 6 pages.
+**Verify**: Visual check, `npm run build`
+
+#### P1-3: Add contextual intro text to CategoryMunicipalityPage
+**What**: Spec requires "unique intro text, not just a list". Add 1-2 sentences of dynamically generated contextual text about the category in the municipality (mention count, price range, normering where available).
+**Files**: `src/pages/CategoryMunicipalityPage.tsx`
+**Acceptance**: Page has a natural-language intro paragraph unique to each category/municipality combination.
+**Verify**: Visual check on `/vuggestue/koebenhavn`
+
+#### P1-4: Add skeleton loading screens to 13 pages
+**What**: Replace spinners/blank states with skeleton screens during data loading.
+**Files**: CategoryMunicipalityPage, CheapestPage, VsPage, NormeringKommunePage, TotalCostPage, FindPage, FripladsPage, GuidePage, ComparePage, FavoritesPage, BlogIndex, BlogPost, AboutPage
+**Acceptance**: All data-loading pages show skeleton screens during load.
+**Verify**: Visual check with slow 3G throttling in DevTools
+
+#### P1-5: Add DataFreshness to 11 data-driven pages missing it
+**What**: Show data update date on all pages that display institution/pricing/normering data.
+**Files**: CategoryMunicipalityPage, CheapestPage, VsPage, KommunePage, BestValuePage, NormeringKommunePage, TotalCostPage, PrissammenligningPage, ComparePage, FindPage, FripladsPage
+**Acceptance**: DataFreshness component visible at bottom of data sections.
+**Verify**: Visual check
+
+#### P1-6: Add core test coverage
+**What**: Add unit tests for the most critical calculation logic.
+**Files**: New files: `src/lib/__tests__/institutionScore.test.ts`, `src/lib/__tests__/friplads.test.ts`, `src/lib/__tests__/preferenceScore.test.ts`
+**Acceptance**: Tests cover school scoring, dagtilbud scoring, friplads calculation at income thresholds, sibling discounts, preference matching.
+**Verify**: `npm run test:run` — all pass
+
+### P2 — Conversion + Data + Code Polish
+
+#### P2-1: Implement gate conversion analytics
+**What**: Add PostHog custom events at each funnel step: gate_impression (modal opens), gate_email_submitted, gate_unlocked, gated_content_viewed. PostHog is already initialized.
+**Files**: `src/components/shared/InstitutionGateModal.tsx`, `src/pages/InstitutionPage.tsx`
+**Acceptance**: Events fire at each step (visible in PostHog or DevTools network).
+**Verify**: Open institution page, trigger gate, submit email — events appear in PostHog.
+
+#### P2-2: Cross-sell nudges on gated report pages
+**What**: After gate unlock, show contextual links to ParFinans/Børneskat/NemtBudget on the institution report (not on free content). SuiteBar component already has the link logic.
+**Files**: `src/pages/InstitutionPage.tsx`, potentially extract from `src/components/shared/SuiteBar.tsx`
+**Acceptance**: Cross-sell cards appear below report content only after unlock.
+**Verify**: Visual check after unlocking gate
+
+#### P2-3: Gate modal mobile optimization
+**What**: Make gate modal full-screen on mobile (sm breakpoint). Fix close button touch target (currently ~32px, needs 44px).
+**Files**: `src/components/shared/InstitutionGateModal.tsx`
+**Acceptance**: Modal fills viewport on mobile (<640px). Close button has min-w/h 44px.
+**Verify**: Visual check at 375px
+
+#### P2-4: Blog template — table of contents + related articles
+**What**: Add auto-generated table of contents for posts with >3 headings. Add related articles section at bottom.
+**Files**: `src/pages/BlogPost.tsx`
+**Acceptance**: Long posts show ToC; all posts show related articles.
+**Verify**: Visual check on a blog post
+
+#### P2-5: Title/description length validation
+**What**: Add truncation logic in SEOHead to enforce max 60 char titles and 155 char descriptions. Log warning if truncated.
+**Files**: `src/components/shared/SEOHead.tsx`
+**Acceptance**: No title >60 chars, no description >155 chars in rendered HTML.
+**Verify**: `npm run build`, spot-check pre-rendered HTML
+
+#### P2-6: Refactor large files (>400 lines)
+**What**: Split the 19 files exceeding 400 lines. Extract sub-components, move calculation helpers to utils.
+**Priority targets**: GuidePage (918→wizard steps), InstitutionPage (911→sections), HomePage (841→hero/FAQ/sections), institutionScore.ts (839→school/dagtilbud modules), TotalCostPage (694), FripladsPage (622), DataContext (614→smaller contexts), CategoryPage (607)
+**Acceptance**: No file over 400 lines.
+**Verify**: `find src/ -name "*.tsx" -o -name "*.ts" | xargs wc -l | sort -rn | head -5` shows max ≤ 400
+
+### P3 — Polish
+
+#### P3-1: "Similar institutions" internal linking on detail pages
+**What**: Add a section to InstitutionPage showing 3-5 nearby or same-category institutions in the same kommune. Improves internal linking and SEO.
+**Files**: `src/pages/InstitutionPage.tsx` or new component
+**Acceptance**: Detail pages show linked similar institutions.
+**Verify**: Visual check on any institution page
+
+#### P3-2: Dynamic og:image per page type
+**What**: Generate or select page-specific og:image (e.g., category icon, municipality name). Currently all pages use static `/og-image.svg`.
+**Files**: `src/components/shared/SEOHead.tsx`, potentially API route or build-time generation
+**Acceptance**: Different og:image for at least institution, category, and kommune page types.
+**Verify**: Check og:image meta tag on different page types
+
+#### P3-3: NotFoundPage search + navigation
+**What**: Add search bar and popular category/kommune links to 404 page for user recovery.
+**Files**: `src/pages/NotFoundPage.tsx`
+**Acceptance**: 404 page has search input + category links.
+**Verify**: Visual check on /nonexistent-page
+
+#### P3-4: Lighthouse audit and optimization
+**What**: Run Lighthouse on /, /vuggestue, /institution/[slug]. Target Performance ≥ 90, Accessibility ≥ 90.
+**Files**: Various (depends on findings)
+**Acceptance**: Lighthouse scores ≥ 90 on key page types.
+**Verify**: `npx lighthouse` on key URLs
+
+---
+
+## Implementation Order
+
+1. **P0-1 + P0-2** — Fix critical SEO gaps (JSON-LD on money pages, SEOHead on legal pages)
+2. **P1-1 + P1-2** — Complete JSON-LD and breadcrumb coverage across all pages
+3. **P1-3** — Add contextual intro text to CategoryMunicipalityPage
+4. **P1-4** — Skeleton screens everywhere
+5. **P1-5** — DataFreshness consistency
+6. **P1-6** — Test coverage for core logic
+7. **P2-1 through P2-6** — Conversion tracking, cross-sell, modal polish, file splitting
+8. **P3-1 through P3-4** — Internal linking, og:image, 404, Lighthouse
+
+Each task verified against backpressure before moving to next:
+```bash
+npm run build          # zero errors
+npx tsc -b             # zero type errors
+npm run test:run       # all tests pass
+```
