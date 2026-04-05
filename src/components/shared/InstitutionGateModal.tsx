@@ -133,16 +133,16 @@ export default function InstitutionGateModal({
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:px-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Se den fulde profil for ${institutionName}`}
     >
-      <div className="bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-2xl w-full max-w-md relative animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-card sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-md relative animate-in fade-in zoom-in-95 duration-200 overflow-y-auto">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+          className="absolute top-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
           aria-label="Luk"
         >
           <X className="w-5 h-5 text-gray-500" />
@@ -205,7 +205,7 @@ export default function InstitutionGateModal({
                   setEmail(e.target.value);
                   if (error) setError("");
                 }}
-                className="w-full px-4 py-3 rounded-lg border border-border bg-white dark:bg-[#0f0f23] text-foreground placeholder:text-muted/60 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
+                className="w-full px-4 py-3 rounded-lg border border-border bg-white dark:bg-background text-foreground placeholder:text-muted/60 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors"
                 autoComplete="email"
                 disabled={loading}
               />

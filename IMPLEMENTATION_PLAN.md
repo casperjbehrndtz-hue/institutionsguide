@@ -58,9 +58,9 @@
 
 **Missing:**
 - ~~**P1-UX-1**: Skeleton loading screens~~ ✅ DONE — 7 spinner pages replaced; 6 others use static data or already had skeletons
-- **P2-UX-2**: Gate modal close button touch target too small (p-1.5 ≈ 32px, needs 44px)
-- **P2-UX-3**: Gate modal not full-screen on mobile (max-w-md on all breakpoints)
-- **P2-UX-4**: 2 ad-hoc dark mode hex values in InstitutionGateModal.tsx
+- ~~**P2-UX-2**: Gate modal close button touch target~~ ✅ DONE — min-w/h 44px
+- ~~**P2-UX-3**: Gate modal full-screen on mobile~~ ✅ DONE
+- ~~**P2-UX-4**: Ad-hoc dark mode hex values~~ ✅ DONE — replaced with theme tokens
 
 ### 3. Conversion/Gating (specs/conversion-gating.md)
 
@@ -76,7 +76,7 @@
 **Missing:**
 - ~~**P2-CONV-1**: Gate conversion analytics~~ ✅ DONE — 4 custom PostHog events added
 - ~~**P2-CONV-2**: Cross-sell nudges after gate unlock~~ ✅ DONE
-- **P3-CONV-3**: Gate modal not full-screen on mobile
+- ~~**P3-CONV-3**: Gate modal mobile~~ ✅ DONE (covered in P2-3)
 
 ### 4. Data Quality (specs/data-quality.md)
 
@@ -146,11 +146,8 @@ Added 4 PostHog custom events: gate_impression (modal opens), gate_email_submitt
 #### ~~P2-2: Cross-sell nudges on gated report pages~~ ✅ DONE
 Added 3-card cross-sell section (NemtBudget, ParFinans, Børneskat) on InstitutionPage, visible only after gate unlock. Cards link to external sites with source tracking.
 
-#### P2-3: Gate modal mobile optimization
-**What**: Make gate modal full-screen on mobile (sm breakpoint). Fix close button touch target (currently ~32px, needs 44px).
-**Files**: `src/components/shared/InstitutionGateModal.tsx`
-**Acceptance**: Modal fills viewport on mobile (<640px). Close button has min-w/h 44px.
-**Verify**: Visual check at 375px
+#### ~~P2-3: Gate modal mobile optimization~~ ✅ DONE
+Made gate modal full-screen on mobile (h-full, items-end), close button 44px touch target, replaced 2 ad-hoc dark mode hex values with theme tokens (dark:bg-card, dark:bg-background).
 
 #### P2-4: Blog template — table of contents + related articles
 **What**: Add auto-generated table of contents for posts with >3 headings. Add related articles section at bottom.
