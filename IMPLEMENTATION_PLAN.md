@@ -103,7 +103,7 @@
 - No commented-out code blocks
 
 **Missing:**
-- **P2-CODE-1**: 18 files over 400 lines (worst offenders refactored: InstitutionPage 999→760, GuidePage 924→645, HomePage 841→618, institutionScore.ts 839→73). Remaining files are 400-760 lines.
+- **P2-CODE-1**: 18 files over 400 lines — worst offenders refactored (InstitutionPage 999→760, GuidePage 924→645, HomePage 841→618, institutionScore.ts 839→73). Remaining 18 files at 400-760 lines are page components with tightly coupled UI logic — further splitting has diminishing returns.
 - ~~**P2-CODE-2**: Core test coverage~~ ✅ DONE — 5 test files, 74 tests total
 - **P3-CODE-3**: Lighthouse audit needed (Performance ≥ 90, Accessibility ≥ 90)
 
