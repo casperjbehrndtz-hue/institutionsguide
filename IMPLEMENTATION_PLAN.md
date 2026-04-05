@@ -75,7 +75,7 @@
 
 **Missing:**
 - ~~**P2-CONV-1**: Gate conversion analytics~~ ✅ DONE — 4 custom PostHog events added
-- **P2-CONV-2**: Cross-sell nudges only in footer/SuiteBar — not strategically placed after gate unlock on report pages
+- ~~**P2-CONV-2**: Cross-sell nudges after gate unlock~~ ✅ DONE
 - **P3-CONV-3**: Gate modal not full-screen on mobile
 
 ### 4. Data Quality (specs/data-quality.md)
@@ -143,11 +143,8 @@ Added 3 test files with 40 new tests (74 total): friplads.test.ts (income thresh
 #### ~~P2-1: Implement gate conversion analytics~~ ✅ DONE
 Added 4 PostHog custom events: gate_impression (modal opens), gate_email_submitted (form submitted), gate_unlocked (access granted), gated_content_viewed (after unlock on InstitutionPage).
 
-#### P2-2: Cross-sell nudges on gated report pages
-**What**: After gate unlock, show contextual links to ParFinans/Børneskat/NemtBudget on the institution report (not on free content). SuiteBar component already has the link logic.
-**Files**: `src/pages/InstitutionPage.tsx`, potentially extract from `src/components/shared/SuiteBar.tsx`
-**Acceptance**: Cross-sell cards appear below report content only after unlock.
-**Verify**: Visual check after unlocking gate
+#### ~~P2-2: Cross-sell nudges on gated report pages~~ ✅ DONE
+Added 3-card cross-sell section (NemtBudget, ParFinans, Børneskat) on InstitutionPage, visible only after gate unlock. Cards link to external sites with source tracking.
 
 #### P2-3: Gate modal mobile optimization
 **What**: Make gate modal full-screen on mobile (sm breakpoint). Fix close button touch target (currently ~32px, needs 44px).
