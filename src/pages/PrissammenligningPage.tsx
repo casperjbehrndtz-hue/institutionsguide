@@ -20,6 +20,7 @@ import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { dataVersions } from "@/lib/dataVersions";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 type RateKey = "vuggestue" | "boernehave" | "dagpleje" | "sfo";
 type SortKey = "municipality" | RateKey;
@@ -476,6 +477,8 @@ export default function PrissammenligningPage() {
 
       {/* Related searches */}
       <RelatedSearches />
+
+      <DataFreshness />
     </>
   );
 }

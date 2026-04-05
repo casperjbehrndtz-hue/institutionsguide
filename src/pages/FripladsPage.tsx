@@ -13,6 +13,7 @@ import { getAllMunicipalities, getChildcareRates } from "@/lib/childcare/rates";
 import { formatDKK } from "@/lib/format";
 import { toSlug } from "@/lib/slugs";
 import type { InstitutionType } from "@/lib/childcare/types";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 const CATEGORY_LABELS_DA: Record<InstitutionType, string> = {
   vuggestue: "Vuggestue (0-2 år)",
@@ -622,6 +623,8 @@ export default function FripladsPage() {
             </div>
           </section>
         </ScrollReveal>
+
+        <DataFreshness lang={language} />
       </main>
     </>
   );

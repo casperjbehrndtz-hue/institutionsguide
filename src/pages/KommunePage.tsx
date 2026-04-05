@@ -20,6 +20,7 @@ import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { useFamily } from "@/contexts/FamilyContext";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole", "gymnasium"] as const;
 
@@ -337,6 +338,8 @@ export default function KommunePage() {
 
       {/* Related searches */}
       <RelatedSearches municipality={decodedName} />
+
+      <DataFreshness lang={language} />
     </>
   );
 }

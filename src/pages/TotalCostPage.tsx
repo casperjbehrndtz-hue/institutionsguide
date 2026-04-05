@@ -11,6 +11,7 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { calculateFriplads, FRIPLADS_CONSTANTS } from "@/lib/childcare/friplads";
 import { getAllMunicipalities, getChildcareRates, CHILDCARE_RATES_2025 } from "@/lib/childcare/rates";
 import { formatDKK, formatNumber } from "@/lib/format";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 // Duration in months for each phase
 const VUGGESTUE_MONTHS = 36; // 0-2 years
@@ -694,6 +695,8 @@ export default function TotalCostPage() {
               : "Prices are indicative and based on official municipal rates. Actual prices may vary. The calculation assumes one child in care at a time without sibling discount."}
           </p>
         </div>
+
+        <DataFreshness lang={language} />
       </main>
     </>
   );

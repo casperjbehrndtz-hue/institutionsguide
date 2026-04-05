@@ -11,6 +11,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 const COLORS = ["#0E7490", "#1B8F5F", "#F4B82C", "#D73C3C"];
 
@@ -194,6 +195,8 @@ export default function ComparePage() {
           <ComparisonTable institutions={institutions} />
         </div>
       </section>
+
+      <DataFreshness lang={language} />
 
       {/* Print styles */}
       <style>{`

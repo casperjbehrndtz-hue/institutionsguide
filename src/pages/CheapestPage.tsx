@@ -15,6 +15,7 @@ import {
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataAttribution from "@/components/shared/DataAttribution";
+import DataFreshness from "@/components/shared/DataFreshness";
 import { dataVersions } from "@/lib/dataVersions";
 
 export default function CheapestPage() {
@@ -342,6 +343,8 @@ export default function CheapestPage() {
 
       {/* Related searches */}
       <RelatedSearches municipality={munName} category={cat} />
+
+      <DataFreshness />
     </>
   );
 }

@@ -14,6 +14,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 const STORAGE_KEY = "preference-weights-v2";
 
@@ -448,6 +449,8 @@ export default function FindPage() {
           </div>
         </div>
       </div>
+
+      <DataFreshness lang={language} />
 
       {geo.showGeoModal && (
         <GeoModal onAccept={geo.acceptConsent} onDismiss={geo.dismissModal} />

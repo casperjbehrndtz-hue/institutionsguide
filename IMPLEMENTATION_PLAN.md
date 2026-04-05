@@ -88,7 +88,7 @@
 - Missing values handled with conditional rendering / "–" fallback
 
 **Missing:**
-- **P1-DATA-1**: DataFreshness only on 7/28 pages. Missing from: CategoryMunicipalityPage, CheapestPage, VsPage, KommunePage, BestValuePage, NormeringKommunePage, TotalCostPage, PrissammenligningPage, ComparePage, FindPage, FripladsPage
+- ~~**P1-DATA-1**: DataFreshness on all data-driven pages~~ ✅ DONE — now on 18/28 pages (all data-driven ones)
 
 ### 5. Performance/Code (specs/performance-code.md)
 
@@ -132,11 +132,8 @@ Added dynamically generated intro paragraph with ownership mix (kommunale vs pri
 #### ~~P1-4: Add skeleton loading screens to pages with spinners~~ ✅ DONE
 Replaced spinner loading states with skeleton screens on 7 pages: CategoryMunicipalityPage, CheapestPage, VsPage, NormeringKommunePage, FindPage, FavoritesPage, BlogPost. The remaining 6 pages (TotalCostPage, FripladsPage, GuidePage, ComparePage, AboutPage) use static data with no loading state; BlogIndex already had inline skeleton-style loading.
 
-#### P1-5: Add DataFreshness to 11 data-driven pages missing it
-**What**: Show data update date on all pages that display institution/pricing/normering data.
-**Files**: CategoryMunicipalityPage, CheapestPage, VsPage, KommunePage, BestValuePage, NormeringKommunePage, TotalCostPage, PrissammenligningPage, ComparePage, FindPage, FripladsPage
-**Acceptance**: DataFreshness component visible at bottom of data sections.
-**Verify**: Visual check
+#### ~~P1-5: Add DataFreshness to 11 data-driven pages missing it~~ ✅ DONE
+Added DataFreshness component to CategoryMunicipalityPage, CheapestPage, VsPage, KommunePage, BestValuePage, NormeringKommunePage, TotalCostPage, PrissammenligningPage, ComparePage, FindPage, and FripladsPage.
 
 #### P1-6: Add core test coverage
 **What**: Add unit tests for the most critical calculation logic.

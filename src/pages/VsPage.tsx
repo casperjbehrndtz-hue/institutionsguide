@@ -17,6 +17,7 @@ import {
 } from "@/lib/slugs";
 import type { UnifiedInstitution } from "@/lib/types";
 import DataAttribution from "@/components/shared/DataAttribution";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 interface CategoryStats {
   count: number;
@@ -376,6 +377,8 @@ export default function VsPage() {
           </Link>
         </div>
       </section>
+
+      <DataFreshness />
     </>
   );
 }

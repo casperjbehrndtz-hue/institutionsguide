@@ -8,6 +8,7 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
+import DataFreshness from "@/components/shared/DataFreshness";
 import {
   buildSlugMap,
   CATEGORY_SLUGS,
@@ -338,6 +339,8 @@ export default function CategoryMunicipalityPage() {
 
       {/* Related searches */}
       <RelatedSearches municipality={munName} category={cat} />
+
+      <DataFreshness lang={language} />
     </>
   );
 }

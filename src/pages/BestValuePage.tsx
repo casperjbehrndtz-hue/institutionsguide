@@ -23,6 +23,7 @@ import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { qualityBadge } from "@/lib/badges";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 interface RankedSchool {
   school: UnifiedInstitution;
@@ -446,6 +447,8 @@ export default function BestValuePage() {
 
       {/* Related searches */}
       <RelatedSearches />
+
+      <DataFreshness />
     </>
   );
 }

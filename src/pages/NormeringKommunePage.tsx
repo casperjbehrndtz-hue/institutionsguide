@@ -6,6 +6,7 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import JsonLd from "@/components/shared/JsonLd";
 import { buildSlugMap, toSlug } from "@/lib/slugs";
 import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
+import DataFreshness from "@/components/shared/DataFreshness";
 import {
   LineChart,
   Line,
@@ -460,6 +461,8 @@ export default function NormeringKommunePage() {
           ← Se alle kommuner
         </Link>
       </section>
+
+      <DataFreshness />
     </>
   );
 }
