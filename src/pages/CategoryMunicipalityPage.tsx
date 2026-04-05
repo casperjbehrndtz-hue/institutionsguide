@@ -132,6 +132,40 @@ export default function CategoryMunicipalityPage() {
   const pageTitle = `${catLabel} i ${munName} ${new Date().getFullYear()} — Priser og sammenligning`;
   const pageDesc = `Der er ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune.${stats.avg ? ` Gennemsnitlig månedlig takst: ${stats.avg} kr.` : ""} Se priser, kontakt og sammenlign.`;
 
+  // Contextual intro text unique to each category/municipality combination
+  const introText = useMemo(() => {
+    if (filtered.length === 0) return "";
+    const parts: string[] = [];
+
+    // Ownership mix
+    const privateCount = filtered.filter((i) => i.ownership === "Privat" || i.ownership === "Selvejende").length;
+    const publicCount = filtered.length - privateCount;
+    if (privateCount > 0 && publicCount > 0) {
+      parts.push(`Af de ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er ${publicCount} kommunale og ${privateCount} private eller selvejende`);
+    } else if (publicCount === filtered.length) {
+      parts.push(`Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er kommunale`);
+    } else {
+      parts.push(`Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er private eller selvejende`);
+    }
+
+    // Price comparison to national average
+    if (stats.avg && nationalAvg) {
+      const diff = stats.avg - nationalAvg;
+      const pctDiff = Math.round((Math.abs(diff) / nationalAvg) * 100);
+      if (pctDiff >= 5) {
+        parts.push(
+          diff > 0
+            ? `Prisniveauet ligger ${pctDiff}% over landsgennemsnittet på ${formatDKK(nationalAvg)}/md`
+            : `Prisniveauet ligger ${pctDiff}% under landsgennemsnittet på ${formatDKK(nationalAvg)}/md`
+        );
+      } else {
+        parts.push(`Prisniveauet ligger tæt på landsgennemsnittet på ${formatDKK(nationalAvg)}/md`);
+      }
+    }
+
+    return parts.join(". ") + ".";
+  }, [filtered, catLabel, munName, stats.avg, nationalAvg]);
+
   return (
     <>
       <SEOHead
@@ -181,6 +215,11 @@ export default function CategoryMunicipalityPage() {
             </>
           )}
         </p>
+        {introText && (
+          <p className="text-muted text-sm max-w-2xl mx-auto mt-3">
+            {introText}
+          </p>
+        )}
       </section>
 
       {/* Price stats */}

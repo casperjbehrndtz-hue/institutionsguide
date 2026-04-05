@@ -31,7 +31,7 @@
 - ~~**P0-SEO-2**: PrivacyPage + TermsPage SEOHead~~ ✅ DONE
 - ~~**P1-SEO-3**: 9 pages + BlogPost missing BreadcrumbList JSON-LD~~ ✅ DONE
 - ~~**P1-SEO-4**: 6 pages missing visible Breadcrumbs~~ ✅ DONE
-- **P1-SEO-5**: CategoryMunicipalityPage has stats + list but spec wants "unique intro text, not just a list"
+- ~~**P1-SEO-5**: CategoryMunicipalityPage contextual intro text~~ ✅ DONE
 - **P1-SEO-6**: og:image is same static SVG on all pages — no page-specific images
 - **P2-SEO-7**: No title/description length validation (dynamic titles can exceed 60/155 chars)
 - **P2-SEO-8**: Blog template missing table of contents for long articles
@@ -126,11 +126,8 @@ Added BreadcrumbList JSON-LD to all 10 pages: VsPage, ComparePage, FindPage, Fri
 #### ~~P1-2: Add visible Breadcrumbs to 6 pages missing them~~ ✅ DONE
 Added Breadcrumbs component to CategoryPage, FindPage, GymnasiumPage, AboutPage, PrivacyPage, and TermsPage.
 
-#### P1-3: Add contextual intro text to CategoryMunicipalityPage
-**What**: Spec requires "unique intro text, not just a list". Add 1-2 sentences of dynamically generated contextual text about the category in the municipality (mention count, price range, normering where available).
-**Files**: `src/pages/CategoryMunicipalityPage.tsx`
-**Acceptance**: Page has a natural-language intro paragraph unique to each category/municipality combination.
-**Verify**: Visual check on `/vuggestue/koebenhavn`
+#### ~~P1-3: Add contextual intro text to CategoryMunicipalityPage~~ ✅ DONE
+Added dynamically generated intro paragraph with ownership mix (kommunale vs private/selvejende) and price comparison to national average. Unique per category/municipality combination.
 
 #### P1-4: Add skeleton loading screens to 13 pages
 **What**: Replace spinners/blank states with skeleton screens during data loading.
