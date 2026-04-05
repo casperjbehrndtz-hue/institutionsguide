@@ -36,7 +36,7 @@
 - ~~**P2-SEO-7**: Title/description length validation~~ ✅ DONE
 - **P2-SEO-8**: Blog template missing table of contents for long articles
 - ~~**P2-SEO-9**: BlogPost BreadcrumbList JSON-LD~~ ✅ DONE (covered in P1-1)
-- **P2-SEO-10**: No "Similar institutions" internal linking component on detail pages
+- ~~**P2-SEO-10**: Similar institutions internal linking~~ ✅ DONE
 
 ### 2. UX/Design (specs/ux-design.md)
 
@@ -166,11 +166,8 @@ Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 char
 
 ### P3 — Polish
 
-#### P3-1: "Similar institutions" internal linking on detail pages
-**What**: Add a section to InstitutionPage showing 3-5 nearby or same-category institutions in the same kommune. Improves internal linking and SEO.
-**Files**: `src/pages/InstitutionPage.tsx` or new component
-**Acceptance**: Detail pages show linked similar institutions.
-**Verify**: Visual check on any institution page
+#### ~~P3-1: "Similar institutions" internal linking on detail pages~~ ✅ DONE
+Added "Lignende institutioner i nærheden" section showing up to 5 nearby same-category institutions with name, address, price, and distance. Links to category/municipality page at bottom.
 
 #### P3-2: Dynamic og:image per page type
 **What**: Generate or select page-specific og:image (e.g., category icon, municipality name). Currently all pages use static `/og-image.svg`.
