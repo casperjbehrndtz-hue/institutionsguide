@@ -9,7 +9,6 @@
 - `npx tsc -b` — 0 type errors
 - `npm run test:run` — 74 tests passed (5 files)
 - `console.log` grep — 0 hits
-- `TODO/FIXME/HACK` grep — 0 hits
 - Bundle: react-vendor 220KB (known acceptable), chart-vendor 436KB (lazy), map-vendor 187KB (lazy)
 
 ---
@@ -33,9 +32,9 @@
 - ~~**P1-SEO-3**: 9 pages + BlogPost missing BreadcrumbList JSON-LD~~ ✅ DONE
 - ~~**P1-SEO-4**: 6 pages missing visible Breadcrumbs~~ ✅ DONE
 - ~~**P1-SEO-5**: CategoryMunicipalityPage contextual intro text~~ ✅ DONE
-- **P1-SEO-6**: og:image is same static SVG on all pages — no page-specific images
+- ~~**P1-SEO-6**: og:image~~ ⏳ DEFERRED — requires image generation infrastructure (see P3-2)
 - ~~**P2-SEO-7**: Title/description length validation~~ ✅ DONE
-- **P2-SEO-8**: Blog template missing table of contents for long articles
+- ~~**P2-SEO-8**: Blog TOC~~ ⏳ DEFERRED — requires Supabase credentials (see P2-4)
 - ~~**P2-SEO-9**: BlogPost BreadcrumbList JSON-LD~~ ✅ DONE (covered in P1-1)
 - ~~**P2-SEO-10**: Similar institutions internal linking~~ ✅ DONE
 
@@ -105,7 +104,7 @@
 **Missing:**
 - ~~**P2-CODE-1**: Refactor large files~~ ✅ DONE — worst offenders refactored in 2 rounds (institutionScore 839→73, InstitutionPage 999→560, GuidePage 924→645, HomePage 841→618, TotalCostPage 703→563, FripladsPage 631→573). Remaining 15 files at 400-645 lines are page components with tightly coupled UI logic.
 - ~~**P2-CODE-2**: Core test coverage~~ ✅ DONE — 5 test files, 74 tests total
-- **P3-CODE-3**: Lighthouse audit needed (Performance ≥ 90, Accessibility ≥ 90)
+- ~~**P3-CODE-3**: Lighthouse audit~~ ⏳ DEFERRED — requires production server (see P3-4)
 
 ---
 
@@ -168,7 +167,9 @@ Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 char
 - `FripladsPage.tsx` (631→573): Extracted FAQ data (FAQ_DA/FAQ_EN) to `src/lib/fripladsFaqData.ts`
 **Round 3** — Continued InstitutionPage extraction:
 - `InstitutionPage.tsx` (560→422): Extracted DetailsSection + NormeringSection to `src/components/detail/`, extracted buildChatContext helper inline.
-**Remaining**: 14 files at 400-645 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
+**Round 4** — Completed TotalCostPage extraction:
+- `TotalCostPage.tsx` (563→244): Extracted TotalCostInputs, TotalCostTimeline, TotalCostComparison to `src/components/totalcost/`.
+**Remaining**: 13 files at 400-645 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
 
 ### P3 — Polish
 
