@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, Search, MapPin, SlidersHorizontal, Loader2, ArrowRight, BarChart3, X, Gamepad2, School, Landmark } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Building2, GraduationCap, Users, Home, BookOpen, SlidersHorizontal, BarChart3, X, Gamepad2, School, Landmark } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -31,6 +31,8 @@ import UseCases from "@/components/home/UseCases";
 import HomeToolsSection from "@/components/home/HomeToolsSection";
 import HomeFAQ from "@/components/home/HomeFAQ";
 import SEOLinks from "@/components/home/SEOLinks";
+import CategoryCards from "@/components/home/CategoryCards";
+import HeroSection from "@/components/home/HeroSection";
 
 const HERO_VIDEOS: { src: string; focus: string }[] = [
   { src: "/hero-1.mp4", focus: "90%" },
@@ -239,158 +241,27 @@ export default function HomePage() {
       <JsonLd data={websiteSchema("https://institutionsguiden.dk")} />
       <JsonLd data={faqSchema(FAQ_ITEMS)} />
 
-      {/* Hero — video + search */}
-      <section className="relative overflow-hidden bg-primary">
-        {/* Background video */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            aria-hidden="true"
-            poster="/og-image.png"
-            className="absolute left-0 w-full min-h-full object-cover pointer-events-none"
-            style={{ top: heroVideo.focus, transform: `translateY(-${heroVideo.focus})` }}
-          >
-            <source src={heroVideo.src} type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70" />
-        </div>
+      <HeroSection
+        heroVideo={heroVideo}
+        searchInput={searchInput}
+        setSearch={setSearch}
+        onNearMe={geo.handleNearMe}
+        nearMeLoading={geo.nearMeLoading}
+        language={language}
+        heroTitle={t.home.heroTitle}
+        heroSubtitle={t.home.heroSubtitle.replace("{count}", institutions.length.toLocaleString("da-DK"))}
+        institutionCount={institutions.length}
+        municipalityCount={municipalities.length}
+      />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 py-10 sm:py-14 text-center">
-          <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-1.5">
-            {t.home.heroTitle}
-          </h1>
-          <p className="text-white/80 text-sm sm:text-base max-w-lg mx-auto mb-5">
-            {t.home.heroSubtitle.replace("{count}", institutions.length.toLocaleString("da-DK"))}
-          </p>
-
-          {/* Search bar */}
-          <div className="max-w-lg mx-auto mb-3">
-            <div className="relative">
-              <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
-              <input
-                id="hero-search"
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
-                className="w-full py-3.5 pl-12 pr-4 text-base rounded-xl bg-[var(--color-bg-card)] text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent shadow-xl transition-shadow"
-                autoComplete="off"
-              />
-            </div>
-          </div>
-
-          {/* Action row */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            <button
-              onClick={geo.handleNearMe}
-              disabled={geo.nearMeLoading}
-              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm transition-colors disabled:opacity-60"
-            >
-              {geo.nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
-              {language === "da" ? "Find tæt på mig" : "Find near me"}
-            </button>
-            <span className="text-white/30">|</span>
-            <Link
-              to="/find"
-              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm transition-colors"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              {language === "da" ? "Find den rette for jer" : "Find your perfect match"}
-            </Link>
-          </div>
-
-          {/* Social proof — trust line */}
-          <p className="text-[12px] sm:text-[13px] text-white/50 mt-5 font-medium tracking-wide">
-            {language === "da"
-              ? `${institutions.length.toLocaleString("da-DK")} institutioner · ${municipalities.length} kommuner · Opdateret ${formatDataDate(dataVersions.overall.lastUpdated, "da")}`
-              : `${institutions.length.toLocaleString("da-DK")} institutions · ${municipalities.length} municipalities · Updated ${formatDataDate(dataVersions.overall.lastUpdated, "en")}`}
-          </p>
-        </div>
-      </section>
-
-      {/* Category cards — featured + grid */}
-      <section className="max-w-5xl mx-auto px-3 sm:px-4 -mt-5 relative z-20 mb-6">
-        {/* Featured: Skoler + Efterskoler — wide cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-2 sm:mb-3">
-          {FEATURED_CARDS.map((card) => {
-            const stats = categoryStats[card.category];
-            const count = stats?.count ?? 0;
-            return (
-              <Link
-                key={card.category}
-                to={card.href}
-                className="group rounded-xl bg-[var(--color-bg-card)] border-2 border-primary/20 shadow-sm px-4 py-4 sm:px-5 sm:py-5 hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all"
-                aria-label={`${t.common.show} ${card.label}`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
-                    <card.icon className={`w-5 h-5 ${card.iconColor}`} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-foreground text-base leading-tight">{card.label}</p>
-                    <p className="text-xs text-muted leading-tight">{card.desc}</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-primary shrink-0 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-                <div className="flex items-center gap-3 text-xs text-muted">
-                  {count > 0 && (
-                    <span>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</span>
-                  )}
-                  {card.category === "skole" && (
-                    <span className="text-muted">{language === "da" ? "Trivsel · Karakterer · Fravær" : "Well-being · Grades · Absence"}</span>
-                  )}
-                  {card.category === "efterskole" && stats?.minYearlyPrice && (
-                    <span className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</span>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-        {/* Other categories — compact row */}
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-          {OTHER_CARDS.map((card) => {
-            const stats = categoryStats[card.category];
-            const count = stats?.count ?? 0;
-            const minPrice = stats?.minPrice;
-            return (
-              <Link
-                key={card.category}
-                to={card.href}
-                className="group rounded-xl bg-[var(--color-bg-card)] border border-border/50 shadow-sm px-3 py-3 sm:px-4 sm:py-4 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all w-[calc(50%-4px)] sm:w-[calc(20%-8px)]"
-                aria-label={`${t.common.show} ${card.label}`}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
-                    <card.icon className={`w-4 h-4 ${card.iconColor}`} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-foreground text-sm leading-tight">{card.label}</p>
-                    <p className="text-[10px] text-muted leading-tight">{card.desc}</p>
-                  </div>
-                </div>
-                <div className="text-xs text-muted space-y-0.5">
-                  {count > 0 && (
-                    <p>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</p>
-                  )}
-                  {minPrice ? (
-                    <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minPrice)}{t.common.perMonth}</p>
-                  ) : null}
-                </div>
-                <p className="text-[11px] text-primary font-medium mt-2 flex items-center gap-0.5">
-                  {card.cta} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                </p>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+      <CategoryCards
+        featured={FEATURED_CARDS}
+        other={OTHER_CARDS}
+        categoryStats={categoryStats}
+        language={language}
+        showLabel={t.common.show}
+        perMonth={t.common.perMonth}
+      />
 
       {/* Filter bar — only when user has actively filtered */}
       {hasActiveFilter && <div className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}>
