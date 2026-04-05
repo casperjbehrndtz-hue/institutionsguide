@@ -36,12 +36,14 @@ export default function InstitutionGateModal({
   const overlayRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus input when opened
+  // Track gate impression + focus input when opened
   useEffect(() => {
     if (open) {
+      const ph = (window as any).posthog;
+      if (ph?.capture) ph.capture("gate_impression", { institution: institutionName });
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [open]);
+  }, [open, institutionName]);
 
   // Escape key
   const handleKeyDown = useCallback(
@@ -97,6 +99,11 @@ export default function InstitutionGateModal({
         throw new Error(body || `HTTP ${res.status}`);
       }
 
+      const ph = (window as any).posthog;
+      if (ph?.capture) {
+        ph.capture("gate_email_submitted", { institution: institutionName, consent_marketing: marketing });
+        ph.capture("gate_unlocked", { institution: institutionName });
+      }
       setSuiteEmail(trimmed);
       setInstitutionUnlocked();
       onUnlocked();
@@ -104,6 +111,11 @@ export default function InstitutionGateModal({
     } catch (err) {
       console.error("Gate capture failed:", err);
       // Still unlock on failure — don't block the user
+      const ph = (window as any).posthog;
+      if (ph?.capture) {
+        ph.capture("gate_email_submitted", { institution: institutionName, consent_marketing: marketing, fallback: true });
+        ph.capture("gate_unlocked", { institution: institutionName, fallback: true });
+      }
       setSuiteEmail(trimmed);
       setInstitutionUnlocked();
       onUnlocked();

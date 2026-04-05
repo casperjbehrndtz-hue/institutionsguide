@@ -159,7 +159,11 @@ export default function InstitutionPage() {
   const heroRef = useRef<HTMLDivElement>(null);
 
   const openGate = useCallback(() => setGateOpen(true), []);
-  const handleUnlocked = useCallback(() => setUnlocked(true), []);
+  const handleUnlocked = useCallback(() => {
+    setUnlocked(true);
+    const ph = (window as any).posthog;
+    if (ph?.capture) ph.capture("gated_content_viewed", { institutionId: id });
+  }, [id]);
 
   const reviewSummary = useMemo(() => {
     if (reviews.length === 0) return undefined;
@@ -272,7 +276,12 @@ export default function InstitutionPage() {
     });
   }, [inst, scoreResult, nearby, normering, institutions, institutionStats, schoolExtraStats, sfoStats]);
 
-  // Tilsyn count for sidebar badge
+  // Tilsyn: count active påbud and check if we have real data
+  const hasTilsynData = useMemo(() => {
+    if (!inst) return false;
+    return (tilsynRapporter[inst.id] ?? []).length > 0;
+  }, [inst, tilsynRapporter]);
+
   const tilsynCount = useMemo(() => {
     if (!inst) return 0;
     const reports = tilsynRapporter[inst.id] ?? [];
@@ -637,7 +646,8 @@ export default function InstitutionPage() {
                     kommuneStats={komStats}
                     instStats={instStats}
                     tilsynCount={tilsynCount}
-                    tilsynClear={tilsynCount === 0 && (tilsynRapporter[inst.id]?.length ?? 0) >= 0}
+                    tilsynClear={hasTilsynData && tilsynCount === 0}
+                    hasTilsynData={hasTilsynData}
                     googleRating={googleRating}
                   />
                 </div>
@@ -652,7 +662,8 @@ export default function InstitutionPage() {
                 kommuneStats={komStats}
                 instStats={instStats}
                 tilsynCount={tilsynCount}
-                tilsynClear={tilsynCount === 0 && (tilsynRapporter[inst.id]?.length ?? 0) >= 0}
+                tilsynClear={hasTilsynData && tilsynCount === 0}
+                hasTilsynData={hasTilsynData}
               />
             </div>
           </GatedSection>

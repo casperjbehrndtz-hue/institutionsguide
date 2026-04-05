@@ -74,7 +74,7 @@
 - SuiteBar with ParFinans/Børneskat/NemtBudget links (in footer)
 
 **Missing:**
-- **P2-CONV-1**: Zero gate conversion analytics events (PostHog exists but no custom gate events)
+- ~~**P2-CONV-1**: Gate conversion analytics~~ ✅ DONE — 4 custom PostHog events added
 - **P2-CONV-2**: Cross-sell nudges only in footer/SuiteBar — not strategically placed after gate unlock on report pages
 - **P3-CONV-3**: Gate modal not full-screen on mobile
 
@@ -140,11 +140,8 @@ Added 3 test files with 40 new tests (74 total): friplads.test.ts (income thresh
 
 ### P2 — Conversion + Data + Code Polish
 
-#### P2-1: Implement gate conversion analytics
-**What**: Add PostHog custom events at each funnel step: gate_impression (modal opens), gate_email_submitted, gate_unlocked, gated_content_viewed. PostHog is already initialized.
-**Files**: `src/components/shared/InstitutionGateModal.tsx`, `src/pages/InstitutionPage.tsx`
-**Acceptance**: Events fire at each step (visible in PostHog or DevTools network).
-**Verify**: Open institution page, trigger gate, submit email — events appear in PostHog.
+#### ~~P2-1: Implement gate conversion analytics~~ ✅ DONE
+Added 4 PostHog custom events: gate_impression (modal opens), gate_email_submitted (form submitted), gate_unlocked (access granted), gated_content_viewed (after unlock on InstitutionPage).
 
 #### P2-2: Cross-sell nudges on gated report pages
 **What**: After gate unlock, show contextual links to ParFinans/Børneskat/NemtBudget on the institution report (not on free content). SuiteBar component already has the link logic.
