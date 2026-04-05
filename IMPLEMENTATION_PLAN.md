@@ -175,11 +175,8 @@ Added "Lignende institutioner i nærheden" section showing up to 5 nearby same-c
 **Acceptance**: Different og:image for at least institution, category, and kommune page types.
 **Verify**: Check og:image meta tag on different page types
 
-#### P3-3: NotFoundPage search + navigation
-**What**: Add search bar and popular category/kommune links to 404 page for user recovery.
-**Files**: `src/pages/NotFoundPage.tsx`
-**Acceptance**: 404 page has search input + category links.
-**Verify**: Visual check on /nonexistent-page
+#### ~~P3-3: NotFoundPage search + navigation~~ ✅ DONE
+Added search input (navigates to homepage with query), popular category links with icons, and improved layout on 404 page.
 
 #### P3-4: Lighthouse audit and optimization
 **What**: Run Lighthouse on /, /vuggestue, /institution/[slug]. Target Performance ≥ 90, Accessibility ≥ 90.
