@@ -8,7 +8,6 @@ import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
-import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
@@ -55,20 +54,12 @@ export default function HomePage() {
   } = useFilterParams();
   const { lat, lng, zoom: mapZoom, view, setMapView, setView } = useMapParams();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [radiusKm, setRadiusKm] = useState<number | null>(null);
 
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 14 });
     setRadiusKm(3);
   }, [setRadiusKm]));
-
-  // Force video play — some browsers block autoPlay even with muted
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.play().catch(() => {});
-  }, []);
   const mobileView = view === "kort" ? "map" : "list";
   const [showFilters, setShowFilters] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
