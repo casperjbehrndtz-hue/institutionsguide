@@ -166,7 +166,9 @@ Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 char
 - `InstitutionPage.tsx` (760→560): Extracted StickyHeader, ActionBar, PriceSection, QualityDataSection to `src/components/detail/`, usePercentiles + useComparisonRows to `src/hooks/`
 - `TotalCostPage.tsx` (703→563): Extracted computePhases, computeAllMunicipalTotals, types/constants to `src/lib/totalCostCalculator.ts`
 - `FripladsPage.tsx` (631→573): Extracted FAQ data (FAQ_DA/FAQ_EN) to `src/lib/fripladsFaqData.ts`
-**Remaining**: 15 files at 400-645 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
+**Round 3** — Continued InstitutionPage extraction:
+- `InstitutionPage.tsx` (560→422): Extracted DetailsSection + NormeringSection to `src/components/detail/`, extracted buildChatContext helper inline.
+**Remaining**: 14 files at 400-645 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
 
 ### P3 — Polish
 

@@ -4,17 +4,12 @@ import { ChevronRight, Lock } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
-import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
-import FripladsCalculator from "@/components/detail/FripladsCalculator";
 import { isInstitutionUnlocked } from "@/lib/institutionGate";
 import InstitutionGateModal from "@/components/shared/InstitutionGateModal";
 import GatedSection from "@/components/shared/GatedSection";
 import { useGoogleRating } from "@/hooks/useGoogleRating";
 
 const InstitutionChat = lazy(() => import("@/components/chat/InstitutionChat"));
-const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
-const PriceHistoryChart = lazy(() => import("@/components/charts/PriceHistoryChart"));
-const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import { institutionSchema, breadcrumbSchema } from "@/lib/schema";
@@ -22,28 +17,50 @@ import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import CompareBar from "@/components/compare/CompareBar";
 import { SkeletonDetail } from "@/components/shared/Skeletons";
 import { useReviews } from "@/hooks/useReviews";
-import TilsynRapportSection from "@/components/tilsyn/TilsynRapportSection";
 import InstitutionReport from "@/components/report/InstitutionReport";
 import InstitutionSidebar from "@/components/report/InstitutionSidebar";
 import ComparisonTable from "@/components/report/ComparisonTable";
 import InstitutionQualitySection from "@/components/detail/InstitutionQualitySection";
-import ArbejdstilsynSection from "@/components/detail/ArbejdstilsynSection";
 import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataSourceBadges from "@/components/shared/DataSourceBadges";
 import SectionNav, { type SectionDef } from "@/components/detail/SectionNav";
 import HeroImage from "@/components/detail/HeroImage";
-import ReviewSection from "@/components/detail/ReviewSection";
 import SimilarInstitutions from "@/components/detail/SimilarInstitutions";
 import CrossSellNudges from "@/components/detail/CrossSellNudges";
 import EfterskoleDetails from "@/components/detail/EfterskoleDetails";
 import StickyHeader from "@/components/detail/StickyHeader";
 import ActionBar from "@/components/detail/ActionBar";
-import PriceSection from "@/components/detail/PriceSection";
+import DetailsSection from "@/components/detail/DetailsSection";
 import QualityDataSection from "@/components/detail/QualityDataSection";
 import { usePercentiles } from "@/hooks/usePercentiles";
 import { useComparisonRows } from "@/hooks/useComparisonRows";
+
+function buildChatContext(
+  inst: any, instStats: any, municipalityAvgPrice: number | null,
+  scoreResult: any, percentiles: any[] | null,
+) {
+  return {
+    name: inst.name, category: inst.category, municipality: inst.municipality,
+    monthly_rate: inst.monthlyRate ?? null, municipality_avg_price: municipalityAvgPrice,
+    yearly_price: inst.yearlyPrice ?? null, ownership: inst.ownership ?? null,
+    normering_ratio: instStats?.normering02 ?? instStats?.normering35 ?? null,
+    normering_age_group: instStats?.normering02 != null ? "0-2" : instStats?.normering35 != null ? "3-5" : null,
+    pct_paedagoger: instStats?.pctPaedagoger ?? null,
+    pct_uden_paed_udd: instStats?.pctUdenPaedUdd ?? null,
+    parent_satisfaction: instStats?.parentSatisfaction ?? null,
+    antal_boern: instStats?.antalBoern ?? null,
+    trivsel: inst.quality?.ts ?? null, trivsel_social: inst.quality?.tsi ?? null,
+    karakterer: inst.quality?.k ?? null, fravaer_pct: inst.quality?.fp ?? null,
+    kompetencedaekning_pct: inst.quality?.kp ?? null, klassestorrelse: inst.quality?.kv ?? null,
+    undervisningseffekt: inst.quality?.sr ?? null, elever_pr_laerer: inst.quality?.epl ?? null,
+    undervisningstid_pr_elev: inst.quality?.upe ?? null,
+    score: scoreResult.overall, grade: scoreResult.grade,
+    address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
+    percentile_rankings: percentiles?.map((p: any) => `${p.label}: ${p.value} (${p.percentile}. percentil)`) ?? [],
+  };
+}
 
 function categoryPath(cat: string): string {
   const paths: Record<string, string> = {
@@ -300,35 +317,7 @@ export default function InstitutionPage() {
                     institutionId={inst.id}
                     category={inst.category}
                     language={language}
-                    context={{
-                      name: inst.name,
-                      category: inst.category,
-                      municipality: inst.municipality,
-                      monthly_rate: inst.monthlyRate ?? null,
-                      municipality_avg_price: municipalityAvgPrice,
-                      yearly_price: inst.yearlyPrice ?? null,
-                      ownership: inst.ownership ?? null,
-                      normering_ratio: instStats?.normering02 ?? instStats?.normering35 ?? null,
-                      normering_age_group: instStats?.normering02 != null ? "0-2" : instStats?.normering35 != null ? "3-5" : null,
-                      pct_paedagoger: instStats?.pctPaedagoger ?? null,
-                      pct_uden_paed_udd: instStats?.pctUdenPaedUdd ?? null,
-                      parent_satisfaction: instStats?.parentSatisfaction ?? null,
-                      antal_boern: instStats?.antalBoern ?? null,
-                      trivsel: inst.quality?.ts ?? null,
-                      trivsel_social: inst.quality?.tsi ?? null,
-                      karakterer: inst.quality?.k ?? null,
-                      fravaer_pct: inst.quality?.fp ?? null,
-                      kompetencedaekning_pct: inst.quality?.kp ?? null,
-                      klassestorrelse: inst.quality?.kv ?? null,
-                      undervisningseffekt: inst.quality?.sr ?? null,
-                      elever_pr_laerer: inst.quality?.epl ?? null,
-                      undervisningstid_pr_elev: inst.quality?.upe ?? null,
-                      score: scoreResult.overall,
-                      grade: scoreResult.grade,
-                      address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
-                      // Percentile rankings so AI chat is consistent with displayed data
-                      percentile_rankings: percentiles?.map(p => `${p.label}: ${p.value} (${p.percentile}. percentil)`) ?? [],
-                    }}
+                    context={buildChatContext(inst, instStats, municipalityAvgPrice, scoreResult, percentiles)}
                   />
                 </Suspense>
 
@@ -407,89 +396,11 @@ export default function InstitutionPage() {
       {/* Efterskole details card */}
       <EfterskoleDetails inst={inst} language={language} />
 
-      {/* ═══════════════════════════════════════════
-          FULL DETAILS — always visible
-          ═══════════════════════════════════════════ */}
-      <section className="max-w-[1020px] mx-auto px-4 pb-12 space-y-6">
-        {/* Prices */}
-        <PriceSection inst={inst} municipalityAvgPrice={municipalityAvgPrice} unlocked={unlocked} onRequestUnlock={openGate} language={language} t={t} />
-
-        {/* Friplads calculator — only for daycare categories */}
-        {inst.annualRate && inst.annualRate > 0 && !["skole", "efterskole", "fritidsklub"].includes(inst.category) && (
-          <FripladsCalculator annualRate={inst.annualRate} label={`${t.friplads.title} — ${inst.name}`} />
-        )}
-
-
-        {/* Normering badge (dagtilbud only) */}
-        {inst.category !== "skole" && (() => {
-          const ageGroupMap: Record<string, string> = { vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5" };
-          const ag = ageGroupMap[inst.category];
-          const latest = normering
-            .filter((n) => n.municipality === inst.municipality && n.ageGroup === ag)
-            .sort((a, b) => b.year - a.year);
-          if (latest.length === 0) return null;
-          const current = latest[0];
-          const prev = latest.length > 1 ? latest[1] : undefined;
-          return (
-            <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-              <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-                <NormeringBadge
-                  municipality={inst.municipality}
-                  ageGroup={current.ageGroup}
-                  ratio={current.ratio}
-                  year={current.year}
-                  previousRatio={prev?.ratio}
-                />
-              </Suspense>
-            </GatedSection>
-          );
-        })()}
-
-
-        {/* Arbejdstilsyn — work environment inspections */}
-        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-          <ArbejdstilsynSection institutionId={inst.id} institutionName={inst.name} />
-        </GatedSection>
-
-        {/* Price history chart */}
-        <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-          <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-            <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
-          </Suspense>
-        </GatedSection>
-
-        {/* Price alert */}
-        {/* Price alert — only for categories with price tracking */}
-        {!["skole", "efterskole", "gymnasium"].includes(inst.category) && (
-          <PriceAlertSignup municipality={inst.municipality} category={inst.category} compact />
-        )}
-
-        {/* Map */}
-        <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-          <div className="h-[250px] rounded-xl overflow-hidden border border-border">
-            <InstitutionMap
-              institutions={[inst, ...nearby]}
-              onSelect={() => {}}
-              flyTo={{ lat: inst.lat, lng: inst.lng, zoom: 14 }}
-            />
-          </div>
-        </Suspense>
-
-
-        {/* Tilsynsrapporter (from JSON) */}
-        {tilsynRapporter[inst.id]?.length > 0 && (
-          <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-            <TilsynRapportSection reports={tilsynRapporter[inst.id]} institutionName={inst.name} />
-          </GatedSection>
-        )}
-
-        {/* Reviews — only show if there are actual reviews */}
-        {reviews.length > 0 && (
-          <div id="section-anmeldelser">
-            <ReviewSection institutionId={inst.id} />
-          </div>
-        )}
-      </section>
+      <DetailsSection
+        inst={inst} nearby={nearby} municipalityAvgPrice={municipalityAvgPrice}
+        normering={normering} tilsynRapporter={tilsynRapporter} reviews={reviews}
+        unlocked={unlocked} onRequestUnlock={openGate} language={language} t={t}
+      />
 
       {/* Similar institutions — internal linking for SEO */}
       <SimilarInstitutions inst={inst} nearby={nearby} categoryLabels={categoryLabels} language={language} />
