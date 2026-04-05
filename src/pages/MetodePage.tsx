@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { breadcrumbSchema } from "@/lib/schema";
 import DataFreshness from "@/components/shared/DataFreshness";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import RelatedSearches from "@/components/shared/RelatedSearches";
@@ -13,6 +15,10 @@ export default function MetodePage() {
         description="Læs om hvordan Institutionsguide beregner kvalitetsscorer, normering og priser. Se vores datakilder fra Undervisningsministeriet, STIL og Dagtilbudsregisteret."
         path="/metode"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Forside", url: "https://institutionsguiden.dk/" },
+        { name: "Metode og datakilder", url: "https://institutionsguiden.dk/metode" },
+      ])} />
 
       <Breadcrumbs
         items={[

@@ -2,7 +2,9 @@ import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Calculator, ArrowRight, Info, ChevronDown, ChevronUp } from "lucide-react";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { breadcrumbSchema } from "@/lib/schema";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFamily } from "@/contexts/FamilyContext";
@@ -169,6 +171,10 @@ export default function FripladsPage() {
         }
         path="/friplads"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: isDa ? "Hjem" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: isDa ? "Fripladstilskud" : "Childcare subsidy", url: "https://institutionsguiden.dk/friplads" },
+      ])} />
 
       <Breadcrumbs
         items={[

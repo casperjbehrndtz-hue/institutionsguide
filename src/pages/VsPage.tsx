@@ -2,7 +2,9 @@ import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import {
   buildSlugMap,
@@ -192,10 +194,12 @@ export default function VsPage() {
         description={pageDesc}
         path={`/sammenlign/${comparison}/${munSlug}`}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
-      />
+      <JsonLd data={faqLd} />
+      <JsonLd data={breadcrumbSchema([
+        { name: "Forside", url: "https://institutionsguiden.dk/" },
+        { name: munName, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(munName)}` },
+        { name: `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB}`, url: `https://institutionsguiden.dk/sammenlign/${comparison}/${munSlug}` },
+      ])} />
 
       <Breadcrumbs
         items={[

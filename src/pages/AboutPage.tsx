@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
+import { breadcrumbSchema } from "@/lib/schema";
 
 const DATA_SOURCES = [
   {
@@ -87,6 +89,10 @@ export default function AboutPage() {
           : "Learn more about Institutionsguide.dk, our data sources and how we help parents compare childcare and schools in Denmark."}
         path="/om"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: isDa ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: isDa ? "Om os" : "About", url: "https://institutionsguiden.dk/om" },
+      ])} />
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
         {/* About section */}
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">

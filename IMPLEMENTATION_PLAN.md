@@ -29,13 +29,13 @@
 **Missing:**
 - ~~**P0-SEO-1**: CategoryMunicipalityPage JSON-LD~~ ✅ DONE — BreadcrumbList + ItemList added
 - ~~**P0-SEO-2**: PrivacyPage + TermsPage SEOHead~~ ✅ DONE
-- **P1-SEO-3**: 9 pages missing JSON-LD: VsPage, ComparePage, FindPage, FripladsPage, GuidePage, MetodePage, TotalCostPage, AboutPage, FavoritesPage
+- ~~**P1-SEO-3**: 9 pages + BlogPost missing BreadcrumbList JSON-LD~~ ✅ DONE
 - **P1-SEO-4**: 5 pages missing visible Breadcrumbs: CategoryPage, FindPage, GymnasiumPage, AboutPage (+ PrivacyPage/TermsPage)
 - **P1-SEO-5**: CategoryMunicipalityPage has stats + list but spec wants "unique intro text, not just a list"
 - **P1-SEO-6**: og:image is same static SVG on all pages — no page-specific images
 - **P2-SEO-7**: No title/description length validation (dynamic titles can exceed 60/155 chars)
 - **P2-SEO-8**: Blog template missing table of contents for long articles
-- **P2-SEO-9**: BlogPost has BlogPosting schema but no BreadcrumbList JSON-LD
+- ~~**P2-SEO-9**: BlogPost BreadcrumbList JSON-LD~~ ✅ DONE (covered in P1-1)
 - **P2-SEO-10**: No "Similar institutions" internal linking component on detail pages
 
 ### 2. UX/Design (specs/ux-design.md)
@@ -120,11 +120,8 @@ Added SEOHead with unique title, description, canonical URL, and OG tags to both
 
 ### P1 — High Impact SEO + UX
 
-#### P1-1: Add JSON-LD BreadcrumbList to 9 remaining content pages
-**What**: Add at minimum BreadcrumbList JSON-LD to: VsPage, ComparePage, FindPage, FripladsPage, GuidePage, MetodePage, TotalCostPage, AboutPage, FavoritesPage. Add BreadcrumbList to BlogPost (it has BlogPosting but no breadcrumb schema).
-**Files**: 10 page files in `src/pages/`, import `breadcrumbSchema` from `src/lib/schema.ts`
-**Acceptance**: All pages have valid BreadcrumbList JSON-LD.
-**Verify**: `npm run build`, `npx tsc -b`
+#### ~~P1-1: Add JSON-LD BreadcrumbList to 9 remaining content pages~~ ✅ DONE
+Added BreadcrumbList JSON-LD to all 10 pages: VsPage, ComparePage, FindPage, FripladsPage, GuidePage, MetodePage, TotalCostPage, AboutPage, FavoritesPage, and BlogPost.
 
 #### P1-2: Add visible Breadcrumbs to 5 pages missing them
 **What**: CategoryPage, FindPage, GymnasiumPage, AboutPage need the Breadcrumbs component. PrivacyPage/TermsPage too (after P0-2 adds SEOHead).

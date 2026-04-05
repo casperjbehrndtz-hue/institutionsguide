@@ -5,7 +5,9 @@ import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import RecentlyViewed from "@/components/shared/RecentlyViewed";
@@ -47,7 +49,12 @@ export default function FavoritesPage() {
         title={t.favorites.title}
         description={language === "da" ? "Dine gemte favorit-institutioner." : "Your saved favorite institutions."}
         path="/favoritter"
+        noIndex
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: t.favorites.title, url: "https://institutionsguiden.dk/favoritter" },
+      ])} />
 
       <Breadcrumbs items={[
         { label: language === "da" ? "Forside" : "Home", href: "/" },

@@ -8,6 +8,8 @@ import type { UnifiedInstitution } from "@/lib/types";
 import { ComparisonTable } from "@/components/compare/CompareBar";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
+import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 
 const COLORS = ["#0E7490", "#1B8F5F", "#F4B82C", "#D73C3C"];
@@ -66,6 +68,10 @@ export default function ComparePage() {
         path="/sammenlign"
         noIndex
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: language === "da" ? "Sammenlign" : "Compare", url: "https://institutionsguiden.dk/sammenlign" },
+      ])} />
 
       <Breadcrumbs items={[
         { label: language === "da" ? "Forside" : "Home", href: "/" },

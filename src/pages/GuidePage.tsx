@@ -18,7 +18,9 @@ import {
   TreePine,
 } from "lucide-react";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { breadcrumbSchema } from "@/lib/schema";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getAllMunicipalities, getChildcareRates } from "@/lib/childcare/rates";
@@ -415,6 +417,10 @@ export default function GuidePage() {
         }
         path="/guide"
       />
+      <JsonLd data={breadcrumbSchema([
+        { name: isDa ? "Hjem" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: isDa ? "Pasningsguide" : "Childcare guide", url: "https://institutionsguiden.dk/guide" },
+      ])} />
 
       <Breadcrumbs
         items={[

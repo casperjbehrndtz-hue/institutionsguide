@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { breadcrumbSchema } from "@/lib/schema";
 import { Calendar, ArrowLeft, Clock, ArrowRight } from "lucide-react";
 import DOMPurify from "dompurify";
 
@@ -148,6 +149,11 @@ export default function BlogPost() {
         },
         inLanguage: language,
       }} />
+      <JsonLd data={breadcrumbSchema([
+        { name: isDa ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
+        { name: "Blog", url: "https://institutionsguiden.dk/blog" },
+        { name: post.title, url: `https://institutionsguiden.dk/blog/${post.slug}` },
+      ])} />
 
       <Breadcrumbs items={[
         { label: isDa ? "Forside" : "Home", href: "/" },
