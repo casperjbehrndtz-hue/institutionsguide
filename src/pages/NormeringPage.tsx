@@ -82,7 +82,7 @@ export default function NormeringPage() {
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const normeringData: NormeringEntry[] = normering ?? [];
+  const normeringData = useMemo<NormeringEntry[]>(() => normering ?? [], [normering]);
 
   const latestYear = useMemo(() => {
     if (normeringData.length === 0) return 2023;

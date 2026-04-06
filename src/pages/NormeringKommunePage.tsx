@@ -92,7 +92,7 @@ export default function NormeringKommunePage() {
     normering: NormeringEntry[];
   };
 
-  const normeringData: NormeringEntry[] = normering ?? [];
+  const normeringData = useMemo<NormeringEntry[]>(() => normering ?? [], [normering]);
 
   // Build slug map from all municipalities in normering data
   const allMunicipalities = useMemo(() => {

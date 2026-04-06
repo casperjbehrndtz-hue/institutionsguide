@@ -21,14 +21,16 @@ export function useGoogleRating(
 
   useEffect(() => {
     if (!institutionId || !name || !supabase) {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
       return;
     }
 
     // Already cached in memory
     if (cache.has(institutionId)) {
-      setRating(cache.get(institutionId) ?? null);
-      setLoading(false);
+      queueMicrotask(() => {
+        setRating(cache.get(institutionId) ?? null);
+        setLoading(false);
+      });
       return;
     }
 
