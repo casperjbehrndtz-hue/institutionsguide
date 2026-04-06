@@ -34,7 +34,7 @@
 - ~~**P1-SEO-5**: CategoryMunicipalityPage contextual intro text~~ ✅ DONE
 - ~~**P1-SEO-6**: og:image~~ ⏳ DEFERRED — requires image generation infrastructure (see P3-2)
 - ~~**P2-SEO-7**: Title/description length validation~~ ✅ DONE
-- ~~**P2-SEO-8**: Blog TOC~~ ⏳ DEFERRED — requires Supabase credentials (see P2-4)
+- ~~**P2-SEO-8**: Blog TOC~~ ✅ DONE — client-side TOC from H2/H3 headings (see P2-4)
 - ~~**P2-SEO-9**: BlogPost BreadcrumbList JSON-LD~~ ✅ DONE (covered in P1-1)
 - ~~**P2-SEO-10**: Similar institutions internal linking~~ ✅ DONE
 
@@ -149,8 +149,9 @@ Added 3-card cross-sell section (NemtBudget, ParFinans, Børneskat) on Instituti
 #### ~~P2-3: Gate modal mobile optimization~~ ✅ DONE
 Made gate modal full-screen on mobile (h-full, items-end), close button 44px touch target, replaced 2 ad-hoc dark mode hex values with theme tokens (dark:bg-card, dark:bg-background).
 
-#### P2-4: Blog template — table of contents + related articles ⏳ DEFERRED
-**Blocked**: Requires Supabase credentials for blog post pre-rendering and testing. Cannot verify without running blog data.
+#### ~~P2-4: Blog template — table of contents + related articles~~ ✅ PARTIALLY DONE
+**TOC**: Implemented client-side heading extraction (H2/H3) with anchor IDs and nav component. Shows when ≥3 headings. No Supabase needed — works on sanitized HTML.
+**Related articles**: Already implemented (Supabase query for same-module posts). Cannot test without credentials but code is complete.
 
 #### ~~P2-5: Title/description length validation~~ ✅ DONE
 Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 chars (with ellipsis).
@@ -169,7 +170,12 @@ Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 char
 - `InstitutionPage.tsx` (560→422): Extracted DetailsSection + NormeringSection to `src/components/detail/`, extracted buildChatContext helper inline.
 **Round 4** — Completed TotalCostPage extraction:
 - `TotalCostPage.tsx` (563→244): Extracted TotalCostInputs, TotalCostTimeline, TotalCostComparison to `src/components/totalcost/`.
-**Remaining**: 13 files at 400-645 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
+**Round 5** — Deep extraction pass:
+- `InstitutionPage.tsx` (422): Reached near-limit, remaining code is tightly coupled layout
+- `GuidePage.tsx` (645→395): Extracted GuideResults component to `src/components/guide/`
+- `HomePage.tsx` (618→480): Extracted HeroSection + CategoryCards to `src/components/home/`
+- `DataContext.tsx` (614→511): Extracted data transform utilities to `src/lib/dataTransform.ts`
+**Remaining**: 16 files at 408-613 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
 
 ### P3 — Polish
 

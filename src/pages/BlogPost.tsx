@@ -7,7 +7,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
 import { SkeletonDetail } from "@/components/shared/Skeletons";
-import { Calendar, ArrowLeft, Clock, ArrowRight } from "lucide-react";
+import { Calendar, ArrowLeft, Clock, ArrowRight, List } from "lucide-react";
 import DOMPurify from "dompurify";
 
 interface BlogPostData {
@@ -31,6 +31,42 @@ interface RelatedPost {
 function estimateReadTime(html: string): number {
   const text = html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
   return Math.max(1, Math.round(text.split(" ").length / 200));
+}
+
+interface TocEntry {
+  id: string;
+  text: string;
+  level: number;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[æ]/g, "ae")
+    .replace(/[ø]/g, "oe")
+    .replace(/[å]/g, "aa")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function extractAndInjectToc(html: string): { toc: TocEntry[]; html: string } {
+  const toc: TocEntry[] = [];
+  const usedIds = new Set<string>();
+  const processed = html.replace(/<(h[23])([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tag, attrs, inner) => {
+    const text = inner.replace(/<[^>]*>/g, "").trim();
+    if (!text) return match;
+    let id = slugify(text);
+    if (usedIds.has(id)) {
+      let i = 2;
+      while (usedIds.has(`${id}-${i}`)) i++;
+      id = `${id}-${i}`;
+    }
+    usedIds.add(id);
+    const level = tag.toLowerCase() === "h2" ? 2 : 3;
+    toc.push({ id, text, level });
+    return `<${tag}${attrs} id="${id}">${inner}</${tag}>`;
+  });
+  return { toc, html: processed };
 }
 
 const MODULE_LINKS: Record<string, { path: string; label: string }> = {
@@ -119,10 +155,11 @@ export default function BlogPost() {
 
   const moduleLink = post.module ? MODULE_LINKS[post.module.toLowerCase()] : null;
   const readTime = estimateReadTime(post.content_html);
-  const cleanHtml = DOMPurify.sanitize(post.content_html, {
+  const sanitized = DOMPurify.sanitize(post.content_html, {
     ALLOWED_TAGS: ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 'br', 'span', 'blockquote', 'img', 'figure', 'figcaption', 'div', 'sup', 'sub'],
     ALLOWED_ATTR: ['class', 'href', 'target', 'rel', 'src', 'alt', 'width', 'height', 'id']
   });
+  const { toc, html: cleanHtml } = extractAndInjectToc(sanitized);
 
   return (
     <>
@@ -191,6 +228,28 @@ export default function BlogPost() {
             )}
           </div>
         </header>
+
+        {/* Table of Contents */}
+        {toc.length >= 3 && (
+          <nav className="card p-4 mb-8 bg-muted/30" aria-label={isDa ? "Indholdsfortegnelse" : "Table of contents"}>
+            <h2 className="flex items-center gap-2 font-display text-sm font-bold text-foreground mb-3">
+              <List className="w-4 h-4" />
+              {isDa ? "Indhold" : "Contents"}
+            </h2>
+            <ol className="space-y-1 text-sm">
+              {toc.map((entry) => (
+                <li key={entry.id} className={entry.level === 3 ? "ml-4" : ""}>
+                  <a
+                    href={`#${entry.id}`}
+                    className="text-primary hover:underline leading-relaxed"
+                  >
+                    {entry.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
 
         {/* Content */}
         <div
