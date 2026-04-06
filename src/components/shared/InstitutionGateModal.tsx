@@ -36,6 +36,17 @@ export default function InstitutionGateModal({
   const overlayRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Track gate rejection (user saw modal, closed without submitting)
+  const trackRejection = useCallback(() => {
+    const ph = (window as any).posthog;
+    if (ph?.capture) ph.capture("gate_rejection", { institution: institutionName });
+  }, [institutionName]);
+
+  const handleClose = useCallback(() => {
+    trackRejection();
+    onClose();
+  }, [trackRejection, onClose]);
+
   // Track gate impression + focus input when opened
   useEffect(() => {
     if (open) {
@@ -48,9 +59,9 @@ export default function InstitutionGateModal({
   // Escape key
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     },
-    [onClose],
+    [handleClose],
   );
 
   useEffect(() => {
@@ -126,7 +137,7 @@ export default function InstitutionGateModal({
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === overlayRef.current) onClose();
+    if (e.target === overlayRef.current) handleClose();
   };
 
   return (
@@ -141,7 +152,7 @@ export default function InstitutionGateModal({
       <div className="bg-white dark:bg-card sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-md relative animate-in fade-in zoom-in-95 duration-200 overflow-y-auto">
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
           aria-label="Luk"
         >
