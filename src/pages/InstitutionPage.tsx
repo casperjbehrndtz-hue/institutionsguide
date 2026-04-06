@@ -37,6 +37,7 @@ import QualityDataSection from "@/components/detail/QualityDataSection";
 import { usePercentiles } from "@/hooks/usePercentiles";
 import { useComparisonRows } from "@/hooks/useComparisonRows";
 import { useScrollDepth } from "@/hooks/useScrollDepth";
+import { useFeatureView } from "@/hooks/useFeatureView";
 
 function buildChatContext(
   inst: any, instStats: any, municipalityAvgPrice: number | null,
@@ -117,6 +118,11 @@ export default function InstitutionPage() {
   // Track scroll depth for conversion funnel
   const scrollMeta = useMemo(() => ({ institution: id ?? "", page: "institution" }), [id]);
   useScrollDepth(scrollMeta);
+
+  // Per-feature gated content tracking
+  const featureMeta = useMemo(() => ({ institution: id ?? null }), [id]);
+  const reportRef = useFeatureView("full_report", unlocked, featureMeta);
+  const aiChatRef = useFeatureView("ai_chat", unlocked, featureMeta);
 
   useEffect(() => {
     if (!compareToast) return;
@@ -302,6 +308,7 @@ export default function InstitutionPage() {
         <section id="section-overblik" className="max-w-[1020px] mx-auto px-4 pb-6" ref={heroRef}>
           <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
             {/* Hero card spans full width */}
+            <div ref={reportRef}>
             <InstitutionReport
               score={scoreResult}
               institutionName={inst.name}
@@ -312,11 +319,13 @@ export default function InstitutionPage() {
               aiLoading={aiState === "loading"}
               googleRating={googleRating}
             />
+            </div>
 
             {/* 2-column: metrics left, sidebar right */}
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-6">
               <div className="space-y-6">
                 {/* AI Chat */}
+                <div ref={aiChatRef}>
                 <Suspense fallback={null}>
                   <InstitutionChat
                     institutionId={inst.id}
@@ -325,6 +334,7 @@ export default function InstitutionPage() {
                     context={buildChatContext(inst, instStats, municipalityAvgPrice, scoreResult, percentiles)}
                   />
                 </Suspense>
+                </div>
 
                 {/* Quality data — v3 animated bar grid */}
                 {percentiles && percentiles.length > 0 && inst.quality && (

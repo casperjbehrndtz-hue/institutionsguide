@@ -225,10 +225,9 @@ Added `src/lib/__tests__/dataTransforms.test.ts` with 43 tests covering: formatD
 **Status**: Code uses "–" (en-dash) consistently for missing values. This is a deliberate UX choice — "–" is more scannable than verbose text in tables and comparison views. Spec updated to reflect this.
 **Blocked**: Design decision — "–" is better UX for data-dense views. Would only change if user research indicates otherwise.
 
-#### P4-4: Per-feature gated content tracking ⏳ DEFERRED
+#### ~~P4-4: Per-feature gated content tracking~~ ✅ DONE
 **Spec**: conversion-gating.md says "Track which gated features are most popular"
-**Status**: Current `gated_content_viewed` event fires on InstitutionPage. Doesn't distinguish between AI chat, tilsynsrapporter, PDF download, etc.
-**Blocked**: Low priority — current gate analytics (6 events) are sufficient for initial launch. Feature-level breakdown can be added when there's enough traffic to analyze.
+Added `useFeatureView` hook using IntersectionObserver — fires `gated_feature_viewed` with feature name when section enters viewport (30% threshold, once per page load). Tracked features: full_report, ai_chat, price_details, normering, arbejdstilsyn, price_history, tilsynsrapporter.
 
 #### ~~P4-5: dataVersions.ts tracking~~ ✅ DONE
 **Spec**: data-quality.md mentions data versions tracked in dataVersions.ts
