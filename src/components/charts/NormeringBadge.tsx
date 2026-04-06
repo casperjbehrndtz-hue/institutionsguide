@@ -17,7 +17,6 @@ function formatRatio(ratio: number): string {
 }
 
 export default function NormeringBadge({
-  municipality: _municipality,
   ageGroup,
   ratio,
   year,

@@ -71,56 +71,6 @@ export function breadcrumbSchema(items: { name: string; url: string }[]): object
   };
 }
 
-export function localBusinessSchema(inst: {
-  name: string;
-  address: string;
-  postalCode: string;
-  city: string;
-  municipality: string;
-  lat: number;
-  lng: number;
-  phone?: string;
-  email?: string;
-  web?: string;
-  category: string;
-  monthlyRate?: number | null;
-}, _siteUrl: string) {
-  const typeMap: Record<string, string> = {
-    vuggestue: "ChildCare",
-    boernehave: "ChildCare",
-    dagpleje: "ChildCare",
-    sfo: "ChildCare",
-    skole: "School",
-    efterskole: "School",
-    fritidsklub: "EducationalOrganization",
-  };
-
-  return {
-    "@context": "https://schema.org",
-    "@type": typeMap[inst.category] || "EducationalOrganization",
-    name: inst.name,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: inst.address,
-      postalCode: inst.postalCode,
-      addressLocality: inst.city,
-      addressRegion: inst.municipality,
-      addressCountry: "DK",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: inst.lat,
-      longitude: inst.lng,
-    },
-    ...(inst.phone && { telephone: inst.phone }),
-    ...(inst.email && { email: inst.email }),
-    ...(inst.web && { url: inst.web.startsWith("http") ? inst.web : `https://${inst.web}` }),
-    ...(inst.monthlyRate && {
-      priceRange: `${inst.monthlyRate} DKK/md`,
-    }),
-  };
-}
-
 export function websiteSchema(siteUrl: string): object {
   return {
     "@context": "https://schema.org",

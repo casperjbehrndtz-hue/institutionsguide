@@ -55,7 +55,10 @@ npm run lint             # ESLint
 - Vercel middleware: `dk-seo/middleware.ts` serves bot-specific HTML with rich structured data
 - Test coverage: 6 test files, 117 tests. Core scoring (institutionScore, preferenceScore), friplads calculator, and data transforms (format, geo, dataTransform) covered.
 - Analytics: PostHog + Umami in `initAnalytics.ts`. Autocapture enabled. Custom events: gate_impression, gate_email_submitted, gate_unlocked, gated_content_viewed, gate_rejection, scroll_depth, gated_feature_viewed. Per-feature tracking via `useFeatureView` hook in `src/hooks/useFeatureView.ts`.
-- JSON-LD schemas in `src/lib/schema.ts` (breadcrumbSchema, itemListSchema, institutionSchema, websiteSchema, faqSchema). All 28 pages have JSON-LD.
+- JSON-LD schemas in `src/lib/schema.ts` (breadcrumbSchema, itemListSchema, websiteSchema, faqSchema). All 28 pages have JSON-LD.
 - 18 files exceed 400-line limit. Worst offenders were refactored: institutionScore.ts split into `src/lib/scoring/` (types, utils, school, dagtilbud, enrichment). InstitutionPage/GuidePage/HomePage had sections extracted to `src/components/detail/`, `src/components/home/`, `src/lib/guideEngine.ts`, and `src/lib/faqData.ts`.
+
+- ESLint: remaining 53 issues are mostly `no-explicit-any` at system boundaries (Supabase responses, PostHog window casts, Recharts tooltips) and `set-state-in-effect` for legitimate async/DOM patterns. Rules-of-hooks violations were caused by useMemo after early returns — always put all hooks before conditional returns.
+- `localBusinessSchema` was dead code in schema.ts — removed. Always grep for callers before assuming exports are used.
 
 <!-- Ralph: update this section when you discover new patterns or pitfalls -->

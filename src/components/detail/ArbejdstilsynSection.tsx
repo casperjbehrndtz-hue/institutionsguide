@@ -25,11 +25,11 @@ const STATUS_COLORS: Record<string, string> = {
 export default function ArbejdstilsynSection({ institutionId }: Props) {
   const { language: lang } = useLanguage();
   const [decisions, setDecisions] = useState<ATDecision[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!supabase);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    if (!supabase) { setLoading(false); return; }
+    if (!supabase) return;
 
     supabase
       .from("arbejdstilsyn")

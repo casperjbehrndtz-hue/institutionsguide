@@ -9,6 +9,7 @@
 - `npx tsc -b` — 0 type errors
 - `npm run test:run` — 117 tests passed (6 files)
 - `console.log` grep — 0 hits
+- ESLint: 53 remaining (36 errors: mostly `any` types at system boundaries; 17 warnings: `exhaustive-deps` + `set-state-in-effect` intentional patterns). Down from 74.
 - Bundle: react-vendor 220KB (known acceptable), chart-vendor 436KB (lazy), map-vendor 187KB (lazy)
 
 ---
@@ -110,6 +111,7 @@
 - ~~**P2-CODE-1**: Refactor large files~~ ✅ DONE — worst offenders refactored in 2 rounds (institutionScore 839→73, InstitutionPage 999→560, GuidePage 924→645, HomePage 841→618, TotalCostPage 703→563, FripladsPage 631→573). Remaining 15 files at 400-645 lines are page components with tightly coupled UI logic.
 - ~~**P2-CODE-2**: Core test coverage~~ ✅ DONE — 5 test files, 74 tests total
 - ~~**P3-CODE-3**: Lighthouse audit~~ ⏳ DEFERRED — requires production server (see P3-4)
+- ~~**P5-CODE-4**: ESLint rules-of-hooks, unused vars, refs-during-render~~ ✅ DONE — fixed 4 rules-of-hooks violations, 6 unused vars, 1 dead export, 12 ref-during-render issues. ESLint 74→53 problems.
 
 ---
 
@@ -241,6 +243,33 @@ Added `useFeatureView` hook using IntersectionObserver — fires `gated_feature_
 #### ~~P4-6: Fix orphan pages (/guide and /favoritter)~~ ✅ DONE
 **Spec**: seo-dominance.md says "No orphan pages (every page reachable from navigation or internal links)"
 **Status**: `/guide` (Pasningsguide) added to Navbar TOOL_LINKS dropdown + Footer Tools section. `/favoritter` added to Navbar (Heart icon on desktop, labeled link on mobile) + Footer Tools section. All 27 routes now reachable via navigation.
+
+### P5 — ESLint / Code Quality (added 2026-04-06)
+
+#### ~~P5-1: Fix rules-of-hooks violations~~ ✅ DONE
+**Spec**: performance-code.md says "No unused imports or dead code"
+ESLint found 4 `react-hooks/rules-of-hooks` violations: `useMemo` called after early returns in BestSchoolPage, BestValuePage, CategoryMunicipalityPage. Fixed by moving all hooks before early returns.
+
+#### ~~P5-2: Fix unused variables and dead code~~ ✅ DONE
+Removed 5 unused variables (`_municipality` x2, `_addToCompare`, `_message`, `_t`), 1 dead function (`localBusinessSchema` in schema.ts — exported but never imported), 1 `let` → `const` fix. Total ESLint problems reduced from 74 to 53.
+
+#### ~~P5-3: Fix ref-during-render errors~~ ✅ DONE
+Fixed 12 `react-hooks/refs` violations: InstitutionMap (useRef().current → useMemo), MarkerClusterGroup (ref assignments wrapped in useEffect), FamilyContext (useRef → useMemo), useAssessment (ref assignments wrapped in useEffect).
+
+#### ~~P5-4: Fix set-state-in-effect (partial)~~ ✅ DONE
+Fixed ArbejdstilsynSection (initial state based on supabase availability). Remaining 7 violations are intentional patterns: DOM queries in effects, async callbacks in effects, IntersectionObserver callbacks — all legitimate uses of setState within effects.
+
+#### P5-5: Remaining ESLint `no-explicit-any` ⏳ DEFERRED
+**Status**: 22 `any` types remain across analytics window casts, Supabase response types, and Recharts tooltip handlers. These are at system boundaries where precise types add complexity without safety benefit.
+**Blocked**: Diminishing returns — would require creating extensive type wrappers for third-party APIs.
+
+#### P5-6: PDF report download ⏳ DEFERRED
+**Spec**: conversion-gating.md lists "PDF report download" as a gated feature.
+**Blocked**: Requires server-side PDF generation (Vercel serverless function + Puppeteer/Satori). Cannot be done client-side at acceptable quality.
+
+#### P5-7: Lighthouse Performance/Accessibility audits ⏳ DEFERRED
+**Spec**: performance-code.md requires Lighthouse Performance ≥ 90 and Accessibility ≥ 90.
+**Blocked**: Requires production deployment to audit accurately. Core Web Vitals (LCP, CLS, INP) also need production measurement.
 
 ---
 

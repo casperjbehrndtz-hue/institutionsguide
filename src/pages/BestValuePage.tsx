@@ -84,6 +84,21 @@ export default function BestValuePage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b, "da"));
   }, [ranked]);
 
+  // Extra stats for unique content (must be before early returns — rules of hooks)
+  const valueStats = useMemo(() => {
+    if (ranked.length === 0) return null;
+    const prices = ranked.map((r) => r.school.monthlyRate!);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    const topMun = ranked[0].school.municipality;
+    const munCounts: Record<string, number> = {};
+    for (const r of ranked) {
+      munCounts[r.school.municipality] = (munCounts[r.school.municipality] || 0) + 1;
+    }
+    const topMunByCount = Object.entries(munCounts).sort((a, b) => b[1] - a[1])[0];
+    return { minPrice, maxPrice, topMun, topMunByCount };
+  }, [ranked]);
+
   if (loading) {
     return (
       <div className="min-h-screen">
@@ -108,21 +123,6 @@ export default function BestValuePage() {
       </div>
     );
   }
-
-  // Extra stats for unique content
-  const valueStats = useMemo(() => {
-    if (ranked.length === 0) return null;
-    const prices = ranked.map((r) => r.school.monthlyRate!);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-    const topMun = ranked[0].school.municipality;
-    const munCounts: Record<string, number> = {};
-    for (const r of ranked) {
-      munCounts[r.school.municipality] = (munCounts[r.school.municipality] || 0) + 1;
-    }
-    const topMunByCount = Object.entries(munCounts).sort((a, b) => b[1] - a[1])[0];
-    return { minPrice, maxPrice, topMun, topMunByCount };
-  }, [ranked]);
 
   const pageTitle = `Bedste værdi for pengene — Skoler med mest kvalitet per krone ${new Date().getFullYear()}`;
   const pageDesc = `Top 25 skoler i Danmark rangeret efter kvalitet i forhold til SFO-pris. ${ranked[0].school.name} giver mest kvalitet per krone med en score på ${formatDecimal(ranked[0].valueScore)}.`;

@@ -338,7 +338,7 @@ export default function SearchFilterBar({
 
   const sortOptions = useMemo(() => {
     const isDaycareOnly = DAYCARE_CATEGORIES.includes(category);
-    let opts = isDaycareOnly
+    const opts = isDaycareOnly
       ? ALL_SORT_OPTIONS.filter((opt) => !SCHOOL_ONLY_SORT_KEYS.includes(opt.value))
       : [...ALL_SORT_OPTIONS];
     // Show distance sort when geolocation is active

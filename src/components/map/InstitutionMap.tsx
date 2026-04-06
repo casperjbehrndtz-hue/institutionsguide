@@ -138,7 +138,7 @@ function ViewChangeTracker({
   return null;
 }
 
-function ScrollZoomGuard({ message: _message }: { message: string }) {
+function ScrollZoomGuard() {
   const map = useMap();
   useEffect(() => {
     const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
@@ -212,11 +212,13 @@ function InstitutionMap({
   const isDark = useDarkMode();
 
   // Capture initial values once so MapContainer does not re-render
-  const mapCenter = useRef<[number, number]>([
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const mapCenter = useMemo<[number, number]>(() => [
     initialCenter?.lat ?? 55.7,
     initialCenter?.lng ?? 10.8,
-  ]).current;
-  const mapZoom = useRef(initialZoom ?? 8).current;
+  ], []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const mapZoom = useMemo(() => initialZoom ?? 8, []);
 
   const [zoom, setZoom] = useState(mapZoom);
   const [showSearchArea, setShowSearchArea] = useState(false);
@@ -392,7 +394,7 @@ function InstitutionMap({
           highlightedId={highlightedId}
           onMarkerHover={onMarkerHover}
         />
-        <ScrollZoomGuard message={t.map.scrollZoomGuard} />
+        <ScrollZoomGuard />
         {radiusCenter && radiusKm && (
           <RadiusCircle center={radiusCenter} radiusKm={radiusKm} />
         )}

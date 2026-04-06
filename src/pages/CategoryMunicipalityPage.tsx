@@ -105,32 +105,10 @@ export default function CategoryMunicipalityPage() {
     return nearby;
   }, [municipalities, institutions, munName, cat]);
 
-  if (loading) {
-    return (<><SkeletonHero /><SkeletonCardGrid /></>);
-  }
+  const catLabel = CATEGORY_LABELS_DA[cat] ?? "";
+  const catSingular = CATEGORY_SINGULAR_DA[cat] ?? "";
 
-  if (!isValidCat || !munName || filtered.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="card p-8 text-center max-w-md">
-          <h1 className="font-display text-2xl font-bold mb-4">Side ikke fundet</h1>
-          <p className="text-muted mb-6">
-            Vi kunne ikke finde data for denne kombination.
-          </p>
-          <Link to="/" className="text-primary hover:underline font-medium">
-            Gå til forsiden
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const catLabel = CATEGORY_LABELS_DA[cat];
-  const catSingular = CATEGORY_SINGULAR_DA[cat];
-  const pageTitle = `${catLabel} i ${munName} ${new Date().getFullYear()} — Priser og sammenligning`;
-  const pageDesc = `Der er ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune.${stats.avg ? ` Gennemsnitlig månedlig takst: ${stats.avg} kr.` : ""} Se priser, kontakt og sammenlign.`;
-
-  // Contextual intro text unique to each category/municipality combination
+  // Contextual intro text unique to each category/municipality combination (must be before early returns — rules of hooks)
   const introText = useMemo(() => {
     if (filtered.length === 0) return "";
     const parts: string[] = [];
@@ -163,6 +141,29 @@ export default function CategoryMunicipalityPage() {
 
     return parts.join(". ") + ".";
   }, [filtered, catLabel, munName, stats.avg, nationalAvg]);
+
+  if (loading) {
+    return (<><SkeletonHero /><SkeletonCardGrid /></>);
+  }
+
+  if (!isValidCat || !munName || filtered.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="card p-8 text-center max-w-md">
+          <h1 className="font-display text-2xl font-bold mb-4">Side ikke fundet</h1>
+          <p className="text-muted mb-6">
+            Vi kunne ikke finde data for denne kombination.
+          </p>
+          <Link to="/" className="text-primary hover:underline font-medium">
+            Gå til forsiden
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const pageTitle = `${catLabel} i ${munName} ${new Date().getFullYear()} — Priser og sammenligning`;
+  const pageDesc = `Der er ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune.${stats.avg ? ` Gennemsnitlig månedlig takst: ${stats.avg} kr.` : ""} Se priser, kontakt og sammenlign.`;
 
   return (
     <>

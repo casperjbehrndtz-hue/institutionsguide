@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 
 export interface FamilyProfile {
   income: number | null;
@@ -113,11 +113,12 @@ function readAndCleanUrlParams(): {
 
 export function FamilyProvider({ children }: { children: ReactNode }) {
   // Read URL params once on mount. URL params override localStorage.
-  const urlDataRef = useRef(readAndCleanUrlParams());
-  const [deepLink] = useState<DeepLinkData>(() => urlDataRef.current.deepLink);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const urlData = useMemo(() => readAndCleanUrlParams(), []);
+  const [deepLink] = useState<DeepLinkData>(() => urlData.deepLink);
 
   const [profile, setProfileState] = useState<FamilyProfile | null>(() => {
-    const fromUrl = urlDataRef.current.profile;
+    const fromUrl = urlData.profile;
     if (fromUrl) {
       // Persist URL-provided profile to localStorage immediately
       try {

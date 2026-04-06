@@ -66,6 +66,23 @@ export default function BestSchoolPage() {
     return nearby;
   }, [municipalities, munName]);
 
+  // Municipality stats for unique content (must be before early returns — rules of hooks)
+  const munStats = useMemo(() => {
+    if (schools.length === 0) return { avgScore: 0, folkeskoler: 0, friskoler: 0, avgGrades: null, avgAbsence: null };
+    const avgScore = schools.reduce((s, i) => s + (i.quality?.r ?? 0), 0) / schools.length;
+    const folkeskoler = schools.filter((i) => i.subtype === "folkeskole").length;
+    const friskoler = schools.length - folkeskoler;
+    const withGrades = schools.filter((i) => i.quality?.k !== undefined);
+    const avgGrades = withGrades.length > 0
+      ? withGrades.reduce((s, i) => s + (i.quality?.k ?? 0), 0) / withGrades.length
+      : null;
+    const withAbsence = schools.filter((i) => i.quality?.fp !== undefined);
+    const avgAbsence = withAbsence.length > 0
+      ? withAbsence.reduce((s, i) => s + (i.quality?.fp ?? 0), 0) / withAbsence.length
+      : null;
+    return { avgScore, folkeskoler, friskoler, avgGrades, avgAbsence };
+  }, [schools]);
+
   if (loading) {
     return (
       <div className="min-h-screen">
@@ -90,22 +107,6 @@ export default function BestSchoolPage() {
       </div>
     );
   }
-
-  // Municipality stats for unique content
-  const munStats = useMemo(() => {
-    const avgScore = schools.reduce((s, i) => s + (i.quality?.r ?? 0), 0) / schools.length;
-    const folkeskoler = schools.filter((i) => i.subtype === "folkeskole").length;
-    const friskoler = schools.length - folkeskoler;
-    const withGrades = schools.filter((i) => i.quality?.k !== undefined);
-    const avgGrades = withGrades.length > 0
-      ? withGrades.reduce((s, i) => s + (i.quality?.k ?? 0), 0) / withGrades.length
-      : null;
-    const withAbsence = schools.filter((i) => i.quality?.fp !== undefined);
-    const avgAbsence = withAbsence.length > 0
-      ? withAbsence.reduce((s, i) => s + (i.quality?.fp ?? 0), 0) / withAbsence.length
-      : null;
-    return { avgScore, folkeskoler, friskoler, avgGrades, avgAbsence };
-  }, [schools]);
 
   const top5 = schools.slice(0, 5);
   const bestSchool = schools[0];

@@ -17,7 +17,7 @@ interface Props {
 export default function InstitutionDetail({ institution: inst, onClose, onCompare }: Props) {
   const { t, language } = useLanguage();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { addToCompare: _addToCompare, isInCompare } = useCompare();
+  const { isInCompare } = useCompare();
   const panelRef = useRef<HTMLDivElement>(null);
   const q = inst.quality;
 

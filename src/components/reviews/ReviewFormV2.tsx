@@ -15,7 +15,7 @@ const ageGroups = [
 ];
 
 export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Props) {
-  const { t: _t, language } = useLanguage();
+  const { language } = useLanguage();
   const { submit, submitting, submitted, error: submitError, reset } = useSubmitReview();
 
   const [rating, setRating] = useState(0);

@@ -103,10 +103,10 @@ export default function MarkerClusterGroup({
   const showPricesRef = useRef(showPrices);
   const prevHighlightRef = useRef<string | null>(null);
   const prevShowPricesRef = useRef(showPrices);
-  showPricesRef.current = showPrices;
+  useEffect(() => { showPricesRef.current = showPrices; });
 
   const onMarkerHoverRef = useRef(onMarkerHover);
-  onMarkerHoverRef.current = onMarkerHover;
+  useEffect(() => { onMarkerHoverRef.current = onMarkerHover; });
 
   // Create / recreate cluster only when markers change
   useEffect(() => {

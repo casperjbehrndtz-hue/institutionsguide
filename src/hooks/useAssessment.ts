@@ -61,13 +61,15 @@ export function useAssessment(
   const allInstRef = useRef(allInstitutions);
   const allStatsRef = useRef(allInstitutionStats);
   const natAvgRef = useRef(nationalAverages);
-  nearbyRef.current = nearby;
-  normeringRef.current = normering;
-  avgPriceRef.current = municipalityAvgPrice;
-  scoreRef.current = scoreResult;
-  allInstRef.current = allInstitutions;
-  allStatsRef.current = allInstitutionStats;
-  natAvgRef.current = nationalAverages;
+  useEffect(() => {
+    nearbyRef.current = nearby;
+    normeringRef.current = normering;
+    avgPriceRef.current = municipalityAvgPrice;
+    scoreRef.current = scoreResult;
+    allInstRef.current = allInstitutions;
+    allStatsRef.current = allInstitutionStats;
+    natAvgRef.current = nationalAverages;
+  });
 
   useEffect(() => {
     if (!inst || !scoreRef.current || !scoreRef.current.hasData) return;
