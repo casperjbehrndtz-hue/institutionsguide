@@ -78,6 +78,7 @@
 - ~~**P2-CONV-1**: Gate conversion analytics~~ ✅ DONE — 4 custom PostHog events added
 - ~~**P2-CONV-2**: Cross-sell nudges after gate unlock~~ ✅ DONE
 - ~~**P3-CONV-3**: Gate modal mobile~~ ✅ DONE (covered in P2-3)
+- ~~**P2-CONV-4**: scroll_depth + gate_rejection analytics~~ ✅ DONE — scroll_depth at 25/50/75/100% on InstitutionPage + gate_rejection on modal close without submit
 
 ### 4. Data Quality (specs/data-quality.md)
 
@@ -153,6 +154,9 @@ Made gate modal full-screen on mobile (h-full, items-end), close button 44px tou
 #### ~~P2-4: Blog template — table of contents + related articles~~ ✅ PARTIALLY DONE
 **TOC**: Implemented client-side heading extraction (H2/H3) with anchor IDs and nav component. Shows when ≥3 headings. No Supabase needed — works on sanitized HTML.
 **Related articles**: Already implemented (Supabase query for same-module posts). Cannot test without credentials but code is complete.
+
+#### ~~P2-4b: scroll_depth + gate_rejection analytics~~ ✅ DONE
+Added `scroll_depth` tracking (25/50/75/100% thresholds) via `useScrollDepth` hook on InstitutionPage. Added `gate_rejection` event when user closes gate modal without submitting. Total PostHog events now: gate_impression, gate_email_submitted, gate_unlocked, gated_content_viewed, gate_rejection, scroll_depth.
 
 #### ~~P2-5: Title/description length validation~~ ✅ DONE
 Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 chars (with ellipsis).

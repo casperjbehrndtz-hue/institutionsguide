@@ -36,6 +36,7 @@ import DetailsSection from "@/components/detail/DetailsSection";
 import QualityDataSection from "@/components/detail/QualityDataSection";
 import { usePercentiles } from "@/hooks/usePercentiles";
 import { useComparisonRows } from "@/hooks/useComparisonRows";
+import { useScrollDepth } from "@/hooks/useScrollDepth";
 
 function buildChatContext(
   inst: any, instStats: any, municipalityAvgPrice: number | null,
@@ -112,6 +113,10 @@ export default function InstitutionPage() {
     window.addEventListener("scroll", h, { passive: true });
     return () => window.removeEventListener("scroll", h);
   }, []);
+
+  // Track scroll depth for conversion funnel
+  const scrollMeta = useMemo(() => ({ institution: id ?? "", page: "institution" }), [id]);
+  useScrollDepth(scrollMeta);
 
   useEffect(() => {
     if (!compareToast) return;
