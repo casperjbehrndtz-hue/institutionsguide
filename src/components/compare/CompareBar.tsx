@@ -124,74 +124,84 @@ export function ComparisonTable({ institutions }: { institutions: UnifiedInstitu
     return t.categories[key] || cat;
   }
 
+  const hasQuality = institutions.some((i) => i.quality);
+
+  type Row = { label: string; render: (i: UnifiedInstitution) => string };
+  const rows: Row[] = [
+    { label: t.compare.category, render: (i) => categoryLabel(i.category) },
+    { label: t.compare.municipality, render: (i) => i.municipality },
+    { label: t.compare.address, render: (i) => `${i.address}, ${i.postalCode} ${i.city}` },
+    { label: t.compare.monthlyRate, render: (i) => formatDKK(i.monthlyRate) },
+    { label: t.compare.annualRate, render: (i) => formatDKK(i.annualRate) },
+    { label: t.compare.type, render: (i) => i.subtype || "–" },
+  ];
+  if (hasQuality) {
+    rows.push(
+      { label: t.compare.wellbeing, render: (i) => i.quality?.ts?.toLocaleString("da-DK") || "–" },
+      { label: t.compare.gradeAvg, render: (i) => i.quality?.k?.toLocaleString("da-DK") || "–" },
+      { label: t.compare.absencePercent, render: (i) => `${i.quality?.fp?.toLocaleString("da-DK") || "–"}%` },
+      { label: t.compare.competenceCoverage, render: (i) => `${i.quality?.kp?.toLocaleString("da-DK") || "–"}%` },
+      { label: t.compare.studentCount, render: (i) => i.quality?.el?.toLocaleString("da-DK") || "–" },
+      { label: t.compare.classSize, render: (i) => i.quality?.kv?.toLocaleString("da-DK") || "–" },
+    );
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm" role="table">
-        <thead>
-          <tr className="border-b border-border">
-            <th className="text-left py-3 px-4 text-muted font-medium" scope="col">{t.compare.property}</th>
-            {institutions.map((inst) => (
-              <th key={inst.id} className="text-left py-3 px-4 font-semibold text-foreground min-w-[150px] sm:min-w-[200px]" scope="col">
-                {inst.name}
-              </th>
+    <>
+      {/* Mobile: swipeable cards with scroll-snap */}
+      <div className="sm:hidden">
+        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-3 no-scrollbar">
+          {institutions.map((inst, idx) => (
+            <div
+              key={inst.id}
+              className="snap-start shrink-0 w-[85vw] max-w-[320px] card p-4 space-y-3"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">{idx + 1}</span>
+                <h3 className="font-display font-semibold text-foreground text-sm truncate">{inst.name}</h3>
+              </div>
+              {rows.map((row) => (
+                <div key={row.label} className="flex justify-between gap-2 py-1.5 border-b border-border/50 last:border-0">
+                  <span className="text-xs text-muted shrink-0">{row.label}</span>
+                  <span className="text-sm font-medium text-foreground text-right">{row.render(inst)}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-center gap-1.5 mt-2">
+          {institutions.map((inst) => (
+            <div key={inst.id} className="w-2 h-2 rounded-full bg-border" aria-hidden="true" />
+          ))}
+        </div>
+        <p className="text-center text-xs text-muted mt-1">Swipe for at sammenligne</p>
+      </div>
+
+      {/* Desktop: table view */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full text-sm" role="table">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-3 px-4 text-muted font-medium" scope="col">{t.compare.property}</th>
+              {institutions.map((inst) => (
+                <th key={inst.id} className="text-left py-3 px-4 font-semibold text-foreground min-w-[200px]" scope="col">
+                  {inst.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.label} className="border-b border-border/50">
+                <td className="py-2 px-4 text-muted">{row.label}</td>
+                {institutions.map((i) => (
+                  <td key={i.id} className="py-2 px-4 font-mono">{row.render(i)}</td>
+                ))}
+              </tr>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">{t.compare.category}</td>
-            {institutions.map((i) => <td key={i.id} className="py-2 px-4">{categoryLabel(i.category)}</td>)}
-          </tr>
-          <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">{t.compare.municipality}</td>
-            {institutions.map((i) => <td key={i.id} className="py-2 px-4">{i.municipality}</td>)}
-          </tr>
-          <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">{t.compare.address}</td>
-            {institutions.map((i) => <td key={i.id} className="py-2 px-4 text-xs">{i.address}, {i.postalCode} {i.city}</td>)}
-          </tr>
-          <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">{t.compare.monthlyRate}</td>
-            {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono font-medium">{formatDKK(i.monthlyRate)}</td>)}
-          </tr>
-          <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">{t.compare.annualRate}</td>
-            {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{formatDKK(i.annualRate)}</td>)}
-          </tr>
-          <tr className="border-b border-border/50">
-            <td className="py-2 px-4 text-muted">{t.compare.type}</td>
-            {institutions.map((i) => <td key={i.id} className="py-2 px-4">{i.subtype}</td>)}
-          </tr>
-          {institutions.some((i) => i.quality) && (
-            <>
-              <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">{t.compare.wellbeing}</td>
-                {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.ts?.toLocaleString("da-DK") || "–"}</td>)}
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">{t.compare.gradeAvg}</td>
-                {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.k?.toLocaleString("da-DK") || "–"}</td>)}
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">{t.compare.absencePercent}</td>
-                {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.fp?.toLocaleString("da-DK") || "–"}%</td>)}
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">{t.compare.competenceCoverage}</td>
-                {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.kp?.toLocaleString("da-DK") || "–"}%</td>)}
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">{t.compare.studentCount}</td>
-                {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.el?.toLocaleString("da-DK") || "–"}</td>)}
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">{t.compare.classSize}</td>
-                {institutions.map((i) => <td key={i.id} className="py-2 px-4 font-mono">{i.quality?.kv?.toLocaleString("da-DK") || "–"}</td>)}
-              </tr>
-            </>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

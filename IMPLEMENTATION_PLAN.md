@@ -195,8 +195,8 @@ Added search input (navigates to homepage with query), popular category links wi
 #### ~~P3-5: Mobile filter bottom sheet~~ ✅ DONE
 Added `FilterBottomSheet` component (`src/components/filters/FilterBottomSheet.tsx`). On mobile (<640px), secondary filters (age, municipality, quality, sort) are hidden behind a "Vis filtre" button that opens a slide-up bottom sheet with drag-to-dismiss, backdrop overlay, and touch-friendly pill-style filter controls (all ≥44px). Desktop layout unchanged. Badge on button shows active filter count.
 
-#### P3-6: Swipe gestures on compare cards ⏳ DEFERRED
-**Spec**: ux-design.md requires "Swipe gestures on compare cards". Would need touch event handling library (e.g. react-swipeable). Not in acceptance criteria — nice-to-have UX polish.
+#### ~~P3-6: Swipe gestures on compare cards~~ ✅ DONE
+Added mobile card-based compare view with CSS scroll-snap (snap-x snap-mandatory). On mobile (<640px), ComparisonTable renders swipeable cards (one per institution, 85vw width) instead of a table. Includes dot indicators and "Swipe for at sammenligne" hint. Desktop table view unchanged. No external library needed. Also refactored table rows into a data-driven `rows` array to DRY up both views.
 
 #### P3-7: WebP image support ⏳ DEFERRED
 **Spec**: performance-code.md mentions "WebP where possible". Only ~6 `<img>` tags in codebase, minimal impact. Would need build-time image processing pipeline. Not in acceptance criteria.
