@@ -199,7 +199,7 @@ Added `FilterBottomSheet` component (`src/components/filters/FilterBottomSheet.t
 Added mobile card-based compare view with CSS scroll-snap (snap-x snap-mandatory). On mobile (<640px), ComparisonTable renders swipeable cards (one per institution, 85vw width) instead of a table. Includes dot indicators and "Swipe for at sammenligne" hint. Desktop table view unchanged. No external library needed. Also refactored table rows into a data-driven `rows` array to DRY up both views.
 
 #### P3-7: WebP image support ⏳ DEFERRED
-**Spec**: performance-code.md mentions "WebP where possible". Only ~6 `<img>` tags in codebase, minimal impact. Would need build-time image processing pipeline. Not in acceptance criteria.
+**Blocked**: Only 1 `<img>` tag in codebase (InstitutionListCard, loading dynamic URLs from data). No static image assets to convert. Would require image proxy or CDN-level conversion — not achievable at build time.
 
 ---
 
