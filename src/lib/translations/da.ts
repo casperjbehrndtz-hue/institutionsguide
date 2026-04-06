@@ -214,6 +214,8 @@ export const da: TranslationStrings = {
     subsidyCalc: "Fripladsberegner",
     staffRatio: "Børn pr. voksen",
     compareInstitutions: "Sammenlign institutioner",
+    childcareGuide: "Pasningsguide",
+    favorites: "Mine favoritter",
     methodology: "Metode & datakilder",
     blog: "Blog",
     about: "Om os",

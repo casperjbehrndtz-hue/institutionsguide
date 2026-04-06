@@ -88,6 +88,8 @@ export default function Footer() {
               <li><Link to="/friplads" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.subsidyCalc}</Link></li>
               <li><Link to="/normering" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.staffRatio}</Link></li>
               <li><Link to="/sammenlign" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.compareInstitutions}</Link></li>
+              <li><Link to="/guide" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.childcareGuide}</Link></li>
+              <li><Link to="/favoritter" className="text-xs text-muted hover:text-primary transition-colors">{t.footer.favorites}</Link></li>
             </ul>
           </div>
 

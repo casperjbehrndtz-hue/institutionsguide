@@ -214,6 +214,8 @@ export const en: TranslationStrings = {
     subsidyCalc: "Subsidy calculator",
     staffRatio: "Children per adult",
     compareInstitutions: "Compare institutions",
+    childcareGuide: "Childcare guide",
+    favorites: "My favorites",
     methodology: "Methodology & data sources",
     blog: "Blog",
     about: "About us",

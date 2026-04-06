@@ -37,6 +37,7 @@
 - ~~**P2-SEO-8**: Blog TOC~~ ✅ DONE — client-side TOC from H2/H3 headings (see P2-4)
 - ~~**P2-SEO-9**: BlogPost BreadcrumbList JSON-LD~~ ✅ DONE (covered in P1-1)
 - ~~**P2-SEO-10**: Similar institutions internal linking~~ ✅ DONE
+- ~~**P2-SEO-11**: Orphan page audit — /guide and /favoritter unreachable~~ ✅ DONE
 
 ### 2. UX/Design (specs/ux-design.md)
 
@@ -236,6 +237,10 @@ Added `useFeatureView` hook using IntersectionObserver — fires `gated_feature_
 #### ~~P4-5: dataVersions.ts tracking~~ ✅ DONE
 **Spec**: data-quality.md mentions data versions tracked in dataVersions.ts
 **Status**: Already implemented in `src/lib/dataVersions.ts` — tracks prices, schoolQuality, friplads, normering, overall, and legal dates. Used by DataFreshness and HeroSection components.
+
+#### ~~P4-6: Fix orphan pages (/guide and /favoritter)~~ ✅ DONE
+**Spec**: seo-dominance.md says "No orphan pages (every page reachable from navigation or internal links)"
+**Status**: `/guide` (Pasningsguide) added to Navbar TOOL_LINKS dropdown + Footer Tools section. `/favoritter` added to Navbar (Heart icon on desktop, labeled link on mobile) + Footer Tools section. All 27 routes now reachable via navigation.
 
 ---
 

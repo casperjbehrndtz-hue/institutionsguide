@@ -213,6 +213,8 @@ export interface TranslationStrings {
     subsidyCalc: string;
     staffRatio: string;
     compareInstitutions: string;
+    childcareGuide: string;
+    favorites: string;
     methodology: string;
     blog: string;
     about: string;

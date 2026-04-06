@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Heart } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const CATEGORY_LINKS: { href: string; key: string; labelOverride?: Record<string, string> }[] = [
@@ -16,6 +16,7 @@ const CATEGORY_LINKS: { href: string; key: string; labelOverride?: Record<string
 
 const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = [
   { href: "/find", labelOverride: { da: "Find den rette", en: "Find your match" } },
+  { href: "/guide", labelOverride: { da: "Pasningsguide", en: "Childcare guide" } },
   { href: "/prissammenligning", labelOverride: { da: "Prissammenligning", en: "Price comparison" } },
   { href: "/bedste-vaerdi", labelOverride: { da: "Bedste værdi", en: "Best value" } },
   { href: "/friplads", labelOverride: { da: "Fripladsberegner", en: "Subsidy calculator" } },
@@ -135,6 +136,17 @@ export default function Navbar() {
             )}
           </div>
 
+          <Link
+            to="/favoritter"
+            className={`ml-1 p-2 rounded-lg transition-colors ${
+              location.pathname === "/favoritter"
+                ? "bg-primary/10 text-primary"
+                : "text-muted hover:text-foreground hover:bg-border/30"
+            }`}
+            aria-label={language === "da" ? "Mine favoritter" : "My favorites"}
+          >
+            <Heart className="w-4 h-4" />
+          </Link>
           <button
             onClick={() => setLanguage(language === "da" ? "en" : "da")}
             className="ml-1 px-2 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors"
@@ -208,10 +220,22 @@ export default function Navbar() {
               })}
             </div>
           </div>
-          <div className="px-4 pb-2">
+          <div className="px-4 pb-2 flex items-center gap-2">
+            <Link
+              to="/favoritter"
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === "/favoritter"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted hover:text-foreground hover:bg-border/30"
+              }`}
+            >
+              <Heart className="w-4 h-4" />
+              {language === "da" ? "Favoritter" : "Favorites"}
+            </Link>
             <button
               onClick={() => { setLanguage(language === "da" ? "en" : "da"); setOpen(false); }}
-              className="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors"
+              className="block text-left px-3 py-2.5 rounded-lg text-sm font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors"
             >
               {language === "da" ? "English" : "Dansk"}
             </button>
