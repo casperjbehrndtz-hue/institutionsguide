@@ -62,6 +62,7 @@
 - ~~**P2-UX-3**: Gate modal full-screen on mobile~~ ✅ DONE
 - ~~**P2-UX-4**: Ad-hoc dark mode hex values~~ ✅ DONE — replaced with theme tokens
 - ~~**P2-UX-5**: Mobile filter bottom sheet~~ ✅ DONE — FilterBottomSheet with drag-to-dismiss
+- ~~**P2-UX-6**: Infinite scroll on list pages~~ ✅ DONE — IntersectionObserver replaces load-more buttons
 
 ### 3. Conversion/Gating (specs/conversion-gating.md)
 
@@ -201,6 +202,9 @@ Added `FilterBottomSheet` component (`src/components/filters/FilterBottomSheet.t
 
 #### ~~P3-6: Swipe gestures on compare cards~~ ✅ DONE
 Added mobile card-based compare view with CSS scroll-snap (snap-x snap-mandatory). On mobile (<640px), ComparisonTable renders swipeable cards (one per institution, 85vw width) instead of a table. Includes dot indicators and "Swipe for at sammenligne" hint. Desktop table view unchanged. No external library needed. Also refactored table rows into a data-driven `rows` array to DRY up both views.
+
+#### ~~P3-8: Replace load-more buttons with infinite scroll~~ ✅ DONE
+Replaced "Vis flere" load-more buttons with IntersectionObserver-based infinite scroll on CategoryPage, HomePage, and GymnasiumPage. Sentinel element triggers loading 50 more items when it enters the viewport (200px rootMargin). Shows spinner + count while loading. No scroll position loss. FindPage kept load-more (small personalized result sets where infinite scroll adds no value).
 
 #### P3-7: WebP image support ⏳ DEFERRED
 **Blocked**: Only 1 `<img>` tag in codebase (InstitutionListCard, loading dynamic URLs from data). No static image assets to convert. Would require image proxy or CDN-level conversion — not achievable at build time.

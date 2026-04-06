@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, SlidersHorizontal, BarChart3, X, Gamepad2, School, Landmark } from "lucide-react";
+import { Building2, GraduationCap, Users, Home, BookOpen, SlidersHorizontal, BarChart3, X, Gamepad2, School, Landmark, Loader2 } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -72,6 +72,7 @@ export default function HomePage() {
   const municipalityNames = useMemo(() => municipalities.map((m) => m.municipality), [municipalities]);
 
   const [visibleCount, setVisibleCount] = useState(50);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const distanceSorted = useMemo(() => {
     if (!geo.userLocation) return filtered;
@@ -94,6 +95,23 @@ export default function HomePage() {
 
   // Reset visible count and clear map bounds when filters change
   useEffect(() => { setVisibleCount(50); setMapBounds(null); }, [filtered]);
+
+  // Infinite scroll: load more when sentinel enters viewport within the list container
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const root = listContainerRef.current;
+    if (!sentinel || !root) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCount((c) => c + 50);
+        }
+      },
+      { root, rootMargin: "200px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
   // Filter by map bounds when active
   const boundsFiltered = useMemo(() => {
@@ -395,16 +413,11 @@ export default function HomePage() {
             />
           ))}
           {boundsFiltered.length > visibleCount && (
-            <div className="text-center py-4 space-y-2">
+            <div ref={sentinelRef} className="text-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted mx-auto mb-1" />
               <p className="text-sm text-muted">
                 {t.common.showing} {visibleCount} {t.common.of} {boundsFiltered.length.toLocaleString("da-DK")} {t.common.results}
               </p>
-              <button
-                onClick={() => setVisibleCount((c) => c + 50)}
-                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-              >
-                {t.common.showMore}
-              </button>
             </div>
           )}
           {boundsFiltered.length > 0 && boundsFiltered.length <= visibleCount && boundsFiltered.length > 50 && (

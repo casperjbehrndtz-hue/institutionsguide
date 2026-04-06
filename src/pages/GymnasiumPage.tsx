@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
@@ -40,6 +40,23 @@ export default function GymnasiumPage() {
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(50);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Infinite scroll: load more when sentinel enters viewport
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCount((c) => c + 50);
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
   const gymnasiums = useMemo(
     () => institutions.filter((i) => i.category === "gymnasium"),
@@ -342,17 +359,12 @@ export default function GymnasiumPage() {
           ))}
 
           {filtered.length > visibleCount && (
-            <div className="text-center py-4">
-              <p className="text-sm text-muted mb-2">
+            <div ref={sentinelRef} className="text-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted mx-auto mb-1" />
+              <p className="text-sm text-muted">
                 {language === "da" ? "Viser" : "Showing"} {visibleCount} {language === "da" ? "af" : "of"}{" "}
                 {filtered.length.toLocaleString("da-DK")}
               </p>
-              <button
-                onClick={() => setVisibleCount((c) => c + 50)}
-                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-              >
-                {language === "da" ? "Vis flere" : "Show more"}
-              </button>
             </div>
           )}
         </div>

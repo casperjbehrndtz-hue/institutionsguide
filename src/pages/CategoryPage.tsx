@@ -141,8 +141,8 @@ export default function CategoryPage({ category }: Props) {
   };
 
   const [visibleCount, setVisibleCount] = useState(50);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [showAllMunicipalities, setShowAllMunicipalities] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const distanceSorted = useMemo(() => {
     if (!geo.userLocation) return filtered;
@@ -165,6 +165,23 @@ export default function CategoryPage({ category }: Props) {
 
   // Reset visible count and clear map bounds when filters change
   useEffect(() => { setVisibleCount(50); setMapBounds(null); }, [filtered]);
+
+  // Infinite scroll: load more when sentinel enters viewport within the list container
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const root = listContainerRef.current;
+    if (!sentinel || !root) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCount((c) => c + 50);
+        }
+      },
+      { root, rootMargin: "200px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
   // Filter by map bounds when active
   const boundsFiltered = useMemo(() => {
@@ -473,24 +490,11 @@ export default function CategoryPage({ category }: Props) {
             );
           })}
           {boundsFiltered.length > visibleCount && (
-            <div className="text-center py-4 space-y-2">
+            <div ref={sentinelRef} className="text-center py-4">
+              <Loader2 className="w-5 h-5 animate-spin text-muted mx-auto mb-1" />
               <p className="text-sm text-muted">
                 {t.common.showing} {visibleCount} {t.common.of} {boundsFiltered.length.toLocaleString("da-DK")} {t.common.results}
               </p>
-              <button
-                onClick={() => {
-                  setLoadingMore(true);
-                  requestAnimationFrame(() => {
-                    setVisibleCount((c) => c + 50);
-                    setLoadingMore(false);
-                  });
-                }}
-                disabled={loadingMore}
-                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px] inline-flex items-center gap-2 disabled:opacity-60"
-              >
-                {loadingMore && <Loader2 className="w-4 h-4 animate-spin" />}
-                {t.common.showMore}
-              </button>
             </div>
           )}
           {boundsFiltered.length > 0 && boundsFiltered.length <= visibleCount && boundsFiltered.length > 50 && (
