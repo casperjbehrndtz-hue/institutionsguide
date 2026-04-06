@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { InstitutionCategory, AgeGroup, SortKey, UnifiedInstitution } from "@/lib/types";
+import FilterBottomSheet from "./FilterBottomSheet";
 
 /** Normalize Danish characters for accent-tolerant search */
 function normalizeSearch(str: string): string {
@@ -209,6 +210,16 @@ export default function SearchFilterBar({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightIdx, setHighlightIdx] = useState(-1);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (ageGroup) count++;
+    if (municipality) count++;
+    if (qualityFilter) count++;
+    if (sortKey !== "name" && sortKey !== "price" && sortKey !== "rating") count++;
+    return count;
+  }, [ageGroup, municipality, qualityFilter, sortKey]);
 
   const suggestions = useMemo(() => {
     if (!institutions || search.trim().length < 2) return [];
@@ -425,15 +436,30 @@ export default function SearchFilterBar({
           </div>
           )}
 
-          {/* Secondary filters — wrap on mobile */}
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+          {/* Mobile: filter button that opens bottom sheet */}
+          <button
+            onClick={() => setBottomSheetOpen(true)}
+            className="sm:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-border/40 text-muted hover:bg-border/70 transition-colors min-h-[36px]"
+            aria-label={t.home.showFilters}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            {t.home.showFilters}
+            {activeFilterCount > 0 && (
+              <span className="ml-0.5 px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-primary text-primary-foreground leading-none">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          {/* Desktop: inline secondary filters */}
+          <div className="hidden sm:flex flex-wrap items-center gap-2 w-auto">
             {/* Age group dropdown */}
             <select
               id="age-group-select"
               value={ageGroup}
               onChange={(e) => handleAgeGroupChange(e.target.value as AgeGroup)}
               aria-label={t.ageFilter.allAges}
-              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-xl border border-border bg-bg-card text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
+              className={`px-3 py-1.5 rounded-xl border border-border bg-bg-card text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary ${
                 ageGroup ? "text-primary font-medium border-primary" : "text-foreground"
               }`}
             >
@@ -457,7 +483,7 @@ export default function SearchFilterBar({
                 value={qualityFilter}
                 onChange={(e) => onQualityFilterChange(e.target.value)}
                 aria-label={t.common.allRatings}
-                className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
+                className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <option value="">{t.common.allRatings}</option>
                 <option value="1">{t.detail.aboveAvg}</option>
@@ -468,13 +494,13 @@ export default function SearchFilterBar({
 
             {/* Sort */}
             <div className="flex items-center gap-1.5 ml-auto">
-              <SlidersHorizontal className="w-4 h-4 text-muted hidden sm:block" />
+              <SlidersHorizontal className="w-4 h-4 text-muted" />
               <select
                 id="sort-select"
                 value={sortKey}
                 onChange={(e) => onSortChange(e.target.value as SortKey)}
                 aria-label="Sortér"
-                className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[36px] sm:min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
+                className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {sortOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -493,6 +519,26 @@ export default function SearchFilterBar({
               {t.common.resetFilters}
             </button>
           )}
+
+          {/* Mobile bottom sheet */}
+          <FilterBottomSheet
+            open={bottomSheetOpen}
+            onClose={() => setBottomSheetOpen(false)}
+            ageGroup={ageGroup}
+            onAgeGroupChange={handleAgeGroupChange}
+            ageOptions={AGE_OPTIONS}
+            municipality={municipality}
+            onMunicipalityChange={onMunicipalityChange}
+            municipalities={municipalities}
+            qualityFilter={qualityFilter}
+            onQualityFilterChange={onQualityFilterChange}
+            showQualityFilter={category === "alle" || category === "skole"}
+            sortKey={sortKey}
+            onSortChange={onSortChange}
+            sortOptions={sortOptions}
+            onClearAll={onClearAll}
+            hasActiveFilters={hasActiveFilters}
+          />
         </div>
 
         {/* Result count + active filter pills */}

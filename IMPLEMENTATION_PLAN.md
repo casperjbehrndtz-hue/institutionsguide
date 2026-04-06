@@ -61,6 +61,7 @@
 - ~~**P2-UX-2**: Gate modal close button touch target~~ ✅ DONE — min-w/h 44px
 - ~~**P2-UX-3**: Gate modal full-screen on mobile~~ ✅ DONE
 - ~~**P2-UX-4**: Ad-hoc dark mode hex values~~ ✅ DONE — replaced with theme tokens
+- ~~**P2-UX-5**: Mobile filter bottom sheet~~ ✅ DONE — FilterBottomSheet with drag-to-dismiss
 
 ### 3. Conversion/Gating (specs/conversion-gating.md)
 
@@ -190,6 +191,15 @@ Added search input (navigates to homepage with query), popular category links wi
 
 #### P3-4: Lighthouse audit and optimization ⏳ DEFERRED
 **Blocked**: Requires running production server to audit. Should be done post-deploy.
+
+#### ~~P3-5: Mobile filter bottom sheet~~ ✅ DONE
+Added `FilterBottomSheet` component (`src/components/filters/FilterBottomSheet.tsx`). On mobile (<640px), secondary filters (age, municipality, quality, sort) are hidden behind a "Vis filtre" button that opens a slide-up bottom sheet with drag-to-dismiss, backdrop overlay, and touch-friendly pill-style filter controls (all ≥44px). Desktop layout unchanged. Badge on button shows active filter count.
+
+#### P3-6: Swipe gestures on compare cards ⏳ DEFERRED
+**Spec**: ux-design.md requires "Swipe gestures on compare cards". Would need touch event handling library (e.g. react-swipeable). Not in acceptance criteria — nice-to-have UX polish.
+
+#### P3-7: WebP image support ⏳ DEFERRED
+**Spec**: performance-code.md mentions "WebP where possible". Only ~6 `<img>` tags in codebase, minimal impact. Would need build-time image processing pipeline. Not in acceptance criteria.
 
 ---
 
