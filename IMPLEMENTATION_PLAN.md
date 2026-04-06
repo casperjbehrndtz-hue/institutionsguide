@@ -230,10 +230,9 @@ Added `src/lib/__tests__/dataTransforms.test.ts` with 43 tests covering: formatD
 **Status**: Current `gated_content_viewed` event fires on InstitutionPage. Doesn't distinguish between AI chat, tilsynsrapporter, PDF download, etc.
 **Blocked**: Low priority — current gate analytics (6 events) are sufficient for initial launch. Feature-level breakdown can be added when there's enough traffic to analyze.
 
-#### P4-5: dataVersions.ts tracking ⏳ DEFERRED
+#### ~~P4-5: dataVersions.ts tracking~~ ✅ DONE
 **Spec**: data-quality.md mentions data versions tracked in dataVersions.ts
-**Status**: Not implemented. Data sources are versioned implicitly via git and build timestamps.
-**Blocked**: Low priority — DataFreshness component already shows dates. Formal version tracking adds complexity without clear benefit until data pipeline is more mature.
+**Status**: Already implemented in `src/lib/dataVersions.ts` — tracks prices, schoolQuality, friplads, normering, overall, and legal dates. Used by DataFreshness and HeroSection components.
 
 ---
 
