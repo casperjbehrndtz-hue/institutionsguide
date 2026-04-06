@@ -28,11 +28,15 @@ export default function SectionNav({ sections }: SectionNavProps) {
 
   // Filter to only sections present in DOM
   useEffect(() => {
-    const present = sections.filter((s) => document.getElementById(s.id));
-    setVisibleSections(present);
-    if (present.length > 0 && !activeId) {
-      setActiveId(present[0].id);
-    }
+    // Use requestAnimationFrame to batch DOM reads with state updates
+    const raf = requestAnimationFrame(() => {
+      const present = sections.filter((s) => document.getElementById(s.id));
+      setVisibleSections(present);
+      if (present.length > 0 && !activeId) {
+        setActiveId(present[0].id);
+      }
+    });
+    return () => cancelAnimationFrame(raf);
   }, [sections, activeId]);
 
   // Show/hide the bar based on a sentinel element at the top of the details area

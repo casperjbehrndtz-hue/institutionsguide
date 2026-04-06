@@ -164,7 +164,7 @@ export default function CategoryPage({ category }: Props) {
   }, [distanceSorted, radiusKm, geo.userLocation]);
 
   // Reset visible count and clear map bounds when filters change
-  useEffect(() => { setVisibleCount(50); setMapBounds(null); }, [filtered]);
+  useEffect(() => { queueMicrotask(() => { setVisibleCount(50); setMapBounds(null); }); }, [filtered]);
 
   // Infinite scroll: load more when sentinel enters viewport within the list container
   useEffect(() => {

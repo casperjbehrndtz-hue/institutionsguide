@@ -74,7 +74,7 @@ export function useAssessment(
   useEffect(() => {
     if (!inst || !scoreRef.current || !scoreRef.current.hasData) return;
     if (!supabase) {
-      setState("idle");
+      queueMicrotask(() => setState("idle"));
       return;
     }
 

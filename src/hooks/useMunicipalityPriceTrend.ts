@@ -24,8 +24,10 @@ export function useMunicipalityPriceTrend(
 
   useEffect(() => {
     if (!supabase || !municipality) {
-      setData([]);
-      setLoading(false);
+      queueMicrotask(() => {
+        setData([]);
+        setLoading(false);
+      });
       return;
     }
 

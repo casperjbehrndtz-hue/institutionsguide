@@ -19,8 +19,10 @@ export function usePriceHistory(institutionId: string): UsePriceHistoryResult {
 
   useEffect(() => {
     if (!supabase || !institutionId) {
-      setData([]);
-      setLoading(false);
+      queueMicrotask(() => {
+        setData([]);
+        setLoading(false);
+      });
       return;
     }
 

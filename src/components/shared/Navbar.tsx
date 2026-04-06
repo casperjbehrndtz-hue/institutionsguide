@@ -67,7 +67,7 @@ export default function Navbar() {
 
   // Close dropdown on route change
   useEffect(() => {
-    setToolsOpen(false);
+    queueMicrotask(() => setToolsOpen(false));
   }, [location.pathname]);
 
   const toolPaths = TOOL_LINKS.map((l) => l.href);
