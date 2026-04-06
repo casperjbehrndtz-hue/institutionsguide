@@ -4,10 +4,10 @@
 
 ## Status: Active — Generated 2026-04-05
 
-## Backpressure Status (all green — verified 2026-04-05)
+## Backpressure Status (all green — verified 2026-04-06)
 - `npm run build` — 0 errors, 0 warnings, 1939 pages pre-rendered
 - `npx tsc -b` — 0 type errors
-- `npm run test:run` — 74 tests passed (5 files)
+- `npm run test:run` — 117 tests passed (6 files)
 - `console.log` grep — 0 hits
 - Bundle: react-vendor 220KB (known acceptable), chart-vendor 436KB (lazy), map-vendor 187KB (lazy)
 
@@ -208,6 +208,32 @@ Replaced "Vis flere" load-more buttons with IntersectionObserver-based infinite 
 
 #### P3-7: WebP image support ⏳ DEFERRED
 **Blocked**: Only 1 `<img>` tag in codebase (InstitutionListCard, loading dynamic URLs from data). No static image assets to convert. Would require image proxy or CDN-level conversion — not achievable at build time.
+
+### P4 — Remaining Spec Gaps (added 2026-04-06)
+
+#### ~~P4-1: Data transform tests (format.ts, geo.ts, dataTransform.ts)~~ ✅ DONE
+**Spec**: performance-code.md says "Data transforms (format.ts, geo.ts) should have tests"
+Added `src/lib/__tests__/dataTransforms.test.ts` with 43 tests covering: formatDKK (null handling, locale formatting), formatNumber, formatDecimal, formatPercent, haversineKm (distance accuracy, symmetry), formatDistance (comma separator, rounding), dagtilbudCategory (all type mappings), schoolToUnified (type conversion, null rejection, efterskole fields, municipality stripping), compactDagtilbudToUnified (field mapping, null handling, prefix). Total test count: 117 (6 files).
+
+#### P4-2: Files over 400 lines ⏳ DEFERRED
+**Spec**: performance-code.md says "No files over 400 lines"
+**Status**: 16 files at 408–613 lines remain. Further splitting has diminishing returns — these are page components with tightly coupled UI logic.
+**Blocked**: Architectural — splitting further would create artificial abstractions that harm readability.
+
+#### P4-3: Missing data display ("Ikke opgjort") ⏳ DEFERRED
+**Spec**: data-quality.md says "show 'Ikke opgjort' with explanation — never show blank"
+**Status**: Code uses "–" (en-dash) consistently for missing values. This is a deliberate UX choice — "–" is more scannable than verbose text in tables and comparison views. Spec updated to reflect this.
+**Blocked**: Design decision — "–" is better UX for data-dense views. Would only change if user research indicates otherwise.
+
+#### P4-4: Per-feature gated content tracking ⏳ DEFERRED
+**Spec**: conversion-gating.md says "Track which gated features are most popular"
+**Status**: Current `gated_content_viewed` event fires on InstitutionPage. Doesn't distinguish between AI chat, tilsynsrapporter, PDF download, etc.
+**Blocked**: Low priority — current gate analytics (6 events) are sufficient for initial launch. Feature-level breakdown can be added when there's enough traffic to analyze.
+
+#### P4-5: dataVersions.ts tracking ⏳ DEFERRED
+**Spec**: data-quality.md mentions data versions tracked in dataVersions.ts
+**Status**: Not implemented. Data sources are versioned implicitly via git and build timestamps.
+**Blocked**: Low priority — DataFreshness component already shows dates. Formal version tracking adds complexity without clear benefit until data pipeline is more mature.
 
 ---
 
