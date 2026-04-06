@@ -63,6 +63,7 @@
 - ~~**P2-UX-4**: Ad-hoc dark mode hex values~~ ✅ DONE — replaced with theme tokens
 - ~~**P2-UX-5**: Mobile filter bottom sheet~~ ✅ DONE — FilterBottomSheet with drag-to-dismiss
 - ~~**P2-UX-6**: Infinite scroll on list pages~~ ✅ DONE — IntersectionObserver replaces load-more buttons
+- ~~**P2-UX-7**: Compare page visual indicators~~ ✅ DONE — green/amber/red color coding on quality metrics + ✦ winner markers per row
 
 ### 3. Conversion/Gating (specs/conversion-gating.md)
 
@@ -184,6 +185,9 @@ Added truncation in SEOHead: titles capped at 60 chars, descriptions at 155 char
 **Remaining**: 16 files at 408-613 lines — page components with tightly coupled UI logic where further splitting has diminishing returns.
 
 ### P3 — Polish
+
+#### ~~P2-7: Compare page visual indicators~~ ✅ DONE
+Added green/amber/red color coding to quality metrics (wellbeing, grades, absence, competence coverage) on the Compare page ComparisonTable. Color thresholds: ≥70% of max = green, ≥50% = amber, below = red. For absence (lower-is-better), the scale is inverted. Winner per row marked with ✦ and bold weight. Applied to both desktop table and mobile swipeable cards.
 
 #### ~~P3-1: "Similar institutions" internal linking on detail pages~~ ✅ DONE
 Added "Lignende institutioner i nærheden" section showing up to 5 nearby same-category institutions with name, address, price, and distance. Links to category/municipality page at bottom.

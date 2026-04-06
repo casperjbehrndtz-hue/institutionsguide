@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { X, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { UnifiedInstitution } from "@/lib/types";
@@ -115,6 +115,12 @@ export default function CompareBar() {
   );
 }
 
+// Green/amber/red for metric quality — matches ScoreRing/ComparisonTable pattern
+const METRIC_COLOR = (value: number, max: number) => {
+  const pct = value / max;
+  return pct >= 0.7 ? "#0d7c5f" : pct >= 0.5 ? "#b8860b" : "#c0392b";
+};
+
 // Comparison table for full page
 export function ComparisonTable({ institutions }: { institutions: UnifiedInstitution[] }) {
   const { t } = useLanguage();
@@ -126,24 +132,59 @@ export function ComparisonTable({ institutions }: { institutions: UnifiedInstitu
 
   const hasQuality = institutions.some((i) => i.quality);
 
-  type Row = { label: string; render: (i: UnifiedInstitution) => string };
+  // "higher" = higher is better, "lower" = lower is better
+  type Row = {
+    label: string;
+    render: (i: UnifiedInstitution) => string;
+    value?: (i: UnifiedInstitution) => number | null;
+    best?: "higher" | "lower";
+    max?: number; // for color scaling
+  };
+
   const rows: Row[] = [
     { label: t.compare.category, render: (i) => categoryLabel(i.category) },
     { label: t.compare.municipality, render: (i) => i.municipality },
     { label: t.compare.address, render: (i) => `${i.address}, ${i.postalCode} ${i.city}` },
-    { label: t.compare.monthlyRate, render: (i) => formatDKK(i.monthlyRate) },
-    { label: t.compare.annualRate, render: (i) => formatDKK(i.annualRate) },
+    { label: t.compare.monthlyRate, render: (i) => formatDKK(i.monthlyRate), value: (i) => i.monthlyRate ?? null, best: "lower" },
+    { label: t.compare.annualRate, render: (i) => formatDKK(i.annualRate), value: (i) => i.annualRate ?? null, best: "lower" },
     { label: t.compare.type, render: (i) => i.subtype || "–" },
   ];
   if (hasQuality) {
     rows.push(
-      { label: t.compare.wellbeing, render: (i) => i.quality?.ts?.toLocaleString("da-DK") || "–" },
-      { label: t.compare.gradeAvg, render: (i) => i.quality?.k?.toLocaleString("da-DK") || "–" },
-      { label: t.compare.absencePercent, render: (i) => `${i.quality?.fp?.toLocaleString("da-DK") || "–"}%` },
-      { label: t.compare.competenceCoverage, render: (i) => `${i.quality?.kp?.toLocaleString("da-DK") || "–"}%` },
+      { label: t.compare.wellbeing, render: (i) => i.quality?.ts?.toLocaleString("da-DK") || "–", value: (i) => i.quality?.ts ?? null, best: "higher", max: 5 },
+      { label: t.compare.gradeAvg, render: (i) => i.quality?.k?.toLocaleString("da-DK") || "–", value: (i) => i.quality?.k ?? null, best: "higher", max: 12 },
+      { label: t.compare.absencePercent, render: (i) => i.quality?.fp != null ? `${i.quality.fp.toLocaleString("da-DK")}%` : "–", value: (i) => i.quality?.fp ?? null, best: "lower", max: 15 },
+      { label: t.compare.competenceCoverage, render: (i) => i.quality?.kp != null ? `${i.quality.kp.toLocaleString("da-DK")}%` : "–", value: (i) => i.quality?.kp ?? null, best: "higher", max: 100 },
       { label: t.compare.studentCount, render: (i) => i.quality?.el?.toLocaleString("da-DK") || "–" },
       { label: t.compare.classSize, render: (i) => i.quality?.kv?.toLocaleString("da-DK") || "–" },
     );
+  }
+
+  // Precompute winner index per row
+  function getWinnerIdx(row: Row): number | null {
+    if (!row.value || !row.best) return null;
+    const vals = institutions.map((i) => row.value!(i));
+    const valid = vals.filter((v): v is number => v != null);
+    if (valid.length < 2) return null;
+    const target = row.best === "higher" ? Math.max(...valid) : Math.min(...valid);
+    const idx = vals.indexOf(target);
+    // Only mark winner if it's strictly better than at least one other
+    const unique = new Set(valid);
+    return unique.size > 1 ? idx : null;
+  }
+
+  function metricStyle(row: Row, inst: UnifiedInstitution, isWinner: boolean) {
+    if (!row.value) return {};
+    const v = row.value(inst);
+    if (v == null) return {};
+    const style: React.CSSProperties = {};
+    if (row.max) {
+      // For absence (lower is better), invert for color: low absence = green
+      const colorVal = row.best === "lower" ? row.max - v : v;
+      style.color = METRIC_COLOR(colorVal, row.max);
+    }
+    if (isWinner) style.fontWeight = 700;
+    return style;
   }
 
   return (
@@ -160,12 +201,22 @@ export function ComparisonTable({ institutions }: { institutions: UnifiedInstitu
                 <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">{idx + 1}</span>
                 <h3 className="font-display font-semibold text-foreground text-sm truncate">{inst.name}</h3>
               </div>
-              {rows.map((row) => (
-                <div key={row.label} className="flex justify-between gap-2 py-1.5 border-b border-border/50 last:border-0">
-                  <span className="text-xs text-muted shrink-0">{row.label}</span>
-                  <span className="text-sm font-medium text-foreground text-right">{row.render(inst)}</span>
-                </div>
-              ))}
+              {rows.map((row) => {
+                const winnerIdx = getWinnerIdx(row);
+                const isWinner = winnerIdx === idx;
+                return (
+                  <div key={row.label} className="flex justify-between gap-2 py-1.5 border-b border-border/50 last:border-0">
+                    <span className="text-xs text-muted shrink-0">{row.label}</span>
+                    <span
+                      className="text-sm font-medium text-right"
+                      style={metricStyle(row, inst, isWinner)}
+                    >
+                      {isWinner && <span className="mr-1" aria-label="Bedst">✦</span>}
+                      {row.render(inst)}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -191,14 +242,27 @@ export function ComparisonTable({ institutions }: { institutions: UnifiedInstitu
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.label} className="border-b border-border/50">
-                <td className="py-2 px-4 text-muted">{row.label}</td>
-                {institutions.map((i) => (
-                  <td key={i.id} className="py-2 px-4 font-mono">{row.render(i)}</td>
-                ))}
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const winnerIdx = getWinnerIdx(row);
+              return (
+                <tr key={row.label} className="border-b border-border/50">
+                  <td className="py-2 px-4 text-muted">{row.label}</td>
+                  {institutions.map((i, idx) => {
+                    const isWinner = winnerIdx === idx;
+                    return (
+                      <td
+                        key={i.id}
+                        className="py-2 px-4 font-mono"
+                        style={metricStyle(row, i, isWinner)}
+                      >
+                        {isWinner && <span className="mr-1 text-xs" aria-label="Bedst">✦</span>}
+                        {row.render(i)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
