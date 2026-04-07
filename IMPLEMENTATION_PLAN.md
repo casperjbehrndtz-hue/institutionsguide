@@ -33,7 +33,7 @@
 - ~~**P1-SEO-3**: 9 pages + BlogPost missing BreadcrumbList JSON-LD~~ ✅ DONE
 - ~~**P1-SEO-4**: 6 pages missing visible Breadcrumbs~~ ✅ DONE
 - ~~**P1-SEO-5**: CategoryMunicipalityPage contextual intro text~~ ✅ DONE
-- ~~**P1-SEO-6**: og:image~~ ⏳ DEFERRED — requires image generation infrastructure (see P3-2)
+- ~~**P1-SEO-6**: og:image~~ ✅ DONE — default og-image.png (1200×630) on all pages via SEOHead + index.html + prerender
 - ~~**P2-SEO-7**: Title/description length validation~~ ✅ DONE
 - ~~**P2-SEO-8**: Blog TOC~~ ✅ DONE — client-side TOC from H2/H3 headings (see P2-4)
 - ~~**P2-SEO-9**: BlogPost BreadcrumbList JSON-LD~~ ✅ DONE (covered in P1-1)
@@ -195,8 +195,8 @@ Added green/amber/red color coding to quality metrics (wellbeing, grades, absenc
 #### ~~P3-1: "Similar institutions" internal linking on detail pages~~ ✅ DONE
 Added "Lignende institutioner i nærheden" section showing up to 5 nearby same-category institutions with name, address, price, and distance. Links to category/municipality page at bottom.
 
-#### P3-2: Dynamic og:image per page type ⏳ DEFERRED
-**Blocked**: Requires image generation infrastructure (Vercel OG, Satori, or build-time generation). Not achievable without API routes or build-time tooling.
+#### ~~P3-2: og:image on all pages~~ ✅ DONE
+Generated `og-image.png` (1200×630) from SVG using sharp. Updated `index.html` to reference PNG with full absolute URL + width/height + twitter:image. All 1939 pre-rendered pages now have correct og:image meta tags. Dynamic per-page og:image remains a future enhancement (requires Vercel OG/Satori).
 
 #### ~~P3-3: NotFoundPage search + navigation~~ ✅ DONE
 Added search input (navigates to homepage with query), popular category links with icons, and improved layout on 404 page.
