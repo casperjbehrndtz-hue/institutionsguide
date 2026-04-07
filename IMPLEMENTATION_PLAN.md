@@ -4,13 +4,14 @@
 
 ## Status: Active — Generated 2026-04-05
 
-## Backpressure Status (all green — verified 2026-04-06)
+## Backpressure Status (all green — verified 2026-04-07)
 - `npm run build` — 0 errors, 0 warnings, 1939 pages pre-rendered
 - `npx tsc -b` — 0 type errors
 - `npm run test:run` — 117 tests passed (6 files)
 - `console.log` grep — 0 hits
 - ESLint: 53 remaining (36 errors: mostly `any` types at system boundaries; 17 warnings: `exhaustive-deps` + `set-state-in-effect` intentional patterns). Down from 74.
 - Bundle: react-vendor 220KB (known acceptable), chart-vendor 436KB (lazy), map-vendor 187KB (lazy)
+- Files >400 lines: 14 (down from 18). Worst offenders refactored to ≤400.
 
 ---
 
@@ -222,10 +223,13 @@ Replaced "Vis flere" load-more buttons with IntersectionObserver-based infinite 
 **Spec**: performance-code.md says "Data transforms (format.ts, geo.ts) should have tests"
 Added `src/lib/__tests__/dataTransforms.test.ts` with 43 tests covering: formatDKK (null handling, locale formatting), formatNumber, formatDecimal, formatPercent, haversineKm (distance accuracy, symmetry), formatDistance (comma separator, rounding), dagtilbudCategory (all type mappings), schoolToUnified (type conversion, null rejection, efterskole fields, municipality stripping), compactDagtilbudToUnified (field mapping, null handling, prefix). Total test count: 117 (6 files).
 
-#### P4-2: Files over 400 lines ⏳ DEFERRED
+#### P4-2: Files over 400 lines ⏳ PARTIALLY DONE
 **Spec**: performance-code.md says "No files over 400 lines"
-**Status**: 16 files at 408–613 lines remain. Further splitting has diminishing returns — these are page components with tightly coupled UI logic.
-**Blocked**: Architectural — splitting further would create artificial abstractions that harm readability.
+**Round 6**: Refactored 3 worst remaining offenders:
+- `CategoryPage.tsx` (617→400): Extracted `useNormeringMap` hook, `MunicipalityRanking`, `FripladsCTA`, `ViewToggle` components, `categoryConstants.ts` data, shared mapProps
+- `SearchFilterBar.tsx` (581→398): Extracted `MunicipalityCombobox` component, condensed suggestion search + filter pills
+- `FripladsPage.tsx` (573→424): Extracted `FAQAccordion` (shared), `FripladsExplainer`, `FripladsRatesGrid`, `FripladsBottomCTAs`
+**Status**: 14 files at 420-511 lines remain. These are page components with tightly coupled UI logic where further splitting creates artificial abstractions.
 
 #### P4-3: Missing data display ("Ikke opgjort") ⏳ DEFERRED
 **Spec**: data-quality.md says "show 'Ikke opgjort' with explanation — never show blank"

@@ -1,11 +1,15 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Calculator, ArrowRight, Info, ChevronDown, ChevronUp } from "lucide-react";
+import { Calculator, ArrowRight, Info } from "lucide-react";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import FAQAccordion from "@/components/shared/FAQAccordion";
+import FripladsExplainer from "@/components/friplads/FripladsExplainer";
+import FripladsRatesGrid from "@/components/friplads/FripladsRatesGrid";
+import FripladsBottomCTAs from "@/components/friplads/FripladsBottomCTAs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFamily } from "@/contexts/FamilyContext";
 import { calculateFriplads, FRIPLADS_CONSTANTS } from "@/lib/childcare/friplads";
@@ -14,7 +18,7 @@ import { formatDKK } from "@/lib/format";
 import { toSlug } from "@/lib/slugs";
 import type { InstitutionType } from "@/lib/childcare/types";
 import DataFreshness from "@/components/shared/DataFreshness";
-import { FAQ_DA, FAQ_EN, type FAQItem } from "@/lib/fripladsFaqData";
+import { FAQ_DA, FAQ_EN } from "@/lib/fripladsFaqData";
 
 const CATEGORY_LABELS_DA: Record<InstitutionType, string> = {
   vuggestue: "Vuggestue (0-2 år)",
@@ -36,36 +40,6 @@ const CATEGORY_URL_MAP: Record<InstitutionType, string> = {
   dagpleje: "dagpleje",
   sfo: "sfo",
 };
-
-function FAQAccordion({ items }: { items: FAQItem[] }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  return (
-    <div className="space-y-2">
-      {items.map((item, idx) => (
-        <div key={idx} className="card overflow-hidden">
-          <button
-            onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-            className="w-full flex items-center justify-between p-4 text-left hover:bg-bg-muted/50 transition-colors min-h-[44px]"
-            aria-expanded={openIndex === idx}
-          >
-            <span className="font-display text-sm font-semibold text-foreground pr-4">{item.q}</span>
-            {openIndex === idx ? (
-              <ChevronUp className="w-4 h-4 text-muted shrink-0" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-muted shrink-0" />
-            )}
-          </button>
-          {openIndex === idx && (
-            <div className="px-4 pb-4 text-sm text-muted leading-relaxed">
-              {item.a}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function FripladsPage() {
   const { t, language } = useLanguage();
@@ -414,100 +388,22 @@ export default function FripladsPage() {
           </section>
         </ScrollReveal>
 
-        {/* Quick comparison: all categories for this municipality */}
         {rates && (
-          <ScrollReveal>
-            <section className="space-y-4">
-              <h2 className="font-display text-xl font-semibold text-foreground">
-                {isDa ? `Alle takster i ${municipality}` : `All rates in ${municipality}`}
-              </h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {(["vuggestue", "boernehave", "dagpleje", "sfo"] as InstitutionType[]).map((cat) => {
-                  const rate = rates[cat];
-                  if (!rate) return null;
-                  const calc = calculateFriplads(rate, income, singleParent, children, siblingChild ? 1 : 0);
-                  return (
-                    <div
-                      key={cat}
-                      className={`card p-4 space-y-2 cursor-pointer transition-all ${cat === category ? "ring-2 ring-primary" : "hover:border-primary/30"}`}
-                      onClick={() => setCategory(cat)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setCategory(cat); }}
-                      aria-label={`${isDa ? "Vlg" : "Select"} ${categoryLabels[cat]}`}
-                    >
-                      <p className="text-xs font-medium text-muted">{categoryLabels[cat]}</p>
-                      <p className="font-mono text-sm text-foreground">
-                        {isDa ? "Fuld:" : "Full:"} {formatDKK(calc.fullMonthlyRate)}/md.
-                      </p>
-                      <p className="font-mono text-lg font-bold text-primary">
-                        {formatDKK(calc.monthlyPayment)}/md.
-                      </p>
-                      {calc.subsidyPercent > 0 && (
-                        <p className="text-xs text-success">
-                          &minus;{calc.subsidyPercent}%
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          </ScrollReveal>
+          <FripladsRatesGrid
+            rates={rates}
+            municipality={municipality}
+            income={income}
+            singleParent={singleParent}
+            children={children}
+            siblingChild={siblingChild}
+            category={category}
+            onCategoryChange={setCategory}
+            categoryLabels={categoryLabels}
+            isDa={isDa}
+          />
         )}
 
-        {/* Explainer / SEO content */}
-        <ScrollReveal>
-          <section className="space-y-4">
-            <h2 className="font-display text-xl font-semibold text-foreground">
-              {isDa ? "Sadan fungerer fripladstilskud" : "How childcare subsidy works"}
-            </h2>
-            <div className="prose prose-sm text-muted max-w-none space-y-3">
-              {isDa ? (
-                <>
-                  <p>
-                    Fripladstilskud (også kaldet økonomisk friplads) er en statsstøttet rabat på forældrebetalingen
-                    for dagtilbud i Danmark. Ordningen er reguleret i Dagtilbudsloven og administreres af kommunerne.
-                  </p>
-                  <p>
-                    I {FRIPLADS_CONSTANTS.year} beregnes tilskuddet ud fra en skala med 95 indkomsttrin. Familier med en
-                    husstandsindkomst under <strong>{FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr.</strong> får
-                    fuld friplads (gratis pasning), mens familier over <strong>{FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr.</strong> betaler
-                    fuld pris. Imellem de to grænser stiger forældrebetalingen gradvist.
-                  </p>
-                  <p>
-                    Enlige forsørgere får et tillæg på {FRIPLADS_CONSTANTS.singleParentSupplement.toLocaleString("da-DK")} kr. til
-                    indkomstgrænserne, og for hvert barn under 18 ud over det første tillægges {FRIPLADS_CONSTANTS.additionalChildSupplement.toLocaleString("da-DK")} kr.
-                    Det betyder, at større familier og enlige forsørgere kan have gavn af fripladstilskud ved højere indkomster.
-                  </p>
-                  <p>
-                    Taksterne varierer betydeligt fra kommune til kommune. For eksempel kan en vuggestueplads koste fra ca.
-                    33.000 kr./år i de billigste kommuner til over 57.000 kr./år i de dyreste. Brug beregneren ovenfor til
-                    at se de præcise takster for din kommune og beregne dit fripladstilskud.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p>
-                    Fripladstilskud (childcare subsidy) is a government-funded discount on parental fees for
-                    childcare in Denmark. The scheme is regulated by the Day Care Act (Dagtilbudsloven) and
-                    administered by municipalities.
-                  </p>
-                  <p>
-                    In {FRIPLADS_CONSTANTS.year}, the subsidy is calculated using a scale with 95 income brackets. Families
-                    with a household income below <strong>{FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} DKK</strong> receive
-                    full subsidy (free childcare), while families above <strong>{FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} DKK</strong> pay
-                    the full rate. Between these thresholds, the parental payment increases gradually.
-                  </p>
-                  <p>
-                    Rates vary significantly between municipalities. Use the calculator above to see exact
-                    rates for your municipality and calculate your subsidy.
-                  </p>
-                </>
-              )}
-            </div>
-          </section>
-        </ScrollReveal>
+        <FripladsExplainer isDa={isDa} />
 
         {/* FAQ section */}
         <ScrollReveal>
@@ -519,52 +415,7 @@ export default function FripladsPage() {
           </section>
         </ScrollReveal>
 
-        {/* Total cost CTA */}
-        <ScrollReveal>
-          <section className="card p-6 sm:p-8 text-center space-y-4">
-            <h2 className="font-display text-xl font-semibold text-foreground">
-              {isDa ? "Hvad koster børnepasning i alt?" : "What does childcare cost in total?"}
-            </h2>
-            <p className="text-muted text-sm max-w-lg mx-auto">
-              {isDa
-                ? "Se den samlede pris for vuggestue, børnehave og SFO over 10 år i din kommune."
-                : "See the total cost of nursery, kindergarten and after-school care over 10 years in your municipality."}
-            </p>
-            <Link
-              to="/samlet-pris"
-              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors min-h-[44px]"
-            >
-              {isDa ? "Se samlet pris" : "See total cost"}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </section>
-        </ScrollReveal>
-
-        {/* Bottom CTA */}
-        <ScrollReveal>
-          <section className="card p-6 sm:p-8 text-center space-y-4 bg-primary/5">
-            <h2 className="font-display text-xl font-semibold text-foreground">
-              {isDa ? "Find institutioner i din kommune" : "Find childcare in your municipality"}
-            </h2>
-            <p className="text-muted text-sm max-w-lg mx-auto">
-              {isDa
-                ? "Se alle vuggestuer, børnehaver, dagplejere og SFO'er med priser, afstand og beregnet fripladstilskud."
-                : "See all nurseries, kindergartens, childminders and after-school care with prices, distance and calculated subsidy."}
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {(["vuggestue", "boernehave", "dagpleje", "sfo"] as InstitutionType[]).map((cat) => (
-                <Link
-                  key={cat}
-                  to={`/${CATEGORY_URL_MAP[cat]}/${toSlug(municipality)}`}
-                  className="inline-flex items-center gap-1.5 bg-[var(--color-bg-card)] border border-border px-4 py-2 rounded-lg text-sm font-medium text-foreground hover:border-primary hover:text-primary transition-colors min-h-[44px]"
-                >
-                  {categoryLabels[cat].split(" (")[0]}
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              ))}
-            </div>
-          </section>
-        </ScrollReveal>
+        <FripladsBottomCTAs municipality={municipality} categoryLabels={categoryLabels} isDa={isDa} />
 
         <DataFreshness lang={language} />
       </main>
