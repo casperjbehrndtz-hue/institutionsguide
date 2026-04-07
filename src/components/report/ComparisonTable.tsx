@@ -22,6 +22,9 @@ interface Props {
 const SCORE_COLOR = (s: number) =>
   s >= 7 ? "#0d7c5f" : s >= 5 ? "#b8860b" : "#c0392b";
 
+const SCORE_ICON = (s: number) =>
+  s >= 7 ? "▲" : s >= 5 ? "●" : "▼";
+
 export default function ComparisonTable({ current, currentScore, nearby, language: lang }: Props) {
   if (nearby.length === 0) return null;
 
@@ -95,6 +98,7 @@ export default function ComparisonTable({ current, currentScore, nearby, languag
                 <td className="py-3 px-2 text-right">
                   {r.score != null ? (
                     <span className="font-mono font-medium" style={{ color: SCORE_COLOR(r.score) }}>
+                      <span className="text-[10px] mr-0.5" aria-hidden="true">{SCORE_ICON(r.score)}</span>
                       {r.score.toLocaleString("da-DK")}
                     </span>
                   ) : (

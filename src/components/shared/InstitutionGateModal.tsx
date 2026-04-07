@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Lock, Check, X, Loader2 } from "lucide-react";
 import { setInstitutionUnlocked, setSuiteEmail, getSuiteEmail } from "@/lib/institutionGate";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const CAPTURE_URL =
   "https://xahajjypbnrpitzdnpjg.supabase.co/functions/v1/capture-suite-lead";
@@ -35,6 +36,7 @@ export default function InstitutionGateModal({
   const [loading, setLoading] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const trapRef = useFocusTrap<HTMLDivElement>();
 
   // Track gate rejection (user saw modal, closed without submitting)
   const trackRejection = useCallback(() => {
@@ -149,10 +151,11 @@ export default function InstitutionGateModal({
       aria-modal="true"
       aria-label={`Se den fulde profil for ${institutionName}`}
     >
-      <div className="bg-white dark:bg-card sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-md relative animate-in fade-in zoom-in-95 duration-200 overflow-y-auto">
+      <div ref={trapRef} className="bg-white dark:bg-card sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-md relative animate-in fade-in zoom-in-95 duration-200 overflow-y-auto">
         {/* Close button */}
         <button
           onClick={handleClose}
+          data-dismiss
           className="absolute top-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
           aria-label="Luk"
         >
