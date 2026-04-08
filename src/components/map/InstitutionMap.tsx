@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { MapContainer, TileLayer, useMap, useMapEvents, CircleMarker } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
 import { Maximize2, Minimize2 } from "lucide-react";
 import type { UnifiedInstitution } from "@/lib/types";
 import MarkerClusterGroup from "./MarkerClusterGroup";
@@ -8,6 +8,8 @@ import RadiusFilter, { RadiusCircle } from "./RadiusFilter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCompare } from "@/contexts/CompareContext";
 import { useFavorites } from "@/hooks/useFavorites";
+import { FlyToHandler, ZoomTracker, SearchAreaTracker, ViewChangeTracker, ScrollZoomGuard } from "./MapHelpers";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface Props {
   institutions: UnifiedInstitution[];
@@ -69,120 +71,8 @@ function escapeHtml(str: string): string {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-function FlyToHandler({
-  flyTo,
-  onFlyStart,
-}: {
-  flyTo: Props["flyTo"];
-  onFlyStart: () => void;
-}) {
-  const map = useMap();
-  useEffect(() => {
-    if (flyTo) {
-      onFlyStart();
-      map.flyTo([flyTo.lat, flyTo.lng], flyTo.zoom || 13, { duration: 0.4 });
-    }
-  }, [flyTo, map, onFlyStart]);
-  return null;
-}
-
-function ZoomTracker({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
-  const map = useMap();
-  useEffect(() => {
-    onZoomChange(map.getZoom());
-  }, [map, onZoomChange]);
-  useMapEvents({
-    zoomend() {
-      onZoomChange(map.getZoom());
-    },
-  });
-  return null;
-}
-
-function SearchAreaTracker({
-  onShowButton,
-  isProgrammaticRef,
-}: {
-  onShowButton: (show: boolean) => void;
-  isProgrammaticRef: React.RefObject<boolean>;
-}) {
-  useMapEvents({
-    moveend() {
-      if (isProgrammaticRef.current) {
-        isProgrammaticRef.current = false;
-        return;
-      }
-      onShowButton(true);
-    },
-  });
-  return null;
-}
-
-/** Fires onViewChange on moveend so the parent can sync center/zoom to URL */
-function ViewChangeTracker({
-  onViewChange,
-  isProgrammaticRef,
-}: {
-  onViewChange: (center: { lat: number; lng: number }, zoom: number) => void;
-  isProgrammaticRef: React.RefObject<boolean>;
-}) {
-  const map = useMap();
-  useMapEvents({
-    moveend() {
-      // Skip programmatic moves (flyTo) - SearchAreaTracker resets the flag
-      if (isProgrammaticRef.current) return;
-      const c = map.getCenter();
-      onViewChange({ lat: c.lat, lng: c.lng }, map.getZoom());
-    },
-  });
-  return null;
-}
-
-function ScrollZoomGuard() {
-  const map = useMap();
-  useEffect(() => {
-    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-
-    if (isTouchDevice) {
-      map.scrollWheelZoom.disable();
-      return;
-    }
-
-    // Enable scroll zoom on hover, disable on leave
-    const container = map.getContainer();
-    map.scrollWheelZoom.disable();
-
-    function handleEnter() { map.scrollWheelZoom.enable(); }
-    function handleLeave() { map.scrollWheelZoom.disable(); }
-
-    container.addEventListener("mouseenter", handleEnter);
-    container.addEventListener("mouseleave", handleLeave);
-    return () => {
-      container.removeEventListener("mouseenter", handleEnter);
-      container.removeEventListener("mouseleave", handleLeave);
-      map.scrollWheelZoom.enable();
-    };
-  }, [map]);
-  return null;
-}
-
 const TILE_LIGHT = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 const TILE_DARK = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-
-function useDarkMode(): boolean {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains("dark")
-  );
-  useEffect(() => {
-    const el = document.documentElement;
-    const observer = new MutationObserver(() => {
-      setDark(el.classList.contains("dark"));
-    });
-    observer.observe(el, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
-  return dark;
-}
 
 function InstitutionMap({
   institutions,
