@@ -25,6 +25,7 @@ import {
   getRecommendation,
 } from "@/lib/guideEngine";
 import GuideResults from "@/components/guide/GuideResults";
+import DataFreshness from "@/components/shared/DataFreshness";
 
 export default function GuidePage() {
   const { language } = useLanguage();
@@ -390,6 +391,8 @@ export default function GuidePage() {
           </div>
         )}
       </main>
+
+      <DataFreshness />
     </>
   );
 }
