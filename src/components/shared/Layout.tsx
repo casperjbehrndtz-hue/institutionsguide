@@ -5,6 +5,7 @@ import SuiteBar from "./SuiteBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import CookieConsent from "./CookieConsent";
+import BackToTop from "./BackToTop";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const { t } = useLanguage();
@@ -22,6 +23,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       </header>
       <main id="main-content" className={`flex-1 page-fade-in ${hasCompareItems ? "pb-24" : ""}`}>{children}</main>
       <Footer />
+      <BackToTop />
       <CookieConsent />
     </div>
   );
