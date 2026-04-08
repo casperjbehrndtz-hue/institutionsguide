@@ -165,6 +165,14 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 41 — TIER 10: Price position bars on institution cards
+**Ændringer**: CategoryMunicipalityPage — each card now shows a color-coded bar (green/yellow/red) indicating where the price falls in the range
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
+### Iteration 40 — TIER 10: Annual savings callout on CheapestPage
+**Ændringer**: CheapestPage — prominent green card showing "Potentiel besparelse: X kr./år" with AnimatedNumber count-up
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 39 — TIER 10: Gold/silver/bronze medal styling on ranking pages
 **Ændringer**: RankedCard, BestSchoolPage, BestValuePage — top 3 entries show medal emojis + colored bg (amber/gray/orange)
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
@@ -181,7 +189,7 @@
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
-- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars, #1 highlighting, ScrollReveal animations, animated number count-up on stat cards (4 pages)
+- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars, #1 highlighting, ScrollReveal animations, animated number count-up on stat cards (4 pages), medal styling on ranking top 3, annual savings callout, price position bars on cards
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 10 (more visible UX improvements)
