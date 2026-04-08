@@ -73,7 +73,7 @@ export default function InstitutionChat({ institutionId, category, context, lang
     } finally {
       setInsightLoading(false);
     }
-  }, [institutionId, context, language]);
+  }, [institutionId, context, language, hasData]);
 
   useEffect(() => {
     fetchInsight();

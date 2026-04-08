@@ -207,15 +207,15 @@ function InstitutionMap({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const isProgrammaticRef = useRef(false);
   const { t, language } = useLanguage();
-  const { addToCompare, isInCompare } = useCompare();
-  const { toggleFavorite, isFavorite } = useFavorites();
+  const { addToCompare } = useCompare();
+  const { toggleFavorite } = useFavorites();
   const isDark = useDarkMode();
 
   // Capture initial values once so MapContainer does not re-render
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const mapCenter = useMemo<[number, number]>(() => [
     initialCenter?.lat ?? 55.7,
     initialCenter?.lng ?? 10.8,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   ], []);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mapZoom = useMemo(() => initialZoom ?? 8, []);
@@ -343,7 +343,7 @@ function InstitutionMap({
 </div>`,
         };
       }),
-    [institutions, t, language, isFavorite, isInCompare, isDark]
+    [institutions, t, language, isDark]
   );
 
 

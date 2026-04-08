@@ -106,7 +106,7 @@ export default function GuidePage() {
       return { monthlyFull, monthlyAfter: result.monthlyPayment, subsidyPercent: result.subsidyPercent, hasFriplads: result.subsidyPercent > 0 };
     }
     return { monthlyFull, monthlyAfter: null, subsidyPercent: 0, hasFriplads: false };
-  }, [rates, recommendation.primary, wizard.income, validMunicipality]);
+  }, [rates, recommendation.primary, wizard.income]);
 
   // Step icons for progress
   const stepIcons = [Baby, CheckCircle2, MapPin, Wallet, Star];
