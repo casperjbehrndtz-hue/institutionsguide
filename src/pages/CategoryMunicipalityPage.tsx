@@ -350,18 +350,29 @@ function InstitutionCard({ inst }: { inst: UnifiedInstitution }) {
   return (
     <Link
       to={`/institution/${inst.id}`}
-      className="text-left card p-4 transition-transform min-h-[44px] block"
+      className="text-left card p-4 transition-transform min-h-[44px] block hover:shadow-md"
     >
-      <p className="font-semibold text-foreground text-sm">{inst.name}</p>
-      <p className="text-xs text-muted">{inst.address}, {inst.postalCode} {inst.city}</p>
-      {inst.ownership && (
-        <span className="inline-block mt-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-          {inst.ownership}
+      <div className="flex justify-between items-start gap-2">
+        <div className="min-w-0">
+          <p className="font-semibold text-foreground text-sm truncate">{inst.name}</p>
+          <p className="text-xs text-muted truncate">{inst.address}, {inst.postalCode} {inst.city}</p>
+        </div>
+        {inst.quality?.r !== undefined && (
+          <span className="shrink-0 text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+            {inst.quality.r.toLocaleString("da-DK", { maximumFractionDigits: 1 })}/5
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-2 mt-2">
+        {inst.ownership && (
+          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
+            {inst.ownership}
+          </span>
+        )}
+        <span className="font-mono text-sm text-primary font-medium ml-auto">
+          {inst.monthlyRate ? `${formatDKK(inst.monthlyRate)}/md` : "Pris ikke tilgængelig"}
         </span>
-      )}
-      <p className="font-mono text-sm text-primary mt-1">
-        {inst.monthlyRate ? `${formatDKK(inst.monthlyRate)}/md` : "Pris ikke tilgængelig"}
-      </p>
+      </div>
     </Link>
   );
 }
