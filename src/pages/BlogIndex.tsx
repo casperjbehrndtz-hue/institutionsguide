@@ -6,6 +6,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { Calendar, ArrowRight, BookOpen, Clock } from "lucide-react";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 
 interface BlogPostSummary {
   slug: string;
@@ -93,7 +94,7 @@ export default function BlogIndex() {
       ]} />
 
       {/* Hero */}
-      <section className="px-4 py-10 sm:py-14 bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 bg-gradient-to-b from-primary/5 to-transparent">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
@@ -109,7 +110,7 @@ export default function BlogIndex() {
               : "Articles about childcare, schools, staff ratios and subsidies — written for parents choosing the best for their child."}
           </p>
         </div>
-      </section>
+      </section></ScrollReveal>
 
       {/* Article list */}
       <main className="max-w-3xl mx-auto px-4 py-8">

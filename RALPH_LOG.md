@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 60 — TIER 10: ScrollReveal on AboutPage
+**Ændringer**: Data sources, FAQ, and contact sections wrapped in ScrollReveal
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 59 — TIER 10: Row numbering on NormeringPage kommune table
 **Ændringer**: Added # column + row index to normering kommune ranking table
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
