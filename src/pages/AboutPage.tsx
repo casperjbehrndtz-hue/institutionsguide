@@ -4,6 +4,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 
 const DATA_SOURCES = [
   {
@@ -117,7 +118,7 @@ export default function AboutPage() {
         </div>
 
         {/* Data sources */}
-        <h2 className="font-display text-2xl font-bold text-foreground mb-4">
+        <ScrollReveal><h2 className="font-display text-2xl font-bold text-foreground mb-4">
           {isDa ? "Vores datakilder" : "Our data sources"}
         </h2>
         <div className="space-y-3 mb-12">
@@ -137,10 +138,10 @@ export default function AboutPage() {
               </p>
             </div>
           ))}
-        </div>
+        </div></ScrollReveal>
 
         {/* FAQ */}
-        <h2 className="font-display text-2xl font-bold text-foreground mb-4">
+        <ScrollReveal><h2 className="font-display text-2xl font-bold text-foreground mb-4">
           {isDa ? "Ofte stillede spørgsmål" : "Frequently asked questions"}
         </h2>
         <div className="space-y-4 mb-12">
@@ -163,10 +164,10 @@ export default function AboutPage() {
               </p>
             </details>
           ))}
-        </div>
+        </div></ScrollReveal>
 
         {/* Contact */}
-        <h2 className="font-display text-2xl font-bold text-foreground mb-4">
+        <ScrollReveal><h2 className="font-display text-2xl font-bold text-foreground mb-4">
           {isDa ? "Kontakt" : "Contact"}
         </h2>
         <div className="card p-6 mb-8">
@@ -181,7 +182,7 @@ export default function AboutPage() {
           >
             kontakt@institutionsguiden.dk
           </a>
-        </div>
+        </div></ScrollReveal>
 
         <div className="mt-8">
           <Link to="/" className="text-primary hover:underline font-medium">

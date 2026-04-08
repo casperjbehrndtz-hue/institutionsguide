@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 59 — TIER 10: Row numbering on NormeringPage kommune table
+**Ændringer**: Added # column + row index to normering kommune ranking table
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 58 — TIER 10: AnimatedNumber on GymnasiumPage hero count
 **Ændringer**: GymnasiumPage — hero institution count animates from 0 on scroll
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
