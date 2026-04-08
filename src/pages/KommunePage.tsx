@@ -83,6 +83,20 @@ export default function KommunePage() {
     return map;
   }, [munInstitutions]);
 
+  // Average price per category for price indicator
+  const categoryAvgPrices = useMemo(() => {
+    const avg: Record<string, number> = {};
+    for (const cat of CATEGORIES) {
+      const prices = munInstitutions
+        .filter((i) => i.category === cat && i.monthlyRate && i.monthlyRate > 0)
+        .map((i) => i.monthlyRate!);
+      if (prices.length > 0) {
+        avg[cat] = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+      }
+    }
+    return avg;
+  }, [munInstitutions]);
+
   const nearbyMunicipalities = useMemo(() => {
     const idx = municipalities.findIndex((m) => m.municipality === decodedName);
     if (idx === -1) return [];
@@ -300,11 +314,28 @@ export default function KommunePage() {
                         </span>
                       )}
                     </div>
-                    <p className="font-mono text-sm text-primary mt-2">
-                      {inst.category === "efterskole" && inst.yearlyPrice
-                        ? `${formatDKK(inst.yearlyPrice)}${language === "da" ? "/år" : "/year"}`
-                        : `${formatDKK(inst.monthlyRate)}${t.common.perMonth}`}
-                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="font-mono text-sm text-primary">
+                        {inst.category === "efterskole" && inst.yearlyPrice
+                          ? `${formatDKK(inst.yearlyPrice)}${language === "da" ? "/år" : "/year"}`
+                          : `${formatDKK(inst.monthlyRate)}${t.common.perMonth}`}
+                      </span>
+                      {inst.monthlyRate && inst.monthlyRate > 0 && categoryAvgPrices[inst.category] && (
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                          inst.monthlyRate < categoryAvgPrices[inst.category] * 0.95
+                            ? "bg-success/10 text-success"
+                            : inst.monthlyRate > categoryAvgPrices[inst.category] * 1.05
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-border/50 text-muted"
+                        }`}>
+                          {inst.monthlyRate < categoryAvgPrices[inst.category] * 0.95
+                            ? (language === "da" ? "Under gns." : "Below avg.")
+                            : inst.monthlyRate > categoryAvgPrices[inst.category] * 1.05
+                            ? (language === "da" ? "Over gns." : "Above avg.")
+                            : (language === "da" ? "Tæt på gns." : "Near avg.")}
+                        </span>
+                      )}
+                    </div>
                   </button>
                 ))}
               </div>
