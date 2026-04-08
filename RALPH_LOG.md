@@ -165,6 +165,13 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 44 — TIER 10: Remove all emojis from UI
+**Ændringer**: RankedCard (border-accent instead of medal emojis), BestSchoolPage, BestValuePage (same), MatchCard (#1/#2/#3 instead of emojis), NotFoundPage (text-only category links)
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
+### Iteration 43 — User feedback: professional Danske Bank-style design
+**Feedback gemt**: Design skal være professionelt og Danske Bank-agtigt, ingen emojis, intet AI-slop
+
 ### Iteration 42 — TIER 10: Animated institution count on hero sections
 **Ændringer**: HeroSection (homepage), CategoryPage, KommunePage — institution count animates from 0 on scroll
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
