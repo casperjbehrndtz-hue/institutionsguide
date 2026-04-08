@@ -33,6 +33,8 @@ import SEOLinks from "@/components/home/SEOLinks";
 import CategoryCards from "@/components/home/CategoryCards";
 import HeroSection from "@/components/home/HeroSection";
 import { getCategoryCards } from "@/lib/homeCategoryCards";
+import { useCategoryStats } from "@/hooks/useCategoryStats";
+import { usePopularData } from "@/hooks/usePopularData";
 
 const HERO_VIDEOS: { src: string; focus: string }[] = [
   { src: "/hero-1.mp4", focus: "90%" },
@@ -139,26 +141,7 @@ export default function HomePage() {
   }
 
 
-  // Compute category stats from real data
-  const categoryStats = useMemo(() => {
-    const stats: Record<string, { count: number; minPrice: number | null; minYearlyPrice: number | null }> = {};
-    for (const inst of institutions) {
-      const cat = inst.category;
-      if (!stats[cat]) stats[cat] = { count: 0, minPrice: null, minYearlyPrice: null };
-      stats[cat].count++;
-      if (inst.monthlyRate && inst.monthlyRate > 0) {
-        if (stats[cat].minPrice === null || inst.monthlyRate < stats[cat].minPrice!) {
-          stats[cat].minPrice = inst.monthlyRate;
-        }
-      }
-      if (inst.yearlyPrice && inst.yearlyPrice > 0) {
-        if (stats[cat].minYearlyPrice === null || inst.yearlyPrice < stats[cat].minYearlyPrice!) {
-          stats[cat].minYearlyPrice = inst.yearlyPrice;
-        }
-      }
-    }
-    return stats;
-  }, [institutions]);
+  const categoryStats = useCategoryStats(institutions);
 
   const { featured: FEATURED_CARDS, other: OTHER_CARDS } = getCategoryCards(t, language);
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
@@ -177,26 +160,7 @@ export default function HomePage() {
   }, [hasActiveFilter, radiusFiltered]);
 
 
-  // Compute popular searches data from real institutions
-  const popularData = useMemo(() => {
-    if (!institutions.length) return null;
-
-    // Best schools by trivsel (well-being)
-    const bestTrivsel = institutions
-      .filter((i) => i.category === "skole" && i.quality?.ts != null && i.quality.ts > 0)
-      .sort((a, b) => (b.quality!.ts! - a.quality!.ts!))
-      .slice(0, 4)
-      .map((s) => ({ id: s.id, navn: s.name, score: s.quality!.ts! }));
-
-    // Best schools by grade average
-    const bestSchools = institutions
-      .filter((i) => i.category === "skole" && i.quality?.k != null && i.quality.k > 0)
-      .sort((a, b) => (b.quality!.k! - a.quality!.k!))
-      .slice(0, 4)
-      .map((s) => ({ id: s.id, navn: s.name, score: s.quality!.k! }));
-
-    return { bestTrivsel, bestSchools };
-  }, [institutions]);
+  const popularData = usePopularData(institutions);
 
   if (loading) {
     return (
