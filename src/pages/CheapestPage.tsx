@@ -18,6 +18,7 @@ import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataAttribution from "@/components/shared/DataAttribution";
 import DataFreshness from "@/components/shared/DataFreshness";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { dataVersions } from "@/lib/dataVersions";
 
 export default function CheapestPage() {
@@ -173,6 +174,21 @@ export default function CheapestPage() {
           </p>
         )}
       </section></ScrollReveal>
+
+      {/* Savings callout */}
+      {savings !== null && savings > 0 && (
+        <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-4">
+          <div className="card p-5 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800 text-center">
+            <p className="text-xs text-green-700 dark:text-green-400 uppercase tracking-wider font-semibold mb-1">Potentiel besparelse</p>
+            <p className="font-display text-3xl font-bold text-green-700 dark:text-green-400">
+              <AnimatedNumber value={savings * 12} format={formatDKK} /><span className="text-lg font-normal">/år</span>
+            </p>
+            <p className="text-sm text-green-600 dark:text-green-500 mt-1">
+              ved at vælge {sorted[0].name} frem for {sorted[sorted.length - 1].name}
+            </p>
+          </div>
+        </section></ScrollReveal>
+      )}
 
       {/* Fripladstilskud hint */}
       <section className="max-w-3xl mx-auto px-4 py-4">
