@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 65 — TIER 10: ShareButton on KommunePage
+**Ændringer**: KommunePage — ShareButton in hero section
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 64 — TIER 10: ShareButton on FripladsPage
 **Ændringer**: FripladsPage — ShareButton in hero section
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226

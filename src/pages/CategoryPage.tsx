@@ -10,6 +10,7 @@ import { useNormeringMap } from "@/hooks/useNormeringMap";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
+import ShareButton from "@/components/shared/ShareButton";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import CompareBar from "@/components/compare/CompareBar";
@@ -216,7 +217,10 @@ export default function CategoryPage({ category }: Props) {
       ]} />
 
       {/* Category header */}
-      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+        <div className="absolute top-4 right-4">
+          <ShareButton title={categoryTitle} url={`/${category}`} />
+        </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {categoryTitle}
         </h1>
