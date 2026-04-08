@@ -23,10 +23,10 @@ function gradeLabel(grade: string | null, lang: "da" | "en"): string {
   return labels[grade]?.[lang] ?? grade;
 }
 
-const MEDAL_STYLES: Record<number, { bg: string; border: string; icon: string }> = {
-  1: { bg: "bg-amber-50 dark:bg-amber-900/20", border: "border-amber-300 dark:border-amber-700", icon: "🥇" },
-  2: { bg: "bg-gray-50 dark:bg-gray-800/30", border: "border-gray-300 dark:border-gray-600", icon: "🥈" },
-  3: { bg: "bg-orange-50 dark:bg-orange-900/20", border: "border-orange-300 dark:border-orange-700", icon: "🥉" },
+const TOP_RANK_STYLES: Record<number, string> = {
+  1: "border-l-4 border-l-primary bg-primary/[0.03]",
+  2: "border-l-4 border-l-primary/50",
+  3: "border-l-4 border-l-primary/30",
 };
 
 export default function RankedCard({
@@ -41,13 +41,12 @@ export default function RankedCard({
   const { inst, score } = entry;
   const badgeColor = scoreBadgeColor(score.overall);
   const keyMetrics = score.metrics.slice(0, 3);
-  const medal = MEDAL_STYLES[rank];
 
   return (
-    <div className={`card p-4 flex flex-col sm:flex-row sm:items-center gap-3 ${medal ? `${medal.bg} ${medal.border}` : ""}`}>
+    <div className={`card p-4 flex flex-col sm:flex-row sm:items-center gap-3 ${TOP_RANK_STYLES[rank] ?? ""}`}>
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm">
-          {medal ? medal.icon : rank}
+        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm font-mono">
+          {rank}
         </span>
         <div className="min-w-0">
           <Link

@@ -167,17 +167,17 @@ export default function BestSchoolPage() {
         <div className="space-y-3">
           {top5.map((school, idx) => {
             const badge = qualityBadge(school.quality?.r);
-            const medal = idx === 0 ? { bg: "bg-amber-50 dark:bg-amber-900/20", border: "border-amber-300 dark:border-amber-700", icon: "\u{1F947}" } :
-                          idx === 1 ? { bg: "bg-gray-50 dark:bg-gray-800/30", border: "border-gray-300 dark:border-gray-600", icon: "\u{1F948}" } :
-                          idx === 2 ? { bg: "bg-orange-50 dark:bg-orange-900/20", border: "border-orange-300 dark:border-orange-700", icon: "\u{1F949}" } : null;
+            const topStyle = idx === 0 ? "border-l-4 border-l-primary bg-primary/[0.03]" :
+                             idx === 1 ? "border-l-4 border-l-primary/50" :
+                             idx === 2 ? "border-l-4 border-l-primary/30" : "";
             return (
               <div
                 key={school.id}
-                className={`card p-4 flex flex-col sm:flex-row sm:items-center gap-3 ${medal ? `${medal.bg} ${medal.border}` : ""}`}
+                className={`card p-4 flex flex-col sm:flex-row sm:items-center gap-3 ${topStyle}`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm">
-                    {medal ? medal.icon : idx + 1}
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm font-mono">
+                    {idx + 1}
                   </span>
                   <div className="min-w-0">
                     <Link
