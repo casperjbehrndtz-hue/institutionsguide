@@ -1,7 +1,8 @@
-import { useRef } from "react";
+import { useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Search, MapPin, SlidersHorizontal, Loader2 } from "lucide-react";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 
 interface HeroSectionProps {
   heroVideo: { src: string; focus: string };
@@ -21,6 +22,7 @@ export default function HeroSection({
   language, heroTitle, heroSubtitle, institutionCount, municipalityCount,
 }: HeroSectionProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const formatCount = useCallback((n: number) => Math.round(n).toLocaleString("da-DK"), []);
 
   return (
     <section className="relative overflow-hidden bg-primary">
@@ -87,8 +89,8 @@ export default function HeroSection({
 
         <p className="text-[12px] sm:text-[13px] text-white/50 mt-5 font-medium tracking-wide">
           {language === "da"
-            ? `${institutionCount.toLocaleString("da-DK")} institutioner · ${municipalityCount} kommuner · Opdateret ${formatDataDate(dataVersions.overall.lastUpdated, "da")}`
-            : `${institutionCount.toLocaleString("da-DK")} institutions · ${municipalityCount} municipalities · Updated ${formatDataDate(dataVersions.overall.lastUpdated, "en")}`}
+            ? <><AnimatedNumber value={institutionCount} format={formatCount} duration={1200} /> institutioner · {municipalityCount} kommuner · Opdateret {formatDataDate(dataVersions.overall.lastUpdated, "da")}</>
+            : <><AnimatedNumber value={institutionCount} format={formatCount} duration={1200} /> institutions · {municipalityCount} municipalities · Updated {formatDataDate(dataVersions.overall.lastUpdated, "en")}</>}
         </p>
       </div>
     </section>

@@ -185,7 +185,7 @@ export default function KommunePage() {
           {t.municipality.institutionsIn} {decodedName}
         </p>
         <p className="font-mono text-primary text-lg font-semibold">
-          {munInstitutions.length.toLocaleString("da-DK")} {t.common.institutions}
+          <AnimatedNumber value={munInstitutions.length} /> {t.common.institutions}
         </p>
       </section></ScrollReveal>
 

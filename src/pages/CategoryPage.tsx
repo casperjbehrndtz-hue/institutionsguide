@@ -9,6 +9,7 @@ import { useMapParams } from "@/hooks/useMapParams";
 import { useNormeringMap } from "@/hooks/useNormeringMap";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import CompareBar from "@/components/compare/CompareBar";
@@ -223,7 +224,7 @@ export default function CategoryPage({ category }: Props) {
           {t.categoryDescriptions[category]}
         </p>
         <p className="font-mono text-primary text-lg font-semibold">
-          {filtered.length.toLocaleString("da-DK")} {t.common.institutions}
+          <AnimatedNumber value={filtered.length} /> {t.common.institutions}
         </p>
         <DataFreshness />
       </section></ScrollReveal>
