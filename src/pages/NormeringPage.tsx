@@ -8,6 +8,8 @@ import JsonLd from "@/components/shared/JsonLd";
 import { toSlug } from "@/lib/slugs";
 import DataFreshness from "@/components/shared/DataFreshness";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
+import ShareButton from "@/components/shared/ShareButton";
 import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import NormeringTrendChart from "@/components/charts/NormeringTrendChart";
 
@@ -226,12 +228,15 @@ export default function NormeringPage() {
       />
 
       {/* Header */}
-      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+        <div className="absolute top-4 right-4">
+          <ShareButton title="Normering i danske dagtilbud" url="/normering" />
+        </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           Normering i danske dagtilbud
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">
-          Oversigt over normering (børn per voksen) i alle {kommuneRows.length} kommuner.
+          Oversigt over normering (børn per voksen) i alle <AnimatedNumber value={kommuneRows.length} /> kommuner.
           Lavere tal = bedre normering. Data for {latestYear}.
         </p>
         <DataFreshness />

@@ -218,6 +218,14 @@
 
 ---
 
+### Iteration 62 — TIER 10: ShareButton on CategoryMunicipalityPage
+**Ændringer**: CategoryMunicipalityPage — ShareButton in hero section
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
+### Iteration 61 — TIER 10: ScrollReveal on BlogIndex hero
+**Ændringer**: BlogIndex — hero section wrapped in ScrollReveal
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 60 — TIER 10: ScrollReveal on AboutPage
 **Ændringer**: Data sources, FAQ, and contact sections wrapped in ScrollReveal
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
