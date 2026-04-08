@@ -218,7 +218,15 @@
 
 ---
 
-### Iteration 81 — TIER 10: Consistent section separators + max-w-5xl
+### Iteration 84 — TIER 8: Tests for fripladsFaqData
+**Ændringer**: 1 new test file, 3 new tests (DA/EN item count, q/a presence)
+**Verifikation**: tests: 254/254 across 24 files
+
+### Iteration 83 — TIER 9: role=search on hero search bar
+**Ændringer**: HeroSection — search container now has role="search" for screen readers
+**Verifikation**: tsc: ✓ | tests: 251/251
+
+### Iteration 82 — TIER 10: Consistent section separators + max-w-5xl
 **Ændringer**: PopularSearches, UseCases, HomeToolsSection — border-t border-border/30, HomeToolsSection widened to max-w-5xl
 **Verifikation**: tsc: ✓ | tests: 251/251
 
@@ -350,7 +358,7 @@
 - **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings** ✅✅
 - **Files over 400 lines**: 14 → reduced (CheapestPage 413→373, BestDagtilbudPage 446→412, BestSchoolPage 426→361)
 - **Build**: green throughout, 1939 pages pre-rendered
-- **Tests**: 117 → **251** across 23 files (was 6 files)
+- **Tests**: 117 → **254** across 24 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers, scope=col on all tables, role=table on all tables
 - **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages), AnimatedNumber on stat cards + hero counters, ShareButton on 10+ pages, row numbering, DataFreshness on GuidePage, **homepage redesign** (premium category cards, trust stats, daycare-focused popular searches)
 - **Dark mode**: Fixed info cards (CheapestPage, InstitutionSidebar), favorite button hover states (5 components incl. ComparePage), VsPage price winner card, homepage category cards
