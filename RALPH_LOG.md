@@ -218,6 +218,26 @@
 
 ---
 
+### Iteration 75 — TIER 10: DataFreshness on GuidePage
+**Ændringer**: GuidePage — added DataFreshness component
+**Verifikation**: tsc: ✓ | tests: 242/242
+
+### Iteration 74 — TIER 9: Dark mode fix ComparePage remove button
+**Ændringer**: ComparePage — hover:bg-red-100 → + dark:hover:bg-red-950/30
+**Verifikation**: tsc: ✓ | tests: 242/242
+
+### Iteration 73 — TIER 7: Extract PriceAnalysis from CheapestPage (413→373)
+**Ændringer**: Created src/components/cheapest/PriceAnalysis.tsx, reduced CheapestPage
+**Verifikation**: tsc: ✓ | tests: 242/242
+
+### Iteration 72 — TIER 8: Tests for bedsteCategories + categoryConstants
+**Ændringer**: 2 new test files, 16 new tests (category validation, label completeness)
+**Verifikation**: tests: 242/242 across 21 files
+
+### Iteration 71 — TIER 9: scope=col + role=table on remaining tables
+**Ændringer**: BestValuePage, NormeringPage, VsPage, GuideResults, ComparisonTable, TotalCostComparison — added scope="col" and role="table"
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 70 — TIER 9: Table accessibility (role=table, scope=col)
 **Ændringer**: BestSchoolPage, BestValuePage, CheapestPage, NormeringPage, VsPage — added role="table" and scope="col" to table headers
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
@@ -302,12 +322,12 @@
 
 ## Running totals
 - **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings** ✅✅
-- **Files over 400 lines**: 14 → 4 (DataContext 511, insights 477, HomePage 447, InstitutionPage 438) — BestDagtilbudPage 446→412, BestSchoolPage 426→361
+- **Files over 400 lines**: 14 → reduced (CheapestPage 413→373, BestDagtilbudPage 446→412, BestSchoolPage 426→361)
 - **Build**: green throughout, 1939 pages pre-rendered
-- **Tests**: 117 → **226** across 19 files (was 6 files)
-- **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
-- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages incl. HomePage, ComparePage, FindPage, AboutPage, BlogIndex), AnimatedNumber on stat cards + hero counters (GymnasiumPage, NormeringPage), professional border-accent ranking, annual savings callout, price position bars, price indicator tags, ShareButton on 10+ pages, row numbering on PrissammenligningPage + NormeringPage
-- **Dark mode**: Fixed info cards (CheapestPage, InstitutionSidebar), favorite button hover states (4 components), VsPage price winner card
+- **Tests**: 117 → **242** across 21 files (was 6 files)
+- **Accessibility**: aria-labels, dialog roles, type="search", sticky headers, scope=col on all tables, role=table on all tables
+- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages), AnimatedNumber on stat cards + hero counters, ShareButton on 10+ pages, row numbering, DataFreshness on GuidePage
+- **Dark mode**: Fixed info cards (CheapestPage, InstitutionSidebar), favorite button hover states (5 components incl. ComparePage), VsPage price winner card
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 10 UX improvements + explore TIER 8 tests
