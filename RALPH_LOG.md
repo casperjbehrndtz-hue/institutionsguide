@@ -218,6 +218,24 @@
 
 ---
 
+### Iteration 78 — TIER 8: Tests for finderPresets
+**Ændringer**: 1 new test file, 5 new tests (preset structure, unique IDs, positive weights, school/daycare coverage)
+**Verifikation**: tests: 247/247 across 22 files
+
+### Iteration 77 — TIER 10: Homepage redesign — professional premium layout
+**Ændringer**: Major homepage overhaul:
+- homeCategoryCards.ts: Skoler/Vuggestuer/Børnehaver as 3 featured (was Skoler/Efterskoler), metric field added
+- CategoryCards.tsx: Redesigned with accent bars, stat rows, rounded-2xl, larger spacing
+- HeroSection.tsx: Trust stats as 3 separated columns, more breathing room (py-20), larger search
+- PopularSearches.tsx: Now 6 cards incl. cheapest vuggestuer/børnehaver
+- UseCases.tsx: 4-column grid with icons (prices, schools, normering, friplads)
+- usePopularData.ts: Added cheapestVuggestue + cheapestBoernehave data
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 247/247 | build: ✓ (1939 pages)
+
+### Iteration 76 — TIER 9: scope=col on all remaining table headers
+**Ændringer**: BestValuePage, NormeringPage, VsPage, GuideResults, ComparisonTable, TotalCostComparison + role="table" on 3 missing tables + dark mode fix on ComparePage remove button
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226→242/242
+
 ### Iteration 75 — TIER 10: DataFreshness on GuidePage
 **Ændringer**: GuidePage — added DataFreshness component
 **Verifikation**: tsc: ✓ | tests: 242/242
@@ -324,10 +342,10 @@
 - **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings** ✅✅
 - **Files over 400 lines**: 14 → reduced (CheapestPage 413→373, BestDagtilbudPage 446→412, BestSchoolPage 426→361)
 - **Build**: green throughout, 1939 pages pre-rendered
-- **Tests**: 117 → **242** across 21 files (was 6 files)
+- **Tests**: 117 → **247** across 22 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers, scope=col on all tables, role=table on all tables
-- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages), AnimatedNumber on stat cards + hero counters, ShareButton on 10+ pages, row numbering, DataFreshness on GuidePage
-- **Dark mode**: Fixed info cards (CheapestPage, InstitutionSidebar), favorite button hover states (5 components incl. ComparePage), VsPage price winner card
+- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages), AnimatedNumber on stat cards + hero counters, ShareButton on 10+ pages, row numbering, DataFreshness on GuidePage, **homepage redesign** (premium category cards, trust stats, daycare-focused popular searches)
+- **Dark mode**: Fixed info cards (CheapestPage, InstitutionSidebar), favorite button hover states (5 components incl. ComparePage), VsPage price winner card, homepage category cards
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 10 UX improvements + explore TIER 8 tests
