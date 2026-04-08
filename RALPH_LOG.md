@@ -165,6 +165,10 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 39 — TIER 10: Gold/silver/bronze medal styling on ranking pages
+**Ændringer**: RankedCard, BestSchoolPage, BestValuePage — top 3 entries show medal emojis + colored bg (amber/gray/orange)
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 38 — TIER 10: AnimatedNumber count-up on stat cards
 **Ændringer**: Created AnimatedNumber.tsx (IntersectionObserver + rAF with ease-out cubic), applied to stat cards on CategoryMunicipalityPage (4 price stats), KommunePage (4 rate cards), PrissammenligningPage (4 national averages), BestValuePage (2 stat cards)
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
