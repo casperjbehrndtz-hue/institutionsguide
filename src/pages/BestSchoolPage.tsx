@@ -361,7 +361,15 @@ function SchoolRow({
         </div>
       </td>
       <td className="py-3 pr-2 font-mono text-center font-semibold">
-        {formatNum(q?.r)}
+        <div className="flex items-center justify-center gap-1.5">
+          <div className="hidden sm:block w-10 h-1.5 bg-border/50 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary/60 rounded-full"
+              style={{ width: `${(q?.r ?? 0) / 5 * 100}%` }}
+            />
+          </div>
+          {formatNum(q?.r)}
+        </div>
       </td>
       <td className={`py-3 pr-2 font-mono text-center ${colorClass(q?.ts, nationalAverages.trivsel)}`}>
         {formatNum(q?.ts)}
