@@ -18,9 +18,7 @@ function scoreColor(score: number): string {
 }
 
 function rankBadge(rank: number): string | null {
-  if (rank === 1) return "🥇";
-  if (rank === 2) return "🥈";
-  if (rank === 3) return "🥉";
+  if (rank <= 3) return `#${rank}`;
   return null;
 }
 

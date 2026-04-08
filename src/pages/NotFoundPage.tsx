@@ -5,12 +5,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
 import { CATEGORY_SLUGS, CATEGORY_LABELS_DA, type CategorySlug } from "@/lib/slugs";
 
-const POPULAR_CATEGORIES: { slug: CategorySlug; icon: string }[] = [
-  { slug: "vuggestue", icon: "👶" },
-  { slug: "boernehave", icon: "🧒" },
-  { slug: "dagpleje", icon: "🏠" },
-  { slug: "skole", icon: "🏫" },
-  { slug: "sfo", icon: "⚽" },
+const POPULAR_CATEGORIES: CategorySlug[] = [
+  "vuggestue", "boernehave", "dagpleje", "skole", "sfo",
 ];
 
 export default function NotFoundPage() {
@@ -67,14 +63,13 @@ export default function NotFoundPage() {
             {isDa ? "Eller udforsk en kategori:" : "Or explore a category:"}
           </p>
           <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {POPULAR_CATEGORIES.filter((c) => CATEGORY_SLUGS.includes(c.slug)).map((c) => (
+            {POPULAR_CATEGORIES.filter((c) => CATEGORY_SLUGS.includes(c)).map((c) => (
               <Link
-                key={c.slug}
-                to={`/${c.slug}`}
-                className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center gap-2"
+                key={c}
+                to={`/${c}`}
+                className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
               >
-                <span>{c.icon}</span>
-                {CATEGORY_LABELS_DA[c.slug]}
+                {CATEGORY_LABELS_DA[c]}
               </Link>
             ))}
           </div>
