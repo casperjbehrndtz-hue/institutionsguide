@@ -299,7 +299,7 @@ export default function PrissammenligningPage() {
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm" role="table">
-            <thead>
+            <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b border-border">
                 <th className="text-left py-3 px-2 font-medium text-muted" scope="col">
                   <button

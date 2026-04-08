@@ -248,7 +248,7 @@ export default function BestValuePage() {
         </h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b text-left">
                 <th className="py-2 pr-2 text-muted font-medium">#</th>
                 <th className="py-2 pr-4 text-muted font-medium">Skole</th>
