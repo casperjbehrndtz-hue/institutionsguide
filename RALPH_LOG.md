@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 70 — TIER 9: Table accessibility (role=table, scope=col)
+**Ændringer**: BestSchoolPage, BestValuePage, CheapestPage, NormeringPage, VsPage — added role="table" and scope="col" to table headers
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 69 — TIER 7: Extract SchoolRow from BestSchoolPage
 **Ændringer**: Created src/components/ranking/SchoolRow.tsx, BestSchoolPage 426→361 lines
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
