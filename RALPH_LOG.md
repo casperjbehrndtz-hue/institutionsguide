@@ -218,6 +218,14 @@
 
 ---
 
+### Iteration 68 — TIER 7: Extract bedste category constants
+**Ændringer**: Created src/lib/bedsteCategories.ts, BestDagtilbudPage 446→412 lines
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
+### Iteration 67 — TIER 10: ShareButton on GymnasiumPage
+**Ændringer**: GymnasiumPage — ShareButton in hero section
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 66 — TIER 10: ShareButton on CategoryPage
 **Ændringer**: CategoryPage — ShareButton in hero section
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
