@@ -7,6 +7,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import ShareButton from "@/components/shared/ShareButton";
 import FAQAccordion from "@/components/shared/FAQAccordion";
 import FripladsExplainer from "@/components/friplads/FripladsExplainer";
 import FripladsRatesGrid from "@/components/friplads/FripladsRatesGrid";
@@ -104,7 +105,10 @@ export default function FripladsPage() {
       <main className="max-w-4xl mx-auto px-4 py-8 space-y-12">
         {/* Hero section */}
         <ScrollReveal>
-          <section className="text-center space-y-4">
+          <section className="text-center space-y-4 relative">
+            <div className="absolute top-0 right-0">
+              <ShareButton title={isDa ? "Fripladstilskud-beregner" : "Childcare subsidy calculator"} url="/friplads" />
+            </div>
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium">
               <Calculator className="w-4 h-4" />
               {isDa ? `Opdateret med ${FRIPLADS_CONSTANTS.year}-satser` : `Updated with ${FRIPLADS_CONSTANTS.year} rates`}

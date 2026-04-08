@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 63 — TIER 10: AnimatedNumber + ShareButton on NormeringPage
+**Ændringer**: NormeringPage — hero kommune count animates, ShareButton added
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 62 — TIER 10: ShareButton on CategoryMunicipalityPage
 **Ændringer**: CategoryMunicipalityPage — ShareButton in hero section
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
