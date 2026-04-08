@@ -232,13 +232,13 @@ export default function CheapestPage() {
 
       {/* Fripladstilskud hint */}
       <section className="max-w-3xl mx-auto px-4 py-4">
-        <div className="card p-4 bg-blue-50 border-blue-200">
-          <p className="text-sm text-blue-800">
+        <div className="card p-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+          <p className="text-sm text-blue-800 dark:text-blue-300">
             <strong>Tip:</strong> Har du en husstandsindkomst under 609.700 kr. ({dataVersions.friplads.year}),
             kan du søge om fripladstilskud og få reduceret prisen yderligere.{" "}
             <Link
               to={`/kommune/${encodeURIComponent(munName)}`}
-              className="underline hover:text-blue-600"
+              className="underline hover:text-blue-600 dark:hover:text-blue-200"
             >
               Se fripladstilskud-beregner for {munName}
             </Link>

@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 54 — TIER 10: ShareButton on VsPage + dark mode fix
+**Ændringer**: VsPage — ShareButton in hero, price winner card dark mode colors (bg-green-950/30, border-green-800, text-green-300)
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 53 — TIER 10: ScrollReveal on ComparePage and FindPage
 **Ændringer**: ComparePage — bar chart + comparison table sections; FindPage — methodology CTA
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226

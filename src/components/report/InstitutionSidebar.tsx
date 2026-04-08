@@ -169,10 +169,10 @@ export default function InstitutionSidebar({ inst, language: lang, kommuneStats:
         <div className={`rounded-2xl p-4 flex items-center gap-3 border ${
           tilsynClear
             ? "bg-[#0d7c5f]/[0.04] border-[#0d7c5f]/10"
-            : "bg-amber-50 border-amber-200/50"
+            : "bg-amber-50 dark:bg-amber-950/30 border-amber-200/50 dark:border-amber-800/50"
         }`}>
-          <Shield className={`w-5 h-5 shrink-0 ${tilsynClear ? "text-[#0d7c5f]" : "text-amber-600"}`} />
-          <span className={`text-[13px] font-medium ${tilsynClear ? "text-[#2a5a4a]" : "text-amber-800"}`}>
+          <Shield className={`w-5 h-5 shrink-0 ${tilsynClear ? "text-[#0d7c5f]" : "text-amber-600 dark:text-amber-400"}`} />
+          <span className={`text-[13px] font-medium ${tilsynClear ? "text-[#2a5a4a] dark:text-green-400" : "text-amber-800 dark:text-amber-300"}`}>
             {tilsynClear
               ? (lang === "da" ? "Ingen aktive påbud" : "No active orders")
               : (lang === "da" ? `${tilsynCount} aktive påbud` : `${tilsynCount} active orders`)}
