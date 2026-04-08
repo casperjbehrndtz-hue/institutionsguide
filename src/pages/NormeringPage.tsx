@@ -272,7 +272,7 @@ export default function NormeringPage() {
         {/* Search input */}
         <div className="mb-4">
           <input
-            type="text"
+            type="search"
             placeholder={isDa ? "Søg kommune..." : "Search municipality..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

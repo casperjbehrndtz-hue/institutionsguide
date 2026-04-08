@@ -194,7 +194,7 @@ export default function SearchFilterBar({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
           <input
             id="search-input"
-            type="text"
+            type="search"
             placeholder={t.common.searchPlaceholder}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}

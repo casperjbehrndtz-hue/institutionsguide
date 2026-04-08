@@ -56,7 +56,7 @@ export default function HeroSection({
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
             <input
               id="hero-search"
-              type="text"
+              type="search"
               value={searchInput}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
