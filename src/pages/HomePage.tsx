@@ -9,6 +9,7 @@ import { useMapParams } from "@/hooks/useMapParams";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import CompareBar from "@/components/compare/CompareBar";
@@ -407,27 +408,27 @@ export default function HomePage() {
 
 
       {/* Populære søgninger — dynamic data cards */}
-      {popularData && <PopularSearches data={popularData} language={language} />}
+      {popularData && <ScrollReveal><PopularSearches data={popularData} language={language} /></ScrollReveal>}
 
       {/* Use cases — what parents can do */}
-      <UseCases language={language} schoolCount={categoryStats.skole?.count.toLocaleString("da-DK") ?? ""} />
+      <ScrollReveal><UseCases language={language} schoolCount={categoryStats.skole?.count.toLocaleString("da-DK") ?? ""} /></ScrollReveal>
 
       {/* Cross-sell: Suite products */}
-      <HomeToolsSection />
+      <ScrollReveal><HomeToolsSection /></ScrollReveal>
 
       {/* Recently viewed */}
       <RecentlyViewed />
 
       {/* FAQ */}
-      <HomeFAQ items={FAQ_ITEMS} title={t.home.faq} />
+      <ScrollReveal><HomeFAQ items={FAQ_ITEMS} title={t.home.faq} /></ScrollReveal>
 
       {/* SEO links */}
-      <SEOLinks language={language} />
+      <ScrollReveal><SEOLinks language={language} /></ScrollReveal>
 
       {/* Email capture */}
-      <section className="max-w-xl mx-auto px-4 py-8">
+      <ScrollReveal><section className="max-w-xl mx-auto px-4 py-8">
         <EmailCapture />
-      </section>
+      </section></ScrollReveal>
 
       {/* Geolocation consent modal */}
       {geo.showGeoModal && (

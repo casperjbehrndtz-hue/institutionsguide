@@ -218,13 +218,19 @@
 
 ---
 
+### Iteration 51 — TIER 10: ShareButton on ranking/comparison pages
+**Ændringer**: Added ShareButton (Web Share API + clipboard fallback) to hero sections on CheapestPage, BestSchoolPage, BestValuePage, BestDagtilbudPage, PrissammenligningPage, NormeringKommunePage
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
+---
+
 ## Running totals
 - **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings** ✅✅
 - **Files over 400 lines**: 14 → 5 (DataContext 511, insights 477, HomePage 446, InstitutionPage 438, FindPage 402)
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
-- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (8+ pages), AnimatedNumber on stat cards + hero counters, professional border-accent ranking, annual savings callout, price position bars, price indicator tags on KommunePage
+- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (8+ pages), AnimatedNumber on stat cards + hero counters, professional border-accent ranking, annual savings callout, price position bars, price indicator tags on KommunePage, ShareButton on 6 ranking pages
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 10 (more visible UX improvements)
