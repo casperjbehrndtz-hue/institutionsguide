@@ -32,8 +32,10 @@ export function useMunicipalityPriceTrend(
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
 
     let query = supabase
       .from("price_snapshots")

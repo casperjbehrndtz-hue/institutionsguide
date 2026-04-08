@@ -27,8 +27,10 @@ export function usePriceHistory(institutionId: string): UsePriceHistoryResult {
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      setLoading(true);
+      setError(null);
+    });
 
     Promise.resolve(supabase
       .from("price_snapshots")

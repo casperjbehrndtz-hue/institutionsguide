@@ -113,7 +113,7 @@ export default function FindPage() {
   const { institutions, institutionStats, normering, loading } = useData();
   const { language } = useLanguage();
 
-  const saved = useMemo(loadSaved, []);
+  const saved = useMemo(() => loadSaved(), []);
 
   const [category, setCategory] = useState<InstitutionCategory>(
     saved?.category && categoryHasFinder(saved.category) ? saved.category : "skole",
