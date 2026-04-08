@@ -1,16 +1,5 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-  Cell,
-} from "recharts";
 import { useData } from "@/contexts/DataContext";
 import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
@@ -21,6 +10,7 @@ import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { dataVersions } from "@/lib/dataVersions";
 import DataFreshness from "@/components/shared/DataFreshness";
+import PriceSpreadChart from "@/components/charts/PriceSpreadChart";
 
 type RateKey = "vuggestue" | "boernehave" | "dagpleje" | "sfo";
 type SortKey = "municipality" | RateKey;
@@ -272,81 +262,7 @@ export default function PrissammenligningPage() {
 
       {/* Price spread bar chart */}
       {barChartData.length > 0 && (
-        <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-6">
-          <h2 className="font-display text-xl font-bold text-foreground mb-2">
-            Prisspredning — {RATE_LABELS[activeRateKey]}
-          </h2>
-          <p className="text-xs text-muted mb-4">
-            10 billigste og 10 dyreste kommuner. Stiplet linje viser landsgennemsnittet.
-          </p>
-          <div className="card p-4">
-            <ResponsiveContainer width="100%" height={420}>
-              <BarChart
-                data={barChartData}
-                layout="vertical"
-                margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.3} />
-                <XAxis
-                  type="number"
-                  tickFormatter={(v: number) => `${v.toLocaleString("da-DK")} kr`}
-                  fontSize={11}
-                  tick={{ fill: "#4F5F6F" }}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={120}
-                  fontSize={11}
-                  tick={{ fill: "#4F5F6F" }}
-                />
-                <Tooltip
-                  formatter={(value) => [
-                    `${typeof value === 'number' ? value.toLocaleString("da-DK") : value} kr/md`,
-                    RATE_LABELS[activeRateKey],
-                  ]}
-                  contentStyle={{
-                    borderRadius: "8px",
-                    border: "1px solid #e5e7eb",
-                    fontSize: "12px",
-                  }}
-                />
-                {barChartAvg !== null && (
-                  <ReferenceLine
-                    x={barChartAvg}
-                    stroke="#4F5F6F"
-                    strokeDasharray="4 4"
-                    strokeWidth={1.5}
-                    label={{
-                      value: `Gns: ${barChartAvg.toLocaleString("da-DK")} kr`,
-                      position: "top",
-                      fontSize: 11,
-                      fill: "#4F5F6F",
-                    }}
-                  />
-                )}
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={18}>
-                  {barChartData.map((entry, index) => (
-                    <Cell
-                      key={entry.name}
-                      fill={index < 10 ? "#1B3A5C" : "#B8642E"}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="flex justify-center gap-6 mt-2 text-xs text-muted">
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#1B3A5C" }} />
-                10 billigste
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: "#B8642E" }} />
-                10 dyreste
-              </span>
-            </div>
-          </div>
-        </section></ScrollReveal>
+        <PriceSpreadChart data={barChartData} rateLabel={RATE_LABELS[activeRateKey]} avgValue={barChartAvg} />
       )}
 
       {/* Price table */}
