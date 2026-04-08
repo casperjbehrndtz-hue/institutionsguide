@@ -16,6 +16,7 @@ import { breadcrumbSchema } from "@/lib/schema";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import DataFreshness from "@/components/shared/DataFreshness";
 import { PRESETS, type Preset } from "@/lib/finderPresets";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 
 const STORAGE_KEY = "preference-weights-v2";
 
@@ -375,7 +376,7 @@ export default function FindPage() {
             )}
 
             {/* CTA to methodology */}
-            <div className="mt-8 p-4 rounded-xl bg-muted/5 border border-border/50 text-center">
+            <ScrollReveal><div className="mt-8 p-4 rounded-xl bg-muted/5 border border-border/50 text-center">
               <p className="text-xs text-muted mb-1">
                 {language === "da"
                   ? "Ranking baseret på officielle data fra Uddannelsesstatistik, Danmarks Statistik og Dagtilbudsregisteret"
@@ -384,7 +385,7 @@ export default function FindPage() {
               <Link to="/metode" className="text-xs text-primary hover:underline">
                 {language === "da" ? "Læs om vores metode →" : "Read about our methodology →"}
               </Link>
-            </div>
+            </div></ScrollReveal>
           </div>
         </div>
       </div>

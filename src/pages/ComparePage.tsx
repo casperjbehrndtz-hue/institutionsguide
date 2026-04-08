@@ -12,6 +12,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import { breadcrumbSchema } from "@/lib/schema";
 import { formatDKK } from "@/lib/format";
 import DataFreshness from "@/components/shared/DataFreshness";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 
 const COLORS = ["#0E7490", "#1B8F5F", "#F4B82C", "#D73C3C"];
 
@@ -137,7 +138,7 @@ export default function ComparePage() {
       </section>
 
       {/* Rate comparison bar chart */}
-      <section className="max-w-5xl mx-auto px-4 py-8">
+      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           {t.compare.monthlyRates}
         </h2>
@@ -155,7 +156,7 @@ export default function ComparePage() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </section>
+      </section></ScrollReveal>
 
       {/* Quality radar (schools only) */}
       {hasQuality && radarData.length > 0 && (
@@ -187,14 +188,14 @@ export default function ComparePage() {
       )}
 
       {/* Comparison table */}
-      <section className="max-w-5xl mx-auto px-4 py-8">
+      <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           {t.compare.detailedComparison}
         </h2>
         <div className="card p-4">
           <ComparisonTable institutions={institutions} />
         </div>
-      </section>
+      </section></ScrollReveal>
 
       <DataFreshness lang={language} />
 

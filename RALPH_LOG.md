@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 52 — TIER 10: ScrollReveal on HomePage below-fold sections
+**Ændringer**: PopularSearches, UseCases, HomeToolsSection, HomeFAQ, SEOLinks, EmailCapture wrapped in ScrollReveal
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 51 — TIER 10: ShareButton on ranking/comparison pages
 **Ændringer**: Added ShareButton (Web Share API + clipboard fallback) to hero sections on CheapestPage, BestSchoolPage, BestValuePage, BestDagtilbudPage, PrissammenligningPage, NormeringKommunePage
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
