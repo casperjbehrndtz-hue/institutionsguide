@@ -299,7 +299,7 @@ export default function NormeringPage() {
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500" />{isDa ? "Over grænseværdi" : "Above threshold"}</span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b border-border">
                 <th className="w-8 py-3 px-2 font-medium text-muted text-center">#</th>

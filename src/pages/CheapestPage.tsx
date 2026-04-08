@@ -252,15 +252,15 @@ export default function CheapestPage() {
           Prisrangliste — {catLabel} i {munName}
         </h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b text-left">
-                <th className="py-2 pr-4 text-muted font-medium">#</th>
-                <th className="py-2 pr-4 text-muted font-medium">Navn</th>
-                <th className="py-2 pr-4 text-muted font-medium">Ejerskab</th>
-                <th className="py-2 text-muted font-medium text-right">Pris/md</th>
+                <th scope="col" className="py-2 pr-4 text-muted font-medium">#</th>
+                <th scope="col" className="py-2 pr-4 text-muted font-medium">Navn</th>
+                <th scope="col" className="py-2 pr-4 text-muted font-medium">Ejerskab</th>
+                <th scope="col" className="py-2 text-muted font-medium text-right">Pris/md</th>
                 {nationalAvg && (
-                  <th className="py-2 pl-4 text-muted font-medium text-right">vs. landsgnst.</th>
+                  <th scope="col" className="py-2 pl-4 text-muted font-medium text-right">vs. landsgnst.</th>
                 )}
               </tr>
             </thead>

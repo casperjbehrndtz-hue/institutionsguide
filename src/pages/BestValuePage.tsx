@@ -255,7 +255,7 @@ export default function BestValuePage() {
           Top 25 skoler — værdi for pengene
         </h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b text-left">
                 <th className="py-2 pr-2 text-muted font-medium">#</th>

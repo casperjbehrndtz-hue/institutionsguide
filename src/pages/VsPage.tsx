@@ -229,7 +229,7 @@ export default function VsPage() {
           Sammenligning — {singA} vs {singB}
         </h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b">
                 <th className="py-2 pr-4 text-left text-muted font-medium"></th>
