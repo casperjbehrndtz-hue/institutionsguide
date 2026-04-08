@@ -8,6 +8,7 @@ import { toSlug } from "@/lib/slugs";
 import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { dataVersions } from "@/lib/dataVersions";
 import DataFreshness from "@/components/shared/DataFreshness";
 import PriceSpreadChart from "@/components/charts/PriceSpreadChart";
@@ -243,7 +244,11 @@ export default function PrissammenligningPage() {
             <div key={key} className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">{RATE_LABELS[key]}</p>
               <p className="font-mono text-lg font-bold text-foreground">
-                {formatMonthly(nationalAvg[key]) ?? <span className="text-muted/60 text-sm font-normal italic">Ikke tilgængelig</span>}
+                {nationalAvg[key] != null ? (
+                  <AnimatedNumber value={nationalAvg[key]!} format={(n) => Math.round(n).toLocaleString("da-DK") + " kr/md"} />
+                ) : (
+                  <span className="text-muted/60 text-sm font-normal italic">Ikke tilgængelig</span>
+                )}
               </p>
               {extremes[key].cheapest && (
                 <p className="text-xs text-green-600 dark:text-green-400 mt-1">

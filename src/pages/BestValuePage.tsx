@@ -13,6 +13,7 @@ import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { qualityBadge } from "@/lib/badges";
 import DataFreshness from "@/components/shared/DataFreshness";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import ValueScatterChart from "@/components/charts/ValueScatterChart";
 
 interface RankedSchool {
@@ -176,7 +177,7 @@ export default function BestValuePage() {
                 Gns. kvalitet (top 25)
               </p>
               <p className="font-display text-2xl font-bold text-foreground">
-                {formatDecimal(stats.avgQuality)}/5
+                <AnimatedNumber value={stats.avgQuality} format={(n) => formatDecimal(n) + "/5"} />
               </p>
             </div>
             <div className="card p-4 text-center">
@@ -184,7 +185,7 @@ export default function BestValuePage() {
                 Gns. SFO-pris (top 25)
               </p>
               <p className="font-display text-2xl font-bold text-foreground">
-                {formatDKK(stats.avgPrice)}/md
+                <AnimatedNumber value={stats.avgPrice} format={(n) => formatDKK(n) + "/md"} />
               </p>
             </div>
           </ScrollReveal>

@@ -19,6 +19,7 @@ import {
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import type { UnifiedInstitution } from "@/lib/types";
 
 export default function CategoryMunicipalityPage() {
@@ -232,13 +233,13 @@ export default function CategoryMunicipalityPage() {
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">Gennemsnit</p>
               <p className="font-mono text-lg font-bold text-primary">
-                {formatDKK(stats.avg)}
+                <AnimatedNumber value={stats.avg!} format={formatDKK} />
               </p>
             </div>
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">Billigste</p>
               <p className="font-mono text-lg font-bold text-green-600">
-                {formatDKK(stats.min)}
+                <AnimatedNumber value={stats.min!} format={formatDKK} />
               </p>
               {stats.cheapest && (
                 <p className="text-xs text-muted mt-1 truncate">
@@ -249,7 +250,7 @@ export default function CategoryMunicipalityPage() {
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">Dyreste</p>
               <p className="font-mono text-lg font-bold text-red-500">
-                {formatDKK(stats.max)}
+                <AnimatedNumber value={stats.max!} format={formatDKK} />
               </p>
               {stats.priciest && (
                 <p className="text-xs text-muted mt-1 truncate">
@@ -261,7 +262,7 @@ export default function CategoryMunicipalityPage() {
               <div className="card p-4 text-center">
                 <p className="text-xs text-muted mb-1">Landsgennemsnit</p>
                 <p className="font-mono text-lg font-bold text-muted">
-                  {formatDKK(nationalAvg)}
+                  <AnimatedNumber value={nationalAvg} format={formatDKK} />
                 </p>
                 {stats.avg > nationalAvg ? (
                   <p className="text-xs text-red-500 mt-1">

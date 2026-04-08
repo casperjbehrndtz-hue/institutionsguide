@@ -18,6 +18,7 @@ import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import DagplejeVsVuggestue from "@/components/insights/DagplejeVsVuggestue";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { useFamily } from "@/contexts/FamilyContext";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import DataFreshness from "@/components/shared/DataFreshness";
@@ -194,19 +195,19 @@ export default function KommunePage() {
           <ScrollReveal stagger className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">{t.categories.dagpleje}{t.common.perMonth}</p>
-              <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.dagpleje)}</p>
+              <p className="font-mono text-lg font-bold text-primary"><AnimatedNumber value={munSummary.rates.dagpleje ?? 0} format={formatDKK} /></p>
             </div>
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">{t.categories.vuggestue}{t.common.perMonth}</p>
-              <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.vuggestue)}</p>
+              <p className="font-mono text-lg font-bold text-primary"><AnimatedNumber value={munSummary.rates.vuggestue ?? 0} format={formatDKK} /></p>
             </div>
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">{t.categories.boernehave}{t.common.perMonth}</p>
-              <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.boernehave)}</p>
+              <p className="font-mono text-lg font-bold text-primary"><AnimatedNumber value={munSummary.rates.boernehave ?? 0} format={formatDKK} /></p>
             </div>
             <div className="card p-4 text-center">
               <p className="text-xs text-muted mb-1">{t.categories.sfo}{t.common.perMonth}</p>
-              <p className="font-mono text-lg font-bold text-primary">{formatDKK(munSummary.rates.sfo)}</p>
+              <p className="font-mono text-lg font-bold text-primary"><AnimatedNumber value={munSummary.rates.sfo ?? 0} format={formatDKK} /></p>
             </div>
           </ScrollReveal>
         </section></ScrollReveal>
