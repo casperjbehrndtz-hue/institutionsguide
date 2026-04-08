@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Building2, GraduationCap, Users, Home, BookOpen, SlidersHorizontal, BarChart3, X, Gamepad2, School, Landmark, Loader2 } from "lucide-react";
+import { SlidersHorizontal, BarChart3, X, Loader2 } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -32,6 +32,7 @@ import HomeFAQ from "@/components/home/HomeFAQ";
 import SEOLinks from "@/components/home/SEOLinks";
 import CategoryCards from "@/components/home/CategoryCards";
 import HeroSection from "@/components/home/HeroSection";
+import { getCategoryCards } from "@/lib/homeCategoryCards";
 
 const HERO_VIDEOS: { src: string; focus: string }[] = [
   { src: "/hero-1.mp4", focus: "90%" },
@@ -159,19 +160,7 @@ export default function HomePage() {
     return stats;
   }, [institutions]);
 
-  // Featured categories first (most searched), then the rest
-  const FEATURED_CARDS = [
-    { category: "skole" as const, label: t.categories.skole, icon: GraduationCap, iconColor: "text-indigo-600", bgColor: "bg-indigo-100 dark:bg-indigo-900/30", href: "/skole", desc: t.ageGroups.skole, cta: language === "da" ? "Se skoler" : "See schools", featured: true },
-    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600", bgColor: "bg-pink-100 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Se efterskoler" : "See boarding schools", featured: true },
-  ];
-  const OTHER_CARDS = [
-    { category: "vuggestue" as const, label: t.categories.vuggestue, icon: Home, iconColor: "text-green-600", bgColor: "bg-green-100 dark:bg-green-900/30", href: "/vuggestue", desc: t.ageGroups.vuggestue, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
-    { category: "boernehave" as const, label: t.categories.boernehave, icon: Building2, iconColor: "text-blue-600", bgColor: "bg-blue-100 dark:bg-blue-900/30", href: "/boernehave", desc: t.ageGroups.boernehave, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
-    { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600", bgColor: "bg-amber-100 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
-    { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600", bgColor: "bg-purple-100 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
-    { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600", bgColor: "bg-orange-100 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
-    { category: "gymnasium" as const, label: t.categories.gymnasium, icon: Landmark, iconColor: "text-teal-600", bgColor: "bg-teal-100 dark:bg-teal-900/30", href: "/gymnasium", desc: t.ageGroups.gymnasium, cta: language === "da" ? "Udforsk" : "Explore", featured: false },
-  ];
+  const { featured: FEATURED_CARDS, other: OTHER_CARDS } = getCategoryCards(t, language);
   const FAQ_ITEMS = language === "en" ? FAQ_ITEMS_EN : FAQ_ITEMS_DA;
 
   // Show filter bar + list/map when user has actively filtered
