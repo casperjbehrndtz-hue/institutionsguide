@@ -1,23 +1,11 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
+import { normalizeSearch } from "@/lib/normalizeSearch";
 
 const POPULAR_MUNICIPALITIES = [
   "København", "Aarhus", "Odense", "Aalborg", "Frederiksberg",
   "Gentofte", "Roskilde", "Helsingør", "Vejle", "Horsens",
 ];
-
-/** Normalize Danish characters for accent-tolerant search */
-function normalizeSearch(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/æ/g, "ae")
-    .replace(/ø/g, "oe")
-    .replace(/å/g, "aa")
-    .replace(/é/g, "e")
-    .replace(/ü/g, "u")
-    .replace(/ö/g, "o")
-    .replace(/ä/g, "a");
-}
 
 interface Props {
   value: string;
@@ -140,4 +128,3 @@ export default function MunicipalityCombobox({ value, onChange, municipalities, 
   );
 }
 
-export { normalizeSearch };

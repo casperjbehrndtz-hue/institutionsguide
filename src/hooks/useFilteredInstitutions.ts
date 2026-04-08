@@ -1,18 +1,6 @@
 import { useMemo } from "react";
 import type { UnifiedInstitution, InstitutionCategory, AgeGroup, SortKey } from "@/lib/types";
-
-/** Normalize Danish characters for accent-tolerant search */
-function normalizeSearch(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/æ/g, "ae")
-    .replace(/ø/g, "oe")
-    .replace(/å/g, "aa")
-    .replace(/é/g, "e")
-    .replace(/ü/g, "u")
-    .replace(/ö/g, "o")
-    .replace(/ä/g, "a");
-}
+import { normalizeSearch } from "@/lib/normalizeSearch";
 
 const AGE_GROUP_CATEGORIES: Record<Exclude<AgeGroup, "">, InstitutionCategory[]> = {
   "0-2": ["vuggestue", "dagpleje"],

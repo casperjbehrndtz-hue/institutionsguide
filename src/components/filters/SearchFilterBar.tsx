@@ -4,7 +4,8 @@ import { Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { InstitutionCategory, AgeGroup, SortKey, UnifiedInstitution } from "@/lib/types";
 import FilterBottomSheet from "./FilterBottomSheet";
-import MunicipalityCombobox, { normalizeSearch } from "./MunicipalityCombobox";
+import MunicipalityCombobox from "./MunicipalityCombobox";
+import { normalizeSearch } from "@/lib/normalizeSearch";
 
 const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo", "fritidsklub", "efterskole"];
 const SCHOOL_ONLY_SORT_KEYS: SortKey[] = ["rating", "grades", "absence"];
