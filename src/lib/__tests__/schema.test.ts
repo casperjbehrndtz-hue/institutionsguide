@@ -16,16 +16,17 @@ const baseInst: UnifiedInstitution = {
   municipality: "København",
   address: "Testvej 1",
   city: "København",
-  postalCode: 2100,
+  postalCode: "2100",
   lat: 55.7,
   lng: 12.5,
   ownership: "kommunal",
   monthlyRate: null,
-  yearlyPrice: null,
-  phone: null,
-  email: null,
-  web: null,
-  quality: null,
+  annualRate: null,
+  yearlyPrice: undefined,
+  phone: undefined,
+  email: undefined,
+  web: undefined,
+  quality: undefined,
 };
 
 describe("institutionSchema", () => {
