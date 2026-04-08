@@ -165,6 +165,14 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 46 — TIER 10: Price indicator tags on KommunePage cards
+**Ændringer**: KommunePage — each institution card shows "Under gns."/"Tæt på gns."/"Over gns." tag color-coded by price vs. category average
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
+### Iteration 45 — TIER 10: ScrollReveal on VsPage
+**Ændringer**: VsPage — hero and comparison cards wrapped in ScrollReveal with stagger
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 44 — TIER 10: Remove all emojis from UI
 **Ændringer**: RankedCard (border-accent instead of medal emojis), BestSchoolPage, BestValuePage (same), MatchCard (#1/#2/#3 instead of emojis), NotFoundPage (text-only category links)
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
@@ -200,7 +208,7 @@
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
-- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars, #1 highlighting, ScrollReveal animations, animated number count-up on stat cards (4 pages), medal styling on ranking top 3, annual savings callout, price position bars on cards
+- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (8+ pages), AnimatedNumber on stat cards + hero counters, professional border-accent ranking, annual savings callout, price position bars, price indicator tags on KommunePage
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 10 (more visible UX improvements)
