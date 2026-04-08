@@ -213,7 +213,7 @@ export default function InstitutionListCard({
             </span>
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(inst.id); }}
-              className="p-1.5 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label={isFavorite ? t.favorites.removeFavorite : t.favorites.addFavorite}
             >
               <Heart className={`w-5 h-5 transition-colors ${isFavorite ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />

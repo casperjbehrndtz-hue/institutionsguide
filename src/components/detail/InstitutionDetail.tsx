@@ -59,7 +59,7 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
         <div className="flex items-center gap-0.5 shrink-0 ml-2">
           <button
             onClick={() => toggleFavorite(inst.id)}
-            className="p-1.5 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
           >
             <Heart className={`w-4 h-4 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />

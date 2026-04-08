@@ -54,7 +54,7 @@ export default function ActionBar({ inst, cameFrom, categoryPath, language, t, o
         <ShareButton title={inst.name} url={`/institution/${inst.id}`} />
         <button
           onClick={() => toggleFavorite(inst.id)}
-          className="p-2 rounded-lg hover:bg-red-50 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label={isFavorite(inst.id) ? t.favorites.removeFavorite : t.favorites.addFavorite}
         >
           <Heart className={`w-6 h-6 transition-colors ${isFavorite(inst.id) ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />

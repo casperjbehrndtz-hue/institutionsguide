@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 55 — TIER 9: Dark mode fixes for colored info cards
+**Ændringer**: CheapestPage fripladstip card (bg-blue-50→dark:bg-blue-950/30), InstitutionSidebar tilsyn badge (amber dark variants), link hover color
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 54 — TIER 10: ShareButton on VsPage + dark mode fix
 **Ændringer**: VsPage — ShareButton in hero, price winner card dark mode colors (bg-green-950/30, border-green-800, text-green-300)
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
