@@ -165,6 +165,14 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 48 — TIER 10: ScrollReveal on NormeringKommunePage
+**Ændringer**: NormeringKommunePage — hero + stat cards wrapped in ScrollReveal
+**Verifikation**: tsc: ✓ | tests: 226/226
+
+### Iteration 47 — TIER 10: Quick stats dashboard on CheapestPage
+**Ændringer**: CheapestPage — 4-column stat row (billigste/median/gennemsnit/landsgennemsnit) with AnimatedNumber
+**Verifikation**: tsc: ✓ | tests: 226/226
+
 ### Iteration 46 — TIER 10: Price indicator tags on KommunePage cards
 **Ændringer**: KommunePage — each institution card shows "Under gns."/"Tæt på gns."/"Over gns." tag color-coded by price vs. category average
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
