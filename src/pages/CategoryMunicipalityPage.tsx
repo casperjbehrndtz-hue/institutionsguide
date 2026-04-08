@@ -295,7 +295,7 @@ export default function CategoryMunicipalityPage() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((inst) => (
-            <InstitutionCard key={inst.id} inst={inst} />
+            <InstitutionCard key={inst.id} inst={inst} minPrice={stats.min} maxPrice={stats.max} />
           ))}
         </div>
       </section>
@@ -348,7 +348,11 @@ export default function CategoryMunicipalityPage() {
   );
 }
 
-function InstitutionCard({ inst }: { inst: UnifiedInstitution }) {
+function InstitutionCard({ inst, minPrice, maxPrice }: { inst: UnifiedInstitution; minPrice: number | null; maxPrice: number | null }) {
+  const pricePosition = inst.monthlyRate && minPrice && maxPrice && maxPrice > minPrice
+    ? ((inst.monthlyRate - minPrice) / (maxPrice - minPrice)) * 100
+    : null;
+
   return (
     <Link
       to={`/institution/${inst.id}`}
@@ -375,6 +379,23 @@ function InstitutionCard({ inst }: { inst: UnifiedInstitution }) {
           {inst.monthlyRate ? `${formatDKK(inst.monthlyRate)}/md` : "Pris ikke tilgængelig"}
         </span>
       </div>
+      {pricePosition !== null && (
+        <div className="mt-2.5">
+          <div className="flex justify-between text-[10px] text-muted mb-0.5">
+            <span>Billigst</span>
+            <span>Dyrest</span>
+          </div>
+          <div className="h-1.5 bg-border/50 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.max(5, pricePosition)}%`,
+                background: pricePosition < 33 ? "var(--color-success)" : pricePosition < 66 ? "var(--color-warning)" : "var(--color-destructive)",
+              }}
+            />
+          </div>
+        </div>
+      )}
     </Link>
   );
 }
