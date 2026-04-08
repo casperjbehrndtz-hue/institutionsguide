@@ -286,11 +286,20 @@ export default function KommunePage() {
                   <button
                     key={inst.id}
                     onClick={() => handleSelect(inst)}
-                    className="text-left card p-4 transition-transform min-h-[44px]"
+                    className="text-left card p-4 transition-transform min-h-[44px] hover:shadow-md"
                   >
-                    <p className="font-semibold text-foreground text-sm">{inst.name}</p>
-                    <p className="text-xs text-muted">{inst.address}</p>
-                    <p className="font-mono text-sm text-primary mt-1">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground text-sm truncate">{inst.name}</p>
+                        <p className="text-xs text-muted truncate">{inst.address}</p>
+                      </div>
+                      {inst.quality?.r !== undefined && (
+                        <span className="shrink-0 text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                          {inst.quality.r.toLocaleString("da-DK", { maximumFractionDigits: 1 })}/5
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-mono text-sm text-primary mt-2">
                       {inst.category === "efterskole" && inst.yearlyPrice
                         ? `${formatDKK(inst.yearlyPrice)}${language === "da" ? "/år" : "/year"}`
                         : `${formatDKK(inst.monthlyRate)}${t.common.perMonth}`}
