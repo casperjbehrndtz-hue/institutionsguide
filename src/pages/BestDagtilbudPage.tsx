@@ -9,6 +9,7 @@ import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { formatDKK } from "@/lib/format";
 import { computeScore } from "@/lib/institutionScore";
@@ -126,6 +127,14 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
     [institutions, cat, munName]
   );
 
+  // Best score for stat card
+  const bestScore = ranked.length > 0 ? ranked[0].score.overall : null;
+  const avgScore = useMemo(() => {
+    const withScore = ranked.filter((r) => r.score.overall != null);
+    if (withScore.length === 0) return null;
+    return Math.round(withScore.reduce((s, r) => s + r.score.overall!, 0) / withScore.length);
+  }, [ranked]);
+
   // Nearby municipalities
   const nearbyMuns = useMemo(() => {
     const idx = municipalities.findIndex((m) => m.municipality === munName);
@@ -238,6 +247,44 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
               : `Top ${Math.min(ranked.length, 10)} of ${totalInCat} ${CATEGORY_LABELS_EN[cat].toLowerCase()} in ${munName}, ranked by quality data incl. price, staff ratio and education.`}
           </p>
           <DataFreshness />
+        </section>
+      </ScrollReveal>
+
+      {/* Key stats */}
+      <ScrollReveal>
+        <section className="max-w-4xl mx-auto px-4 py-4">
+          <ScrollReveal stagger><div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {bestScore != null && (
+              <div className="card card-static p-4 text-center">
+                <p className="text-xs text-muted mb-1">{language === "da" ? "Bedste score" : "Best score"}</p>
+                <p className="font-mono text-lg font-bold text-primary">
+                  <AnimatedNumber value={bestScore} />/100
+                </p>
+              </div>
+            )}
+            {avgScore != null && (
+              <div className="card card-static p-4 text-center">
+                <p className="text-xs text-muted mb-1">{language === "da" ? "Gns. score" : "Avg. score"}</p>
+                <p className="font-mono text-lg font-bold text-foreground">
+                  <AnimatedNumber value={avgScore} />/100
+                </p>
+              </div>
+            )}
+            <div className="card card-static p-4 text-center">
+              <p className="text-xs text-muted mb-1">{language === "da" ? "I alt" : "Total"}</p>
+              <p className="font-mono text-lg font-bold text-foreground">
+                <AnimatedNumber value={totalInCat} />
+              </p>
+            </div>
+            {municipalityAvgPrice != null && (
+              <div className="card card-static p-4 text-center">
+                <p className="text-xs text-muted mb-1">{language === "da" ? "Gns. pris" : "Avg. price"}</p>
+                <p className="font-mono text-lg font-bold text-foreground">
+                  <AnimatedNumber value={municipalityAvgPrice} format={formatDKK} />
+                </p>
+              </div>
+            )}
+          </div></ScrollReveal>
         </section>
       </ScrollReveal>
 
