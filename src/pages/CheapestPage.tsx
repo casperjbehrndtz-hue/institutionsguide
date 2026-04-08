@@ -17,6 +17,7 @@ import {
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataAttribution from "@/components/shared/DataAttribution";
 import DataFreshness from "@/components/shared/DataFreshness";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 import { dataVersions } from "@/lib/dataVersions";
 
 export default function CheapestPage() {
@@ -158,7 +159,7 @@ export default function CheapestPage() {
       />
 
       {/* Header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           Billigste {catSingular} i {munName}
         </h1>
@@ -171,7 +172,7 @@ export default function CheapestPage() {
             Spar op til {formatDKK(savings)}/md ved at vælge den billigste
           </p>
         )}
-      </section>
+      </section></ScrollReveal>
 
       {/* Fripladstilskud hint */}
       <section className="max-w-3xl mx-auto px-4 py-4">
