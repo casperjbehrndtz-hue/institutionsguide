@@ -18,6 +18,7 @@ import {
 import type { UnifiedInstitution } from "@/lib/types";
 import DataAttribution from "@/components/shared/DataAttribution";
 import DataFreshness from "@/components/shared/DataFreshness";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 import { ComparisonCard, type CategoryStats } from "@/components/vs/ComparisonCard";
 import { CompareRow } from "@/components/vs/CompareRow";
 
@@ -200,7 +201,7 @@ export default function VsPage() {
       />
 
       {/* Header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {singA.charAt(0).toUpperCase() + singA.slice(1)} vs {singB} i {munName}
         </h1>
@@ -208,15 +209,15 @@ export default function VsPage() {
           En sammenligning af {singA} og {singB} i {munName} Kommune baseret
           på pris, antal og ejerskab.
         </p>
-      </section>
+      </section></ScrollReveal>
 
       {/* Side-by-side comparison */}
-      <section className="max-w-4xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8">
+        <ScrollReveal stagger><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <ComparisonCard label={labelA} stats={statsA} cat={catA} munName={munName} munSlug={munSlug!} />
           <ComparisonCard label={labelB} stats={statsB} cat={catB} munName={munName} munSlug={munSlug!} />
-        </div>
-      </section>
+        </div></ScrollReveal>
+      </section></ScrollReveal>
 
       {/* Comparison table */}
       <section className="max-w-3xl mx-auto px-4 py-6">
