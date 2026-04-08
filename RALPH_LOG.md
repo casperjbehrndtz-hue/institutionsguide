@@ -133,14 +133,31 @@
 **Ændringer**: 1 new test file, 13 new tests (institutionSchema, faqSchema, breadcrumbSchema, websiteSchema, itemListSchema)
 **Verifikation**: tests: 224/224
 
+### Iteration 30 — TIER 5: Eliminate last 2 ESLint warnings
+**Ændringer**: useAssessment.ts + useReviewAnalysis.ts — used refs to properly express deps
+**Verifikation**: ESLint: **0 errors, 0 warnings** | tsc: ✓ | tests: 224/224
+
+### Iteration 31 — TIER 8: Tests for getPercentileLabel
+**Ændringer**: Added 6 tests to insights.test.ts (Danish + English labels)
+**Verifikation**: tests: 226/226
+
+### Iteration 32 — TIER 10: Sticky table headers on ranking pages
+**Ændringer**: Added sticky thead on CheapestPage, BestSchoolPage, BestValuePage, PrissammenligningPage, NormeringPage
+**Verifikation**: tsc: ✓ | tests: 226/226
+
+### Iteration 33 — TIER 10: Back-to-top button
+**Ændringer**: Created BackToTop.tsx, added to Layout — floating button appears after 600px scroll
+**Verifikation**: tsc: ✓ | tests: 226/226
+
 ---
 
 ## Running totals
-- **ESLint**: 31 errors, 8 warnings → **0 errors, 2 warnings** ✅
+- **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings** ✅✅
 - **Files over 400 lines**: 14 → 5 (DataContext 511, insights 477, HomePage 446, InstitutionPage 438, FindPage 402)
 - **Build**: green throughout, 1939 pages pre-rendered
-- **Tests**: 117 → **224** across 19 files (was 6 files)
-- **Accessibility**: aria-labels on icon buttons, dialog roles on modals, type="search" on all search inputs
+- **Tests**: 117 → **226** across 19 files (was 6 files)
+- **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
+- **UX**: Back-to-top button, sticky table headers on 5 ranking pages
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 8 (more tests) or TIER 10 (UX improvements)
