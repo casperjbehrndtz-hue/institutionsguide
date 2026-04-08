@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 57 — TIER 10: Row numbering on PrissammenligningPage table
+**Ændringer**: Added # column header + row index numbers to the municipality comparison table
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 56 — TIER 9: Dark mode hover states for favorite buttons
 **Ændringer**: ActionBar, InstitutionDetail, InstitutionListCard, FavoritesPage — hover:bg-red-50 → + dark:hover:bg-red-950/30
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226

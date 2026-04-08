@@ -8,6 +8,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import DataFreshness from "@/components/shared/DataFreshness";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import type { UnifiedInstitution } from "@/lib/types";
@@ -187,7 +188,7 @@ export default function GymnasiumPage() {
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">{title}</h1>
           <p className="text-muted text-base max-w-2xl mx-auto mb-4">{description}</p>
           <p className="font-mono text-primary text-lg font-semibold">
-            {filtered.length.toLocaleString("da-DK")} {language === "da" ? "gymnasier" : "gymnasiums"}
+            <AnimatedNumber value={filtered.length} /> {language === "da" ? "gymnasier" : "gymnasiums"}
           </p>
           <DataFreshness />
         </section>
