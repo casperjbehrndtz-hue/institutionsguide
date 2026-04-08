@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   getPercentileTier,
+  getPercentileLabel,
   generateFlags,
   generatePercentileProfile,
   generateNearbyComparison,
@@ -65,6 +66,22 @@ describe("getPercentileTier", () => {
       // fravaer p25 = 6.3 → should be top25
       expect(getPercentileTier(6.3, "fravaer", false)).toBe("top25");
     });
+  });
+});
+
+// ── getPercentileLabel ────────────────────────────────────────────────────
+
+describe("getPercentileLabel", () => {
+  it("returns Danish labels", () => {
+    expect(getPercentileLabel("top10", "da")).toBe("Top 10%");
+    expect(getPercentileLabel("average", "da")).toBe("Middel");
+    expect(getPercentileLabel("bottom10", "da")).toBe("Bund 10%");
+  });
+
+  it("returns English labels", () => {
+    expect(getPercentileLabel("top10", "en")).toBe("Top 10%");
+    expect(getPercentileLabel("above_avg", "en")).toBe("Above average");
+    expect(getPercentileLabel("below_avg", "en")).toBe("Below average");
   });
 });
 
