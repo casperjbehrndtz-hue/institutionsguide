@@ -165,6 +165,10 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 38 — TIER 10: AnimatedNumber count-up on stat cards
+**Ændringer**: Created AnimatedNumber.tsx (IntersectionObserver + rAF with ease-out cubic), applied to stat cards on CategoryMunicipalityPage (4 price stats), KommunePage (4 rate cards), PrissammenligningPage (4 national averages), BestValuePage (2 stat cards)
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ---
 
 ## Running totals
@@ -173,7 +177,7 @@
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
-- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars, #1 highlighting, ScrollReveal animations
+- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars, #1 highlighting, ScrollReveal animations, animated number count-up on stat cards (4 pages)
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 10 (more visible UX improvements)
