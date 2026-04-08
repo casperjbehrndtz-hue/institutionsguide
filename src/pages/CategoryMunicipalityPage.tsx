@@ -18,6 +18,7 @@ import {
   type CategorySlug,
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 import type { UnifiedInstitution } from "@/lib/types";
 
 export default function CategoryMunicipalityPage() {
@@ -197,7 +198,7 @@ export default function CategoryMunicipalityPage() {
       />
 
       {/* Header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {catLabel} i {munName}
         </h1>
@@ -219,11 +220,11 @@ export default function CategoryMunicipalityPage() {
             {introText}
           </p>
         )}
-      </section>
+      </section></ScrollReveal>
 
       {/* Price stats */}
       {stats.avg && (
-        <section className="max-w-4xl mx-auto px-4 py-6">
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">
             Prisstatistik for {catLabel.toLowerCase()} i {munName}
           </h2>
@@ -283,7 +284,7 @@ export default function CategoryMunicipalityPage() {
               {formatDKK(stats.max)}/md.
             </p>
           )}
-        </section>
+        </section></ScrollReveal>
       )}
 
       {/* Institution list */}
