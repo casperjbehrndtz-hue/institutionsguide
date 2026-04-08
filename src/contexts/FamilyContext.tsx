@@ -113,7 +113,6 @@ function readAndCleanUrlParams(): {
 
 export function FamilyProvider({ children }: { children: ReactNode }) {
   // Read URL params once on mount. URL params override localStorage.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const urlData = useMemo(() => readAndCleanUrlParams(), []);
   const [deepLink] = useState<DeepLinkData>(() => urlData.deepLink);
 

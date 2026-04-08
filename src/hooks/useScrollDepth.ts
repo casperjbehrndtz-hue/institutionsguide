@@ -20,7 +20,7 @@ export function useScrollDepth(metadata?: Record<string, string | number | null>
       for (const t of thresholds) {
         if (pct >= t && !fired.current.has(t)) {
           fired.current.add(t);
-          const ph = (window as any).posthog;
+          const ph = window.posthog;
           if (ph?.capture) ph.capture("scroll_depth", { depth: t, ...metadata });
         }
       }

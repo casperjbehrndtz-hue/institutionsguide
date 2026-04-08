@@ -19,7 +19,7 @@ export function useFeatureView(
       ([entry]) => {
         if (entry.isIntersecting && !fired.current) {
           fired.current = true;
-          const ph = (window as any).posthog;
+          const ph = window.posthog;
           if (ph?.capture) ph.capture("gated_feature_viewed", { feature, ...metadata });
           observer.disconnect();
         }

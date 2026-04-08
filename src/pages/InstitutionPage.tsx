@@ -91,7 +91,7 @@ export default function InstitutionPage() {
   const openGate = useCallback(() => setGateOpen(true), []);
   const handleUnlocked = useCallback(() => {
     setUnlocked(true);
-    const ph = (window as any).posthog;
+    const ph = window.posthog;
     if (ph?.capture) ph.capture("gated_content_viewed", { institutionId: id });
   }, [id]);
 

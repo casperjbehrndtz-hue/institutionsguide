@@ -40,7 +40,7 @@ export default function InstitutionGateModal({
 
   // Track gate rejection (user saw modal, closed without submitting)
   const trackRejection = useCallback(() => {
-    const ph = (window as any).posthog;
+    const ph = window.posthog;
     if (ph?.capture) ph.capture("gate_rejection", { institution: institutionName });
   }, [institutionName]);
 
@@ -52,7 +52,7 @@ export default function InstitutionGateModal({
   // Track gate impression + focus input when opened
   useEffect(() => {
     if (open) {
-      const ph = (window as any).posthog;
+      const ph = window.posthog;
       if (ph?.capture) ph.capture("gate_impression", { institution: institutionName });
       setTimeout(() => inputRef.current?.focus(), 100);
     }
@@ -112,7 +112,7 @@ export default function InstitutionGateModal({
         throw new Error(body || `HTTP ${res.status}`);
       }
 
-      const ph = (window as any).posthog;
+      const ph = window.posthog;
       if (ph?.capture) {
         ph.capture("gate_email_submitted", { institution: institutionName, consent_marketing: marketing });
         ph.capture("gate_unlocked", { institution: institutionName });
@@ -124,7 +124,7 @@ export default function InstitutionGateModal({
     } catch (err) {
       console.error("Gate capture failed:", err);
       // Still unlock on failure — don't block the user
-      const ph = (window as any).posthog;
+      const ph = window.posthog;
       if (ph?.capture) {
         ph.capture("gate_email_submitted", { institution: institutionName, consent_marketing: marketing, fallback: true });
         ph.capture("gate_unlocked", { institution: institutionName, fallback: true });

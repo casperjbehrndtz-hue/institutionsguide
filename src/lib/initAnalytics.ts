@@ -37,7 +37,7 @@ export function loadAnalytics(): void {
     s.crossOrigin = "anonymous";
     s.src = "https://eu-assets.i.posthog.com/static/array.js";
     s.onload = () => {
-      const ph = (window as any).posthog;
+      const ph = window.posthog;
       if (ph && typeof ph.init === "function") {
         ph.init(posthogKey, {
           api_host: "https://eu.i.posthog.com",
@@ -56,7 +56,7 @@ export function loadAnalytics(): void {
 /** Remove analytics if user later declines (best-effort). */
 export function removeAnalytics(): void {
   // Opt-out PostHog if loaded
-  const ph = (window as any).posthog;
+  const ph = window.posthog;
   if (ph && typeof ph.opt_out_capturing === "function") {
     ph.opt_out_capturing();
   }
