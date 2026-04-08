@@ -19,17 +19,22 @@ export function useReviewAnalysis(institutionId: string, reviews: SupabaseReview
   const [analysis, setAnalysis] = useState<ReviewAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const reviewCountRef = useRef(0);
+  const analysisRef = useRef(analysis);
+  analysisRef.current = analysis;
+  const reviewsRef = useRef(reviews);
+  reviewsRef.current = reviews;
 
+  const reviewCount = reviews.length;
   useEffect(() => {
-    if (!supabase || !institutionId || reviews.length < 3) {
+    if (!supabase || !institutionId || reviewCount < 3) {
       setAnalysis(null);
       setIsLoading(false);
       return;
     }
 
     // Avoid refetching if review count hasn't changed
-    if (reviewCountRef.current === reviews.length && analysis) return;
-    reviewCountRef.current = reviews.length;
+    if (reviewCountRef.current === reviewCount && analysisRef.current) return;
+    reviewCountRef.current = reviewCount;
 
     let cancelled = false;
 
@@ -39,7 +44,7 @@ export function useReviewAnalysis(institutionId: string, reviews: SupabaseReview
       try {
         const payload = {
           institution_id: institutionId,
-          reviews: reviews.map((r) => ({
+          reviews: reviewsRef.current.map((r) => ({
             id: r.id,
             rating: r.rating,
             title: r.title,
@@ -77,7 +82,7 @@ export function useReviewAnalysis(institutionId: string, reviews: SupabaseReview
 
     fetchAnalysis();
     return () => { cancelled = true; };
-  }, [institutionId, reviews.length]);
+  }, [institutionId, reviewCount]);
 
   return { analysis, isLoading };
 }

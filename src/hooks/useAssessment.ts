@@ -54,6 +54,7 @@ export function useAssessment(
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [state, setState] = useState<State>("idle");
   // Use refs to avoid re-triggering effect when these change (we only refetch on inst change)
+  const instRef = useRef(inst);
   const nearbyRef = useRef(nearby);
   const normeringRef = useRef(normering);
   const avgPriceRef = useRef(municipalityAvgPrice);
@@ -62,6 +63,7 @@ export function useAssessment(
   const allStatsRef = useRef(allInstitutionStats);
   const natAvgRef = useRef(nationalAverages);
   useEffect(() => {
+    instRef.current = inst;
     nearbyRef.current = nearby;
     normeringRef.current = normering;
     avgPriceRef.current = municipalityAvgPrice;
@@ -71,7 +73,9 @@ export function useAssessment(
     natAvgRef.current = nationalAverages;
   });
 
+  const instId = inst?.id;
   useEffect(() => {
+    const inst = instRef.current;
     if (!inst || !scoreRef.current || !scoreRef.current.hasData) return;
     if (!supabase) {
       queueMicrotask(() => setState("idle"));
@@ -357,7 +361,7 @@ export function useAssessment(
 
     fetchAssessment();
     return () => { cancelled = true; };
-  }, [inst?.id]);
+  }, [instId]);
 
   return { assessment, state };
 }
