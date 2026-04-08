@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 56 — TIER 9: Dark mode hover states for favorite buttons
+**Ændringer**: ActionBar, InstitutionDetail, InstitutionListCard, FavoritesPage — hover:bg-red-50 → + dark:hover:bg-red-950/30
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 55 — TIER 9: Dark mode fixes for colored info cards
 **Ændringer**: CheapestPage fripladstip card (bg-blue-50→dark:bg-blue-950/30), InstitutionSidebar tilsyn badge (amber dark variants), link hover color
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
