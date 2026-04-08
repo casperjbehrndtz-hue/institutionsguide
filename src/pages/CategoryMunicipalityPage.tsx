@@ -21,6 +21,7 @@ import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import type { UnifiedInstitution } from "@/lib/types";
+import ShareButton from "@/components/shared/ShareButton";
 
 export default function CategoryMunicipalityPage() {
   const { category, municipality: munSlug } = useParams<{
@@ -199,7 +200,10 @@ export default function CategoryMunicipalityPage() {
       />
 
       {/* Header */}
-      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+        <div className="absolute top-4 right-4">
+          <ShareButton title={`${catLabel} i ${munName}`} url={`/${category}/${munSlug}`} />
+        </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {catLabel} i {munName}
         </h1>
