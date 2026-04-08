@@ -141,7 +141,7 @@ export default function FavoritesPage() {
 
       {/* Confirm clear dialog */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowConfirm(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" role="dialog" aria-modal="true" onClick={() => setShowConfirm(false)}>
           <div className="bg-bg-card rounded-xl shadow-xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
             <p className="text-foreground font-medium mb-2">
               {language === "da" ? "Ryd alle favoritter?" : "Clear all favorites?"}

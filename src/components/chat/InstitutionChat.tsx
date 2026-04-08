@@ -125,7 +125,7 @@ export default function InstitutionChat({ institutionId, category, context, lang
                 : (language === "da" ? "Stil spørgsmål om denne institution" : "Ask questions about this institution")}
             </div>
           </div>
-          <button onClick={() => setIsOpen((o) => !o)} className="p-1 cursor-pointer">
+          <button onClick={() => setIsOpen((o) => !o)} className="p-1 cursor-pointer" aria-label={isOpen ? "Luk chat" : "Åbn chat"}>
             {isOpen ? (
               <ChevronUp className="w-4 h-4 text-muted" />
             ) : (
