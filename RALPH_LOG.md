@@ -85,11 +85,37 @@
 
 ---
 
+### Iteration 18 — TIER 8: Tests for normalizeSearch, format, slugs, geo
+**Ændringer**: 4 new test files, 29 new tests
+**Verifikation**: tests: 146/146
+
+### Iteration 19 — TIER 8: Tests for totalCostCalculator, personalizedPrice
+**Ændringer**: 2 new test files, 12 new tests
+**Verifikation**: tests: 158/158
+
+### Iteration 20 — TIER 8: Tests for badges
+**Ændringer**: 1 new test file, 17 new tests
+**Verifikation**: tests: 175/175
+
+### Iteration 21 — TIER 9: Accessibility fixes
+**Ændringer**: aria-label on chat toggle, role="dialog" on FavoritesPage modal
+**Verifikation**: tsc: ✓ | tests: 175/175
+
+### Iteration 22 — TIER 4: Eliminate all ESLint errors
+**Ændringer**: Created src/global.d.ts with PostHogLike interface, replaced (window as any).posthog in 6 files, removed stale eslint-disable
+**Verifikation**: ESLint: 0 errors, 2 warnings | tsc: ✓ | tests: 175/175 | build: ✓ (1939 pages)
+
+### Iteration 23 — TIER 8: Tests for childcare rates data
+**Ændringer**: 1 new test file, 6 new tests (data integrity: 98 municipalities, no dupes, positive rates)
+**Verifikation**: tests: 181/181
+
+---
+
 ## Running totals
-- **ESLint**: 31 errors, 8 warnings → 11 errors, 3 warnings (20 fewer errors, 5 fewer warnings)
-- **Files over 400 lines**: 14 → 2 (HomePage 446, InstitutionPage 438 — both well-componentized, diminishing returns)
+- **ESLint**: 31 errors, 8 warnings → **0 errors, 2 warnings** ✅
+- **Files over 400 lines**: 14 → 2 (HomePage 446, InstitutionPage 438 — well-componentized, diminishing returns)
 - **Build**: green throughout, 1939 pages pre-rendered
-- **Tests**: 117/117 throughout, never broken
-- **Remaining system-boundary `any`s**: 11 (PostHog, Supabase, InstitutionGateModal) — intentional
-- **TIER 7 complete** — moving to TIER 8 (missing tests)
-- **Næste opgave**: TIER 8 — add test coverage for critical modules
+- **Tests**: 117 → **181** across 14 files (was 6 files)
+- **Accessibility**: aria-labels on icon buttons, dialog roles on modals
+- **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
+- **Næste opgave**: Continue TIER 8 (more tests) or TIER 12 (TODO/FIXME)
