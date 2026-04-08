@@ -175,6 +175,42 @@ export default function CheapestPage() {
         )}
       </section></ScrollReveal>
 
+      {/* Quick stats */}
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-4">
+        <ScrollReveal stagger><div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="card card-static p-4 text-center">
+            <p className="text-xs text-muted mb-1">Billigste</p>
+            <p className="font-mono text-lg font-bold text-success">
+              <AnimatedNumber value={cheapestPrice} format={formatDKK} />
+            </p>
+          </div>
+          {medianPrice && (
+            <div className="card card-static p-4 text-center">
+              <p className="text-xs text-muted mb-1">Median</p>
+              <p className="font-mono text-lg font-bold text-foreground">
+                <AnimatedNumber value={medianPrice} format={formatDKK} />
+              </p>
+            </div>
+          )}
+          {munAvg && (
+            <div className="card card-static p-4 text-center">
+              <p className="text-xs text-muted mb-1">Gennemsnit</p>
+              <p className="font-mono text-lg font-bold text-foreground">
+                <AnimatedNumber value={munAvg} format={formatDKK} />
+              </p>
+            </div>
+          )}
+          {nationalAvg && (
+            <div className="card card-static p-4 text-center">
+              <p className="text-xs text-muted mb-1">Landsgennemsnit</p>
+              <p className="font-mono text-lg font-bold text-muted">
+                <AnimatedNumber value={nationalAvg} format={formatDKK} />
+              </p>
+            </div>
+          )}
+        </div></ScrollReveal>
+      </section></ScrollReveal>
+
       {/* Savings callout */}
       {savings !== null && savings > 0 && (
         <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-4">
