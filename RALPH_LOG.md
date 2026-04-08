@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 64 — TIER 10: ShareButton on FripladsPage
+**Ændringer**: FripladsPage — ShareButton in hero section
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 63 — TIER 10: AnimatedNumber + ShareButton on NormeringPage
 **Ændringer**: NormeringPage — hero kommune count animates, ShareButton added
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
@@ -278,7 +282,8 @@
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
-- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (8+ pages), AnimatedNumber on stat cards + hero counters, professional border-accent ranking, annual savings callout, price position bars, price indicator tags on KommunePage, ShareButton on 6 ranking pages
+- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages incl. HomePage, ComparePage, FindPage, AboutPage, BlogIndex), AnimatedNumber on stat cards + hero counters (GymnasiumPage, NormeringPage), professional border-accent ranking, annual savings callout, price position bars, price indicator tags, ShareButton on 10+ pages, row numbering on PrissammenligningPage + NormeringPage
+- **Dark mode**: Fixed info cards (CheapestPage, InstitutionSidebar), favorite button hover states (4 components), VsPage price winner card
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
-- **Næste opgave**: Continue TIER 10 (more visible UX improvements)
+- **Næste opgave**: Continue TIER 10 UX improvements + explore TIER 8 tests

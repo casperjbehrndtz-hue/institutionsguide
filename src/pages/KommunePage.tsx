@@ -22,6 +22,7 @@ import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { useFamily } from "@/contexts/FamilyContext";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import DataFreshness from "@/components/shared/DataFreshness";
+import ShareButton from "@/components/shared/ShareButton";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole", "gymnasium"] as const;
 
@@ -191,7 +192,10 @@ export default function KommunePage() {
       ]} />
 
       {/* Header */}
-      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+        <div className="absolute top-4 right-4">
+          <ShareButton title={`${decodedName} — Institutioner og priser`} url={`/kommune/${encodeURIComponent(decodedName)}`} />
+        </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {decodedName}
         </h1>
