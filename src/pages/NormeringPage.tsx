@@ -302,8 +302,8 @@ export default function NormeringPage() {
           <table className="w-full text-sm" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b border-border">
-                <th className="w-8 py-3 px-2 font-medium text-muted text-center">#</th>
-                <th className="text-left py-3 px-2 font-medium text-muted">
+                <th scope="col" className="w-8 py-3 px-2 font-medium text-muted text-center">#</th>
+                <th scope="col" className="text-left py-3 px-2 font-medium text-muted">
                   <button
                     onClick={() => handleSort("municipality")}
                     className="hover:text-foreground transition-colors"
@@ -312,7 +312,7 @@ export default function NormeringPage() {
                   </button>
                 </th>
                 {AGE_GROUPS.map((ag) => (
-                  <th key={ag} className="text-right py-3 px-2 font-medium text-muted">
+                  <th key={ag} scope="col" className="text-right py-3 px-2 font-medium text-muted">
                     <button
                       onClick={() => handleSort(ag)}
                       className="hover:text-foreground transition-colors"

@@ -232,9 +232,9 @@ export default function VsPage() {
           <table className="w-full text-sm" role="table">
             <thead>
               <tr className="border-b">
-                <th className="py-2 pr-4 text-left text-muted font-medium"></th>
-                <th className="py-2 px-4 text-center text-muted font-medium">{labelA}</th>
-                <th className="py-2 pl-4 text-center text-muted font-medium">{labelB}</th>
+                <th scope="col" className="py-2 pr-4 text-left text-muted font-medium"></th>
+                <th scope="col" className="py-2 px-4 text-center text-muted font-medium">{labelA}</th>
+                <th scope="col" className="py-2 pl-4 text-center text-muted font-medium">{labelB}</th>
               </tr>
             </thead>
             <tbody>

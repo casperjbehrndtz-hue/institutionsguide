@@ -193,17 +193,17 @@ export default function GuideResults({
             {isDa ? "Sammenligning: dagpleje vs. vuggestue vs. børnehave" : "Comparison: childminder vs. nursery vs. kindergarten"}
           </h3>
           <div className="overflow-x-auto -mx-4 px-4">
-            <table className="w-full text-sm border-collapse min-w-[520px]">
+            <table className="w-full text-sm border-collapse min-w-[520px]" role="table">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-2 pr-3 text-muted font-medium w-[140px]" />
-                  <th className="text-left py-2 px-3 font-semibold text-foreground">
+                  <th scope="col" className="text-left py-2 pr-3 text-muted font-medium w-[140px]" />
+                  <th scope="col" className="text-left py-2 px-3 font-semibold text-foreground">
                     {isDa ? "Dagpleje" : "Childminder"}
                   </th>
-                  <th className="text-left py-2 px-3 font-semibold text-foreground">
+                  <th scope="col" className="text-left py-2 px-3 font-semibold text-foreground">
                     {isDa ? "Vuggestue" : "Nursery"}
                   </th>
-                  <th className="text-left py-2 px-3 font-semibold text-foreground">
+                  <th scope="col" className="text-left py-2 px-3 font-semibold text-foreground">
                     {isDa ? "Børnehave" : "Kindergarten"}
                   </th>
                 </tr>

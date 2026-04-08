@@ -258,12 +258,12 @@ export default function BestValuePage() {
           <table className="w-full text-sm" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b text-left">
-                <th className="py-2 pr-2 text-muted font-medium">#</th>
-                <th className="py-2 pr-4 text-muted font-medium">Skole</th>
-                <th className="py-2 pr-2 text-muted font-medium">Kommune</th>
-                <th className="py-2 pr-2 text-muted font-medium text-center">Kvalitet</th>
-                <th className="py-2 pr-2 text-muted font-medium text-center">SFO-pris</th>
-                <th className="py-2 text-muted font-medium text-center">Værdi-score</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium">#</th>
+                <th scope="col" className="py-2 pr-4 text-muted font-medium">Skole</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium">Kommune</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center">Kvalitet</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center">SFO-pris</th>
+                <th scope="col" className="py-2 text-muted font-medium text-center">Værdi-score</th>
               </tr>
             </thead>
             <tbody>

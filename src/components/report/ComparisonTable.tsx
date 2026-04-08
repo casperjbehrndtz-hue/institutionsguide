@@ -55,25 +55,25 @@ export default function ComparisonTable({ current, currentScore, nearby, languag
           : `The nearest comparable institutions`}
       </p>
       <div className="overflow-x-auto -mx-2">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" role="table">
           <thead>
             <tr className="border-b border-border/60">
-              <th className="text-left py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
+              <th scope="col" className="text-left py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
                 {lang === "da" ? "Institution" : "Institution"}
               </th>
-              <th className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">Score</th>
+              <th scope="col" className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">Score</th>
               {isSchool && <>
-                <th className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
+                <th scope="col" className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
                   {lang === "da" ? "Trivsel" : "Well-being"}
                 </th>
-                <th className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
+                <th scope="col" className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
                   {lang === "da" ? "Fravær" : "Absence"}
                 </th>
-                <th className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
+                <th scope="col" className="hidden sm:table-cell text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold">
                   {lang === "da" ? "Karakter" : "Grades"}
                 </th>
               </>}
-              <th className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold" />
+              <th scope="col" className="text-right py-2.5 px-2 text-[11px] text-muted uppercase tracking-wider font-semibold" />
             </tr>
           </thead>
           <tbody>
