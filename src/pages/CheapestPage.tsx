@@ -231,7 +231,15 @@ export default function CheapestPage() {
                       {inst.ownership || "–"}
                     </td>
                     <td className="py-3 font-mono text-right font-semibold">
-                      {formatDKK(inst.monthlyRate)}
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="hidden sm:block w-16 h-1.5 bg-border/50 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary/60 rounded-full"
+                            style={{ width: `${Math.min(100, (inst.monthlyRate! / sorted[sorted.length - 1].monthlyRate!) * 100)}%` }}
+                          />
+                        </div>
+                        {formatDKK(inst.monthlyRate)}
+                      </div>
                     </td>
                     {nationalAvg && (
                       <td
