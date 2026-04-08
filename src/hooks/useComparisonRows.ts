@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { UnifiedInstitution, InstitutionStats, NormeringEntry } from "@/lib/types";
+import type { UnifiedInstitution, InstitutionStats, NormeringEntry, SchoolExtraStats, SFOStats } from "@/lib/types";
 import { computeScore } from "@/lib/institutionScore";
 
 export interface ComparisonRow {
@@ -18,8 +18,8 @@ export function useComparisonRows(
   normering: NormeringEntry[],
   institutions: UnifiedInstitution[],
   institutionStats: Record<string, InstitutionStats>,
-  schoolExtraStats: Record<string, any>,
-  sfoStats: Record<string, any>,
+  schoolExtraStats: Record<string, SchoolExtraStats>,
+  sfoStats: Record<string, SFOStats>,
 ): ComparisonRow[] {
   return useMemo(() => {
     if (!inst || !hasScore) return [];

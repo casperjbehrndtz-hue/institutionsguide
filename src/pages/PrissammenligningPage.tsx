@@ -57,7 +57,7 @@ export default function PrissammenligningPage() {
 
   // Compute quartile bounds per rate category
   const quartileBounds = useMemo(() => {
-    const bounds: Record<RateKey, { q1: number; q3: number }> = {} as any;
+    const bounds = {} as Record<RateKey, { q1: number; q3: number }>;
     for (const key of RATE_KEYS) {
       const values = municipalities
         .map((m) => m.rates[key])
@@ -69,7 +69,7 @@ export default function PrissammenligningPage() {
 
   // National averages
   const nationalAvg = useMemo(() => {
-    const avgs: Record<RateKey, number | null> = {} as any;
+    const avgs = {} as Record<RateKey, number | null>;
     for (const key of RATE_KEYS) {
       const values = municipalities
         .map((m) => m.rates[key])
@@ -81,7 +81,7 @@ export default function PrissammenligningPage() {
 
   // Cheapest and most expensive per category
   const extremes = useMemo(() => {
-    const result: Record<RateKey, { cheapest: string | null; expensive: string | null }> = {} as any;
+    const result = {} as Record<RateKey, { cheapest: string | null; expensive: string | null }>;
     for (const key of RATE_KEYS) {
       let minVal = Infinity;
       let maxVal = -Infinity;
