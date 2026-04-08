@@ -165,6 +165,10 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 42 — TIER 10: Animated institution count on hero sections
+**Ændringer**: HeroSection (homepage), CategoryPage, KommunePage — institution count animates from 0 on scroll
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 41 — TIER 10: Price position bars on institution cards
 **Ændringer**: CategoryMunicipalityPage — each card now shows a color-coded bar (green/yellow/red) indicating where the price falls in the range
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
