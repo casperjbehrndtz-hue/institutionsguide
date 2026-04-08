@@ -19,6 +19,7 @@ import {
   type CategorySlug,
 } from "@/lib/slugs";
 import RankedCard from "@/components/ranking/RankedCard";
+import ShareButton from "@/components/shared/ShareButton";
 
 /** The four dagtilbud categories that get "bedste" pages */
 const BEDSTE_CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "sfo"] as const;
@@ -235,7 +236,10 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
 
       {/* Header */}
       <ScrollReveal>
-        <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+        <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+          <div className="absolute top-4 right-4">
+            <ShareButton title={`Bedste ${catPluralDa} i ${munName}`} url={`/bedste-${cat}/${munSlug}`} />
+          </div>
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
             {language === "da"
               ? `Bedste ${catPluralDa} i ${munName}`

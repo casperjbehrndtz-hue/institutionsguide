@@ -12,6 +12,7 @@ import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { dataVersions } from "@/lib/dataVersions";
 import DataFreshness from "@/components/shared/DataFreshness";
 import PriceSpreadChart from "@/components/charts/PriceSpreadChart";
+import ShareButton from "@/components/shared/ShareButton";
 
 type RateKey = "vuggestue" | "boernehave" | "dagpleje" | "sfo";
 type SortKey = "municipality" | RateKey;
@@ -224,7 +225,10 @@ export default function PrissammenligningPage() {
       />
 
       {/* Hero */}
-      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+        <div className="absolute top-4 right-4">
+          <ShareButton title="Prissammenligning — Børnepasning i alle kommuner" url="/prissammenligning" />
+        </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           Prissammenligning på tværs af kommuner
         </h1>

@@ -13,6 +13,7 @@ import ScrollReveal from "@/components/shared/ScrollReveal";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { qualityBadge } from "@/lib/badges";
+import ShareButton from "@/components/shared/ShareButton";
 
 function formatPct(v: number | undefined): string {
   if (v === undefined) return "–";
@@ -148,7 +149,10 @@ export default function BestSchoolPage() {
       />
 
       {/* Header */}
-      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+        <div className="absolute top-4 right-4">
+          <ShareButton title={`Bedste skoler i ${munName}`} url={`/bedste-skole/${munSlug}`} />
+        </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           Bedste skoler i {munName}
         </h1>
