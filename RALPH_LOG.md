@@ -165,6 +165,14 @@
 **Ændringer**: Added fade-in animations to hero and stats sections
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 50 — TIER 10: Key stats dashboard on BestDagtilbudPage
+**Ændringer**: BestDagtilbudPage — 4-column stat row (bedste score/gns. score/total/gns. pris) with AnimatedNumber
+**Verifikation**: tsc: ✓ | tests: 226/226
+
+### Iteration 49 — TIER 10: Key stats dashboard on BestSchoolPage
+**Ændringer**: BestSchoolPage — 4-column stat row (bedste score/gns. score/folkeskoler/friskoler) with AnimatedNumber
+**Verifikation**: tsc: ✓ | tests: 226/226
+
 ### Iteration 48 — TIER 10: ScrollReveal on NormeringKommunePage
 **Ændringer**: NormeringKommunePage — hero + stat cards wrapped in ScrollReveal
 **Verifikation**: tsc: ✓ | tests: 226/226
