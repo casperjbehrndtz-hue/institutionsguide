@@ -6,7 +6,7 @@ import type { PopularData } from "@/hooks/usePopularData";
 
 export default function PopularSearches({ data, language }: { data: PopularData; language: string }) {
   return (
-    <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-10 sm:py-14">
+    <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-10 sm:py-14 border-t border-border/30">
       <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1 text-center">
         {language === "da" ? "Populære søgninger" : "Popular searches"}
       </h2>

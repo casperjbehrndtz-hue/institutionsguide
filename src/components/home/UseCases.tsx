@@ -16,7 +16,7 @@ export default function UseCases({ language, schoolCount }: { language: string; 
   ];
 
   return (
-    <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-10 sm:py-14">
+    <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-10 sm:py-14 border-t border-border/30">
       <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">
         {language === "da" ? "Sådan bruger forældre Institutionsguiden" : "How parents use Institutionsguiden"}
       </h2>
