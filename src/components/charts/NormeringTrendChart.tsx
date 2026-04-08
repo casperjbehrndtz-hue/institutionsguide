@@ -24,16 +24,17 @@ const AGE_GROUP_COLORS: Record<string, string> = {
 interface Props {
   chartData: Record<string, number | string | null>[];
   activeAgeGroups: string[];
-  kommuneName: string;
+  kommuneName?: string;
+  title?: string;
 }
 
-export default function NormeringTrendChart({ chartData, activeAgeGroups, kommuneName }: Props) {
+export default function NormeringTrendChart({ chartData, activeAgeGroups, kommuneName, title }: Props) {
   if (chartData.length <= 1) return null;
 
   return (
     <section className="max-w-4xl mx-auto px-4 py-6">
       <h2 className="font-display text-xl font-bold text-foreground mb-4">
-        Udvikling i normering i {kommuneName}
+        {title ?? `Udvikling i normering i ${kommuneName}`}
       </h2>
       <div className="card p-4">
         <ResponsiveContainer width="100%" height={320}>

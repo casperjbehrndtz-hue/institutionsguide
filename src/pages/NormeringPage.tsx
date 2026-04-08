@@ -9,16 +9,7 @@ import { toSlug } from "@/lib/slugs";
 import DataFreshness from "@/components/shared/DataFreshness";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import NormeringTrendChart from "@/components/charts/NormeringTrendChart";
 
 type SortKey = "municipality" | "dagpleje" | "0-2" | "3-5";
 type SortDir = "asc" | "desc";
@@ -42,11 +33,6 @@ const AGE_GROUP_LABELS: Record<string, string> = {
   dagpleje: "Dagpleje",
   "0-2": "0-2 år",
   "3-5": "3-5 år",
-};
-const AGE_GROUP_COLORS: Record<string, string> = {
-  dagpleje: "#f59e0b",
-  "0-2": "#22c55e",
-  "3-5": "#3b82f6",
 };
 
 function ratioColor(value: number | null, ageGroup: string): string {
@@ -270,57 +256,13 @@ export default function NormeringPage() {
       </section></ScrollReveal>
 
       {/* National trend chart */}
-      {trendData.length > 1 && (
-        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
-          <h2 className="font-display text-xl font-bold text-foreground mb-4">
-            Udvikling i normering på landsplan
-          </h2>
-          <div className="card p-4">
-            <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={trendData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/20" />
-                <XAxis dataKey="year" className="text-muted" tick={{ fontSize: 12 }} />
-                <YAxis
-                  label={{
-                    value: "børn/voksen",
-                    angle: -90,
-                    position: "insideLeft",
-                    style: { fontSize: 12 },
-                  }}
-                  className="text-muted"
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "var(--color-bg-card)",
-                    borderColor: "var(--color-border)",
-                    color: "var(--color-foreground)",
-                    borderRadius: "0.5rem",
-                    fontSize: 13,
-                  }}
-                  formatter={(value, name) => [
-                    Number(value).toFixed(1).replace(".", ","),
-                    AGE_GROUP_LABELS[name as string] ?? name,
-                  ]}
-                />
-                <Legend formatter={(value) => AGE_GROUP_LABELS[value as string] ?? value} />
-                {AGE_GROUPS.map((ag) => (
-                  <Line
-                    key={ag}
-                    type="monotone"
-                    dataKey={ag}
-                    stroke={AGE_GROUP_COLORS[ag]}
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                    activeDot={{ r: 5 }}
-                    connectNulls
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </section></ScrollReveal>
-      )}
+      <ScrollReveal>
+        <NormeringTrendChart
+          chartData={trendData}
+          activeAgeGroups={[...AGE_GROUPS]}
+          title="Udvikling i normering på landsplan"
+        />
+      </ScrollReveal>
 
       {/* Kommune ranking table */}
       <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8">
