@@ -6,7 +6,7 @@ export default function HomeToolsSection() {
   const { t } = useLanguage();
 
   return (
-    <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
+    <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-8 sm:py-10 border-t border-border/30">
       <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1 text-center">
         {t.home.moreTools}
       </h2>
