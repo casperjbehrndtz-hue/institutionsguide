@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { toSlug } from "@/lib/slugs";
 import { formatDKK, formatDecimal } from "@/lib/format";
@@ -133,10 +134,7 @@ export default function BestValuePage() {
   return (
     <>
       <SEOHead title={pageTitle} description={pageDesc} path="/bedste-vaerdi" />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       <Breadcrumbs
         items={[

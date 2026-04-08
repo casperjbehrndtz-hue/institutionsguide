@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataFreshness from "@/components/shared/DataFreshness";
@@ -207,11 +208,7 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
         path={`/bedste-${cat}/${munSlug}`}
       />
 
-      {/* JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       <Breadcrumbs
         items={[

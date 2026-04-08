@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import SEOHead from "@/components/shared/SEOHead";
+import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { buildSlugMap, toSlug } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
@@ -134,10 +135,7 @@ export default function BestSchoolPage() {
         description={pageDesc}
         path={`/bedste-skole/${munSlug}`}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
 
       <Breadcrumbs
         items={[
