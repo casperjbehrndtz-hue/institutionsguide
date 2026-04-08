@@ -3,12 +3,13 @@ import { dataVersions } from "@/lib/dataVersions";
 import QualityMetricRow from "@/components/detail/QualityMetricRow";
 import type { PercentileEntry } from "@/hooks/usePercentiles";
 import type { SchoolQuality } from "@/lib/types";
+import type { TranslationStrings } from "@/lib/translations/types";
 
 interface QualityDataSectionProps {
   percentiles: PercentileEntry[];
   quality: SchoolQuality;
   language: string;
-  t: any;
+  t: TranslationStrings;
 }
 
 export default function QualityDataSection({ percentiles, quality, language, t }: QualityDataSectionProps) {

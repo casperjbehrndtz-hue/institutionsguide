@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { UnifiedInstitution } from "@/lib/types";
+import type { TranslationStrings } from "@/lib/translations/types";
 
 export interface PercentileEntry {
   label: string;
@@ -22,7 +23,7 @@ function pctRankInverse(values: number[], val: number): number {
 export function usePercentiles(
   inst: UnifiedInstitution | undefined,
   institutions: UnifiedInstitution[],
-  t: any,
+  t: TranslationStrings,
 ): PercentileEntry[] | null {
   return useMemo(() => {
     if (!inst || inst.category !== "skole" || !inst.quality) return null;

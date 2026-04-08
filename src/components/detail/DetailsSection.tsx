@@ -9,6 +9,7 @@ import PriceSection from "@/components/detail/PriceSection";
 import NormeringSection from "@/components/detail/NormeringSection";
 import { useFeatureView } from "@/hooks/useFeatureView";
 import type { UnifiedInstitution, NormeringEntry, TilsynRapport } from "@/lib/types";
+import type { TranslationStrings } from "@/lib/translations/types";
 
 const PriceHistoryChart = lazy(() => import("@/components/charts/PriceHistoryChart"));
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
@@ -23,7 +24,7 @@ interface DetailsSectionProps {
   unlocked: boolean;
   onRequestUnlock: () => void;
   language: string;
-  t: any;
+  t: TranslationStrings;
 }
 
 export default function DetailsSection({

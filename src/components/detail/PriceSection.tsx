@@ -2,6 +2,7 @@ import { formatDKK } from "@/lib/format";
 import { dataVersions } from "@/lib/dataVersions";
 import GatedSection from "@/components/shared/GatedSection";
 import type { UnifiedInstitution } from "@/lib/types";
+import type { TranslationStrings } from "@/lib/translations/types";
 
 interface PriceSectionProps {
   inst: UnifiedInstitution;
@@ -9,7 +10,7 @@ interface PriceSectionProps {
   unlocked: boolean;
   onRequestUnlock: () => void;
   language: string;
-  t: any;
+  t: TranslationStrings;
 }
 
 export default function PriceSection({ inst, municipalityAvgPrice, unlocked, onRequestUnlock, language, t }: PriceSectionProps) {

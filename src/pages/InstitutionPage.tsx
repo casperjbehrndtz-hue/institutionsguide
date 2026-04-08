@@ -21,7 +21,8 @@ import InstitutionReport from "@/components/report/InstitutionReport";
 import InstitutionSidebar from "@/components/report/InstitutionSidebar";
 import ComparisonTable from "@/components/report/ComparisonTable";
 import InstitutionQualitySection from "@/components/detail/InstitutionQualitySection";
-import { computeScore } from "@/lib/institutionScore";
+import { computeScore, type ScoreResult } from "@/lib/institutionScore";
+import type { UnifiedInstitution, InstitutionStats } from "@/lib/types";
 import { useAssessment } from "@/hooks/useAssessment";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataSourceBadges from "@/components/shared/DataSourceBadges";
@@ -34,14 +35,14 @@ import StickyHeader from "@/components/detail/StickyHeader";
 import ActionBar from "@/components/detail/ActionBar";
 import DetailsSection from "@/components/detail/DetailsSection";
 import QualityDataSection from "@/components/detail/QualityDataSection";
-import { usePercentiles } from "@/hooks/usePercentiles";
+import { usePercentiles, type PercentileEntry } from "@/hooks/usePercentiles";
 import { useComparisonRows } from "@/hooks/useComparisonRows";
 import { useScrollDepth } from "@/hooks/useScrollDepth";
 import { useFeatureView } from "@/hooks/useFeatureView";
 
 function buildChatContext(
-  inst: any, instStats: any, municipalityAvgPrice: number | null,
-  scoreResult: any, percentiles: any[] | null,
+  inst: UnifiedInstitution, instStats: InstitutionStats | undefined, municipalityAvgPrice: number | null,
+  scoreResult: ScoreResult, percentiles: PercentileEntry[] | null,
 ) {
   return {
     name: inst.name, category: inst.category, municipality: inst.municipality,
@@ -60,7 +61,7 @@ function buildChatContext(
     undervisningstid_pr_elev: inst.quality?.upe ?? null,
     score: scoreResult.overall, grade: scoreResult.grade,
     address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
-    percentile_rankings: percentiles?.map((p: any) => `${p.label}: ${p.value} (${p.percentile}. percentil)`) ?? [],
+    percentile_rankings: percentiles?.map((p) => `${p.label}: ${p.value} (${p.percentile}. percentil)`) ?? [],
   };
 }
 

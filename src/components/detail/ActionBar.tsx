@@ -4,13 +4,14 @@ import ShareButton from "@/components/shared/ShareButton";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/contexts/CompareContext";
 import type { UnifiedInstitution } from "@/lib/types";
+import type { TranslationStrings } from "@/lib/translations/types";
 
 interface ActionBarProps {
   inst: UnifiedInstitution;
   cameFrom: string | undefined;
   categoryPath: string;
   language: string;
-  t: any;
+  t: TranslationStrings;
   onCompareToast: (msg: string) => void;
 }
 
