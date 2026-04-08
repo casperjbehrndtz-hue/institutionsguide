@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 69 — TIER 7: Extract SchoolRow from BestSchoolPage
+**Ændringer**: Created src/components/ranking/SchoolRow.tsx, BestSchoolPage 426→361 lines
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 68 — TIER 7: Extract bedste category constants
 **Ændringer**: Created src/lib/bedsteCategories.ts, BestDagtilbudPage 446→412 lines
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
@@ -294,7 +298,7 @@
 
 ## Running totals
 - **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings** ✅✅
-- **Files over 400 lines**: 14 → 5 (DataContext 511, insights 477, HomePage 446, InstitutionPage 438, FindPage 402)
+- **Files over 400 lines**: 14 → 4 (DataContext 511, insights 477, HomePage 447, InstitutionPage 438) — BestDagtilbudPage 446→412, BestSchoolPage 426→361
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
