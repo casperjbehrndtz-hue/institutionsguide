@@ -10,6 +10,7 @@ import { breadcrumbSchema, itemListSchema } from "@/lib/schema";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import DataFreshness from "@/components/shared/DataFreshness";
+import ShareButton from "@/components/shared/ShareButton";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import type { UnifiedInstitution } from "@/lib/types";
 import GymnasiumCard from "@/components/gymnasium/GymnasiumCard";
@@ -184,7 +185,10 @@ export default function GymnasiumPage() {
 
       {/* Hero */}
       <ScrollReveal>
-        <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+        <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+          <div className="absolute top-4 right-4">
+            <ShareButton title={title} url="/gymnasium" />
+          </div>
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">{title}</h1>
           <p className="text-muted text-base max-w-2xl mx-auto mb-4">{description}</p>
           <p className="font-mono text-primary text-lg font-semibold">
