@@ -215,7 +215,7 @@ export default function CheapestPage() {
                 return (
                   <tr
                     key={inst.id}
-                    className="border-b hover:bg-primary/5 transition-colors"
+                    className={`border-b hover:bg-primary/5 transition-colors ${idx === 0 ? "bg-green-50 dark:bg-green-950/20" : ""}`}
                   >
                     <td className="py-3 pr-4 font-mono text-muted">{idx + 1}</td>
                     <td className="py-3 pr-4">

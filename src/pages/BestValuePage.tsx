@@ -349,7 +349,7 @@ function ValueRow({ item, rank }: { item: RankedSchool; rank: number }) {
   const badge = qualityBadge(item.school.quality?.r);
 
   return (
-    <tr className="border-b hover:bg-primary/5 transition-colors">
+    <tr className={`border-b hover:bg-primary/5 transition-colors ${rank === 1 ? "bg-green-50 dark:bg-green-950/20" : ""}`}>
       <td className="py-3 pr-2 font-mono text-muted text-xs">{rank}</td>
       <td className="py-3 pr-4">
         <Link
