@@ -205,14 +205,17 @@ export default function BestValuePage() {
         <div className="space-y-3">
           {ranked.slice(0, 5).map((item, idx) => {
             const badge = qualityBadge(item.school.quality?.r);
+            const medal = idx === 0 ? { bg: "bg-amber-50 dark:bg-amber-900/20", border: "border-amber-300 dark:border-amber-700", icon: "\u{1F947}" } :
+                          idx === 1 ? { bg: "bg-gray-50 dark:bg-gray-800/30", border: "border-gray-300 dark:border-gray-600", icon: "\u{1F948}" } :
+                          idx === 2 ? { bg: "bg-orange-50 dark:bg-orange-900/20", border: "border-orange-300 dark:border-orange-700", icon: "\u{1F949}" } : null;
             return (
               <div
                 key={item.school.id}
-                className="card p-4 flex flex-col sm:flex-row sm:items-center gap-3"
+                className={`card p-4 flex flex-col sm:flex-row sm:items-center gap-3 ${medal ? `${medal.bg} ${medal.border}` : ""}`}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm">
-                    {idx + 1}
+                    {medal ? medal.icon : idx + 1}
                   </span>
                   <div className="min-w-0">
                     <Link
