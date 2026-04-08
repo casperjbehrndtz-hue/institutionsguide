@@ -111,11 +111,26 @@
 
 ---
 
+### Iteration 24 — TIER 8: Tests for dataVersions and institutionGate
+**Ændringer**: 2 new test files, 14 new tests (date formatting, gate unlock/expiry)
+**Verifikation**: tests: 195/195
+
+### Iteration 25 — TIER 8: Tests for guideEngine
+**Ændringer**: 1 new test file, 10 new tests (recommendation scoring, age routing, tie-breaking)
+**Verifikation**: tests: 205/205
+
+### Iteration 26 — TIER 13: Standardize JsonLd usage
+**Ændringer**: Replaced inline `<script>` JSON-LD with shared `<JsonLd>` in 4 ranking pages
+**Verifikation**: tsc: ✓ | tests: 205/205
+
+---
+
 ## Running totals
 - **ESLint**: 31 errors, 8 warnings → **0 errors, 2 warnings** ✅
-- **Files over 400 lines**: 14 → 2 (HomePage 446, InstitutionPage 438 — well-componentized, diminishing returns)
+- **Files over 400 lines**: 14 → 2 (HomePage 446, InstitutionPage 438 — well-componentized)
 - **Build**: green throughout, 1939 pages pre-rendered
-- **Tests**: 117 → **181** across 14 files (was 6 files)
+- **Tests**: 117 → **205** across 17 files (was 6 files)
 - **Accessibility**: aria-labels on icon buttons, dialog roles on modals
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
-- **Næste opgave**: Continue TIER 8 (more tests) or TIER 12 (TODO/FIXME)
+- **Consistency**: All JSON-LD uses shared `<JsonLd>` component
+- **Næste opgave**: Continue TIER 8 (more tests) or TIER 14 (error boundaries)
