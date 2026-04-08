@@ -16,6 +16,7 @@ import {
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import DataAttribution from "@/components/shared/DataAttribution";
+import PriceAnalysis from "@/components/cheapest/PriceAnalysis";
 import DataFreshness from "@/components/shared/DataFreshness";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import ShareButton from "@/components/shared/ShareButton";
@@ -322,60 +323,19 @@ export default function CheapestPage() {
       </section>
 
       {/* Dynamic analysis — unique content per municipality */}
-      <section className="max-w-3xl mx-auto px-4 py-6">
-        <h2 className="font-display text-xl font-bold text-foreground mb-3">
-          Prisanalyse — {catLabel} i {munName}
-        </h2>
-        <div className="prose prose-sm text-muted leading-relaxed space-y-3">
-          <p>
-            I {munName} Kommune er der {sorted.length} {catLabel.toLowerCase()} med
-            offentlige prisoplysninger ud af {totalInCat} i alt. Den billigste{" "}
-            {catSingular} koster {formatDKK(cheapestPrice)}/md
-            {sorted.length > 1 && (
-              <>, mens den dyreste koster {formatDKK(sorted[sorted.length - 1].monthlyRate)}/md</>
-            )}
-            .{" "}
-            {munAvg && nationalAvg && (
-              <>
-                Gennemsnitsprisen i {munName} er {formatDKK(munAvg)}/md, hvilket er{" "}
-                {munAvg < nationalAvg
-                  ? `${formatDKK(nationalAvg - munAvg)} under landsgennemsnittet på ${formatDKK(nationalAvg)}/md.`
-                  : munAvg > nationalAvg
-                  ? `${formatDKK(munAvg - nationalAvg)} over landsgennemsnittet på ${formatDKK(nationalAvg)}/md.`
-                  : `lig med landsgennemsnittet.`}
-              </>
-            )}
-          </p>
-          {medianPrice && (
-            <p>
-              Medianprisen er {formatDKK(medianPrice)}/md
-              {munAvg && medianPrice !== munAvg && (
-                <>
-                  , {medianPrice < munAvg
-                    ? "lavere end gennemsnittet — de dyreste trækker snittet op"
-                    : "højere end gennemsnittet — de billigste trækker snittet ned"}
-                </>
-              )}
-              .{" "}
-              {savings !== null && savings > 0 && (
-                <>
-                  Prisspændet er {formatDKK(savings)}/md, svarende til{" "}
-                  {formatDKK(savings * 12)} årligt i forskel mellem billigste og dyreste.
-                </>
-              )}
-            </p>
-          )}
-          {Object.keys(ownershipBreakdown).length > 1 && (
-            <p>
-              Fordelt på ejerskab:{" "}
-              {Object.entries(ownershipBreakdown)
-                .map(([ow, count]) => `${count} ${ow}`)
-                .join(", ")}
-              .
-            </p>
-          )}
-        </div>
-      </section>
+      <PriceAnalysis
+        munName={munName}
+        catLabel={catLabel}
+        catSingular={catSingular}
+        sorted={sorted}
+        totalInCat={totalInCat}
+        cheapestPrice={cheapestPrice}
+        munAvg={munAvg}
+        nationalAvg={nationalAvg}
+        medianPrice={medianPrice}
+        savings={savings}
+        ownershipBreakdown={ownershipBreakdown}
+      />
 
       {/* Data attribution */}
       <DataAttribution category={cat} />
