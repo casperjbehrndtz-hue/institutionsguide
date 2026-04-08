@@ -10,6 +10,7 @@ import type { UnifiedInstitution } from "@/lib/types";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { qualityBadge } from "@/lib/badges";
 
@@ -157,6 +158,36 @@ export default function BestSchoolPage() {
           {totalSchools} skoler har kvalitetsvurdering.
         </p>
         <DataFreshness />
+      </section></ScrollReveal>
+
+      {/* Key stats */}
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-4">
+        <ScrollReveal stagger><div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="card card-static p-4 text-center">
+            <p className="text-xs text-muted mb-1">Bedste score</p>
+            <p className="font-mono text-lg font-bold text-primary">
+              <AnimatedNumber value={bestSchool.quality?.r ?? 0} format={(n) => n.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "/5"} />
+            </p>
+          </div>
+          <div className="card card-static p-4 text-center">
+            <p className="text-xs text-muted mb-1">Gns. score</p>
+            <p className="font-mono text-lg font-bold text-foreground">
+              <AnimatedNumber value={munStats.avgScore} format={(n) => n.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "/5"} />
+            </p>
+          </div>
+          <div className="card card-static p-4 text-center">
+            <p className="text-xs text-muted mb-1">Folkeskoler</p>
+            <p className="font-mono text-lg font-bold text-foreground">
+              <AnimatedNumber value={munStats.folkeskoler} />
+            </p>
+          </div>
+          <div className="card card-static p-4 text-center">
+            <p className="text-xs text-muted mb-1">Fri-/privatskoler</p>
+            <p className="font-mono text-lg font-bold text-foreground">
+              <AnimatedNumber value={munStats.friskoler} />
+            </p>
+          </div>
+        </div></ScrollReveal>
       </section></ScrollReveal>
 
       {/* Top 5 highlight */}
