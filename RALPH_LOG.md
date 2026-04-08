@@ -149,6 +149,14 @@
 **Ændringer**: Created BackToTop.tsx, added to Layout — floating button appears after 600px scroll
 **Verifikation**: tsc: ✓ | tests: 226/226
 
+### Iteration 34 — TIER 10: Improved institution cards with quality badges
+**Ændringer**: CategoryMunicipalityPage + KommunePage — cards now show quality score (X/5), hover shadow, better layout
+**Verifikation**: tsc: ✓ | tests: 226/226
+
+### Iteration 35 — TIER 10: Visual price/score bars in ranking tables
+**Ændringer**: CheapestPage price bar, BestSchoolPage score bar — visual indicators in table cells
+**Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
+
 ---
 
 ## Running totals
@@ -157,6 +165,10 @@
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
+- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars
+- **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
+- **Consistency**: All JSON-LD uses shared `<JsonLd>` component
+- **Næste opgave**: Continue TIER 10 (more visible UX improvements)
 - **UX**: Back-to-top button, sticky table headers on 5 ranking pages
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
