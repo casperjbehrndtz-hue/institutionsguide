@@ -155,6 +155,17 @@ export default function CategoryPage({ category }: Props) {
     onRadiusChange: setRadiusKm,
   };
 
+  // Count active filters for mobile badge (must be before early returns to satisfy rules-of-hooks)
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (search) count++;
+    if (municipalityFilter) count++;
+    if (ageGroup) count++;
+    if (qualityFilter) count++;
+    if (sortKey !== (category === "skole" ? "rating" : "price")) count++;
+    return count;
+  }, [search, municipalityFilter, ageGroup, qualityFilter, sortKey, category]);
+
   if (loading) {
     return (
       <div className="min-h-screen">
@@ -177,17 +188,6 @@ export default function CategoryPage({ category }: Props) {
 
   // Determine if we should show category badges (when catFilter is "alle")
   const showCategoryBadge = catFilter === "alle";
-
-  // Count active filters for mobile badge
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (search) count++;
-    if (municipalityFilter) count++;
-    if (ageGroup) count++;
-    if (qualityFilter) count++;
-    if (sortKey !== (category === "skole" ? "rating" : "price")) count++;
-    return count;
-  }, [search, municipalityFilter, ageGroup, qualityFilter, sortKey, category]);
 
   return (
     <>
