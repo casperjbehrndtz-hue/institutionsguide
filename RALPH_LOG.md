@@ -57,11 +57,39 @@
 
 ---
 
+### Iteration 12 — TIER 7: NormeringKommunePage.tsx (468→399 lines)
+**Ændringer**: Extracted NormeringTrendChart.tsx, removed unused AGE_GROUP_LABELS/AGE_GROUP_COLORS
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 117/117
+
+---
+
+### Iteration 13 — TIER 7: HomePage.tsx (482→446 lines)
+**Ændringer**: Extracted useCategoryStats.ts, usePopularData.ts hooks
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 117/117
+
+### Iteration 14 — TIER 7: FindPage.tsx (463→402 lines)
+**Ændringer**: Extracted finderPresets.ts (PRESETS data + Preset interface)
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 117/117
+
+### Iteration 15 — TIER 7: NormeringPage.tsx (432→374 lines)
+**Ændringer**: Reused NormeringTrendChart, removed unused AGE_GROUP_COLORS
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 117/117
+
+### Iteration 16 — TIER 7: FripladsPage.tsx (424→274 lines)
+**Ændringer**: Extracted FripladsCalculatorForm.tsx (income slider, toggles, selectors)
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 117/117
+
+### Iteration 17 — TIER 7: GymnasiumPage.tsx (420→345 lines)
+**Ændringer**: Extracted GymnasiumCard.tsx, MunicipalityBreakdown.tsx, removed unused Link import
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 117/117
+
+---
+
 ## Running totals
 - **ESLint**: 31 errors, 8 warnings → 11 errors, 3 warnings (20 fewer errors, 5 fewer warnings)
-- **Files over 400 lines**: 14 → still counting, but VsPage(377), BestValuePage(384), InstitutionMap(372) now under 400
+- **Files over 400 lines**: 14 → 2 (HomePage 446, InstitutionPage 438 — both well-componentized, diminishing returns)
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117/117 throughout, never broken
-- **New files**: normalizeSearch.ts, ComparisonCard.tsx, CompareRow.tsx, ValueScatterChart.tsx, MapHelpers.tsx, useDarkMode.ts, homeCategoryCards.ts
 - **Remaining system-boundary `any`s**: 11 (PostHog, Supabase, InstitutionGateModal) — intentional
-- **Næste opgave**: Continue large file refactoring (PrissammenligningPage 484, BestDagtilbudPage 479, NormeringKommunePage 468)
+- **TIER 7 complete** — moving to TIER 8 (missing tests)
+- **Næste opgave**: TIER 8 — add test coverage for critical modules
