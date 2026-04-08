@@ -157,6 +157,14 @@
 **Ændringer**: CheapestPage price bar, BestSchoolPage score bar — visual indicators in table cells
 **Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
 
+### Iteration 36 — TIER 10: #1 row highlighting in ranking tables
+**Ændringer**: CheapestPage, BestSchoolPage, BestValuePage — top row gets green highlight
+**Verifikation**: tsc: ✓ | tests: 226/226
+
+### Iteration 37 — TIER 10: ScrollReveal on CheapestPage and CategoryMunicipalityPage
+**Ændringer**: Added fade-in animations to hero and stats sections
+**Verifikation**: tsc: ✓ | tests: 226/226 | build: ✓ (1939 pages)
+
 ---
 
 ## Running totals
@@ -165,11 +173,7 @@
 - **Build**: green throughout, 1939 pages pre-rendered
 - **Tests**: 117 → **226** across 19 files (was 6 files)
 - **Accessibility**: aria-labels, dialog roles, type="search", sticky headers
-- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars
+- **UX**: Back-to-top button, sticky headers on 5 pages, quality badges on cards, visual price/score bars, #1 highlighting, ScrollReveal animations
 - **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
 - **Næste opgave**: Continue TIER 10 (more visible UX improvements)
-- **UX**: Back-to-top button, sticky table headers on 5 ranking pages
-- **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
-- **Consistency**: All JSON-LD uses shared `<JsonLd>` component
-- **Næste opgave**: Continue TIER 8 (more tests) or TIER 10 (UX improvements)
