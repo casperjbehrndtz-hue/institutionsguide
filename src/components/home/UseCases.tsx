@@ -1,28 +1,34 @@
 import { Link } from "react-router-dom";
+import { BarChart3, GraduationCap, Calculator, Users } from "lucide-react";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 
 export default function UseCases({ language, schoolCount }: { language: string; schoolCount: string }) {
+  const cards = language === "da" ? [
+    { icon: BarChart3, title: "Sammenlign priser", desc: "Find den billigste vuggestue, børnehave eller dagpleje i din kommune", href: "/prissammenligning", cta: "Se prissammenligning" },
+    { icon: GraduationCap, title: "Vælg den bedste skole", desc: `Trivsel, karakterer, fravær og lærerkompetencer for alle ${schoolCount} skoler`, href: "/skole", cta: "Se skoledata" },
+    { icon: Users, title: "Tjek normering", desc: "Se hvor mange børn pr. voksen der er i din kommunes dagtilbud", href: "/normering", cta: "Se normering" },
+    { icon: Calculator, title: "Beregn fripladstilskud", desc: "Tjek om du har ret til tilskud baseret på din husstandsindkomst", href: "/friplads", cta: "Beregn nu" },
+  ] : [
+    { icon: BarChart3, title: "Compare prices", desc: "Find the cheapest nursery, kindergarten or childminder in your municipality", href: "/prissammenligning", cta: "See price comparison" },
+    { icon: GraduationCap, title: "Choose the best school", desc: `Well-being, grades, absence and teacher qualifications for all ${schoolCount} schools`, href: "/skole", cta: "See school data" },
+    { icon: Users, title: "Check staff ratios", desc: "See children per adult in your municipality's childcare", href: "/normering", cta: "See ratios" },
+    { icon: Calculator, title: "Calculate subsidy", desc: "Check if you qualify for a childcare subsidy", href: "/friplads", cta: "Calculate now" },
+  ];
+
   return (
-    <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-8 sm:py-10">
-      <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-5 text-center">
-        {language === "da" ? "Sådan bruger forældre Institutionsguide" : "How parents use Institutionsguide"}
+    <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-10 sm:py-14">
+      <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">
+        {language === "da" ? "Sådan bruger forældre Institutionsguiden" : "How parents use Institutionsguiden"}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <Link to="/prissammenligning" className="card p-5 hover:bg-primary/5 transition-colors group">
-          <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Sammenlign priser" : "Compare prices"}</h3>
-          <p className="text-xs text-muted mb-3">{language === "da" ? "Find den billigste vuggestue eller børnehave i din kommune" : "Find the cheapest nursery or kindergarten in your municipality"}</p>
-          <span className="text-[11px] text-primary font-medium">{language === "da" ? "Prøv prissammenligning" : "Try price comparison"} →</span>
-        </Link>
-        <Link to="/skole" className="card p-5 hover:bg-primary/5 transition-colors group">
-          <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Se kvalitetsdata for skoler" : "See school quality data"}</h3>
-          <p className="text-xs text-muted mb-3">{language === "da" ? `Trivsel, karakterer, fravær og normering for alle ${schoolCount} skoler` : `Well-being, grades, absence and ratios for all ${schoolCount} schools`}</p>
-          <span className="text-[11px] text-primary font-medium">{language === "da" ? "Se skoledata" : "See school data"} →</span>
-        </Link>
-        <Link to="/friplads" className="card p-5 hover:bg-primary/5 transition-colors group">
-          <h3 className="font-semibold text-foreground text-sm mb-1">{language === "da" ? "Beregn fripladstilskud" : "Calculate subsidy"}</h3>
-          <p className="text-xs text-muted mb-3">{language === "da" ? "Tjek om du har ret til tilskud baseret på din husstandsindkomst" : "Check if you qualify for a subsidy based on household income"}</p>
-          <span className="text-[11px] text-primary font-medium">{language === "da" ? "Beregn nu" : "Calculate now"} →</span>
-        </Link>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {cards.map((card) => (
+          <Link key={card.href} to={card.href} className="card p-5 hover:border-primary/30 hover:shadow-md transition-all group">
+            <card.icon className="w-6 h-6 text-primary mb-3" />
+            <h3 className="font-display font-bold text-foreground text-sm mb-1.5">{card.title}</h3>
+            <p className="text-xs text-muted mb-3 leading-relaxed">{card.desc}</p>
+            <span className="text-xs text-primary font-semibold">{card.cta} →</span>
+          </Link>
+        ))}
       </div>
     </section></ScrollReveal>
   );

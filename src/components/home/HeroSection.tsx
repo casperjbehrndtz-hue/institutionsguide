@@ -41,34 +41,36 @@ export default function HeroSection({
         >
           <source src={heroVideo.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/50 to-primary/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/70 via-primary/55 to-primary/80" />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 py-10 sm:py-14 text-center">
-        <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-1.5">
+      <div className="relative z-10 max-w-3xl mx-auto px-4 py-14 sm:py-20 text-center">
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-white leading-[1.15] mb-3 tracking-tight">
           {heroTitle}
         </h1>
-        <p className="text-white/80 text-sm sm:text-base max-w-lg mx-auto mb-5">
+        <p className="text-white/75 text-sm sm:text-base max-w-xl mx-auto mb-7 leading-relaxed">
           {heroSubtitle}
         </p>
 
-        <div className="max-w-lg mx-auto mb-3">
+        {/* Search bar */}
+        <div className="max-w-xl mx-auto mb-4">
           <div className="relative">
             <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/40 pointer-events-none" />
             <input
               id="hero-search"
               type="search"
               value={searchInput}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
-              className="w-full py-3.5 pl-12 pr-4 text-base rounded-xl bg-[var(--color-bg-card)] text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent shadow-xl transition-shadow"
+              className="w-full py-4 pl-12 pr-4 text-base rounded-2xl bg-[var(--color-bg-card)] text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-accent shadow-2xl transition-shadow"
               autoComplete="off"
             />
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+        {/* Quick actions */}
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 mb-8">
           <button
             onClick={onNearMe}
             disabled={nearMeLoading}
@@ -77,7 +79,7 @@ export default function HeroSection({
             {nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
             {language === "da" ? "Find tæt på mig" : "Find near me"}
           </button>
-          <span className="text-white/30">|</span>
+          <span className="text-white/20">|</span>
           <Link
             to="/find"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm transition-colors"
@@ -87,11 +89,29 @@ export default function HeroSection({
           </Link>
         </div>
 
-        <p className="text-[12px] sm:text-[13px] text-white/50 mt-5 font-medium tracking-wide">
-          {language === "da"
-            ? <><AnimatedNumber value={institutionCount} format={formatCount} duration={1200} /> institutioner · {municipalityCount} kommuner · Opdateret {formatDataDate(dataVersions.overall.lastUpdated, "da")}</>
-            : <><AnimatedNumber value={institutionCount} format={formatCount} duration={1200} /> institutions · {municipalityCount} municipalities · Updated {formatDataDate(dataVersions.overall.lastUpdated, "en")}</>}
-        </p>
+        {/* Trust stats */}
+        <div className="inline-flex items-center gap-6 sm:gap-8 text-white/50 text-xs sm:text-sm font-medium">
+          <div className="text-center">
+            <p className="text-white font-display text-lg sm:text-xl font-bold leading-none mb-0.5">
+              <AnimatedNumber value={institutionCount} format={formatCount} duration={1200} />
+            </p>
+            <p>{language === "da" ? "institutioner" : "institutions"}</p>
+          </div>
+          <div className="w-px h-8 bg-white/20" />
+          <div className="text-center">
+            <p className="text-white font-display text-lg sm:text-xl font-bold leading-none mb-0.5">
+              {municipalityCount}
+            </p>
+            <p>{language === "da" ? "kommuner" : "municipalities"}</p>
+          </div>
+          <div className="w-px h-8 bg-white/20" />
+          <div className="text-center">
+            <p className="text-white font-display text-lg sm:text-xl font-bold leading-none mb-0.5">
+              {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}
+            </p>
+            <p>{language === "da" ? "senest opdateret" : "last updated"}</p>
+          </div>
+        </div>
       </div>
     </section>
   );

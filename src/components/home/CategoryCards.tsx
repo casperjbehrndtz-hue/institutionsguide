@@ -3,7 +3,19 @@ import { ArrowRight } from "lucide-react";
 import { formatDKK } from "@/lib/format";
 import type { LucideIcon } from "lucide-react";
 
-interface CategoryCard {
+interface FeaturedCard {
+  category: string;
+  label: string;
+  icon: LucideIcon;
+  iconColor: string;
+  bgColor: string;
+  href: string;
+  desc: string;
+  cta: string;
+  metric: string;
+}
+
+interface OtherCard {
   category: string;
   label: string;
   icon: LucideIcon;
@@ -21,8 +33,8 @@ interface CategoryStats {
 }
 
 interface CategoryCardsProps {
-  featured: CategoryCard[];
-  other: CategoryCard[];
+  featured: FeaturedCard[];
+  other: OtherCard[];
   categoryStats: Record<string, CategoryStats>;
   language: string;
   showLabel: string;
@@ -31,47 +43,10 @@ interface CategoryCardsProps {
 
 export default function CategoryCards({ featured, other, categoryStats, language, showLabel, perMonth }: CategoryCardsProps) {
   return (
-    <section className="max-w-5xl mx-auto px-3 sm:px-4 -mt-5 relative z-20 mb-6">
-      {/* Featured: wide cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-2 sm:mb-3">
+    <section className="max-w-5xl mx-auto px-4 -mt-8 relative z-20 mb-10">
+      {/* Featured: 3 large prominent cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
         {featured.map((card) => {
-          const stats = categoryStats[card.category];
-          const count = stats?.count ?? 0;
-          return (
-            <Link
-              key={card.category}
-              to={card.href}
-              className="group rounded-xl bg-[var(--color-bg-card)] border-2 border-primary/20 shadow-sm px-4 py-4 sm:px-5 sm:py-5 hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all"
-              aria-label={`${showLabel} ${card.label}`}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
-                  <card.icon className={`w-5 h-5 ${card.iconColor}`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-bold text-foreground text-base leading-tight">{card.label}</p>
-                  <p className="text-xs text-muted leading-tight">{card.desc}</p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-primary shrink-0 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-              <div className="flex items-center gap-3 text-xs text-muted">
-                {count > 0 && (
-                  <span>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</span>
-                )}
-                {card.category === "skole" && (
-                  <span className="text-muted">{language === "da" ? "Trivsel · Karakterer · Fravær" : "Well-being · Grades · Absence"}</span>
-                )}
-                {card.category === "efterskole" && stats?.minYearlyPrice && (
-                  <span className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</span>
-                )}
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-      {/* Other categories — compact row */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-        {other.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
           const minPrice = stats?.minPrice;
@@ -79,10 +54,75 @@ export default function CategoryCards({ featured, other, categoryStats, language
             <Link
               key={card.category}
               to={card.href}
-              className="group rounded-xl bg-[var(--color-bg-card)] border border-border/50 shadow-sm px-3 py-3 sm:px-4 sm:py-4 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 transition-all w-[calc(50%-4px)] sm:w-[calc(20%-8px)]"
+              className="group relative rounded-2xl bg-[var(--color-bg-card)] border border-border/60 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-200 overflow-hidden"
               aria-label={`${showLabel} ${card.label}`}
             >
-              <div className="flex items-center gap-2 mb-2">
+              {/* Top accent bar */}
+              <div className={`h-1 ${card.bgColor}`} />
+
+              <div className="p-5 sm:p-6">
+                {/* Icon + title */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${card.bgColor}`}>
+                    <card.icon className={`w-5.5 h-5.5 ${card.iconColor}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-display font-bold text-foreground text-lg leading-tight">{card.label}</h3>
+                    <p className="text-xs text-muted mt-0.5">{card.desc}</p>
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="space-y-2 mb-4">
+                  {count > 0 && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted">{language === "da" ? "Antal" : "Count"}</span>
+                      <span className="font-mono font-semibold text-foreground">{count.toLocaleString("da-DK")}</span>
+                    </div>
+                  )}
+                  {minPrice != null && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted">{language === "da" ? "Fra" : "From"}</span>
+                      <span className="font-mono font-semibold text-foreground">{formatDKK(minPrice)}{perMonth}</span>
+                    </div>
+                  )}
+                  {card.category === "efterskole" && stats?.minYearlyPrice && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted">{language === "da" ? "Fra" : "From"}</span>
+                      <span className="font-mono font-semibold text-foreground">{formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Metric tag */}
+                <p className="text-xs text-muted mb-4 leading-relaxed">{card.metric}</p>
+
+                {/* CTA */}
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+                  {card.cta}
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Secondary categories — horizontal row */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+        {other.map((card) => {
+          const stats = categoryStats[card.category];
+          const count = stats?.count ?? 0;
+          const minPrice = stats?.minPrice;
+          const minYearlyPrice = stats?.minYearlyPrice;
+          return (
+            <Link
+              key={card.category}
+              to={card.href}
+              className="group rounded-xl bg-[var(--color-bg-card)] border border-border/40 px-3.5 py-3.5 hover:shadow-md hover:border-primary/30 transition-all duration-200"
+              aria-label={`${showLabel} ${card.label}`}
+            >
+              <div className="flex items-center gap-2.5 mb-2">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
                   <card.icon className={`w-4 h-4 ${card.iconColor}`} />
                 </div>
@@ -92,14 +132,15 @@ export default function CategoryCards({ featured, other, categoryStats, language
                 </div>
               </div>
               <div className="text-xs text-muted space-y-0.5">
-                {count > 0 && (
-                  <p>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</p>
-                )}
-                {minPrice ? (
+                {count > 0 && <p>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</p>}
+                {minPrice != null && (
                   <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minPrice)}{perMonth}</p>
-                ) : null}
+                )}
+                {card.category === "efterskole" && minYearlyPrice != null && (
+                  <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minYearlyPrice)}{language === "da" ? "/år" : "/year"}</p>
+                )}
               </div>
-              <p className="text-[11px] text-primary font-medium mt-2 flex items-center gap-0.5">
+              <p className="text-[11px] text-primary font-medium mt-2.5 flex items-center gap-0.5">
                 {card.cta} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </p>
             </Link>

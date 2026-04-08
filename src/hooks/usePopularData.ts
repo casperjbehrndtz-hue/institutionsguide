@@ -4,6 +4,8 @@ import type { UnifiedInstitution } from "@/lib/types";
 export interface PopularData {
   bestTrivsel: { id: string; navn: string; score: number }[];
   bestSchools: { id: string; navn: string; score: number }[];
+  cheapestVuggestue: { id: string; navn: string; price: number }[];
+  cheapestBoernehave: { id: string; navn: string; price: number }[];
 }
 
 export function usePopularData(institutions: UnifiedInstitution[]): PopularData | null {
@@ -22,6 +24,18 @@ export function usePopularData(institutions: UnifiedInstitution[]): PopularData 
       .slice(0, 4)
       .map((s) => ({ id: s.id, navn: s.name, score: s.quality!.k! }));
 
-    return { bestTrivsel, bestSchools };
+    const cheapestVuggestue = institutions
+      .filter((i) => i.category === "vuggestue" && i.monthlyRate != null && i.monthlyRate > 0)
+      .sort((a, b) => a.monthlyRate! - b.monthlyRate!)
+      .slice(0, 4)
+      .map((s) => ({ id: s.id, navn: s.name, price: s.monthlyRate! }));
+
+    const cheapestBoernehave = institutions
+      .filter((i) => i.category === "boernehave" && i.monthlyRate != null && i.monthlyRate > 0)
+      .sort((a, b) => a.monthlyRate! - b.monthlyRate!)
+      .slice(0, 4)
+      .map((s) => ({ id: s.id, navn: s.name, price: s.monthlyRate! }));
+
+    return { bestTrivsel, bestSchools, cheapestVuggestue, cheapestBoernehave };
   }, [institutions]);
 }
