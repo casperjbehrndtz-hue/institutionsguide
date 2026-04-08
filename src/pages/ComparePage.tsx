@@ -126,7 +126,7 @@ export default function ComparePage() {
                 <span className="truncate max-w-[200px]">{inst.name}</span>
                 <button
                   onClick={() => removeFromCompare(inst.id)}
-                  className="p-0.5 rounded-full hover:bg-red-100 text-muted hover:text-red-500 transition-colors"
+                  className="p-0.5 rounded-full hover:bg-red-100 dark:hover:bg-red-950/30 text-muted hover:text-red-500 transition-colors"
                   aria-label={`${language === "da" ? "Fjern" : "Remove"} ${inst.name}`}
                 >
                   <X className="w-3.5 h-3.5" />
