@@ -7,6 +7,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import { buildSlugMap, toSlug } from "@/lib/slugs";
 import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import DataFreshness from "@/components/shared/DataFreshness";
+import ScrollReveal from "@/components/shared/ScrollReveal";
 import NormeringTrendChart from "@/components/charts/NormeringTrendChart";
 
 interface NormeringEntry {
@@ -271,17 +272,17 @@ export default function NormeringKommunePage() {
       />
 
       {/* Header */}
-      <section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           Normering i {kommuneName}
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">
           Børn per voksen i dagtilbud i {kommuneName} Kommune. Data for {latestYear}.
         </p>
-      </section>
+      </section></ScrollReveal>
 
       {/* Stat cards */}
-      <section className="max-w-4xl mx-auto px-4 py-6">
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           Aktuel normering i {kommuneName}
         </h2>
@@ -335,7 +336,7 @@ export default function NormeringKommunePage() {
             );
           })}
         </div>
-      </section>
+      </section></ScrollReveal>
 
       {/* Trend chart */}
       <NormeringTrendChart chartData={chartData} activeAgeGroups={activeAgeGroups} kommuneName={kommuneName} />
