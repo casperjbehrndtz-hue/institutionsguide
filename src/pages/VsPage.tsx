@@ -21,6 +21,7 @@ import DataFreshness from "@/components/shared/DataFreshness";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import { ComparisonCard, type CategoryStats } from "@/components/vs/ComparisonCard";
 import { CompareRow } from "@/components/vs/CompareRow";
+import ShareButton from "@/components/shared/ShareButton";
 
 function computeStats(items: UnifiedInstitution[]): CategoryStats {
   const withPrice = items.filter((i) => i.monthlyRate !== null && i.monthlyRate > 0);
@@ -201,7 +202,10 @@ export default function VsPage() {
       />
 
       {/* Header */}
-      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
+      <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
+        <div className="absolute top-4 right-4">
+          <ShareButton title={`${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB} i ${munName}`} url={`/sammenlign/${comparison}/${munSlug}`} />
+        </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {singA.charAt(0).toUpperCase() + singA.slice(1)} vs {singB} i {munName}
         </h1>
@@ -279,8 +283,8 @@ export default function VsPage() {
       {/* Price winner */}
       {statsA.avgPrice && statsB.avgPrice && (
         <section className="max-w-3xl mx-auto px-4 py-6">
-          <div className="card p-5 bg-green-50 border-green-200 text-center">
-            <p className="text-green-800 font-semibold">
+          <div className="card p-5 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-center">
+            <p className="text-green-800 dark:text-green-300 font-semibold">
               {statsA.avgPrice < statsB.avgPrice ? (
                 <>
                   {labelA} er i gennemsnit{" "}

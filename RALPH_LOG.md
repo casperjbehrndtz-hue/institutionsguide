@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 53 — TIER 10: ScrollReveal on ComparePage and FindPage
+**Ændringer**: ComparePage — bar chart + comparison table sections; FindPage — methodology CTA
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 52 — TIER 10: ScrollReveal on HomePage below-fold sections
 **Ændringer**: PopularSearches, UseCases, HomeToolsSection, HomeFAQ, SEOLinks, EmailCapture wrapped in ScrollReveal
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
