@@ -218,6 +218,10 @@
 
 ---
 
+### Iteration 58 — TIER 10: AnimatedNumber on GymnasiumPage hero count
+**Ændringer**: GymnasiumPage — hero institution count animates from 0 on scroll
+**Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226
+
 ### Iteration 57 — TIER 10: Row numbering on PrissammenligningPage table
 **Ændringer**: Added # column header + row index numbers to the municipality comparison table
 **Verifikation**: tsc: ✓ | eslint: ✓ | tests: 226/226

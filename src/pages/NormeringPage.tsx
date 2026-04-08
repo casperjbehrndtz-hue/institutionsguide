@@ -297,6 +297,7 @@ export default function NormeringPage() {
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b border-border">
+                <th className="w-8 py-3 px-2 font-medium text-muted text-center">#</th>
                 <th className="text-left py-3 px-2 font-medium text-muted">
                   <button
                     onClick={() => handleSort("municipality")}
@@ -318,11 +319,12 @@ export default function NormeringPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredRows.map((row) => (
+              {filteredRows.map((row, idx) => (
                 <tr
                   key={row.municipality}
                   className="border-b border-border/50 hover:bg-muted/30 transition-colors"
                 >
+                  <td className="py-2 px-2 text-center text-xs text-muted font-mono">{idx + 1}</td>
                   <td className="py-2 px-2">
                     <Link
                       to={`/normering/${toSlug(row.municipality)}`}
