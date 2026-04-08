@@ -53,7 +53,7 @@ export default function HeroSection({
         </p>
 
         {/* Search bar */}
-        <div className="max-w-xl mx-auto mb-4">
+        <div className="max-w-xl mx-auto mb-4" role="search">
           <div className="relative">
             <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/40 pointer-events-none" />
