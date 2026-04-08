@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,6 +11,8 @@ import ScrollReveal from "@/components/shared/ScrollReveal";
 import DataFreshness from "@/components/shared/DataFreshness";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import type { UnifiedInstitution } from "@/lib/types";
+import GymnasiumCard from "@/components/gymnasium/GymnasiumCard";
+import MunicipalityBreakdown from "@/components/gymnasium/MunicipalityBreakdown";
 
 const GYM_TYPES = ["stx", "hhx", "htx", "hf", "eux"] as const;
 
@@ -321,41 +323,7 @@ export default function GymnasiumPage() {
           )}
 
           {visibleList.map((inst) => (
-            <button
-              key={inst.id}
-              onClick={() => handleSelect(inst)}
-              className="w-full text-left card p-4 hover:shadow-md transition-shadow cursor-pointer flex items-start gap-4"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <h3 className="font-semibold text-foreground text-sm truncate">{inst.name}</h3>
-                  <span className="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary">
-                    {inst.subtype.toUpperCase()}
-                  </span>
-                </div>
-                <p className="text-xs text-muted">
-                  {inst.municipality ? `${inst.municipality}` : ""}
-                  {inst.city ? ` \u00b7 ${inst.city}` : ""}
-                  {inst.address ? ` \u00b7 ${inst.address}` : ""}
-                </p>
-              </div>
-
-              {/* Quality metrics */}
-              <div className="shrink-0 flex gap-4 items-center text-right">
-                {inst.quality?.k != null && (
-                  <div>
-                    <p className="font-mono text-sm font-bold text-foreground">{inst.quality.k.toFixed(1)}</p>
-                    <p className="text-[10px] text-muted uppercase">{language === "da" ? "Snit" : "Avg"}</p>
-                  </div>
-                )}
-                {inst.quality?.fp != null && (
-                  <div>
-                    <p className="font-mono text-sm font-bold text-foreground">{inst.quality.fp.toFixed(1)}%</p>
-                    <p className="text-[10px] text-muted uppercase">{language === "da" ? "Frafald" : "Dropout"}</p>
-                  </div>
-                )}
-              </div>
-            </button>
+            <GymnasiumCard key={inst.id} inst={inst} onSelect={handleSelect} language={language} />
           ))}
 
           {filtered.length > visibleCount && (
@@ -371,50 +339,7 @@ export default function GymnasiumPage() {
       </section>
 
       {/* Municipality breakdown */}
-      <ScrollReveal>
-        <section className="max-w-5xl mx-auto px-4 py-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-            {language === "da" ? "Gymnasier pr. kommune" : "Gymnasiums per municipality"}
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm" role="table">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-3 text-muted font-medium" scope="col">
-                    {language === "da" ? "Kommune" : "Municipality"}
-                  </th>
-                  <th className="text-right py-3 px-3 text-muted font-medium" scope="col">
-                    {language === "da" ? "Antal" : "Count"}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {municipalityNames
-                  .map((m) => ({
-                    name: m,
-                    count: gymnasiums.filter((g) => g.municipality === m).length,
-                  }))
-                  .filter((m) => m.count > 0)
-                  .sort((a, b) => b.count - a.count)
-                  .slice(0, 30)
-                  .map((m) => (
-                    <tr key={m.name} className="border-b border-border/50 hover:bg-primary/5 transition-colors">
-                      <td className="py-2 px-3">
-                        <Link
-                          to={`/kommune/${encodeURIComponent(m.name)}`}
-                          className="text-primary hover:underline font-medium"
-                        >
-                          {m.name}
-                        </Link>
-                      </td>
-                      <td className="py-2 px-3 text-right font-mono">{m.count}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </ScrollReveal>
+      <MunicipalityBreakdown municipalityNames={municipalityNames} gymnasiums={gymnasiums} language={language} />
     </>
   );
 }
