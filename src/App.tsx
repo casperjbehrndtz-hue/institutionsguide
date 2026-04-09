@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { Routes, Route } from "react-router-dom";
 import { DataProvider } from "@/contexts/DataContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -119,6 +120,7 @@ export default function App() {
       </FamilyProvider>
       </CompareProvider>
       </LanguageProvider>
+      <Analytics />
     </ErrorBoundary>
   );
 }
