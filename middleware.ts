@@ -14,7 +14,8 @@ const fetchBlog = createArticleFetcher({
 
 // ── SEO metadata (loaded once per edge instance, then cached) ──
 const SITE = "https://institutionsguiden.dk";
-let seoCache: { i: Record<string, [string, string, string]>; m: Record<string, string> } | null = null;
+// [name, category, municipality, price, address, postalCode, city, ownership, phone, lat, lng, normering, qualityStr, sameCount]
+let seoCache: { i: Record<string, [string, string, string, number, string, string, string, string, string, number, number, number, string, number]>; m: Record<string, string> } | null = null;
 
 async function loadSeo() {
   if (seoCache) return seoCache;
@@ -28,6 +29,12 @@ async function loadSeo() {
 
 function munFromSlug(slug: string, meta: NonNullable<typeof seoCache>): string {
   return meta.m[slug] || decodeURIComponent(slug).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function munToSlug(name: string): string {
+  const DANISH_MAP: Record<string, string> = { "æ": "ae", "ø": "oe", "å": "aa", "Æ": "Ae", "Ø": "Oe", "Å": "Aa" };
+  return name.replace(/[æøåÆØÅ]/g, (ch) => DANISH_MAP[ch] || ch)
+    .toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-");
 }
 
 const CAT_LABELS: Record<string, string> = {
@@ -50,19 +57,106 @@ async function fetchInstitution(slug: string, _su: string, _sk: string): Promise
   const meta = await loadSeo();
   const entry = meta.i[slug];
   if (!entry) return null;
-  const [name, cat, mun] = entry;
+  const [name, cat, mun, price, address, postalCode, city, ownership, phone, lat, lng, normering, qualityStr, sameCount] = entry;
   const catLabel = CAT_SINGULAR[cat] || cat;
+  const catUpper = catLabel.charAt(0).toUpperCase() + catLabel.slice(1);
+  const age = CAT_AGE[cat] || "";
+  const isDagtilbud = ["vuggestue", "boernehave", "dagpleje"].includes(cat);
+  const isSchool = ["skole", "folkeskole", "privatskole", "efterskole"].includes(cat);
+  const munSlug = munToSlug(mun);
+  const catRoute = cat === "folkeskole" || cat === "privatskole" ? "skole" : cat;
+
+  // Parse quality string e.g. "k7.2 t3.8"
+  let kvalK = "";
+  let kvalT = "";
+  if (qualityStr) {
+    const km = qualityStr.match(/k([\d.]+)/);
+    const tm = qualityStr.match(/t([\d.]+)/);
+    if (km) kvalK = km[1];
+    if (tm) kvalT = tm[1];
+  }
+
+  // Build description (max 155 chars) with long-tail keywords
+  let description: string;
+  if (isDagtilbud && price > 0) {
+    const ownerLabel = ownership ? `${ownership.charAt(0).toUpperCase() + ownership.slice(1)}` : "";
+    const normStr = normering > 0 ? ` Normering: ${normering} børn/voksen.` : "";
+    description = `${name} i ${mun} — Takst 2026: ${price} kr/md.${ownerLabel ? ` ${ownerLabel} ${catLabel}.` : ""}${normStr} Anmeldelser og sammenligning.`;
+  } else if (isSchool && kvalK) {
+    description = `${name} i ${mun} — Karaktersnit ${kvalK}, trivsel ${kvalT}/5. Se anmeldelser og sammenlign med andre skoler i ${mun}.`;
+  } else {
+    const cntStr = sameCount > 0 ? ` Sammenlign med ${sameCount} andre.` : "";
+    description = `${name} — ${catUpper} i ${mun}. Se priser, kontaktinfo og anmeldelser.${cntStr}`;
+  }
+  description = description.slice(0, 155);
+
+  // Build rich body content for bots
+  const bodyParts: string[] = [];
+  bodyParts.push(`<h1>${name}</h1>`);
+  bodyParts.push(`<p>${name} er en ${ownership ? ownership + " " : ""}${catLabel} i ${mun} Kommune${age ? ` for børn i alderen ${age}` : ""}.</p>`);
+
+  if (price > 0) {
+    bodyParts.push(`<h2>Takster og priser 2026</h2>`);
+    bodyParts.push(`<p>Månedsprisen for ${name} er ${price.toLocaleString("da-DK")} kr.</p>`);
+  }
+
+  if (address || phone) {
+    bodyParts.push(`<h2>Adresse og kontakt</h2>`);
+    if (address) bodyParts.push(`<address>${address}, ${postalCode} ${city}</address>`);
+    if (phone) bodyParts.push(`<p>Telefon: ${phone}</p>`);
+  }
+
+  if (isDagtilbud && normering > 0) {
+    const ageGroup = cat === "boernehave" ? "børnehavebørn (3-5 år)" : "vuggestuebørn (0-2 år)";
+    bodyParts.push(`<h2>Normering i ${mun}</h2>`);
+    bodyParts.push(`<p>Den gennemsnitlige normering i ${mun} er ${normering} børn per voksen for ${ageGroup}.</p>`);
+  }
+
+  if (isSchool && kvalK) {
+    bodyParts.push(`<h2>Kvalitetsdata</h2>`);
+    bodyParts.push(`<p>Karaktersnit: ${kvalK}. Trivsel: ${kvalT}/5.</p>`);
+  }
+
+  bodyParts.push(`<nav>`);
+  bodyParts.push(`<a href="/${catRoute}/${munSlug}">Se alle ${CAT_LABELS[catRoute] || catUpper} i ${mun}</a>`);
+  bodyParts.push(`<a href="/kommune/${encodeURIComponent(mun)}">Alle institutioner i ${mun} Kommune</a>`);
+  bodyParts.push(`</nav>`);
+
+  // Rich JSON-LD
+  const schemaType = ["folkeskole", "privatskole", "efterskole"].includes(cat) ? "School" : "ChildCare";
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": schemaType,
+    name,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: address || undefined,
+      postalCode: postalCode || undefined,
+      addressLocality: city || mun,
+      addressRegion: mun,
+      addressCountry: "DK",
+    },
+  };
+  if (phone) jsonLd.telephone = phone;
+  if (price > 0) jsonLd.priceRange = `${price} DKK/md`;
+  if (lat > 0 && lng > 0) {
+    jsonLd.geo = { "@type": "GeoCoordinates", latitude: lat, longitude: lng };
+  }
+
+  bodyParts.push(`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`);
+
   return {
-    title: `${name} — ${catLabel.charAt(0).toUpperCase() + catLabel.slice(1)} i ${mun} | Institutionsguide`,
-    description: `Se priser, kvalitetsdata og kontaktinfo for ${name} i ${mun}. Sammenlign med andre ${catLabel}r i kommunen.`,
-    ogTitle: `${name} — ${mun}`,
-    ogDescription: `${name} er en ${catLabel} i ${mun}. Se priser, vurdering og sammenlign med nærliggende institutioner.`,
+    title: `${name} — ${catUpper} i ${mun} | Institutionsguide`,
+    description,
+    ogTitle: `${name} — ${catUpper} i ${mun}`,
+    ogDescription: description,
     breadcrumbs: [
       { name: "Institutionsguide", url: "/" },
+      { name: `${CAT_LABELS[cat] || catUpper}`, url: `/${catRoute}` },
       { name: mun, url: `/kommune/${encodeURIComponent(mun)}` },
       { name: name, url: `/institution/${slug}` },
     ],
-    bodyContent: `<h1>${name}</h1><p>${name} er en ${catLabel} i ${mun}. Se priser, kvalitetsdata, normeringer og kontaktinfo. Sammenlign med andre institutioner i ${mun}.</p>`,
+    bodyContent: bodyParts.join("\n"),
   };
 }
 

@@ -26,6 +26,25 @@ function loadJson(file) {
   return JSON.parse(readFileSync(resolve(DATA_DIR, file), "utf-8"));
 }
 
+// ── Load institution-stats.json for normering data ──
+let instStats = {};
+try { instStats = loadJson("institution-stats.json").kommuner || {}; } catch { /* optional */ }
+
+const NORMERING_MAP = {
+  vuggestue: "normering02",
+  aldersintegreret: "normering02",
+  boernehave: "normering35",
+  dagpleje: "normeringDagpleje",
+};
+
+function getNormering(municipality, category) {
+  const field = NORMERING_MAP[category];
+  if (!field) return 0;
+  const mun = instStats[municipality];
+  if (!mun) return 0;
+  return mun[field] || 0;
+}
+
 const institutions = {};
 const municipalityNames = new Set();
 
@@ -38,7 +57,8 @@ for (const file of ["vuggestue-data.json", "boernehave-data.json", "dagpleje-dat
     if (!d.id || !d.m) continue;
     municipalityNames.add(d.m);
     const cat = forceCat === "dagpleje" ? (d.tp || "dagpleje") : forceCat;
-    institutions[d.id] = [d.n, cat, d.m];
+    // [name, category, municipality, price, address, postalCode, city, ownership, phone, lat, lng, normering, quality, count]
+    institutions[d.id] = [d.n, cat, d.m, d.mr || 0, d.a || "", d.z || "", d.c || "", d.ow || "", d.ph || "", d.la || 0, d.lo || 0, getNormering(d.m, cat), "", 0];
   }
 }
 
@@ -72,7 +92,16 @@ for (const s of skoleData.s) {
   if (!mun) continue;
   municipalityNames.add(mun);
   const cat = s.t === "e" ? "efterskole" : s.t === "p" ? "privatskole" : "folkeskole";
-  institutions[`school-${s.id}`] = [s.n, cat, mun];
+  // Build quality string from s.q
+  let quality = "";
+  if (s.q) {
+    const parts = [];
+    if (s.q.k != null) parts.push(`k${s.q.k}`);
+    if (s.q.ts != null) parts.push(`t${s.q.ts}`);
+    quality = parts.join(" ");
+  }
+  // [name, category, municipality, price, address, postalCode, city, ownership, phone, lat, lng, normering, quality, count]
+  institutions[`school-${s.id}`] = [s.n, cat, mun, 0, s.a || "", s.z || "", s.c || "", "", "", s.la || 0, s.lo || 0, 0, quality, 0];
 }
 
 // ── Pass 3: Gymnasium + Fritidsklub (optional) ──
@@ -85,9 +114,19 @@ for (const file of ["gymnasium-data.json", "fritidsklub-data.json"]) {
       if (!d.id || !d.m) continue;
       const mun = d.m.includes("Kommune") || d.m.includes("Regionskommune") ? resolveSchoolMun(d.m) : d.m;
       municipalityNames.add(mun);
-      institutions[d.id] = [d.n, cat, mun];
+      institutions[d.id] = [d.n, cat, mun, d.mr || 0, d.a || "", d.z || "", d.c || "", d.ow || "", d.ph || "", d.la || 0, d.lo || 0, getNormering(mun, cat), "", 0];
     }
   } catch { /* optional */ }
+}
+
+// ── Compute category+municipality counts (index 13) ──
+const catMunCounts = {};
+for (const arr of Object.values(institutions)) {
+  const key = `${arr[1]}|${arr[2]}`;
+  catMunCounts[key] = (catMunCounts[key] || 0) + 1;
+}
+for (const arr of Object.values(institutions)) {
+  arr[13] = catMunCounts[`${arr[1]}|${arr[2]}`] || 0;
 }
 
 // ── Municipality slug → display name map ──

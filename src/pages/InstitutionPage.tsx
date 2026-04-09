@@ -12,7 +12,7 @@ import { useGoogleRating } from "@/hooks/useGoogleRating";
 const InstitutionChat = lazy(() => import("@/components/chat/InstitutionChat"));
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
-import { institutionSchema, breadcrumbSchema } from "@/lib/schema";
+import { institutionSchema, breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import CompareBar from "@/components/compare/CompareBar";
 import { SkeletonDetail } from "@/components/shared/Skeletons";
@@ -263,6 +263,42 @@ export default function InstitutionPage() {
         { name: inst.municipality, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(inst.municipality)}` },
         { name: inst.name, url: `https://institutionsguiden.dk/institution/${inst.id}` },
       ])} />
+
+      {/* FAQ structured data for Google rich snippets */}
+      {(() => {
+        const catLabel = categoryLabels[inst.category] || inst.category;
+        const isDagtilbud = ["vuggestue", "boernehave", "dagpleje", "sfo"].includes(inst.category);
+        const faqs: { q: string; a: string }[] = [];
+
+        if (inst.address) {
+          faqs.push({ q: `Hvor ligger ${inst.name}?`, a: `${inst.name} ligger på ${inst.address}, ${inst.postalCode} ${inst.city} i ${inst.municipality} Kommune.` });
+        }
+        if (inst.monthlyRate && inst.monthlyRate > 0) {
+          faqs.push({ q: `Hvad koster ${inst.name}?`, a: `Månedsprisen for ${inst.name} er ${inst.monthlyRate.toLocaleString("da-DK")} kr. i 2026.${inst.ownership ? ` ${inst.name} er en ${inst.ownership} institution.` : ""}` });
+        }
+        if (isDagtilbud && institutionStats) {
+          const statsKey = inst.id.replace(/^(vug|bh|dag|sfo)-/, "");
+          const iStats = institutionStats[statsKey];
+          let normeringVal: number | null = null;
+          let ageGroup = "";
+          if (inst.category === "vuggestue" && iStats?.normering02) { normeringVal = iStats.normering02; ageGroup = "0-2 år"; }
+          else if (inst.category === "boernehave" && iStats?.normering35) { normeringVal = iStats.normering35; ageGroup = "3-5 år"; }
+          if (normeringVal && normeringVal > 0) {
+            faqs.push({ q: `Hvad er normeringen i ${inst.municipality} for ${ageGroup}?`, a: `Den gennemsnitlige normering i ${inst.municipality} er ${normeringVal} børn per voksen for ${ageGroup} (data fra Danmarks Statistik, 2023).` });
+          }
+        }
+        if (inst.category === "skole" && inst.quality?.k) {
+          faqs.push({ q: `Hvad er karaktersnittet på ${inst.name}?`, a: `${inst.name} har et karaktersnit på ${inst.quality.k}${inst.quality.ts ? ` (landsgennemsnit: ~7.0). Trivslen er ${inst.quality.ts}/5` : " (landsgennemsnit: ~7.0)"}.` });
+        }
+        if (inst.category === "skole" && inst.quality?.ts && inst.quality?.k) {
+          faqs.push({ q: `Er ${inst.name} en god skole?`, a: `${inst.name} har en samlet kvalitetsvurdering baseret på trivsel (${inst.quality.ts}/5), karaktersnit (${inst.quality.k})${inst.quality.kp ? ` og kompetencedækning (${inst.quality.kp}%)` : ""}. Se den fulde vurdering på Institutionsguide.` });
+        }
+        if (nearby.length >= 3) {
+          faqs.push({ q: `Hvilke andre ${catLabel.toLowerCase()}r ligger tæt på ${inst.name}?`, a: `De nærmeste ${catLabel.toLowerCase()}r er ${nearby[0].name} (${nearby[0].dist.toFixed(1)} km), ${nearby[1].name} (${nearby[1].dist.toFixed(1)} km) og ${nearby[2].name} (${nearby[2].dist.toFixed(1)} km). Se alle ${catLabel.toLowerCase()}r i ${inst.municipality} på Institutionsguide.` });
+        }
+
+        return faqs.length > 0 ? <JsonLd data={faqSchema(faqs)} /> : null;
+      })()}
 
       <StickyHeader shrunk={shrunk} instName={inst.name} scoreResult={scoreResult} />
 

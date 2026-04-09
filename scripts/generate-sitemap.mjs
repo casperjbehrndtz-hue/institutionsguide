@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE_URL = "https://institutionsguiden.dk";
+const PUBLIC_DIR = resolve(__dirname, "../public");
 
 // Static routes
 const staticRoutes = [
@@ -16,6 +17,19 @@ const staticRoutes = [
   { path: "/fritidsklub", priority: "0.9", changefreq: "weekly" },
   { path: "/efterskole", priority: "0.9", changefreq: "weekly" },
   { path: "/sammenlign", priority: "0.7", changefreq: "monthly" },
+  { path: "/normering", priority: "0.8", changefreq: "monthly" },
+  { path: "/friplads", priority: "0.8", changefreq: "monthly" },
+  { path: "/prissammenligning", priority: "0.8", changefreq: "monthly" },
+  { path: "/bedste-vaerdi", priority: "0.7", changefreq: "monthly" },
+  { path: "/samlet-pris", priority: "0.7", changefreq: "monthly" },
+  { path: "/guide", priority: "0.6", changefreq: "monthly" },
+  { path: "/find", priority: "0.7", changefreq: "monthly" },
+  { path: "/blog", priority: "0.7", changefreq: "weekly" },
+  { path: "/om", priority: "0.4", changefreq: "yearly" },
+  { path: "/billigste-boernehave", priority: "0.8", changefreq: "monthly" },
+  { path: "/billigste-vuggestue", priority: "0.8", changefreq: "monthly" },
+  { path: "/billigste-dagpleje", priority: "0.8", changefreq: "monthly" },
+  { path: "/bedste-skoler", priority: "0.8", changefreq: "monthly" },
   { path: "/privatliv", priority: "0.3", changefreq: "yearly" },
   { path: "/vilkaar", priority: "0.3", changefreq: "yearly" },
 ];
@@ -40,16 +54,6 @@ const VS_PAIRS = [
   ["boernehave", "sfo"],
 ];
 
-const CATEGORY_SINGULAR = {
-  vuggestue: "vuggestue",
-  boernehave: "boernehave",
-  dagpleje: "dagpleje",
-  skole: "skole",
-  sfo: "sfo",
-  fritidsklub: "fritidsklub",
-  efterskole: "efterskole",
-};
-
 function loadData() {
   const DATA_DIR = resolve(__dirname, "../public/data");
   const skoleData = JSON.parse(readFileSync(resolve(DATA_DIR, "skole-data.json"), "utf-8"));
@@ -73,7 +77,7 @@ function loadData() {
   }
 
   for (const s of skoleData.s) {
-    if (s.t === "u") continue; // skip ungdomsskoler
+    if (s.t === "u") continue;
     if (s.id) allInstitutionIds.add(s.id.startsWith("edk-") ? `school-${s.id}` : `school-${s.id}`);
     const m = s.m ? s.m.replace(" Kommune", "") : null;
     const cat = s.t === "e" ? "efterskole" : "skole";
@@ -104,7 +108,8 @@ function loadData() {
   return { munCatMap, schoolQualityMuns, allInstitutionIds };
 }
 
-// Generate all routes
+// --- Build URL lists ---
+
 let kommuneRoutes = [];
 let programmaticRoutes = [];
 let institutionRoutes = [];
@@ -159,7 +164,7 @@ try {
     });
   }
 
-  // "Bedste" dagtilbud pages (vuggestue, boernehave, dagpleje, sfo)
+  // "Bedste" dagtilbud pages
   const BEDSTE_CATS = ["vuggestue", "boernehave", "dagpleje", "sfo"];
   for (const mun of municipalities) {
     const mc = munCatMap.get(mun);
@@ -189,20 +194,19 @@ try {
     }
   }
 
-  // Institution detail pages (deduplicated across all data files)
+  // Institution detail pages
   institutionRoutes = [...allInstitutionIds].map((id) => ({
     path: `/institution/${encodeURIComponent(id)}`,
     priority: "0.7",
     changefreq: "monthly",
   }));
   console.log(`Found ${institutionRoutes.length} unique institution detail pages`);
-
   console.log(`Generated ${programmaticRoutes.length} programmatic SEO routes`);
 } catch (err) {
   console.warn("Could not generate programmatic routes:", err.message);
 }
 
-// Fetch blog post slugs from Supabase (if credentials available)
+// Fetch blog post slugs from Supabase
 try {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -218,7 +222,6 @@ try {
         priority: "0.6",
         changefreq: "monthly",
       }));
-      // Add the blog index page too
       blogRoutes.unshift({ path: "/blog", priority: "0.7", changefreq: "weekly" });
       console.log(`Found ${blogRoutes.length - 1} blog posts`);
     } else {
@@ -231,32 +234,87 @@ try {
   console.warn("Could not fetch blog posts:", err.message);
 }
 
-// Use actual data freshness dates instead of today's date
-const DATA_LASTMOD = "2026-03-01"; // Matches dataVersions.overall.lastUpdated
-const STATIC_LASTMOD = new Date().toISOString().split("T")[0]; // Static pages can use deploy date
+// --- Dates ---
+const DATA_LASTMOD = "2026-03-01";
+const STATIC_LASTMOD = new Date().toISOString().split("T")[0];
 const BLOG_LASTMOD = new Date().toISOString().split("T")[0];
 
-const allRoutes = [...staticRoutes, ...kommuneRoutes, ...programmaticRoutes, ...institutionRoutes, ...blogRoutes];
-
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
+// --- Helper to build a <urlset> XML ---
+function buildUrlset(routes, getLastmod) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allRoutes
+${routes
   .map(
-    (r) => {
-      // Static routes use deploy date, data-driven routes use actual data date
-      const isStatic = staticRoutes.includes(r);
-      const isBlog = blogRoutes.includes(r);
-      const lastmod = isStatic ? STATIC_LASTMOD : isBlog ? BLOG_LASTMOD : DATA_LASTMOD;
-      return `  <url>
+    (r) => `  <url>
     <loc>${BASE_URL}${r.path}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${getLastmod(r)}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
-  </url>`;
-    }
+  </url>`
   )
   .join("\n")}
 </urlset>`;
+}
 
-writeFileSync(resolve(__dirname, "../public/sitemap.xml"), xml);
-console.log(`Sitemap generated with ${allRoutes.length} URLs`);
+// --- Generate sub-sitemaps ---
+
+// 1. Static + kommune routes
+const staticAndKommuneRoutes = [...staticRoutes, ...kommuneRoutes];
+writeFileSync(
+  resolve(PUBLIC_DIR, "sitemap-static.xml"),
+  buildUrlset(staticAndKommuneRoutes, (r) =>
+    staticRoutes.includes(r) ? STATIC_LASTMOD : DATA_LASTMOD
+  )
+);
+console.log(`sitemap-static.xml: ${staticAndKommuneRoutes.length} URLs`);
+
+// 2. Institution detail pages
+writeFileSync(
+  resolve(PUBLIC_DIR, "sitemap-institutions.xml"),
+  buildUrlset(institutionRoutes, () => DATA_LASTMOD)
+);
+console.log(`sitemap-institutions.xml: ${institutionRoutes.length} URLs`);
+
+// 3. Programmatic pages (category+municipality, billigste, bedste, vs)
+writeFileSync(
+  resolve(PUBLIC_DIR, "sitemap-programmatic.xml"),
+  buildUrlset(programmaticRoutes, () => DATA_LASTMOD)
+);
+console.log(`sitemap-programmatic.xml: ${programmaticRoutes.length} URLs`);
+
+// 4. Blog posts
+if (blogRoutes.length > 0) {
+  writeFileSync(
+    resolve(PUBLIC_DIR, "sitemap-blog.xml"),
+    buildUrlset(blogRoutes, () => BLOG_LASTMOD)
+  );
+  console.log(`sitemap-blog.xml: ${blogRoutes.length} URLs`);
+}
+
+// --- Generate sitemap index ---
+const today = new Date().toISOString().split("T")[0];
+const subSitemaps = [
+  "sitemap-static.xml",
+  "sitemap-institutions.xml",
+  "sitemap-programmatic.xml",
+];
+if (blogRoutes.length > 0) {
+  subSitemaps.push("sitemap-blog.xml");
+}
+
+const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${subSitemaps
+  .map(
+    (f) => `  <sitemap>
+    <loc>${BASE_URL}/${f}</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>`
+  )
+  .join("\n")}
+</sitemapindex>`;
+
+writeFileSync(resolve(PUBLIC_DIR, "sitemap.xml"), sitemapIndex);
+
+const totalUrls = staticAndKommuneRoutes.length + institutionRoutes.length + programmaticRoutes.length + blogRoutes.length;
+console.log(`\nSitemap index generated with ${subSitemaps.length} sub-sitemaps, ${totalUrls} total URLs`);
