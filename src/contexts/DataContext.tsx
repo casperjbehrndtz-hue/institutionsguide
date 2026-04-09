@@ -484,7 +484,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    return Array.from(map.values()).sort((a, b) => a.municipality.localeCompare(b.municipality, "da"));
+    return Array.from(map.values())
+      .filter((m) => m.municipality !== "Christiansø")
+      .sort((a, b) => a.municipality.localeCompare(b.municipality, "da"));
   }, [institutions]);
 
   const value = useMemo<DataContextValue>(() => ({

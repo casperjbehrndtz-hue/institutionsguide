@@ -1,0 +1,55 @@
+# Institutionsguide
+
+> Danmarks mest komplette oversigt over daginstitutioner og skoler. Officielle data for 8.500+ institutioner i alle 98 kommuner.
+
+## Hvad er Institutionsguide?
+
+Institutionsguide samler officielle data om vuggestuer, børnehaver, dagplejere, skoler, SFO'er, fritidsklubber og efterskoler i hele Danmark. Platformen er gratis, uafhængig og baseret udelukkende på officielle datakilder.
+
+## Datakilder
+
+- Undervisningsministeriet (Uddannelsesstatistik): Skolers trivsel, karaktergennemsnit, fravær, kompetencedækning og undervisningseffekt
+- Danmarks Statistik: Normeringer (børn per voksen) i alle kommuner
+- Kommunernes hjemmesider: Priser for vuggestue, børnehave, dagpleje, SFO og fritidsklub
+
+## Værktøjer
+
+- **Institutionssøgning**: Find og sammenlign 8.500+ institutioner med priser, kvalitetsdata og kontaktinfo
+- **Prissammenligning**: Sammenlign institutionspriser på tværs af alle 98 kommuner
+- **Normeringstabel**: Se børn per voksen i alle kommuner (officielle data fra Danmarks Statistik)
+- **Fripladstilskud-beregner**: Beregn økonomisk friplads baseret på husstandsindkomst (2026-satser)
+- **Kvalitetsranking**: Se de bedste skoler baseret på trivsel, karakterer og undervisningseffekt
+- **Find nær dig**: Find nærmeste institutioner baseret på adresse
+
+## Kategorier
+
+- [Vuggestuer](https://institutionsguiden.dk/vuggestue) (0-2 år)
+- [Børnehaver](https://institutionsguiden.dk/boernehave) (3-5 år)
+- [Dagplejere](https://institutionsguiden.dk/dagpleje) (0-2 år)
+- [Skoler](https://institutionsguiden.dk/skole) (6-16 år) — folkeskoler og privatskoler
+- [SFO](https://institutionsguiden.dk/sfo) (6-9 år)
+- [Fritidsklubber](https://institutionsguiden.dk/fritidsklub) (10-14 år)
+- [Efterskoler](https://institutionsguiden.dk/efterskole) (14-18 år)
+
+## Nøglesider
+
+- [Prissammenligning](https://institutionsguiden.dk/prissammenligning) — Priser i alle kommuner
+- [Normeringer](https://institutionsguiden.dk/normering) — Børn per voksen i alle kommuner
+- [Fripladstilskud](https://institutionsguiden.dk/friplads) — Beregn din friplads
+- [Bedste værdi](https://institutionsguiden.dk/bedste-vaerdi) — Institutioner med bedst pris-kvalitet
+- [Blog](https://institutionsguiden.dk/blog) — Artikler om daginstitutioner og skoler
+- [Metode](https://institutionsguiden.dk/metode) — Datakilder og metode
+
+## Vigtige tal (2026)
+
+- Vuggestuepris: ca. 2.500-4.200 kr./md. (varierer mellem kommuner)
+- Børnehavepris: ca. 1.800-3.200 kr./md.
+- Fripladstilskud: Fuld friplads ved indkomst under 202.400 kr./år
+- Minimumsnormering: ca. 3 børn per voksen (vuggestue), ca. 6 børn per voksen (børnehave)
+
+## Del af
+
+Institutionsguide er del af en suite af danske privatøkonomiske værktøjer:
+- [ParFinans.dk](https://www.parfinans.dk) — Fair fordeling af fællesudgifter for par
+- [NemtBudget.nu](https://nemtbudget.nu) — Beregn dit personlige rådighedsbeløb gratis
+- [Børneskat.dk](https://xn--brneskat-54a.dk) — Skatteeffektiv investering til dit barn via frikortet

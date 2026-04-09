@@ -1,4 +1,5 @@
 import { createMiddleware, createArticleFetcher, defaultMatcherConfig } from "./src/lib/dk-seo/middleware";
+import type { RouteMeta } from "./src/lib/dk-seo/types";
 
 // ── Blog fetcher for Institutionsguide ──
 const fetchBlog = createArticleFetcher({
@@ -10,6 +11,188 @@ const fetchBlog = createArticleFetcher({
   parentLabel: "Blog",
   fields: { metaTitle: "meta_title", metaDescription: "meta_description", content: "content_html", publishedAt: "published_at", updatedAt: "updated_at", keyword: "keyword" },
 });
+
+// ── SEO metadata (loaded once per edge instance, then cached) ──
+const SITE = "https://institutionsguiden.dk";
+let seoCache: { i: Record<string, [string, string, string]>; m: Record<string, string> } | null = null;
+
+async function loadSeo() {
+  if (seoCache) return seoCache;
+  try {
+    const res = await fetch(`${SITE}/data/seo-meta.json`);
+    if (res.ok) seoCache = await res.json();
+  } catch { /* ignore */ }
+  if (!seoCache) seoCache = { i: {}, m: {} };
+  return seoCache;
+}
+
+function munFromSlug(slug: string, meta: NonNullable<typeof seoCache>): string {
+  return meta.m[slug] || decodeURIComponent(slug).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+const CAT_LABELS: Record<string, string> = {
+  vuggestue: "Vuggestuer", boernehave: "Børnehaver", dagpleje: "Dagplejere",
+  skole: "Skoler", sfo: "SFO'er", fritidsklub: "Fritidsklubber", efterskole: "Efterskoler",
+};
+const CAT_SINGULAR: Record<string, string> = {
+  vuggestue: "vuggestue", boernehave: "børnehave", dagpleje: "dagpleje",
+  skole: "skole", sfo: "SFO", fritidsklub: "fritidsklub", efterskole: "efterskole",
+  folkeskole: "folkeskole", privatskole: "privatskole",
+};
+const CAT_AGE: Record<string, string> = {
+  vuggestue: "0-2 år", boernehave: "3-5 år", dagpleje: "0-2 år",
+  skole: "6-16 år", sfo: "6-9 år", fritidsklub: "10-14 år", efterskole: "14-18 år",
+};
+
+// ── Dynamic route fetchers ──
+
+async function fetchInstitution(slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
+  const meta = await loadSeo();
+  const entry = meta.i[slug];
+  if (!entry) return null;
+  const [name, cat, mun] = entry;
+  const catLabel = CAT_SINGULAR[cat] || cat;
+  return {
+    title: `${name} — ${catLabel.charAt(0).toUpperCase() + catLabel.slice(1)} i ${mun} | Institutionsguide`,
+    description: `Se priser, kvalitetsdata og kontaktinfo for ${name} i ${mun}. Sammenlign med andre ${catLabel}r i kommunen.`,
+    ogTitle: `${name} — ${mun}`,
+    ogDescription: `${name} er en ${catLabel} i ${mun}. Se priser, vurdering og sammenlign med nærliggende institutioner.`,
+    breadcrumbs: [
+      { name: "Institutionsguide", url: "/" },
+      { name: mun, url: `/kommune/${encodeURIComponent(mun)}` },
+      { name: name, url: `/institution/${slug}` },
+    ],
+    bodyContent: `<h1>${name}</h1><p>${name} er en ${catLabel} i ${mun}. Se priser, kvalitetsdata, normeringer og kontaktinfo. Sammenlign med andre institutioner i ${mun}.</p>`,
+  };
+}
+
+async function fetchKommune(slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
+  const mun = decodeURIComponent(slug);
+  if (!mun) return null;
+  return {
+    title: `Institutioner i ${mun} — Priser og sammenligning | Institutionsguide`,
+    description: `Se alle vuggestuer, børnehaver, dagplejere, skoler og SFO'er i ${mun}. Sammenlign priser, kvalitetsdata og normeringer.`,
+    ogTitle: `${mun} — Institutioner og børnepasning`,
+    ogDescription: `Find alle institutioner i ${mun}. Priser, kvalitetsdata og normeringer.`,
+    breadcrumbs: [
+      { name: "Institutionsguide", url: "/" },
+      { name: mun, url: `/kommune/${slug}` },
+    ],
+    bodyContent: `<h1>Institutioner i ${mun}</h1><p>Oversigt over alle vuggestuer, børnehaver, dagplejere, skoler og SFO'er i ${mun}. Sammenlign priser, kvalitetsdata og normeringer.</p>`,
+  };
+}
+
+async function fetchNormeringKommune(slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
+  const meta = await loadSeo();
+  const mun = munFromSlug(slug, meta);
+  return {
+    title: `Normering i ${mun} — Børn per voksen | Institutionsguide`,
+    description: `Se normering (børn per voksen) i ${mun} for dagpleje, vuggestue og børnehave. Officielle data fra Danmarks Statistik.`,
+    ogTitle: `Normering i ${mun}`,
+    ogDescription: `Se børn per voksen i ${mun}. Sammenlign med landsgennemsnittet.`,
+    breadcrumbs: [
+      { name: "Institutionsguide", url: "/" },
+      { name: "Normeringer", url: "/normering" },
+      { name: mun, url: `/normering/${slug}` },
+    ],
+    bodyContent: `<h1>Normering i ${mun}</h1><p>Se normering (børn per voksen) for dagpleje (0-2 år), vuggestue (0-2 år) og børnehave (3-5 år) i ${mun}. Data fra Danmarks Statistik.</p>`,
+  };
+}
+
+function makeCatMunFetcher(category: string) {
+  const label = CAT_LABELS[category] || category;
+  const singular = CAT_SINGULAR[category] || category;
+  const age = CAT_AGE[category] || "";
+  const ageStr = age ? ` (${age})` : "";
+
+  return async function (slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
+    const meta = await loadSeo();
+    const mun = munFromSlug(slug, meta);
+    return {
+      title: `${label} i ${mun} ${new Date().getFullYear()} — Priser og sammenligning | Institutionsguide`,
+      description: `Find og sammenlign ${label.toLowerCase()}${ageStr} i ${mun}. Se priser, kvalitetsdata og beregn fripladstilskud.`,
+      ogTitle: `${label} i ${mun}`,
+      ogDescription: `Sammenlign ${label.toLowerCase()} i ${mun}. Priser, normeringer og kvalitetsdata.`,
+      breadcrumbs: [
+        { name: "Institutionsguide", url: "/" },
+        { name: label, url: `/${category}` },
+        { name: mun, url: `/${category}/${slug}` },
+      ],
+      bodyContent: `<h1>${label} i ${mun}</h1><p>Oversigt over alle ${label.toLowerCase()}${ageStr} i ${mun}. Sammenlign priser, ejerskab og kvalitetsdata. Beregn evt. fripladstilskud.</p>`,
+    };
+  };
+}
+
+function makeBedsteFetcher(category: string) {
+  const label = CAT_LABELS[category] || category;
+  return async function (slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
+    const meta = await loadSeo();
+    const mun = munFromSlug(slug, meta);
+    const isSchool = category === "skole";
+    const t = isSchool
+      ? `Bedste skoler i ${mun} — Kvalitetsranking | Institutionsguide`
+      : `Bedste ${label.toLowerCase()} i ${mun} — Kvalitetsranking | Institutionsguide`;
+    const d = isSchool
+      ? `Se de bedste skoler i ${mun} baseret på trivsel, karakterer og undervisningseffekt. Officielle kvalitetsdata.`
+      : `Se de bedste ${label.toLowerCase()} i ${mun} baseret på kvalitetsdata og normeringer.`;
+    return {
+      title: t,
+      description: d,
+      ogTitle: isSchool ? `Bedste skoler i ${mun}` : `Bedste ${label.toLowerCase()} i ${mun}`,
+      ogDescription: d,
+      breadcrumbs: [
+        { name: "Institutionsguide", url: "/" },
+        { name: label, url: `/${category}` },
+        { name: `Bedste i ${mun}`, url: `/bedste-${category}/${slug}` },
+      ],
+      bodyContent: `<h1>${t.split(" | ")[0]}</h1><p>${d}</p>`,
+    };
+  };
+}
+
+function makeBilligsteFetcher(category: string) {
+  const label = CAT_LABELS[category] || category;
+  return async function (slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
+    const meta = await loadSeo();
+    const mun = munFromSlug(slug, meta);
+    return {
+      title: `Billigste ${label.toLowerCase()} i ${mun} — Prissammenligning | Institutionsguide`,
+      description: `Se de billigste ${label.toLowerCase()} i ${mun}. Sammenlign månedspriser og find den bedste pris.`,
+      ogTitle: `Billigste ${label.toLowerCase()} i ${mun}`,
+      ogDescription: `Find de billigste ${label.toLowerCase()} i ${mun}. Prissammenligning med alle institutioner.`,
+      breadcrumbs: [
+        { name: "Institutionsguide", url: "/" },
+        { name: label, url: `/${category}` },
+        { name: `Billigste i ${mun}`, url: `/billigste-${category}/${slug}` },
+      ],
+      bodyContent: `<h1>Billigste ${label.toLowerCase()} i ${mun}</h1><p>Sammenlign priser for ${label.toLowerCase()} i ${mun}. Se alle institutioner sorteret efter månedspris.</p>`,
+    };
+  };
+}
+
+async function fetchVs(slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
+  // slug = "vuggestue-vs-dagpleje/gentofte"
+  const parts = slug.split("/");
+  if (parts.length < 2) return null;
+  const comparison = parts[0]; // "vuggestue-vs-dagpleje"
+  const munSlug = parts.slice(1).join("/");
+  const meta = await loadSeo();
+  const mun = munFromSlug(munSlug, meta);
+  const [catA, catB] = comparison.split("-vs-");
+  const labelA = CAT_LABELS[catA] || catA;
+  const labelB = CAT_LABELS[catB] || catB;
+  return {
+    title: `${labelA} vs. ${labelB} i ${mun} — Sammenligning | Institutionsguide`,
+    description: `Sammenlign ${labelA.toLowerCase()} og ${labelB.toLowerCase()} i ${mun}. Priser, normeringer og forskelle.`,
+    ogTitle: `${labelA} vs. ${labelB} i ${mun}`,
+    ogDescription: `Hvad er forskellen på ${labelA.toLowerCase()} og ${labelB.toLowerCase()} i ${mun}? Se priser og sammenlign.`,
+    breadcrumbs: [
+      { name: "Institutionsguide", url: "/" },
+      { name: `${labelA} vs. ${labelB}`, url: `/sammenlign/${comparison}/${munSlug}` },
+    ],
+    bodyContent: `<h1>${labelA} vs. ${labelB} i ${mun}</h1><p>Sammenlign ${labelA.toLowerCase()} og ${labelB.toLowerCase()} i ${mun}. Se priser, normeringer og hjælp til at vælge den rigtige pasningsform.</p>`,
+  };
+}
 
 // ── Middleware ──
 export default createMiddleware({
@@ -242,11 +425,54 @@ export default createMiddleware({
   },
 
   dynamicRoutes: [
+    // Blog (fetches from Supabase)
     {
       prefix: "/blog/",
       fetch: fetchBlog,
       fallback: { title: "Artikel — Institutionsguide", description: "Læs denne artikel om daginstitutioner og skoler i Danmark." },
     },
+    // Institution detail pages (~7.000 pages)
+    {
+      prefix: "/institution/",
+      fetch: fetchInstitution,
+      fallback: { title: "Institution — Institutionsguide", description: "Se priser, kvalitetsdata og kontaktinfo for denne institution." },
+    },
+    // Kommune pages (~98 pages)
+    {
+      prefix: "/kommune/",
+      fetch: fetchKommune,
+      fallback: { title: "Kommune — Institutionsguide", description: "Se institutioner, priser og kvalitetsdata i denne kommune." },
+    },
+    // Normering per kommune (~98 pages)
+    {
+      prefix: "/normering/",
+      fetch: fetchNormeringKommune,
+      fallback: { title: "Normering — Institutionsguide", description: "Se normering (børn per voksen) i denne kommune." },
+    },
+    // "Bedste" pages
+    { prefix: "/bedste-skole/", fetch: makeBedsteFetcher("skole"), fallback: { title: "Bedste skoler — Institutionsguide", description: "Se de bedste skoler i kommunen baseret på kvalitetsdata." } },
+    { prefix: "/bedste-vuggestue/", fetch: makeBedsteFetcher("vuggestue"), fallback: { title: "Bedste vuggestuer — Institutionsguide", description: "Se de bedste vuggestuer i kommunen." } },
+    { prefix: "/bedste-boernehave/", fetch: makeBedsteFetcher("boernehave"), fallback: { title: "Bedste børnehaver — Institutionsguide", description: "Se de bedste børnehaver i kommunen." } },
+    { prefix: "/bedste-dagpleje/", fetch: makeBedsteFetcher("dagpleje"), fallback: { title: "Bedste dagplejere — Institutionsguide", description: "Se de bedste dagplejere i kommunen." } },
+    { prefix: "/bedste-sfo/", fetch: makeBedsteFetcher("sfo"), fallback: { title: "Bedste SFO'er — Institutionsguide", description: "Se de bedste SFO'er i kommunen." } },
+    // "Billigste" pages
+    { prefix: "/billigste-vuggestue/", fetch: makeBilligsteFetcher("vuggestue"), fallback: { title: "Billigste vuggestuer — Institutionsguide", description: "Se de billigste vuggestuer i kommunen." } },
+    { prefix: "/billigste-boernehave/", fetch: makeBilligsteFetcher("boernehave"), fallback: { title: "Billigste børnehaver — Institutionsguide", description: "Se de billigste børnehaver i kommunen." } },
+    { prefix: "/billigste-dagpleje/", fetch: makeBilligsteFetcher("dagpleje"), fallback: { title: "Billigste dagplejere — Institutionsguide", description: "Se de billigste dagplejere i kommunen." } },
+    // VS comparison pages
+    {
+      prefix: "/sammenlign/",
+      fetch: fetchVs,
+      fallback: { title: "Sammenligning — Institutionsguide", description: "Sammenlign institutionstyper i din kommune." },
+    },
+    // Category + municipality pages (~700+ per category)
+    { prefix: "/vuggestue/", fetch: makeCatMunFetcher("vuggestue"), fallback: { title: "Vuggestuer — Institutionsguide", description: "Find vuggestuer i denne kommune." } },
+    { prefix: "/boernehave/", fetch: makeCatMunFetcher("boernehave"), fallback: { title: "Børnehaver — Institutionsguide", description: "Find børnehaver i denne kommune." } },
+    { prefix: "/dagpleje/", fetch: makeCatMunFetcher("dagpleje"), fallback: { title: "Dagplejere — Institutionsguide", description: "Find dagplejere i denne kommune." } },
+    { prefix: "/skole/", fetch: makeCatMunFetcher("skole"), fallback: { title: "Skoler — Institutionsguide", description: "Find skoler i denne kommune." } },
+    { prefix: "/sfo/", fetch: makeCatMunFetcher("sfo"), fallback: { title: "SFO — Institutionsguide", description: "Find SFO i denne kommune." } },
+    { prefix: "/fritidsklub/", fetch: makeCatMunFetcher("fritidsklub"), fallback: { title: "Fritidsklubber — Institutionsguide", description: "Find fritidsklubber i denne kommune." } },
+    { prefix: "/efterskole/", fetch: makeCatMunFetcher("efterskole"), fallback: { title: "Efterskoler — Institutionsguide", description: "Find efterskoler i denne kommune." } },
   ],
 
   pageContent: {
