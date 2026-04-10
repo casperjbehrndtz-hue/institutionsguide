@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useData } from "@/contexts/DataContext";
 import { formatDKK } from "@/lib/format";
+import { toSlug } from "@/lib/slugs";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 
 interface Props {
@@ -62,7 +63,7 @@ export default function MunicipalityRanking({ category, categoryTitle }: Props) 
             {(showAll ? catMunicipalities : catMunicipalities.slice(0, 30)).map((m) => (
               <tr key={m.municipality} className="border-b border-border/50 hover:bg-primary/5 transition-colors">
                 <td className="py-2 px-3">
-                  <Link to={`/kommune/${encodeURIComponent(m.municipality)}`} className="text-primary hover:underline font-medium">
+                  <Link to={`/${category}/${toSlug(m.municipality)}`} className="text-primary hover:underline font-medium">
                     {m.municipality}
                   </Link>
                 </td>
