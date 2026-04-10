@@ -153,7 +153,6 @@ async function fetchOversko(schoolYear) {
       "SocRef Socioøkonomisk reference",
       "SocRef Signifikant forskel",
       "Andel med højest trivsel",
-      "Andel i gang med en ungdomsuddannelse 15 måneder efter afgang",
     ],
     detaljering: [
       "[Institution].[Afdelingsnummer]",
@@ -198,10 +197,68 @@ async function fetchTrivsel(schoolYear) {
 }
 
 // ---------------------------------------------------------------------------
+// Fetch Overgang til ungdomsuddannelse (separate — delayed data, older year)
+// ---------------------------------------------------------------------------
+
+async function fetchOvergang(schoolYear) {
+  console.log(`  Fetching Overgang til UU for ${schoolYear}...`);
+
+  const body = {
+    område: "GS",
+    emne: "OVER",
+    underemne: "OVERSKO",
+    nøgletal: [
+      "Overgang til UU fra 9. og 10. kl. sept året efter",
+    ],
+    detaljering: [
+      "[Institution].[Afdelingsnummer]",
+      "[Skoleår].[Skoleår]",
+    ],
+    filtre: { "[Skoleår].[Skoleår]": [schoolYear] },
+    side: 1,
+    side_størrelse: 100000,
+  };
+
+  const data = await apiPost(API_STATISTIK, body);
+  console.log(`    → ${data.length} schools`);
+  return data;
+}
+
+/**
+ * Find the latest year that actually has data for a given nøgletal.
+ * Tries years in descending order from the latest oversko year.
+ */
+async function findLatestYearWithOvergang(startYear) {
+  const [startA] = startYear.split("/").map(Number);
+  for (let y = startA; y >= startA - 4; y--) {
+    const year = `${y}/${y + 1}`;
+    const body = {
+      område: "GS",
+      emne: "OVER",
+      underemne: "OVERSKO",
+      nøgletal: ["Overgang til UU fra 9. og 10. kl. sept året efter"],
+      detaljering: [
+        "[Institution].[Afdelingsnummer]",
+        "[Skoleår].[Skoleår]",
+      ],
+      filtre: { "[Skoleår].[Skoleår]": [year] },
+      side: 1,
+      side_størrelse: 1,
+    };
+    try {
+      const data = await apiPost(API_STATISTIK, body);
+      if (data.length > 0) return year;
+    } catch (_) {}
+    await sleep(300);
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Merge API data into existing skole-data.json
 // ---------------------------------------------------------------------------
 
-function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear) {
+function mergeData(skoleData, overskoData, trivselData, overgangData, overskoYear, trivselYear, overgangYear) {
   const ID_KEY = "[Institution].[Afdelingsnummer].[Afdelingsnummer]";
   const NAME_KEY = "[Institution].[Afdeling].[Afdeling]";
   const TRIV_KEY = "[Trivselsindikator].[Trivselsindikator].[Trivselsindikator]";
@@ -222,9 +279,17 @@ function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear
       srRef: parseDanish(row["SocRef Socioøkonomisk reference"]),
       sr: row["SocRef Signifikant forskel"] || null,
       trivPct: parseDanish(row["Andel med højest trivsel"]),
-      oug: parseDanish(row["Andel i gang med en ungdomsuddannelse 15 måneder efter afgang"]),
       name: row[NAME_KEY],
     });
+  }
+
+  // Build lookup: afdelingsnummer → overgang til ungdomsuddannelse
+  const overgangMap = new Map();
+  for (const row of overgangData) {
+    const id = row[ID_KEY];
+    if (!id) continue;
+    const val = parseDanish(row["Overgang til UU fra 9. og 10. kl. sept året efter"]);
+    if (val != null) overgangMap.set(id, val);
   }
 
   // Build lookup: afdelingsnummer → trivsel indicators
@@ -279,15 +344,16 @@ function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear
     const id = school.id;
     const oversko = overskoMap.get(id);
     const trivsel = trivselMap.get(id);
+    const oug = overgangMap.get(id);
 
-    if (!oversko && !trivsel) {
+    if (!oversko && !trivsel && oug == null) {
       unmatched++;
       continue;
     }
     matched++;
 
-    // Build quality object
-    const q = {};
+    // Merge into existing quality object (preserve fields from other scripts like epl, upe)
+    const q = school.q || {};
 
     if (oversko) {
       if (oversko.el != null) q.el = Math.round(oversko.el);
@@ -297,8 +363,10 @@ function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear
       if (oversko.kp != null) q.kp = oversko.kp;
       if (oversko.sr) q.sr = oversko.sr;
       if (oversko.srDiff != null) q.srd = oversko.srDiff;
-      if (oversko.oug != null) q.oug = oversko.oug;
     }
+
+    // Overgang from separate (older) dataset
+    if (oug != null) q.oug = oug;
 
     if (trivsel) {
       if (trivsel.ts != null) q.ts = trivsel.ts;
@@ -326,8 +394,6 @@ function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear
       q.r = Math.max(0, Math.min(5, Math.round(score * 10) / 10));
       enriched++;
     }
-
-    school.q = q;
   }
 
   // Update metadata
@@ -338,6 +404,7 @@ function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear
   skoleData.dataYears = {
     oversko: overskoYear,
     trivsel: trivselYear,
+    overgang: overgangYear || null,
   };
 
   return { matched, unmatched, enriched, nationalAvg };
@@ -380,15 +447,22 @@ async function main() {
     console.log(`    Trivsel: ${trivselYear}\n`);
   }
 
+  // Find latest year with overgang data (delayed — typically 2 years behind)
+  console.log("  Finding latest Overgang year...");
+  const overgangYear = await findLatestYearWithOvergang(overskoYear);
+  console.log(`    Overgang: ${overgangYear || "not available"}\n`);
+
   // Fetch data
   console.log("  Fetching from API...");
   const overskoData = await fetchOversko(overskoYear);
   await sleep(500);
   const trivselData = await fetchTrivsel(trivselYear);
+  await sleep(500);
+  const overgangData = overgangYear ? await fetchOvergang(overgangYear) : [];
 
   // Merge
   console.log("\n  Merging data...");
-  const stats = mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear);
+  const stats = mergeData(skoleData, overskoData, trivselData, overgangData, overskoYear, trivselYear, overgangYear);
 
   console.log(`\n  ┌─────────────────────────────────┐`);
   console.log(`  │ Results                         │`);
@@ -401,6 +475,7 @@ async function main() {
   console.log(`  │ Nat. avg trivsel: ${String(stats.nationalAvg.trivsel).padStart(5)}        │`);
   console.log(`  │ Oversko year:     ${overskoYear.padStart(9)}  │`);
   console.log(`  │ Trivsel year:     ${trivselYear.padStart(9)}  │`);
+  console.log(`  │ Overgang year:    ${(overgangYear || "n/a").padStart(9)}  │`);
   console.log(`  └─────────────────────────────────┘\n`);
 
   if (DRY_RUN) {
