@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/shared/ScrollReveal";
-import { formatDKK } from "@/lib/format";
 import type { PopularData } from "@/hooks/usePopularData";
 
 export default function PopularSearches({ data, language }: { data: PopularData; language: string }) {
@@ -58,53 +57,31 @@ export default function PopularSearches({ data, language }: { data: PopularData;
           </Link>
         </div>
 
-        {/* Cheapest vuggestuer */}
-        {data.cheapestVuggestue.length > 0 && (
-          <div className="card p-5">
-            <h3 className="font-display font-bold text-foreground text-sm mb-3">
-              {language === "da" ? "Billigste vuggestuer" : "Cheapest nurseries"}
-            </h3>
-            <div className="space-y-1.5">
-              {data.cheapestVuggestue.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/institution/${item.id}`}
-                  className="flex justify-between text-sm py-1.5 px-2 -mx-2 rounded-lg hover:bg-primary/5 transition-colors group/row"
-                >
-                  <span className="text-muted truncate mr-2 group-hover/row:text-foreground transition-colors">{item.navn}</span>
-                  <span className="font-mono font-semibold text-foreground shrink-0">{formatDKK(item.price)}/md</span>
-                </Link>
-              ))}
-            </div>
-            <Link to="/vuggestue" className="text-xs text-primary font-semibold mt-3 flex items-center gap-0.5 hover:underline">
-              {language === "da" ? "Se alle vuggestuer" : "See all nurseries"} <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-        )}
+        {/* Find bedste vuggestue */}
+        <Link to="/vuggestue" className="card p-5 hover:border-primary/30 transition-all group">
+          <h3 className="font-display font-bold text-foreground text-sm mb-1">
+            {language === "da" ? "Find den bedste vuggestue" : "Find the best nursery"}
+          </h3>
+          <p className="text-sm text-muted mb-3 leading-relaxed">
+            {language === "da" ? "Se normering, priser og placering for alle vuggestuer i din kommune" : "See staff ratios, prices and location for all nurseries in your municipality"}
+          </p>
+          <p className="text-xs text-primary font-semibold flex items-center gap-0.5">
+            {language === "da" ? "Se vuggestuer" : "See nurseries"} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+          </p>
+        </Link>
 
-        {/* Cheapest børnehaver */}
-        {data.cheapestBoernehave.length > 0 && (
-          <div className="card p-5">
-            <h3 className="font-display font-bold text-foreground text-sm mb-3">
-              {language === "da" ? "Billigste børnehaver" : "Cheapest kindergartens"}
-            </h3>
-            <div className="space-y-1.5">
-              {data.cheapestBoernehave.map((item) => (
-                <Link
-                  key={item.id}
-                  to={`/institution/${item.id}`}
-                  className="flex justify-between text-sm py-1.5 px-2 -mx-2 rounded-lg hover:bg-primary/5 transition-colors group/row"
-                >
-                  <span className="text-muted truncate mr-2 group-hover/row:text-foreground transition-colors">{item.navn}</span>
-                  <span className="font-mono font-semibold text-foreground shrink-0">{formatDKK(item.price)}/md</span>
-                </Link>
-              ))}
-            </div>
-            <Link to="/boernehave" className="text-xs text-primary font-semibold mt-3 flex items-center gap-0.5 hover:underline">
-              {language === "da" ? "Se alle børnehaver" : "See all kindergartens"} <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-        )}
+        {/* Find bedste børnehave */}
+        <Link to="/boernehave" className="card p-5 hover:border-primary/30 transition-all group">
+          <h3 className="font-display font-bold text-foreground text-sm mb-1">
+            {language === "da" ? "Find den bedste børnehave" : "Find the best kindergarten"}
+          </h3>
+          <p className="text-sm text-muted mb-3 leading-relaxed">
+            {language === "da" ? "Se normering, priser og placering for alle børnehaver i din kommune" : "See staff ratios, prices and location for all kindergartens in your municipality"}
+          </p>
+          <p className="text-xs text-primary font-semibold flex items-center gap-0.5">
+            {language === "da" ? "Se børnehaver" : "See kindergartens"} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+          </p>
+        </Link>
 
         {/* Normering link card */}
         <Link to="/normering" className="card p-5 hover:border-primary/30 transition-all group">
