@@ -181,11 +181,9 @@ export default function InstitutionPage() {
     if (hasPrice || hasQuality) {
       defs.push({ id: "section-data", labelDA: "Data", labelEN: "Data" });
     }
-    if (reviews.length > 0) {
-      defs.push({ id: "section-anmeldelser", labelDA: "Anmeldelser", labelEN: "Reviews" });
-    }
+    defs.push({ id: "section-anmeldelser", labelDA: "Anmeldelser", labelEN: "Reviews" });
     return defs;
-  }, [inst, scoreResult, percentiles, hasInstitutionQuality, reviews.length]);
+  }, [inst, scoreResult, percentiles, hasInstitutionQuality]);
 
   if (loading) {
     return (
