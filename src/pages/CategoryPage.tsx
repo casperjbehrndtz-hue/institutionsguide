@@ -33,6 +33,17 @@ import GeoModals from "@/components/shared/GeoModals";
 import DataFreshness from "@/components/shared/DataFreshness";
 import { CATEGORY_PATHS, CATEGORY_TITLES, CATEGORY_SEO_DESCRIPTIONS, SUBTYPE_LABELS } from "@/lib/categoryConstants";
 
+const EFTERSKOLE_PROFILES: { value: string; da: string; en: string }[] = [
+  { value: "sport", da: "Sport", en: "Sports" },
+  { value: "musik", da: "Musik", en: "Music" },
+  { value: "kunst", da: "Kunst", en: "Art" },
+  { value: "outdoor", da: "Outdoor", en: "Outdoor" },
+  { value: "teater", da: "Teater", en: "Theatre" },
+  { value: "international", da: "International", en: "International" },
+  { value: "haandvaerk", da: "Håndværk", en: "Crafts" },
+  { value: "it", da: "IT & Tech", en: "IT & Tech" },
+];
+
 interface Props {
   category: "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "fritidsklub" | "efterskole";
 }
@@ -65,6 +76,7 @@ export default function CategoryPage({ category }: Props) {
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
+  const [profileFilter, setProfileFilter] = useState<string>("");
 
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 14 });
@@ -77,20 +89,26 @@ export default function CategoryPage({ category }: Props) {
     search, category: catFilter, municipality: municipalityFilter, qualityFilter, sortKey, ageGroup,
   });
 
+  // Efterskole profile filtering
+  const profileFiltered = useMemo(() => {
+    if (!profileFilter || category !== "efterskole") return filtered;
+    return filtered.filter((inst) => inst.profiles?.includes(profileFilter));
+  }, [filtered, profileFilter, category]);
+
   const municipalityNames = useMemo(() => municipalities.map((m) => m.municipality), [municipalities]);
   const [visibleCount, setVisibleCount] = useState(50);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const distanceSorted = useMemo(() => {
-    if (!geo.userLocation) return filtered;
+    if (!geo.userLocation) return profileFiltered;
     const loc = geo.userLocation;
     const cosLat = Math.cos(loc.lat * Math.PI / 180);
-    return [...filtered].sort((a, b) => {
+    return [...profileFiltered].sort((a, b) => {
       const distA = Math.hypot(a.lat - loc.lat, (a.lng - loc.lng) * cosLat);
       const distB = Math.hypot(b.lat - loc.lat, (b.lng - loc.lng) * cosLat);
       return distA - distB;
     });
-  }, [filtered, geo.userLocation]);
+  }, [profileFiltered, geo.userLocation]);
 
   // Filter by radius when active
   const radiusFiltered = useMemo(() => {
@@ -100,7 +118,7 @@ export default function CategoryPage({ category }: Props) {
     );
   }, [distanceSorted, radiusKm, geo.userLocation]);
 
-  useEffect(() => { queueMicrotask(() => { setVisibleCount(50); setMapBounds(null); }); }, [filtered]);
+  useEffect(() => { queueMicrotask(() => { setVisibleCount(50); setMapBounds(null); }); }, [profileFiltered]);
 
   // Infinite scroll
   useEffect(() => {
@@ -197,7 +215,7 @@ export default function CategoryPage({ category }: Props) {
         { name: categoryTitle, url: `https://institutionsguiden.dk${CATEGORY_PATHS[category]}` },
       ])} />
       <JsonLd data={itemListSchema(
-        filtered.slice(0, 10).map((inst) => ({
+        profileFiltered.slice(0, 10).map((inst) => ({
           name: inst.name,
           url: `/institution/${inst.id}`,
         })),
@@ -222,7 +240,7 @@ export default function CategoryPage({ category }: Props) {
           {t.categoryDescriptions[category]}
         </p>
         <p className="font-mono text-primary text-lg font-semibold">
-          <AnimatedNumber value={filtered.length} /> {t.common.institutions}
+          <AnimatedNumber value={profileFiltered.length} /> {t.common.institutions}
         </p>
         <DataFreshness />
       </section></ScrollReveal>
@@ -286,6 +304,40 @@ export default function CategoryPage({ category }: Props) {
         </div>
       </div>
 
+      {/* Efterskole profile filter chips */}
+      {category === "efterskole" && (
+        <div className="max-w-7xl mx-auto px-4 pt-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-muted font-medium mr-1">
+              {language === "da" ? "Profil:" : "Profile:"}
+            </span>
+            <button
+              onClick={() => setProfileFilter("")}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                !profileFilter
+                  ? "bg-primary text-white"
+                  : "bg-border/40 text-muted hover:bg-border/70"
+              }`}
+            >
+              {language === "da" ? "Alle" : "All"}
+            </button>
+            {EFTERSKOLE_PROFILES.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setProfileFilter(profileFilter === p.value ? "" : p.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  profileFilter === p.value
+                    ? "bg-primary text-white"
+                    : "bg-border/40 text-muted hover:bg-border/70"
+                }`}
+              >
+                {language === "da" ? p.da : p.en}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <ViewToggle
         mobileView={mobileView}
         onListView={() => {
@@ -333,7 +385,7 @@ export default function CategoryPage({ category }: Props) {
               qualityFilter={qualityFilter}
               onQualityFilterChange={setQualityFilter}
               defaultCategory={category}
-              onClearAll={() => { setSearch(""); setCatFilter(category); setMunicipality(""); setAgeGroup(""); setQualityFilter(""); }}
+              onClearAll={() => { setSearch(""); setCatFilter(category); setMunicipality(""); setAgeGroup(""); setQualityFilter(""); setProfileFilter(""); }}
             />
           )}
           {visibleList.map((inst) => {
