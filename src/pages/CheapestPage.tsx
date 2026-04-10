@@ -156,7 +156,7 @@ export default function CheapestPage() {
         items={[
           { label: "Forside", href: "/" },
           { label: catLabel, href: `/${cat}` },
-          { label: munName, href: `/kommune/${encodeURIComponent(munName)}` },
+          { label: munName, href: `/${cat}/${toSlug(munName)}` },
           { label: `Billigste ${catSingular} i ${munName}` },
         ]}
       />
@@ -346,6 +346,12 @@ export default function CheapestPage() {
           Se også
         </h2>
         <div className="flex flex-wrap gap-2">
+          <Link
+            to={`/bedste-${cat}/${toSlug(munName)}`}
+            className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center font-medium"
+          >
+            Bedste {catLabel.toLowerCase()} i {munName}
+          </Link>
           <Link
             to={`/${cat}/${toSlug(munName)}`}
             className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
