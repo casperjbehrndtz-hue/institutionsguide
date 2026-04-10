@@ -395,3 +395,19 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 **Verifikation**: tsc: ✓ | tests: 268/268 | build: ✓ (8563 pages)
 **Produkteffekt**: No user-facing change, but structure now allows independent iteration on discovery sections
 **Næste**: TIER 13 — remaining files >400 lines (BestDagtilbudPage 412, PrissammenligningPage 411, CategoryPage 405, CategoryMunicipalityPage 405, NormeringKommunePage 404)
+
+### Iteration 87 — PRODUKT-BUGS: Quality-first + broken links + gymnasium cleanup
+**Opgave**: Fix 6 product bugs found during systematic scan
+**Hvorfor**: User explicitly demanded product bugs > code refactoring. Quality-first principle.
+**Ændringer**:
+1. PopularSearches.tsx: Replaced "Billigste vuggestuer/børnehaver" lists with "Find den bedste" quality-first link cards
+2. usePopularData.ts: Removed unused cheapestVuggestue/cheapestBoernehave data
+3. InstitutionPage.tsx: Always show "Anmeldelser" tab (was hidden when 0 reviews — contradicted always-visible ReviewSection)
+4. CategoryPage.tsx + useFilterParams.ts: Default sort changed from "price" to "name" for quality-first UX
+5. Navbar.tsx + Footer.tsx: Removed gymnasium links (0 data — sends users to empty page)
+6. PopularSearches.tsx: Fixed broken /bedste-skoler links → /skole (404 bug)
+7. sitemap-static.xml: Removed broken /bedste-skoler URL, duplicate municipality entries (Københavns, Bornholms Regionskommune, Vesthimmerlands), Christiansø
+8. NotFoundPage.tsx: Added efterskole to 404 category shortcuts
+**Verifikation**: tsc: ✓ | tests: 279/279 | 5 commits pushed
+**Produkteffekt**: No more 404s from homepage links, quality-first messaging throughout, gymnasium hidden, reviews tab always visible
+**Næste**: Continue scanning for product bugs
