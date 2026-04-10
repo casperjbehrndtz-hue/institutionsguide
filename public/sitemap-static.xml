@@ -127,12 +127,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://institutionsguiden.dk/bedste-skoler</loc>
-    <lastmod>2026-04-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://institutionsguiden.dk/privatliv</loc>
     <lastmod>2026-04-10</lastmod>
     <changefreq>yearly</changefreq>
@@ -199,12 +193,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://institutionsguiden.dk/kommune/Bornholms%20Regionskommune</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://institutionsguiden.dk/kommune/Br%C3%B8ndby</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
@@ -212,12 +200,6 @@
   </url>
   <url>
     <loc>https://institutionsguiden.dk/kommune/Br%C3%B8nderslev</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguiden.dk/kommune/Christians%C3%B8</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -458,12 +440,6 @@
   </url>
   <url>
     <loc>https://institutionsguiden.dk/kommune/K%C3%B8benhavn</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguiden.dk/kommune/K%C3%B8benhavns</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -728,12 +704,6 @@
   </url>
   <url>
     <loc>https://institutionsguiden.dk/kommune/Vesthimmerland</loc>
-    <lastmod>2026-03-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://institutionsguiden.dk/kommune/Vesthimmerlands</loc>
     <lastmod>2026-03-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

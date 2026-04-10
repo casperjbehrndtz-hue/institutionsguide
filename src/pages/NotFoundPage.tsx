@@ -6,7 +6,7 @@ import SEOHead from "@/components/shared/SEOHead";
 import { CATEGORY_SLUGS, CATEGORY_LABELS_DA, type CategorySlug } from "@/lib/slugs";
 
 const POPULAR_CATEGORIES: CategorySlug[] = [
-  "vuggestue", "boernehave", "dagpleje", "skole", "sfo",
+  "vuggestue", "boernehave", "dagpleje", "skole", "sfo", "efterskole",
 ];
 
 export default function NotFoundPage() {
