@@ -180,7 +180,7 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
         items={[
           { label: language === "da" ? "Forside" : "Home", href: "/" },
           { label: catLabelDa, href: `/${cat}` },
-          { label: munName, href: `/kommune/${encodeURIComponent(munName)}` },
+          { label: munName, href: `/${cat}/${toSlug(munName)}` },
           {
             label:
               language === "da"

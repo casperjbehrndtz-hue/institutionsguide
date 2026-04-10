@@ -132,7 +132,7 @@ export default function BestSchoolPage() {
         items={[
           { label: "Forside", href: "/" },
           { label: "Skoler", href: "/skole" },
-          { label: munName, href: `/kommune/${encodeURIComponent(munName)}` },
+          { label: munName, href: `/skole/${toSlug(munName)}` },
           { label: `Bedste skoler i ${munName}` },
         ]}
       />
