@@ -9,10 +9,10 @@ import { SkeletonHero, SkeletonTable } from "@/components/shared/Skeletons";
 import RelatedSearches from "@/components/shared/RelatedSearches";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
-import { dataVersions } from "@/lib/dataVersions";
 import DataFreshness from "@/components/shared/DataFreshness";
 import PriceSpreadChart from "@/components/charts/PriceSpreadChart";
 import ShareButton from "@/components/shared/ShareButton";
+import PrissammenligningFAQ from "@/components/prissammenligning/PrissammenligningFAQ";
 
 type RateKey = "vuggestue" | "boernehave" | "dagpleje" | "sfo";
 type SortKey = "municipality" | RateKey;
@@ -374,33 +374,7 @@ export default function PrissammenligningPage() {
         </div>
       </section></ScrollReveal>
 
-      {/* FAQ */}
-      <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-8">
-        <h2 className="font-display text-xl font-bold text-foreground mb-4">
-          Om prissammenligning
-        </h2>
-        <div className="space-y-4 text-sm text-muted">
-          <p>
-            <strong className="text-foreground">Hvor kommer priserne fra?</strong><br />
-            Taksterne er baseret på data fra Danmarks Statistik (StatBank RES88) og viser de
-            kommunale takster for {dataVersions.prices.year}. Priserne er omregnet til månedlige beløb.
-          </p>
-          <p>
-            <strong className="text-foreground">Hvorfor varierer priserne?</strong><br />
-            Kommunerne fastsætter selv taksterne for børnepasning. Forskellen skyldes bl.a.
-            kommunens økonomi, serviceniveau og lokale politiske prioriteringer. Forældre
-            betaler maks. 25% af de faktiske udgifter.
-          </p>
-          <p>
-            <strong className="text-foreground">Kan jeg få tilskud?</strong><br />
-            Ja — familier med lav indkomst kan søge om hel eller delvis friplads.
-            Beregn dit tilskud på vores{" "}
-            <Link to="/friplads" className="text-primary hover:underline">
-              fripladsberegner
-            </Link>.
-          </p>
-        </div>
-      </section></ScrollReveal>
+      <PrissammenligningFAQ />
 
       {/* Related searches */}
       <RelatedSearches />
