@@ -23,7 +23,7 @@ export const FAQ_ITEMS_DA = [
   },
   {
     q: "Kan jeg se normeringen for en institution?",
-    a: "Vi viser ikke normering direkte, da kommunerne offentliggør det forskelligt. For skoler viser vi klassestørrelse. Kontakt den enkelte institution eller kommune for aktuel normering.",
+    a: "Ja, vi viser normering (børn pr. voksen) for vuggestuer, børnehaver og dagpleje. Data kommer fra Børne- og Undervisningsministeriet. Du kan sammenligne normering på tværs af kommuner under Normering-siden eller se den direkte på den enkelte institutions profil.",
   },
   {
     q: "Hvad er søskenderabat?",
@@ -54,7 +54,7 @@ export const FAQ_ITEMS_EN = [
   },
   {
     q: "Can I see the staff-to-child ratio?",
-    a: "We don't currently display staff ratios directly as municipalities publish this differently. For schools, we show class size. Contact the individual institution for current ratios.",
+    a: "Yes, we show staff-to-child ratios (normering) for nurseries, kindergartens and childminders. Data comes from the Danish Ministry of Children and Education. You can compare ratios across municipalities on the Normering page or see them directly on each institution's profile.",
   },
   {
     q: "What is sibling discount?",
