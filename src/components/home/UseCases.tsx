@@ -4,14 +4,14 @@ import ScrollReveal from "@/components/shared/ScrollReveal";
 
 export default function UseCases({ language, schoolCount }: { language: string; schoolCount: string }) {
   const cards = language === "da" ? [
-    { icon: BarChart3, title: "Sammenlign priser", desc: "Find den billigste vuggestue, børnehave eller dagpleje i din kommune", href: "/prissammenligning", cta: "Se prissammenligning" },
     { icon: GraduationCap, title: "Vælg den bedste skole", desc: `Trivsel, karakterer, fravær og lærerkompetencer for alle ${schoolCount} skoler`, href: "/skole", cta: "Se skoledata" },
-    { icon: Users, title: "Tjek normering", desc: "Se hvor mange børn pr. voksen der er i din kommunes dagtilbud", href: "/normering", cta: "Se normering" },
+    { icon: Users, title: "Tjek normering", desc: "Se børn pr. voksen i din kommunes vuggestuer og børnehaver", href: "/normering", cta: "Se normering" },
+    { icon: BarChart3, title: "Sammenlign priser", desc: "Sammenlign takster for vuggestue, børnehave og dagpleje i din kommune", href: "/prissammenligning", cta: "Se prissammenligning" },
     { icon: Calculator, title: "Beregn fripladstilskud", desc: "Tjek om du har ret til tilskud baseret på din husstandsindkomst", href: "/friplads", cta: "Beregn nu" },
   ] : [
-    { icon: BarChart3, title: "Compare prices", desc: "Find the cheapest nursery, kindergarten or childminder in your municipality", href: "/prissammenligning", cta: "See price comparison" },
     { icon: GraduationCap, title: "Choose the best school", desc: `Well-being, grades, absence and teacher qualifications for all ${schoolCount} schools`, href: "/skole", cta: "See school data" },
-    { icon: Users, title: "Check staff ratios", desc: "See children per adult in your municipality's childcare", href: "/normering", cta: "See ratios" },
+    { icon: Users, title: "Check staff ratios", desc: "See children per adult in your municipality's nurseries and kindergartens", href: "/normering", cta: "See ratios" },
+    { icon: BarChart3, title: "Compare prices", desc: "Compare rates for nursery, kindergarten and childminder in your municipality", href: "/prissammenligning", cta: "See price comparison" },
     { icon: Calculator, title: "Calculate subsidy", desc: "Check if you qualify for a childcare subsidy", href: "/friplads", cta: "Calculate now" },
   ];
 

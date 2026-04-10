@@ -3,8 +3,8 @@ import { toSlug } from "@/lib/slugs";
 
 export default function SEOLinks({ language }: { language: string }) {
   const links = [
-    { label: language === "da" ? "Billigste vuggestue i København" : "Cheapest nursery in Copenhagen", to: `/billigste-vuggestue/${toSlug("København")}` },
-    { label: language === "da" ? "Billigste vuggestue i Aarhus" : "Cheapest nursery in Aarhus", to: `/billigste-vuggestue/${toSlug("Aarhus")}` },
+    { label: language === "da" ? "Bedste vuggestuer i København" : "Best nurseries in Copenhagen", to: `/bedste-vuggestue/${toSlug("København")}` },
+    { label: language === "da" ? "Bedste børnehaver i Aarhus" : "Best kindergartens in Aarhus", to: `/bedste-boernehave/${toSlug("Aarhus")}` },
     { label: language === "da" ? "Bedste skoler i København" : "Best schools in Copenhagen", to: `/bedste-skole/${toSlug("København")}` },
     { label: language === "da" ? "Bedste skoler i Aarhus" : "Best schools in Aarhus", to: `/bedste-skole/${toSlug("Aarhus")}` },
     { label: language === "da" ? "Bedste skoler i Odense" : "Best schools in Odense", to: `/bedste-skole/${toSlug("Odense")}` },
