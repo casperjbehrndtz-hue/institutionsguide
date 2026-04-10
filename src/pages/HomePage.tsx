@@ -7,7 +7,7 @@ import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
 import { useFilterParams } from "@/hooks/useFilterParams";
 import { useMapParams } from "@/hooks/useMapParams";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
+import GeoModals from "@/components/shared/GeoModals";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
 import HomeDiscovery from "@/components/home/HomeDiscovery";
 
@@ -378,15 +378,14 @@ export default function HomePage() {
         faqTitle={t.home.faq}
       />
 
-      {/* Geolocation consent modal */}
-      {geo.showGeoModal && (
-        <GeoModal onAccept={geo.acceptConsent} onDismiss={geo.dismissModal} />
-      )}
-
-      {/* Geolocation error toast */}
-      {geo.geoError && (
-        <GeoErrorToast message={geo.geoError} onDismiss={geo.dismissError} onRetry={geo.retryGeolocation} />
-      )}
+      <GeoModals
+        showGeoModal={geo.showGeoModal}
+        geoError={geo.geoError}
+        onAccept={geo.acceptConsent}
+        onDismiss={geo.dismissModal}
+        onDismissError={geo.dismissError}
+        onRetry={geo.retryGeolocation}
+      />
 
       {/* Compare bar */}
       <CompareBar />

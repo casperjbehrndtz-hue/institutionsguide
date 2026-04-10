@@ -2,18 +2,14 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>https://institutionsguiden.dk/sitemap-static.xml</loc>
-    <lastmod>2026-04-09</lastmod>
+    <lastmod>2026-04-10</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://institutionsguiden.dk/sitemap-institutions.xml</loc>
-    <lastmod>2026-04-09</lastmod>
+    <lastmod>2026-04-10</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://institutionsguiden.dk/sitemap-programmatic.xml</loc>
-    <lastmod>2026-04-09</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://institutionsguiden.dk/sitemap-blog.xml</loc>
-    <lastmod>2026-04-09</lastmod>
+    <lastmod>2026-04-10</lastmod>
   </sitemap>
 </sitemapindex>

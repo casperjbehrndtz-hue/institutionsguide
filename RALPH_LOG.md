@@ -354,14 +354,44 @@
 
 ---
 
-## Running totals
-- **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings** ✅✅
-- **Files over 400 lines**: 14 → reduced (CheapestPage 413→373, BestDagtilbudPage 446→412, BestSchoolPage 426→361)
-- **Build**: green throughout, 1939 pages pre-rendered
-- **Tests**: 117 → **254** across 24 files (was 6 files)
-- **Accessibility**: aria-labels, dialog roles, type="search", sticky headers, scope=col on all tables, role=table on all tables
-- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages), AnimatedNumber on stat cards + hero counters, ShareButton on 10+ pages, row numbering, DataFreshness on GuidePage, **homepage redesign** (premium category cards, trust stats, daycare-focused popular searches)
-- **Dark mode**: Fixed info cards (CheapestPage, InstitutionSidebar), favorite button hover states (5 components incl. ComparePage), VsPage price winner card, homepage category cards
-- **Type safety**: PostHog global type declaration eliminates all system-boundary `any`s
+## Running totals (v1: iteration 1-84)
+- **ESLint**: 31 errors, 8 warnings → **0 errors, 0 warnings**
+- **Files over 400 lines**: 14 → 7
+- **Build**: 1,939 → 8,563 pre-rendered pages
+- **Tests**: 117 → **268** across 26 files (was 6 files)
+- **Accessibility**: aria-labels, dialog roles, type="search", sticky headers, scope=col, role=table, role=search
+- **UX**: Back-to-top, sticky headers, quality badges, price/score bars, #1 highlighting, ScrollReveal (14+ pages), AnimatedNumber, ShareButton (10+ pages), row numbering, DataFreshness, homepage redesign
+- **Dark mode**: Full pass on info cards, favorite buttons, winner cards, category cards
+- **Type safety**: PostHog global type declaration, zero `any` in core logic
 - **Consistency**: All JSON-LD uses shared `<JsonLd>` component
-- **Næste opgave**: Continue TIER 10 UX improvements + explore TIER 8 tests
+
+---
+
+# RALPH v2 — Starter fra iteration 85
+
+## v2 Baseline (2026-04-10)
+```
+Build:     0 errors, 8563 pages
+TSC:       0 errors
+ESLint:    0 errors, 0 warnings
+Tests:     268/268 (26 filer)
+Files>400: 7 (InstitutionPage 474, HomePage 447, BestDagtilbudPage 412, PrissammenligningPage 411, CategoryPage 405, CategoryMunicipalityPage 405, NormeringKommunePage 404)
+```
+
+v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en developer.
+
+### Iteration 85 — TIER 13: InstitutionPage.tsx (474→399 lines)
+**Opgave**: Extract helpers + use shared Breadcrumbs on the most important page type
+**Hvorfor**: 7,113 pre-rendered detail pages — cleaner code enables faster product iteration
+**Ændringer**: Created lib/institutionPageHelpers.ts (buildChatContext, buildInstitutionFaqs, categoryPath), replaced inline breadcrumb with shared Breadcrumbs component, simplified tilsyn hooks
+**Verifikation**: tsc: ✓ | tests: 268/268 | build: ✓ (8563 pages)
+**Produkteffekt**: Consistent breadcrumb UX across all pages (mobile-responsive truncation now applies to institution pages too)
+**Næste**: Continue TIER 13 — HomePage.tsx (447 lines) is next largest
+
+### Iteration 86 — TIER 13: HomePage.tsx (447→395 lines)
+**Opgave**: Extract MobileViewToggle, FilterSummaryBar, HomeDiscovery + deduplicate map props
+**Hvorfor**: HomePage is landing page — cleaner structure enables faster UX iteration
+**Ændringer**: 3 new components, deduplicated InstitutionMap props
+**Verifikation**: tsc: ✓ | tests: 268/268 | build: ✓ (8563 pages)
+**Produkteffekt**: No user-facing change, but structure now allows independent iteration on discovery sections
+**Næste**: TIER 13 — remaining files >400 lines (BestDagtilbudPage 412, PrissammenligningPage 411, CategoryPage 405, CategoryMunicipalityPage 405, NormeringKommunePage 404)

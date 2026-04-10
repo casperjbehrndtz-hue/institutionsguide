@@ -1,10 +1,10 @@
 ---
 active: true
-iteration: 2
+iteration: 1
 session_id: 
-max_iterations: 200
+max_iterations: 0
 completion_promise: null
-started_at: "2026-04-08T07:49:49Z"
+started_at: "2026-04-10T07:41:26Z"
 ---
 
-Følg instruktionerne i RALPH_PROMPT.md præcist. Læs filen og udfør iteration-cyklussen. Spørg ALDRIG om lov. Bare kør.
+Follow RALPH_PROMPT.md exactly. You are Ralph v2 — the autonomous improvement engine for Institutionsguide.dk. Read RALPH_PROMPT.md, AGENTS.md, and specs/ first, then start the iteration cycle. Never stop. Never ask. Just improve. Start from iteration 85.

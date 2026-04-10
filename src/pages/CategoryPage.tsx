@@ -29,7 +29,7 @@ import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import type { UnifiedInstitution } from "@/lib/types";
 import { haversineKm } from "@/lib/geo";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
+import GeoModals from "@/components/shared/GeoModals";
 import DataFreshness from "@/components/shared/DataFreshness";
 import { CATEGORY_PATHS, CATEGORY_TITLES, CATEGORY_SEO_DESCRIPTIONS, SUBTYPE_LABELS } from "@/lib/categoryConstants";
 
@@ -157,16 +157,10 @@ export default function CategoryPage({ category }: Props) {
     onRadiusChange: setRadiusKm,
   };
 
-  // Count active filters for mobile badge (must be before early returns to satisfy rules-of-hooks)
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (search) count++;
-    if (municipalityFilter) count++;
-    if (ageGroup) count++;
-    if (qualityFilter) count++;
-    if (sortKey !== (category === "skole" ? "rating" : "price")) count++;
-    return count;
-  }, [search, municipalityFilter, ageGroup, qualityFilter, sortKey, category]);
+  const activeFilterCount = useMemo(() =>
+    [search, municipalityFilter, ageGroup, qualityFilter, sortKey !== (category === "skole" ? "rating" : "price") ? "x" : ""].filter(Boolean).length,
+    [search, municipalityFilter, ageGroup, qualityFilter, sortKey, category],
+  );
 
   if (loading) {
     return (
@@ -389,15 +383,14 @@ export default function CategoryPage({ category }: Props) {
       {/* Related searches */}
       <RelatedSearches category={category} />
 
-      {/* Geolocation consent modal */}
-      {geo.showGeoModal && (
-        <GeoModal onAccept={geo.acceptConsent} onDismiss={geo.dismissModal} />
-      )}
-
-      {/* Geolocation error toast */}
-      {geo.geoError && (
-        <GeoErrorToast message={geo.geoError} onDismiss={geo.dismissError} onRetry={geo.retryGeolocation} />
-      )}
+      <GeoModals
+        showGeoModal={geo.showGeoModal}
+        geoError={geo.geoError}
+        onAccept={geo.acceptConsent}
+        onDismiss={geo.dismissModal}
+        onDismissError={geo.dismissError}
+        onRetry={geo.retryGeolocation}
+      />
 
       <CompareBar />
     </>
