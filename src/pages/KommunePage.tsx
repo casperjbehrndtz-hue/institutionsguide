@@ -194,7 +194,7 @@ export default function KommunePage() {
       {/* Header */}
       <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent relative">
         <div className="absolute top-4 right-4">
-          <ShareButton title={`${decodedName} — Institutioner og priser`} url={`/kommune/${encodeURIComponent(decodedName)}`} />
+          <ShareButton title={`${decodedName} — Institutioner, normering og priser`} url={`/kommune/${encodeURIComponent(decodedName)}`} />
         </div>
         <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
           {decodedName}
@@ -206,6 +206,16 @@ export default function KommunePage() {
           <AnimatedNumber value={munInstitutions.length} /> {t.common.institutions}
         </p>
       </section></ScrollReveal>
+
+      {/* Normering chart — quality first */}
+      {munNormering.length > 0 && (
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
+          <NormeringChart
+            municipality={decodedName}
+            data={munNormering}
+          />
+        </section></ScrollReveal>
+      )}
 
       {/* Rates overview */}
       {munSummary && (
@@ -268,15 +278,6 @@ export default function KommunePage() {
         </div>
       </section>
 
-      {/* Normering chart */}
-      {munNormering.length > 0 && (
-        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
-          <NormeringChart
-            municipality={decodedName}
-            data={munNormering}
-          />
-        </section></ScrollReveal>
-      )}
 
       {/* Dagpleje vs Vuggestue comparison */}
       {dagplejeAvg && vuggestueAvg && (
