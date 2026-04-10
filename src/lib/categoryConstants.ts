@@ -30,8 +30,8 @@ export const CATEGORY_SEO_DESCRIPTIONS: Record<string, Record<string, string>> =
     boernehave: "Find og sammenlign børnehaver i alle 98 kommuner. Se normering, kvalitetsdata, priser og kontaktinfo.",
     dagpleje: "Find og sammenlign dagplejere i alle 98 kommuner. Se normering, kvalitetsdata, priser og kontaktinfo.",
     skole: "Find og sammenlign skoler i Danmark. Se kvalitetsdata, karakterer, trivsel og fravær.",
-    sfo: "Find og sammenlign SFO og fritidsordninger i alle 98 kommuner. Se priser og kontaktinfo.",
-    fritidsklub: "Find og sammenlign fritidsklubber for 4.-7. klasse i alle kommuner. Se priser og kontaktinfo.",
+    sfo: "Find og sammenlign SFO og fritidsordninger i alle 98 kommuner. Se kvalitetsdata, priser og kontaktinfo.",
+    fritidsklub: "Find og sammenlign fritidsklubber for 4.-7. klasse i alle kommuner. Se kvalitetsdata, priser og kontaktinfo.",
     efterskole: "Sammenlign efterskoler i hele Danmark. Se profiler, ledige pladser, ugepris og årspris.",
   },
   en: {

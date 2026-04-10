@@ -187,7 +187,7 @@ export default function InstitutionListCard({
               <span className="shrink-0 font-medium text-primary">{inst.schoolType}</span>
             )}
             {inst.category === "efterskole" && inst.classLevels && inst.classLevels.length > 0 && (
-              <span className="shrink-0">{inst.classLevels.join(". + ")}. kl.</span>
+              <span className="shrink-0">{inst.classLevels.join(". + ")}. {language === "da" ? "kl." : "gr."}</span>
             )}
             {subtypeLabel && <span className="shrink-0">{subtypeLabel}</span>}
             <span className="shrink-0">{inst.municipality}</span>

@@ -17,7 +17,7 @@ export default function EfterskoleDetails({ inst, language }: { inst: UnifiedIns
         {inst.classLevels && inst.classLevels.length > 0 && (
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted">{language === "da" ? "Klassetrin" : "Grades"}:</span>
-            <span className="text-sm font-medium text-foreground">{inst.classLevels.join(". + ")}. klasse</span>
+            <span className="text-sm font-medium text-foreground">{inst.classLevels.join(". + ")}. {language === "da" ? "klasse" : "grade"}</span>
           </div>
         )}
         {inst.availableSpots != null && (

@@ -149,7 +149,7 @@ export default function VsPage() {
   const descText = VS_DESCRIPTIONS[vsKey]?.da ?? "";
 
   const pageTitle = `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB} i ${munName} ${new Date().getFullYear()} — Pris og forskelle`;
-  const pageDesc = `Sammenlign ${singA} og ${singB} i ${munName}. ${statsA.count} ${labelA.toLowerCase()} vs. ${statsB.count} ${labelB.toLowerCase()}. Se priser, antal og forskelle.`;
+  const pageDesc = `Sammenlign ${singA} og ${singB} i ${munName}. ${statsA.count} ${labelA.toLowerCase()} vs. ${statsB.count} ${labelB.toLowerCase()}. Se kvalitet, priser og forskelle.`;
 
   // JSON-LD FAQ for comparison
   const faqLd = {
