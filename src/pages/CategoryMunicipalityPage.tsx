@@ -132,17 +132,27 @@ export default function CategoryMunicipalityPage() {
     // Ownership mix
     const privateCount = filtered.filter((i) => i.ownership === "Privat" || i.ownership === "Selvejende").length;
     const publicCount = filtered.length - privateCount;
+    const isDa = language === "da";
     if (privateCount > 0 && publicCount > 0) {
-      parts.push(`Af de ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er ${publicCount} kommunale og ${privateCount} private eller selvejende`);
+      parts.push(isDa
+        ? `Af de ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er ${publicCount} kommunale og ${privateCount} private eller selvejende`
+        : `Of the ${filtered.length} ${catLabel.toLowerCase()} in ${munName}, ${publicCount} are public and ${privateCount} are private or independent`);
     } else if (publicCount === filtered.length) {
-      parts.push(`Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er kommunale`);
+      parts.push(isDa
+        ? `Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er kommunale`
+        : `All ${filtered.length} ${catLabel.toLowerCase()} in ${munName} are public`);
     } else {
-      parts.push(`Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er private eller selvejende`);
+      parts.push(isDa
+        ? `Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er private eller selvejende`
+        : `All ${filtered.length} ${catLabel.toLowerCase()} in ${munName} are private or independent`);
     }
 
     // Normering mention
     if (normeringRatio) {
-      parts.push(`Normeringen i ${munName} er ${normeringRatio.ratio.toFixed(1).replace(".", ",")} børn pr. voksen (${normeringRatio.year})`);
+      const ratioStr = normeringRatio.ratio.toFixed(1).replace(".", isDa ? "," : ".");
+      parts.push(isDa
+        ? `Normeringen i ${munName} er ${ratioStr} børn pr. voksen (${normeringRatio.year})`
+        : `The staff ratio in ${munName} is ${ratioStr} children per adult (${normeringRatio.year})`);
     }
 
     // Price comparison to national average
@@ -152,16 +162,18 @@ export default function CategoryMunicipalityPage() {
       if (pctDiff >= 5) {
         parts.push(
           diff > 0
-            ? `Prisniveauet ligger ${pctDiff}% over landsgennemsnittet på ${formatDKK(nationalAvg)}/md`
-            : `Prisniveauet ligger ${pctDiff}% under landsgennemsnittet på ${formatDKK(nationalAvg)}/md`
+            ? (isDa ? `Prisniveauet ligger ${pctDiff}% over landsgennemsnittet på ${formatDKK(nationalAvg)}/md` : `Prices are ${pctDiff}% above the national average of ${formatDKK(nationalAvg)}/mo`)
+            : (isDa ? `Prisniveauet ligger ${pctDiff}% under landsgennemsnittet på ${formatDKK(nationalAvg)}/md` : `Prices are ${pctDiff}% below the national average of ${formatDKK(nationalAvg)}/mo`)
         );
       } else {
-        parts.push(`Prisniveauet ligger tæt på landsgennemsnittet på ${formatDKK(nationalAvg)}/md`);
+        parts.push(isDa
+          ? `Prisniveauet ligger tæt på landsgennemsnittet på ${formatDKK(nationalAvg)}/md`
+          : `Prices are close to the national average of ${formatDKK(nationalAvg)}/mo`);
       }
     }
 
     return parts.join(". ") + ".";
-  }, [filtered, catLabel, munName, stats.avg, nationalAvg, normeringRatio]);
+  }, [filtered, catLabel, munName, stats.avg, nationalAvg, normeringRatio, language]);
 
   if (loading) {
     return (<><SkeletonHero /><SkeletonCardGrid /></>);
@@ -171,12 +183,12 @@ export default function CategoryMunicipalityPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="card p-8 text-center max-w-md">
-          <h1 className="font-display text-2xl font-bold mb-4">Side ikke fundet</h1>
+          <h1 className="font-display text-2xl font-bold mb-4">{language === "da" ? "Side ikke fundet" : "Page not found"}</h1>
           <p className="text-muted mb-6">
-            Vi kunne ikke finde data for denne kombination.
+            {language === "da" ? "Vi kunne ikke finde data for denne kombination." : "We couldn't find data for this combination."}
           </p>
           <Link to="/" className="text-primary hover:underline font-medium">
-            Gå til forsiden
+            {language === "da" ? "Gå til forsiden" : "Go to front page"}
           </Link>
         </div>
       </div>

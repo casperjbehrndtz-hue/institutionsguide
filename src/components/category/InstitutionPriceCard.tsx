@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
 import type { UnifiedInstitution } from "@/lib/types";
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function InstitutionPriceCard({ inst, minPrice, maxPrice }: Props) {
+  const { language } = useLanguage();
   const pricePosition = inst.monthlyRate && minPrice && maxPrice && maxPrice > minPrice
     ? ((inst.monthlyRate - minPrice) / (maxPrice - minPrice)) * 100
     : null;
@@ -40,14 +42,14 @@ export default function InstitutionPriceCard({ inst, minPrice, maxPrice }: Props
             ? `${formatDKK(inst.yearlyPrice)}/år`
             : inst.monthlyRate
               ? `${formatDKK(inst.monthlyRate)}/md`
-              : "Pris ikke tilgængelig"}
+              : language === "da" ? "Pris ikke tilgængelig" : "Price not available"}
         </span>
       </div>
       {pricePosition !== null && (
         <div className="mt-2.5">
           <div className="flex justify-between text-[10px] text-muted mb-0.5">
-            <span>Billigst</span>
-            <span>Dyrest</span>
+            <span>{language === "da" ? "Billigst" : "Cheapest"}</span>
+            <span>{language === "da" ? "Dyrest" : "Most expensive"}</span>
           </div>
           <div className="h-1.5 bg-border/50 rounded-full overflow-hidden">
             <div
