@@ -20,7 +20,6 @@ interface DetailsSectionProps {
   municipalityAvgPrice: number | null;
   normering: NormeringEntry[];
   tilsynRapporter: Record<string, TilsynRapport[]>;
-  reviews: { rating: number }[];
   unlocked: boolean;
   onRequestUnlock: () => void;
   language: string;
@@ -29,7 +28,7 @@ interface DetailsSectionProps {
 
 export default function DetailsSection({
   inst, nearby, municipalityAvgPrice, normering,
-  tilsynRapporter, reviews, unlocked, onRequestUnlock, language, t,
+  tilsynRapporter, unlocked, onRequestUnlock, language, t,
 }: DetailsSectionProps) {
   const meta = useMemo(() => ({ institution: inst.id }), [inst.id]);
   const priceRef = useFeatureView("price_details", unlocked, meta);
@@ -88,11 +87,9 @@ export default function DetailsSection({
         </div>
       )}
 
-      {reviews.length > 0 && (
-        <div id="section-anmeldelser">
-          <ReviewSection institutionId={inst.id} />
-        </div>
-      )}
+      <div id="section-anmeldelser">
+        <ReviewSection institutionId={inst.id} />
+      </div>
     </section>
   );
 }

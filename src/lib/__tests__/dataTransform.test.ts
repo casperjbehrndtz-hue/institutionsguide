@@ -26,7 +26,9 @@ describe("schoolToUnified", () => {
     const ef: CompactSchool = { ...baseSchool, t: "e", yp: 72000, wp: 1800 };
     const result = schoolToUnified(ef);
     expect(result!.category).toBe("efterskole");
-    expect(result!.monthlyRate).toBe(1800);
+    expect(result!.monthlyRate).toBeNull();
+    expect(result!.weeklyPrice).toBe(1800);
+    expect(result!.yearlyPrice).toBe(72000);
     expect(result!.annualRate).toBe(72000);
   });
 

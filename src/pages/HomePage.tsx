@@ -225,7 +225,7 @@ export default function HomePage() {
         heroTitle={t.home.heroTitle}
         heroSubtitle={t.home.heroSubtitle.replace("{count}", institutions.length.toLocaleString("da-DK"))}
         institutionCount={institutions.length}
-        municipalityCount={municipalities.length}
+        municipalityCount={98}
       />
 
       <CategoryCards
@@ -234,7 +234,6 @@ export default function HomePage() {
         categoryStats={categoryStats}
         language={language}
         showLabel={t.common.show}
-        perMonth={t.common.perMonth}
       />
 
       {/* Filter bar — only when user has actively filtered */}

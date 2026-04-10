@@ -22,11 +22,12 @@ describe("getCategoryCards", () => {
     expect(featured.map((c) => c.category)).toEqual(["skole", "vuggestue", "boernehave"]);
   });
 
-  it("returns 5 other cards", () => {
+  it("returns 4 other cards (no gymnasium — 0 data)", () => {
     const { other } = getCategoryCards(mockT, "da");
-    expect(other).toHaveLength(5);
+    expect(other).toHaveLength(4);
     expect(other.map((c) => c.category)).toContain("dagpleje");
     expect(other.map((c) => c.category)).toContain("efterskole");
+    expect(other.map((c) => c.category)).not.toContain("gymnasium");
   });
 
   it("all cards have required fields", () => {

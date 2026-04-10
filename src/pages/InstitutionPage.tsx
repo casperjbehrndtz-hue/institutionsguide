@@ -375,7 +375,7 @@ export default function InstitutionPage() {
 
       <DetailsSection
         inst={inst} nearby={nearby} municipalityAvgPrice={municipalityAvgPrice}
-        normering={normering} tilsynRapporter={tilsynRapporter} reviews={reviews}
+        normering={normering} tilsynRapporter={tilsynRapporter}
         unlocked={unlocked} onRequestUnlock={openGate} language={language} t={t}
       />
 

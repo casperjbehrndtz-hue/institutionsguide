@@ -187,7 +187,9 @@ describe("schoolToUnified", () => {
     const result = schoolToUnified(makeSchool({ t: "e", wp: 2500, yp: 65000 }));
     expect(result!.category).toBe("efterskole");
     expect(result!.subtype).toBe("efterskole");
-    expect(result!.monthlyRate).toBe(2500);
+    expect(result!.monthlyRate).toBeNull();
+    expect(result!.weeklyPrice).toBe(2500);
+    expect(result!.yearlyPrice).toBe(65000);
     expect(result!.annualRate).toBe(65000);
   });
 

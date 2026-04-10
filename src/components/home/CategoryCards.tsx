@@ -30,6 +30,9 @@ interface CategoryStats {
   count: number;
   minPrice: number | null;
   minYearlyPrice: number | null;
+  avgKaraktersnit: number | null;
+  avgTrivsel: number | null;
+  municipalityCount: number;
 }
 
 interface CategoryCardsProps {
@@ -38,10 +41,9 @@ interface CategoryCardsProps {
   categoryStats: Record<string, CategoryStats>;
   language: string;
   showLabel: string;
-  perMonth: string;
 }
 
-export default function CategoryCards({ featured, other, categoryStats, language, showLabel, perMonth }: CategoryCardsProps) {
+export default function CategoryCards({ featured, other, categoryStats, language, showLabel }: CategoryCardsProps) {
   return (
     <section className="max-w-5xl mx-auto px-4 -mt-8 relative z-20 mb-10">
       {/* Featured: 3 large prominent cards */}
@@ -49,7 +51,6 @@ export default function CategoryCards({ featured, other, categoryStats, language
         {featured.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
-          const minPrice = stats?.minPrice;
           return (
             <Link
               key={card.category}
@@ -72,7 +73,7 @@ export default function CategoryCards({ featured, other, categoryStats, language
                   </div>
                 </div>
 
-                {/* Stats */}
+                {/* Stats — quality first */}
                 <div className="space-y-2 mb-4">
                   {count > 0 && (
                     <div className="flex items-center justify-between text-sm">
@@ -80,16 +81,22 @@ export default function CategoryCards({ featured, other, categoryStats, language
                       <span className="font-mono font-semibold text-foreground">{count.toLocaleString("da-DK")}</span>
                     </div>
                   )}
-                  {minPrice != null && (
+                  {stats?.avgKaraktersnit != null && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted">{language === "da" ? "Fra" : "From"}</span>
-                      <span className="font-mono font-semibold text-foreground">{formatDKK(minPrice)}{perMonth}</span>
+                      <span className="text-muted">{language === "da" ? "Gns. karaktersnit" : "Avg. grade"}</span>
+                      <span className="font-mono font-semibold text-foreground">{stats.avgKaraktersnit.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
                     </div>
                   )}
-                  {card.category === "efterskole" && stats?.minYearlyPrice && (
+                  {stats?.avgTrivsel != null && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted">{language === "da" ? "Fra" : "From"}</span>
-                      <span className="font-mono font-semibold text-foreground">{formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</span>
+                      <span className="text-muted">{language === "da" ? "Gns. trivsel" : "Avg. well-being"}</span>
+                      <span className="font-mono font-semibold text-foreground">{stats.avgTrivsel.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
+                    </div>
+                  )}
+                  {stats?.municipalityCount > 0 && !stats?.avgKaraktersnit && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted">{language === "da" ? "Kommuner" : "Municipalities"}</span>
+                      <span className="font-mono font-semibold text-foreground">{stats.municipalityCount}</span>
                     </div>
                   )}
                 </div>
@@ -109,11 +116,10 @@ export default function CategoryCards({ featured, other, categoryStats, language
       </div>
 
       {/* Secondary categories — horizontal row */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {other.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
-          const minPrice = stats?.minPrice;
           const minYearlyPrice = stats?.minYearlyPrice;
           return (
             <Link
@@ -133,8 +139,10 @@ export default function CategoryCards({ featured, other, categoryStats, language
               </div>
               <div className="text-xs text-muted space-y-0.5">
                 {count > 0 && <p>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</p>}
-                {minPrice != null && (
-                  <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minPrice)}{perMonth}</p>
+                {stats?.avgKaraktersnit != null && (
+                  <p className="font-mono text-foreground font-medium">
+                    {language === "da" ? "snit" : "avg."} {stats.avgKaraktersnit.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                  </p>
                 )}
                 {card.category === "efterskole" && minYearlyPrice != null && (
                   <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minYearlyPrice)}{language === "da" ? "/år" : "/year"}</p>

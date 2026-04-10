@@ -211,16 +211,48 @@ Læs `specs/` mappen. Nøglefiler:
 
 Du er ikke bare en kode-forbedrer. Du er en produkt-forbedrer. Tænk som en forælder:
 
+### KVALITET FØRST — ALDRIG PRIS FØRST
+
+**Den vigtigste indsigt**: Forældre søger den BEDSTE institution, ikke den billigste.
+Pris er sekundær information. Kvalitetsdata skal altid vises først:
+
+- **Skoler**: Karaktersnit, trivselsscore, fravær — det er det forældre sammenligner
+- **Dagtilbud**: Normering (børn pr. voksen), pædagogandel, forældretilfredshed
+- **Alle kategorier**: "Bedste" > "Billigste" i al kommunikation og UI-hierarki
+
+**Anti-mønster** (aldrig gør dette):
+- Vis "Fra X kr/md" som den primære metrik på et kategori-kort
+- Brug "billigste" som headline/hook medmindre brugeren specifikt søger efter pris
+- Vis priser uden kvalitetskontekst (normering, trivsel, karakter)
+
+**Pro-mønster** (gør altid dette):
+- Lead med kvalitetsdata: "Gns. karaktersnit: 7,2" eller "Normering: 3,1 børn/voksen"
+- Vis pris som supplement: "Fra 2.800 kr/md" kan vises, men under kvalitetsdata
+- Kontekstualiser pris: "12% under kommunegennemsnittet" er bedre end bare et tal
+
 ### Spørgsmål du stiller dig selv:
 1. Når en forælder googler "bedste vuggestue i Aarhus" og lander her, får de svaret hurtigt?
 2. Er den vigtigste information synlig uden scrolling på mobil?
 3. Ville en forælder dele dette link med sin partner?
 4. Mangler der context der ville gøre data mere meningsfuldt? (gennemsnit, sammenligning, forklaring)
 5. Er der en naturlig næste handling? (sammenlign, gem, del, se lignende)
+6. **Viser vi kvalitet eller pris først?** Kvalitet skal ALTID komme først.
+
+### PRODUKT-BUGS > KODE-REFACTORING
+
+**Prioritér synlige brugerproblemer over interne kodeforbedringer.**
+En forælder der ser forkerte data eller mærkelig UI er 100x vigtigere end en fil der er 450 linjer.
+
+Scan aktivt for:
+- Inkonsistente tal (f.eks. to forskellige kommunetal på samme side)
+- Forkert data-mapping (f.eks. månedlig pris vist for efterskoler der har årlige priser)
+- Tomme/manglende sektioner der burde have data
+- UI der ikke giver mening fra en forælders perspektiv
+- Links der fører til 404 eller tomme sider
 
 ### Typiske produkt-forbedringer du bør overveje:
 - Bedre empty states ("Ingen institutioner fundet — prøv at udvide dit søgeområde")
-- Kontekstuelle sammenligninger ("12% billigere end kommunegennemsnittet")
+- Kontekstuelle sammenligninger ("12% under kommunegennemsnittet")
 - Mikrointeraktioner der bygger trust (smooth transitions, loading skeletons)
 - Intern linking der guider forældre videre (ikke bare SEO, men reel navigation)
 - Mobile-first: kollapsbare sektioner, touch-venlige targets (min 44px)
