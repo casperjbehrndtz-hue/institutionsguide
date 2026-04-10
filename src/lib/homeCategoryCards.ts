@@ -25,11 +25,17 @@ export function getCategoryCards(t: TranslationStrings, language: Language) {
       cta: language === "da" ? "Se børnehaver" : "See kindergartens",
       metric: language === "da" ? "Normering, priser og kvalitetsdata" : "Staff ratios, prices and quality data",
     },
+    {
+      category: "efterskole" as const, label: t.categories.efterskole, icon: School,
+      iconColor: "text-pink-600 dark:text-pink-400", bgColor: "bg-pink-50 dark:bg-pink-900/30",
+      href: "/efterskole", desc: t.ageGroups.efterskole,
+      cta: language === "da" ? "Se efterskoler" : "See boarding schools",
+      metric: language === "da" ? "Profiler, priser og ledige pladser" : "Profiles, prices and available spots",
+    },
   ];
   const other = [
     { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-50 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Udforsk" : "Explore" },
     { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600 dark:text-purple-400", bgColor: "bg-purple-50 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Udforsk" : "Explore" },
-    { category: "efterskole" as const, label: t.categories.efterskole, icon: School, iconColor: "text-pink-600 dark:text-pink-400", bgColor: "bg-pink-50 dark:bg-pink-900/30", href: "/efterskole", desc: t.ageGroups.efterskole, cta: language === "da" ? "Udforsk" : "Explore" },
     { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-50 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Udforsk" : "Explore" },
   ];
   return { featured, other };

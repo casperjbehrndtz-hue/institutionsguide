@@ -46,8 +46,8 @@ interface CategoryCardsProps {
 export default function CategoryCards({ featured, other, categoryStats, language, showLabel }: CategoryCardsProps) {
   return (
     <section className="max-w-5xl mx-auto px-4 -mt-8 relative z-20 mb-10">
-      {/* Featured: 3 large prominent cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+      {/* Featured: large prominent cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
         {featured.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
@@ -99,6 +99,12 @@ export default function CategoryCards({ featured, other, categoryStats, language
                       <span className="font-mono font-semibold text-foreground">{stats.municipalityCount}</span>
                     </div>
                   )}
+                  {card.category === "efterskole" && stats?.minYearlyPrice != null && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted">{language === "da" ? "Fra" : "From"}</span>
+                      <span className="font-mono font-semibold text-foreground">{formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Metric tag */}
@@ -116,7 +122,7 @@ export default function CategoryCards({ featured, other, categoryStats, language
       </div>
 
       {/* Secondary categories — horizontal row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {other.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;

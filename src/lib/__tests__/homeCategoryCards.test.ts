@@ -16,17 +16,17 @@ const mockT = {
 } as never;
 
 describe("getCategoryCards", () => {
-  it("returns 3 featured cards (Skoler, Vuggestuer, Børnehaver)", () => {
+  it("returns 4 featured cards (Skoler, Vuggestuer, Børnehaver, Efterskoler)", () => {
     const { featured } = getCategoryCards(mockT, "da");
-    expect(featured).toHaveLength(3);
-    expect(featured.map((c) => c.category)).toEqual(["skole", "vuggestue", "boernehave"]);
+    expect(featured).toHaveLength(4);
+    expect(featured.map((c) => c.category)).toEqual(["skole", "vuggestue", "boernehave", "efterskole"]);
   });
 
-  it("returns 4 other cards (no gymnasium — 0 data)", () => {
+  it("returns 3 other cards (no gymnasium — 0 data, efterskole promoted to featured)", () => {
     const { other } = getCategoryCards(mockT, "da");
-    expect(other).toHaveLength(4);
+    expect(other).toHaveLength(3);
     expect(other.map((c) => c.category)).toContain("dagpleje");
-    expect(other.map((c) => c.category)).toContain("efterskole");
+    expect(other.map((c) => c.category)).not.toContain("efterskole");
     expect(other.map((c) => c.category)).not.toContain("gymnasium");
   });
 
