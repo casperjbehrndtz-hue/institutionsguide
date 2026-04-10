@@ -587,3 +587,27 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 2. Look for broken user flows or dead ends
 3. Consider performance improvements (InstitutionPage is 110KB)
 4. Check for any remaining price-first anti-patterns in the UI
+
+### Iteration 101 — PRIORITET 2: Better breadcrumb internal linking
+**Produkt-scan**: Navigation-check — on institution detail page, breadcrumb "Municipality" linked to generic /kommune/X (all categories). A parent viewing a børnehave wants to see other børnehaver in same kommune, not all institutions.
+**Opgave**: Update institution page breadcrumb to link municipality to category+municipality page
+**Hvorfor**: A parent on "Solsikken Børnehave" in Aarhus clicks "Aarhus" in breadcrumb — should see /boernehave/aarhus (other børnehaver), not /kommune/aarhus (everything)
+**Ændringer**:
+1. InstitutionPage.tsx: Breadcrumb municipality href changed from /kommune/X to /category/municipality-slug
+2. InstitutionPage.tsx: JSON-LD breadcrumb updated to match
+3. Added toSlug import from @/lib/slugs
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Clicking municipality name in breadcrumb now shows relevant institutions (same category) instead of all institutions
+**Næste**: Look for more internal linking improvements or product UX gaps
+
+### Iteration 102 — PRIORITET 2: Fix hardcoded Danish strings in CategoryMunicipalityPage
+**Produkt-scan**: Tekst-check — found 10+ hardcoded Danish strings in CategoryMunicipalityPage that don't translate to English: "Gennemsnit", "Billigste", "Dyreste", "Landsgennemsnit", "over/under", "Andre institutionstyper i", "nærliggende kommuner", "Forside", "Alle X i Y"
+**Opgave**: Add English translations for all user-visible text
+**Hvorfor**: English users see Danish text for price stats, headings, breadcrumbs, and related links
+**Ændringer**:
+1. CategoryMunicipalityPage.tsx: Added language === "da" ? "X" : "Y" for all 10+ hardcoded strings
+2. Fixed breadcrumb "Forside" → "Home" for JSON-LD and visual breadcrumbs
+3. Fixed price comparison paragraph with full EN translation
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English-speaking parents can now read all content on municipality category pages
+**Næste**: Check other pages for similar i18n issues

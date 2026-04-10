@@ -15,8 +15,8 @@ export default function PrivacyPage() {
         path="/privatliv"
       />
       <Breadcrumbs items={[
-        { label: "Forside", href: "/" },
-        { label: "Privatlivspolitik" },
+        { label: language === "da" ? "Forside" : "Home", href: "/" },
+        { label: language === "da" ? "Privatlivspolitik" : "Privacy policy" },
       ]} />
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
       {language === "en" && t.privacy.englishBanner && (
