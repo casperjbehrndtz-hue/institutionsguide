@@ -165,8 +165,8 @@ export default function CategoryMunicipalityPage() {
     );
   }
 
-  const pageTitle = `${catLabel} i ${munName} ${new Date().getFullYear()} — Priser og sammenligning`;
-  const pageDesc = `Der er ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune.${stats.avg ? ` Gennemsnitlig månedlig takst: ${stats.avg} kr.` : ""} Se priser, kontakt og sammenlign.`;
+  const pageTitle = `${catLabel} i ${munName} ${new Date().getFullYear()} — Sammenlign kvalitet og priser`;
+  const pageDesc = `Sammenlign ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune. Se normering, kvalitetsdata${stats.avg ? `, priser (gns. ${stats.avg} kr/md)` : ""} og kontaktinfo.`;
 
   return (
     <>

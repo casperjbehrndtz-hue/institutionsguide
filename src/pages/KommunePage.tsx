@@ -169,7 +169,7 @@ export default function KommunePage() {
     <>
       <SEOHead
         title={`${decodedName} — Institutioner og børnepasning`}
-        description={`Se alle ${munInstitutions.length} institutioner i ${decodedName} kommune. Vuggestuer, børnehaver, dagplejere, skoler og SFO med priser og kontaktinfo.`}
+        description={`Se alle ${munInstitutions.length} institutioner i ${decodedName} kommune. Sammenlign normering, kvalitet og priser for vuggestuer, børnehaver, dagplejere, skoler og SFO.`}
         path={`/kommune/${encodeURIComponent(decodedName)}`}
       />
       <JsonLd data={breadcrumbSchema([
