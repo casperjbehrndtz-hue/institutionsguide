@@ -53,7 +53,7 @@ export default function CategoryPage({ category }: Props) {
     sortKey, setSortKey,
   } = useFilterParams({
     defaultCategory: category,
-    defaultSortKey: category === "skole" ? "rating" : category === "efterskole" ? "name" : "price",
+    defaultSortKey: category === "skole" ? "rating" : "name",
   });
   const { lat, lng, zoom: mapZoom, view, setMapView, setView, radius: radiusKm, setRadius: setRadiusKm } = useMapParams();
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);

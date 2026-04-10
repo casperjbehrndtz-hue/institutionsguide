@@ -67,7 +67,7 @@ export interface FilterParams {
 export function useFilterParams(options?: UseFilterParamsOptions): FilterParams {
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultCategory = options?.defaultCategory ?? "alle";
-  const defaultSortKey = options?.defaultSortKey ?? "price";
+  const defaultSortKey = options?.defaultSortKey ?? "name";
 
   // Read values from URL, falling back to defaults
   const search = searchParams.get(PARAM.search) ?? "";
