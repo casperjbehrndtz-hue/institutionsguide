@@ -67,7 +67,7 @@ export default function SearchFilterBar({
   hideCategoryPills,
   hasGeolocation,
 }: Props) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightIdx, setHighlightIdx] = useState(-1);
@@ -333,7 +333,7 @@ export default function SearchFilterBar({
                 id="sort-select"
                 value={sortKey}
                 onChange={(e) => onSortChange(e.target.value as SortKey)}
-                aria-label="Sortér"
+                aria-label={language === "da" ? "Sortér" : "Sort"}
                 className="px-3 py-1.5 rounded-xl border border-border bg-bg-card text-foreground text-sm min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {sortOptions.map((opt) => (

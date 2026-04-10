@@ -282,7 +282,7 @@ export default function CategoryPage({ category }: Props) {
           {/* Persistent result count when filters collapsed */}
           {!showFilters && (
             <span className="text-xs text-muted whitespace-nowrap">
-              <span className="font-mono font-medium text-foreground">{boundsFiltered.length.toLocaleString("da-DK")}</span> institutioner
+              <span className="font-mono font-medium text-foreground">{boundsFiltered.length.toLocaleString("da-DK")}</span> {t.common.institutions}
             </span>
           )}
         </div>
