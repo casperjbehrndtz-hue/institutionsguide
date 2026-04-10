@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
-import { ChevronRight, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
@@ -16,13 +16,13 @@ import { institutionSchema, breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import CompareBar from "@/components/compare/CompareBar";
 import { SkeletonDetail } from "@/components/shared/Skeletons";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { useReviews } from "@/hooks/useReviews";
 import InstitutionReport from "@/components/report/InstitutionReport";
 import InstitutionSidebar from "@/components/report/InstitutionSidebar";
 import ComparisonTable from "@/components/report/ComparisonTable";
 import InstitutionQualitySection from "@/components/detail/InstitutionQualitySection";
-import { computeScore, type ScoreResult } from "@/lib/institutionScore";
-import type { UnifiedInstitution, InstitutionStats } from "@/lib/types";
+import { computeScore } from "@/lib/institutionScore";
 import { useAssessment } from "@/hooks/useAssessment";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataSourceBadges from "@/components/shared/DataSourceBadges";
@@ -35,43 +35,11 @@ import StickyHeader from "@/components/detail/StickyHeader";
 import ActionBar from "@/components/detail/ActionBar";
 import DetailsSection from "@/components/detail/DetailsSection";
 import QualityDataSection from "@/components/detail/QualityDataSection";
-import { usePercentiles, type PercentileEntry } from "@/hooks/usePercentiles";
+import { usePercentiles } from "@/hooks/usePercentiles";
 import { useComparisonRows } from "@/hooks/useComparisonRows";
 import { useScrollDepth } from "@/hooks/useScrollDepth";
 import { useFeatureView } from "@/hooks/useFeatureView";
-
-function buildChatContext(
-  inst: UnifiedInstitution, instStats: InstitutionStats | undefined, municipalityAvgPrice: number | null,
-  scoreResult: ScoreResult, percentiles: PercentileEntry[] | null,
-) {
-  return {
-    name: inst.name, category: inst.category, municipality: inst.municipality,
-    monthly_rate: inst.monthlyRate ?? null, municipality_avg_price: municipalityAvgPrice,
-    yearly_price: inst.yearlyPrice ?? null, ownership: inst.ownership ?? null,
-    normering_ratio: instStats?.normering02 ?? instStats?.normering35 ?? null,
-    normering_age_group: instStats?.normering02 != null ? "0-2" : instStats?.normering35 != null ? "3-5" : null,
-    pct_paedagoger: instStats?.pctPaedagoger ?? null,
-    pct_uden_paed_udd: instStats?.pctUdenPaedUdd ?? null,
-    parent_satisfaction: instStats?.parentSatisfaction ?? null,
-    antal_boern: instStats?.antalBoern ?? null,
-    trivsel: inst.quality?.ts ?? null, trivsel_social: inst.quality?.tsi ?? null,
-    karakterer: inst.quality?.k ?? null, fravaer_pct: inst.quality?.fp ?? null,
-    kompetencedaekning_pct: inst.quality?.kp ?? null, klassestorrelse: inst.quality?.kv ?? null,
-    undervisningseffekt: inst.quality?.sr ?? null, elever_pr_laerer: inst.quality?.epl ?? null,
-    undervisningstid_pr_elev: inst.quality?.upe ?? null,
-    score: scoreResult.overall, grade: scoreResult.grade,
-    address: `${inst.address}, ${inst.postalCode} ${inst.city}`,
-    percentile_rankings: percentiles?.map((p) => `${p.label}: ${p.value} (${p.percentile}. percentil)`) ?? [],
-  };
-}
-
-function categoryPath(cat: string): string {
-  const paths: Record<string, string> = {
-    vuggestue: "/vuggestue", boernehave: "/boernehave", dagpleje: "/dagpleje",
-    skole: "/skole", sfo: "/sfo", fritidsklub: "/fritidsklub", efterskole: "/efterskole", gymnasium: "/gymnasium",
-  };
-  return paths[cat] || "/";
-}
+import { categoryPath, buildChatContext, buildInstitutionFaqs } from "@/lib/institutionPageHelpers";
 
 
 export default function InstitutionPage() {
@@ -192,17 +160,10 @@ export default function InstitutionPage() {
 
   const comparisonRows = useComparisonRows(inst, !!scoreResult, nearby, normering, institutions, institutionStats, schoolExtraStats, sfoStats);
 
-  // Tilsyn: count active påbud and check if we have real data
-  const hasTilsynData = useMemo(() => {
-    if (!inst) return false;
-    return (tilsynRapporter[inst.id] ?? []).length > 0;
-  }, [inst, tilsynRapporter]);
-
-  const tilsynCount = useMemo(() => {
-    if (!inst) return 0;
-    const reports = tilsynRapporter[inst.id] ?? [];
-    return reports.filter((r) => r.followUpRequired || r.skaerpetTilsyn).length;
-  }, [inst, tilsynRapporter]);
+  // Tilsyn data
+  const tilsynReports = useMemo(() => tilsynRapporter[inst?.id ?? ""] ?? [], [inst, tilsynRapporter]);
+  const hasTilsynData = tilsynReports.length > 0;
+  const tilsynCount = useMemo(() => tilsynReports.filter((r) => r.followUpRequired || r.skaerpetTilsyn).length, [tilsynReports]);
 
   const percentiles = usePercentiles(inst, institutions, t);
 
@@ -266,54 +227,18 @@ export default function InstitutionPage() {
 
       {/* FAQ structured data for Google rich snippets */}
       {(() => {
-        const catLabel = categoryLabels[inst.category] || inst.category;
-        const isDagtilbud = ["vuggestue", "boernehave", "dagpleje", "sfo"].includes(inst.category);
-        const faqs: { q: string; a: string }[] = [];
-
-        if (inst.address) {
-          faqs.push({ q: `Hvor ligger ${inst.name}?`, a: `${inst.name} ligger på ${inst.address}, ${inst.postalCode} ${inst.city} i ${inst.municipality} Kommune.` });
-        }
-        if (inst.monthlyRate && inst.monthlyRate > 0) {
-          faqs.push({ q: `Hvad koster ${inst.name}?`, a: `Månedsprisen for ${inst.name} er ${inst.monthlyRate.toLocaleString("da-DK")} kr. i 2026.${inst.ownership ? ` ${inst.name} er en ${inst.ownership} institution.` : ""}` });
-        }
-        if (isDagtilbud && institutionStats) {
-          const statsKey = inst.id.replace(/^(vug|bh|dag|sfo)-/, "");
-          const iStats = institutionStats[statsKey];
-          let normeringVal: number | null = null;
-          let ageGroup = "";
-          if (inst.category === "vuggestue" && iStats?.normering02) { normeringVal = iStats.normering02; ageGroup = "0-2 år"; }
-          else if (inst.category === "boernehave" && iStats?.normering35) { normeringVal = iStats.normering35; ageGroup = "3-5 år"; }
-          if (normeringVal && normeringVal > 0) {
-            faqs.push({ q: `Hvad er normeringen i ${inst.municipality} for ${ageGroup}?`, a: `Den gennemsnitlige normering i ${inst.municipality} er ${normeringVal} børn per voksen for ${ageGroup} (data fra Danmarks Statistik, 2023).` });
-          }
-        }
-        if (inst.category === "skole" && inst.quality?.k) {
-          faqs.push({ q: `Hvad er karaktersnittet på ${inst.name}?`, a: `${inst.name} har et karaktersnit på ${inst.quality.k}${inst.quality.ts ? ` (landsgennemsnit: ~7.0). Trivslen er ${inst.quality.ts}/5` : " (landsgennemsnit: ~7.0)"}.` });
-        }
-        if (inst.category === "skole" && inst.quality?.ts && inst.quality?.k) {
-          faqs.push({ q: `Er ${inst.name} en god skole?`, a: `${inst.name} har en samlet kvalitetsvurdering baseret på trivsel (${inst.quality.ts}/5), karaktersnit (${inst.quality.k})${inst.quality.kp ? ` og kompetencedækning (${inst.quality.kp}%)` : ""}. Se den fulde vurdering på Institutionsguide.` });
-        }
-        if (nearby.length >= 3) {
-          faqs.push({ q: `Hvilke andre ${catLabel.toLowerCase()}r ligger tæt på ${inst.name}?`, a: `De nærmeste ${catLabel.toLowerCase()}r er ${nearby[0].name} (${nearby[0].dist.toFixed(1)} km), ${nearby[1].name} (${nearby[1].dist.toFixed(1)} km) og ${nearby[2].name} (${nearby[2].dist.toFixed(1)} km). Se alle ${catLabel.toLowerCase()}r i ${inst.municipality} på Institutionsguide.` });
-        }
-
+        const faqs = buildInstitutionFaqs(inst, categoryLabels[inst.category] || inst.category, nearby, institutionStats);
         return faqs.length > 0 ? <JsonLd data={faqSchema(faqs)} /> : null;
       })()}
 
       <StickyHeader shrunk={shrunk} instName={inst.name} scoreResult={scoreResult} />
 
-      {/* Breadcrumb */}
-      <nav className="max-w-[1020px] mx-auto px-4 pt-6 text-sm text-muted" aria-label="Breadcrumb">
-        <ol className="flex items-center gap-1 flex-wrap">
-          <li><Link to="/" className="hover:text-primary transition-colors">{language === "da" ? "Forside" : "Home"}</Link></li>
-          <li><ChevronRight className="w-3.5 h-3.5" /></li>
-          <li><Link to={categoryPath(inst.category)} className="hover:text-primary transition-colors">{categoryLabels[inst.category]}</Link></li>
-          <li><ChevronRight className="w-3.5 h-3.5" /></li>
-          <li><Link to={`/kommune/${encodeURIComponent(inst.municipality)}`} className="hover:text-primary transition-colors">{inst.municipality}</Link></li>
-          <li><ChevronRight className="w-3.5 h-3.5" /></li>
-          <li className="text-foreground font-medium truncate max-w-[200px]">{inst.name}</li>
-        </ol>
-      </nav>
+      <Breadcrumbs items={[
+        { label: language === "da" ? "Forside" : "Home", href: "/" },
+        { label: categoryLabels[inst.category], href: categoryPath(inst.category) },
+        { label: inst.municipality, href: `/kommune/${encodeURIComponent(inst.municipality)}` },
+        { label: inst.name },
+      ]} />
 
       <div className="max-w-[1020px] mx-auto px-4 space-y-2">
         <DataFreshness />
