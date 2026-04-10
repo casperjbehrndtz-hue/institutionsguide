@@ -30,7 +30,7 @@ export default function PopularSearches({ data, language }: { data: PopularData;
               </Link>
             ))}
           </div>
-          <Link to="/bedste-skoler" className="text-xs text-primary font-semibold mt-3 flex items-center gap-0.5 hover:underline">
+          <Link to="/skole" className="text-xs text-primary font-semibold mt-3 flex items-center gap-0.5 hover:underline">
             {language === "da" ? "Se alle skoler" : "See all schools"} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -52,7 +52,7 @@ export default function PopularSearches({ data, language }: { data: PopularData;
               </Link>
             ))}
           </div>
-          <Link to="/bedste-skoler" className="text-xs text-primary font-semibold mt-3 flex items-center gap-0.5 hover:underline">
+          <Link to="/skole" className="text-xs text-primary font-semibold mt-3 flex items-center gap-0.5 hover:underline">
             {language === "da" ? "Se alle skoler sorteret på karakterer" : "See all schools sorted by grades"} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
