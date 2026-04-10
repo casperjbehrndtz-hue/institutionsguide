@@ -6,6 +6,7 @@ import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { buildSlugMap, toSlug } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
+import { useNearbyMunicipalities } from "@/hooks/useNearbyMunicipalities";
 import DataFreshness from "@/components/shared/DataFreshness";
 import DataAttribution from "@/components/shared/DataAttribution";
 import ScrollReveal from "@/components/shared/ScrollReveal";
@@ -54,20 +55,8 @@ export default function BestSchoolPage() {
     [institutions, munName]
   );
 
-  // Nearby municipalities
-  const nearbyMuns = useMemo(() => {
-    const idx = municipalities.findIndex((m) => m.municipality === munName);
-    if (idx === -1) return [];
-    const nearby: string[] = [];
-    for (
-      let i = Math.max(0, idx - 4);
-      i <= Math.min(municipalities.length - 1, idx + 4);
-      i++
-    ) {
-      if (i !== idx) nearby.push(municipalities[i].municipality);
-    }
-    return nearby;
-  }, [municipalities, munName]);
+  // Nearby municipalities (geographic proximity)
+  const nearbyMuns = useNearbyMunicipalities(institutions, munName, "skole");
 
   // Municipality stats for unique content (must be before early returns — rules of hooks)
   const munStats = useMemo(() => {

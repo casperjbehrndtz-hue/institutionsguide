@@ -18,6 +18,7 @@ import {
   type CategorySlug,
 } from "@/lib/slugs";
 import RelatedSearches from "@/components/shared/RelatedSearches";
+import { useNearbyMunicipalities } from "@/hooks/useNearbyMunicipalities";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import ShareButton from "@/components/shared/ShareButton";
@@ -101,25 +102,8 @@ export default function CategoryMunicipalityPage() {
     });
   }, [institutions, cat, munName]);
 
-  // Nearby municipalities with this category
-  const nearbyMuns = useMemo(() => {
-    const idx = municipalities.findIndex((m) => m.municipality === munName);
-    if (idx === -1) return [];
-    const nearby: string[] = [];
-    for (
-      let i = Math.max(0, idx - 4);
-      i <= Math.min(municipalities.length - 1, idx + 4);
-      i++
-    ) {
-      if (i !== idx) {
-        const m = municipalities[i].municipality;
-        if (institutions.some((inst) => inst.category === cat && inst.municipality === m)) {
-          nearby.push(m);
-        }
-      }
-    }
-    return nearby;
-  }, [municipalities, institutions, munName, cat]);
+  // Nearby municipalities (geographic, not alphabetical)
+  const nearbyMuns = useNearbyMunicipalities(institutions, munName, cat);
 
   const catLabel = CATEGORY_LABELS_DA[cat] ?? "";
   const catSingular = CATEGORY_SINGULAR_DA[cat] ?? "";
