@@ -44,6 +44,13 @@ describe("schoolToUnified", () => {
     const result = schoolToUnified(baseSchool);
     expect(result!.municipality).toBe("København");
   });
+
+  it("normalizes genitive municipality names", () => {
+    expect(schoolToUnified({ ...baseSchool, m: "Københavns Kommune" })!.municipality).toBe("København");
+    expect(schoolToUnified({ ...baseSchool, m: "Vesthimmerlands Kommune" })!.municipality).toBe("Vesthimmerland");
+    expect(schoolToUnified({ ...baseSchool, m: "Bornholms Regionskommune" })!.municipality).toBe("Bornholm");
+    expect(schoolToUnified({ ...baseSchool, m: "Aalborg Kommune" })!.municipality).toBe("Aalborg");
+  });
 });
 
 describe("dagtilbudCategory", () => {

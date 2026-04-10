@@ -1,5 +1,16 @@
 import type { UnifiedInstitution, CompactSchool } from "@/lib/types";
 
+/** Normalize municipality names: "Københavns Kommune" → "København", "Bornholms Regionskommune" → "Bornholm" */
+const GENITIVE_MUNICIPALITIES: Record<string, string> = {
+  "Københavns Kommune": "København",
+  "Vesthimmerlands Kommune": "Vesthimmerland",
+  "Bornholms Regionskommune": "Bornholm",
+};
+
+function normalizeMunicipality(m: string): string {
+  return GENITIVE_MUNICIPALITIES[m] ?? m.replace(/ Kommune$/, "");
+}
+
 /** Compact dagtilbud record (short keys from compact-data.mjs) */
 export interface CompactDagtilbud {
   id: string;
@@ -48,7 +59,7 @@ export function schoolToUnified(s: CompactSchool): UnifiedInstitution | null {
     name: s.n,
     category: isEfterskole ? "efterskole" : "skole",
     subtype: mapSchoolType(s.t),
-    municipality: s.m.replace(/ Kommune$/, "").replace(/s Regionskommune$/, ""),
+    municipality: normalizeMunicipality(s.m),
     address: s.a,
     postalCode: s.z,
     city: s.c,
@@ -88,7 +99,7 @@ export function compactDagtilbudToUnified(d: CompactDagtilbud, prefix: string): 
     name: d.n,
     category: dagtilbudCategory(d.tp),
     subtype: d.ow,
-    municipality: d.m.replace(/ Kommune$/, "").replace(/s Regionskommune$/, ""),
+    municipality: normalizeMunicipality(d.m),
     address: d.a || "",
     postalCode: d.z || "",
     city: d.c || "",
