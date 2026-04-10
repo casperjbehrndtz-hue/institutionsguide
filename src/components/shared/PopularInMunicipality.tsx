@@ -70,11 +70,15 @@ export default function PopularInMunicipality({ municipality, excludeId, categor
               <p className="text-sm font-medium text-foreground truncate">{inst.name}</p>
               <p className="text-xs text-muted">{inst.address}</p>
             </div>
-            {inst.monthlyRate != null && (
+            {inst.category === "efterskole" && inst.yearlyPrice ? (
+              <span className="font-mono text-xs font-bold text-primary shrink-0">
+                {formatDKK(inst.yearlyPrice)}/år
+              </span>
+            ) : inst.monthlyRate != null ? (
               <span className="font-mono text-xs font-bold text-primary shrink-0">
                 {formatDKK(inst.monthlyRate)}/md
               </span>
-            )}
+            ) : null}
           </Link>
         ))}
       </div>

@@ -63,11 +63,15 @@ export default function RankedCard({
             {inst.address}
           </p>
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
-            {inst.monthlyRate != null && (
+            {inst.category === "efterskole" && inst.yearlyPrice ? (
+              <span className="text-xs text-muted">
+                {formatDKK(inst.yearlyPrice)}/år
+              </span>
+            ) : inst.monthlyRate != null ? (
               <span className="text-xs text-muted">
                 {formatDKK(inst.monthlyRate)}/md.
               </span>
-            )}
+            ) : null}
             {keyMetrics.map((m) => (
               <span key={m.key} className="inline-flex items-center gap-1 text-xs text-muted">
                 <MetricIcon name={m.icon} className="w-3 h-3" /> {m.value}

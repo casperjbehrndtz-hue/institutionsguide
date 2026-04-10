@@ -47,11 +47,15 @@ export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
               <p className="font-medium text-sm text-foreground truncate">{inst.name}</p>
             </div>
             <p className="text-xs text-muted truncate">{inst.municipality}</p>
-            {inst.monthlyRate != null && (
+            {inst.category === "efterskole" && inst.yearlyPrice ? (
+              <p className="text-xs font-mono text-primary mt-1">
+                {formatDKK(inst.yearlyPrice)}/år
+              </p>
+            ) : inst.monthlyRate != null ? (
               <p className="text-xs font-mono text-primary mt-1">
                 {formatDKK(inst.monthlyRate)}/md
               </p>
-            )}
+            ) : null}
           </Link>
         ))}
       </div>

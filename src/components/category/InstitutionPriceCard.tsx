@@ -36,7 +36,11 @@ export default function InstitutionPriceCard({ inst, minPrice, maxPrice }: Props
           </span>
         )}
         <span className="font-mono text-sm text-primary font-medium ml-auto">
-          {inst.monthlyRate ? `${formatDKK(inst.monthlyRate)}/md` : "Pris ikke tilgængelig"}
+          {inst.category === "efterskole" && inst.yearlyPrice
+            ? `${formatDKK(inst.yearlyPrice)}/år`
+            : inst.monthlyRate
+              ? `${formatDKK(inst.monthlyRate)}/md`
+              : "Pris ikke tilgængelig"}
         </span>
       </div>
       {pricePosition !== null && (

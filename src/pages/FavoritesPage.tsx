@@ -112,10 +112,21 @@ export default function FavoritesPage() {
                         </span>
                       </div>
                       <div className="text-right shrink-0 ml-2">
-                        <p className="font-mono text-sm font-medium text-primary">
-                          {formatDKK(inst.monthlyRate)}
-                        </p>
-                        <span className="text-xs text-muted">{t.common.perMonth}</span>
+                        {inst.category === "efterskole" && inst.yearlyPrice ? (
+                          <>
+                            <p className="font-mono text-sm font-medium text-primary">
+                              {formatDKK(inst.yearlyPrice)}
+                            </p>
+                            <span className="text-xs text-muted">{language === "da" ? "/år" : "/year"}</span>
+                          </>
+                        ) : inst.monthlyRate ? (
+                          <>
+                            <p className="font-mono text-sm font-medium text-primary">
+                              {formatDKK(inst.monthlyRate)}
+                            </p>
+                            <span className="text-xs text-muted">{t.common.perMonth}</span>
+                          </>
+                        ) : null}
                       </div>
                     </div>
                   </Link>
