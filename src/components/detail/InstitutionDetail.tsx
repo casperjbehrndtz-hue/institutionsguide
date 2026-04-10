@@ -94,9 +94,15 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
         <div className="rounded-lg bg-bg-card border border-border p-3 text-center">
           <p className="text-[10px] text-muted uppercase">{language === "da" ? "Pris" : "Price"}</p>
           <p className="font-mono text-lg font-bold text-primary mt-0.5">
-            {inst.monthlyRate ? formatDKK(inst.monthlyRate) : "–"}
+            {inst.category === "efterskole" && inst.yearlyPrice
+              ? formatDKK(inst.yearlyPrice)
+              : inst.monthlyRate ? formatDKK(inst.monthlyRate) : "–"}
           </p>
-          <p className="text-[10px] text-muted">{t.common.perMonth}</p>
+          <p className="text-[10px] text-muted">
+            {inst.category === "efterskole" && inst.yearlyPrice
+              ? (language === "da" ? "/år" : "/year")
+              : t.common.perMonth}
+          </p>
         </div>
 
         {/* Quality score or second metric */}
