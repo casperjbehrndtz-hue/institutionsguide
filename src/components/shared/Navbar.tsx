@@ -20,6 +20,7 @@ const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = [
   { href: "/bedste-vaerdi", labelOverride: { da: "Bedste værdi", en: "Best value" } },
   { href: "/friplads", labelOverride: { da: "Fripladsberegner", en: "Subsidy calculator" } },
   { href: "/normering", labelOverride: { da: "Børn pr. voksen", en: "Children per adult" } },
+  { href: "/samlet-pris", labelOverride: { da: "Samlet pris", en: "Total cost" } },
 ];
 
 export default function Navbar() {

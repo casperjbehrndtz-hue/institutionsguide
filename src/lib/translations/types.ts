@@ -212,6 +212,7 @@ export interface TranslationStrings {
     bestValue: string;
     subsidyCalc: string;
     staffRatio: string;
+    totalCost: string;
     compareInstitutions: string;
     childcareGuide: string;
     favorites: string;

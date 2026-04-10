@@ -213,6 +213,7 @@ export const en: TranslationStrings = {
     bestValue: "Best value",
     subsidyCalc: "Subsidy calculator",
     staffRatio: "Children per adult",
+    totalCost: "Total cost",
     compareInstitutions: "Compare institutions",
     childcareGuide: "Childcare guide",
     favorites: "My favorites",

@@ -213,6 +213,7 @@ export const da: TranslationStrings = {
     bestValue: "Bedste værdi",
     subsidyCalc: "Fripladsberegner",
     staffRatio: "Børn pr. voksen",
+    totalCost: "Samlet pris",
     compareInstitutions: "Sammenlign institutioner",
     childcareGuide: "Pasningsguide",
     favorites: "Mine favoritter",
