@@ -244,7 +244,7 @@ export default function InstitutionPage() {
         <DataFreshness />
         <DataSourceBadges
           category={inst.category}
-          hasPrice={inst.monthlyRate != null}
+          hasPrice={inst.monthlyRate != null || (inst.category === "efterskole" && inst.yearlyPrice != null)}
           hasQuality={inst.quality?.r !== undefined}
           hasNormering={!!instStats?.normering02 || !!instStats?.normering35}
         />
