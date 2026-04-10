@@ -53,13 +53,13 @@ export const da: TranslationStrings = {
     normering: "Normering",
   },
   categoryDescriptions: {
-    vuggestue: "Find og sammenlign vuggestuer (0-2 år) i alle 98 kommuner. Se priser, ejerskab og beregn fripladstilskud.",
-    boernehave: "Sammenlign børnehaver (3-5 år) i hele landet. Se kommunale, selvejende og private børnehaver med priser.",
-    dagpleje: "Find dagpleje (0-2 år) i din kommune. Ofte et billigere alternativ til vuggestue med højere voksen-barn ratio.",
+    vuggestue: "Find og sammenlign vuggestuer (0-2 år) i alle 98 kommuner. Se normering, kvalitetsdata, priser og ejerskab.",
+    boernehave: "Sammenlign børnehaver (3-5 år) i hele landet. Se normering og kvalitetsdata for kommunale, selvejende og private børnehaver.",
+    dagpleje: "Find dagpleje (0-2 år) i din kommune. Sammenlign normering, kvalitet og priser med andre pasningstilbud.",
     skole: "Sammenlign folkeskoler og friskoler med kvalitetsdata: trivsel, karaktersnit, fravær og kompetencedækning.",
     sfo: "Find SFO-tilbud (6-9 år) i din kommune. Se priser og sammenlign med andre fritidsordninger.",
     fritidsklub: "Find fritidsklubber for 4.-7. klasse i din kommune. Se priser og sammenlign tilbud.",
-    efterskole: "Sammenlign efterskoler i hele Danmark. Se profiler, priser og kontaktinfo for alle 119+ efterskoler.",
+    efterskole: "Sammenlign efterskoler i hele Danmark. Se profiler, ledige pladser, ugepris og årspris for alle 119+ efterskoler.",
     gymnasium: "Sammenlign gymnasier i hele Danmark. Se frafald, karaktersnit og overgang til videregående uddannelse for STX, HHX, HTX og HF.",
   },
   ageGroups: {

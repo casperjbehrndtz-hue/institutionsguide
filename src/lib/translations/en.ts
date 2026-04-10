@@ -53,13 +53,13 @@ export const en: TranslationStrings = {
     normering: "Staff ratios",
   },
   categoryDescriptions: {
-    vuggestue: "Find and compare nurseries (age 0-2) across all 98 municipalities. See prices, ownership and calculate subsidies.",
-    boernehave: "Compare kindergartens (age 3-5) across the country. See municipal, independent and private kindergartens with prices.",
-    dagpleje: "Find childminders (age 0-2) in your municipality. Often a cheaper alternative to nursery with higher adult-child ratio.",
+    vuggestue: "Find and compare nurseries (age 0-2) across all 98 municipalities. See staff ratios, quality data, prices and ownership.",
+    boernehave: "Compare kindergartens (age 3-5) across the country. See staff ratios and quality data for municipal, independent and private kindergartens.",
+    dagpleje: "Find childminders (age 0-2) in your municipality. Compare staff ratios, quality and prices with other childcare options.",
     skole: "Compare public and private schools with quality data: well-being, grade averages, absence and competence coverage.",
     sfo: "Find after-school care (age 6-9) in your municipality. See prices and compare different options.",
     fritidsklub: "Find youth clubs for ages 10-14 in your municipality. See prices and compare options.",
-    efterskole: "Compare boarding schools across Denmark. See profiles, prices and contact info for all 119+ schools.",
+    efterskole: "Compare boarding schools across Denmark. See profiles, available spots, weekly and yearly prices for all 119+ schools.",
     gymnasium: "Compare upper secondary schools across Denmark. See dropout rates, grade averages and transition to higher education for STX, HHX, HTX and HF.",
   },
   ageGroups: {
