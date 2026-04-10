@@ -77,6 +77,7 @@ export default function CategoryPage({ category }: Props) {
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
   const [profileFilter, setProfileFilter] = useState<string>("");
+  const [spotsOnly, setSpotsOnly] = useState(false);
 
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 14 });
@@ -89,11 +90,18 @@ export default function CategoryPage({ category }: Props) {
     search, category: catFilter, municipality: municipalityFilter, qualityFilter, sortKey, ageGroup,
   });
 
-  // Efterskole profile filtering
+  // Efterskole profile + available spots filtering
   const profileFiltered = useMemo(() => {
-    if (!profileFilter || category !== "efterskole") return filtered;
-    return filtered.filter((inst) => inst.profiles?.includes(profileFilter));
-  }, [filtered, profileFilter, category]);
+    if (category !== "efterskole") return filtered;
+    let result = filtered;
+    if (profileFilter) {
+      result = result.filter((inst) => inst.profiles?.includes(profileFilter));
+    }
+    if (spotsOnly) {
+      result = result.filter((inst) => inst.availableSpots != null && inst.availableSpots > 0);
+    }
+    return result;
+  }, [filtered, profileFilter, spotsOnly, category]);
 
   const municipalityNames = useMemo(() => municipalities.map((m) => m.municipality), [municipalities]);
   const [visibleCount, setVisibleCount] = useState(50);
@@ -321,6 +329,17 @@ export default function CategoryPage({ category }: Props) {
             >
               {language === "da" ? "Alle" : "All"}
             </button>
+            <button
+              onClick={() => setSpotsOnly(!spotsOnly)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                spotsOnly
+                  ? "bg-green-600 text-white"
+                  : "bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-950/30 dark:text-green-400 dark:hover:bg-green-950/50"
+              }`}
+            >
+              {language === "da" ? "Ledige pladser" : "Available spots"}
+            </button>
+            <span className="text-border">|</span>
             {EFTERSKOLE_PROFILES.map((p) => (
               <button
                 key={p.value}
@@ -385,7 +404,7 @@ export default function CategoryPage({ category }: Props) {
               qualityFilter={qualityFilter}
               onQualityFilterChange={setQualityFilter}
               defaultCategory={category}
-              onClearAll={() => { setSearch(""); setCatFilter(category); setMunicipality(""); setAgeGroup(""); setQualityFilter(""); setProfileFilter(""); }}
+              onClearAll={() => { setSearch(""); setCatFilter(category); setMunicipality(""); setAgeGroup(""); setQualityFilter(""); setProfileFilter(""); setSpotsOnly(false); }}
             />
           )}
           {visibleList.map((inst) => {
