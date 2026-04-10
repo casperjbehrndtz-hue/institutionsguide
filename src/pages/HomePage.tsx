@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { SlidersHorizontal, BarChart3, X, Loader2 } from "lucide-react";
+import { SlidersHorizontal, X, Loader2 } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFilteredInstitutions } from "@/hooks/useFilteredInstitutions";
@@ -9,7 +9,7 @@ import { useMapParams } from "@/hooks/useMapParams";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { GeoModal, GeoErrorToast } from "@/components/shared/GeoUI";
 import SearchFilterBar from "@/components/filters/SearchFilterBar";
-import ScrollReveal from "@/components/shared/ScrollReveal";
+import HomeDiscovery from "@/components/home/HomeDiscovery";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 import CompareBar from "@/components/compare/CompareBar";
@@ -18,24 +18,18 @@ import JsonLd from "@/components/shared/JsonLd";
 import { websiteSchema, faqSchema } from "@/lib/schema";
 import { SkeletonGrid, SkeletonList } from "@/components/shared/SkeletonCard";
 import { useFavorites } from "@/hooks/useFavorites";
-import { formatDKK } from "@/lib/format";
 import NoResults from "@/components/filters/NoResults";
-import EmailCapture from "@/components/shared/EmailCapture";
-import RecentlyViewed from "@/components/shared/RecentlyViewed";
 import InstitutionListCard from "@/components/shared/InstitutionListCard";
 import type { UnifiedInstitution } from "@/lib/types";
 import { haversineKm } from "@/lib/geo";
 import { FAQ_ITEMS_DA, FAQ_ITEMS_EN } from "@/lib/faqData";
-import PopularSearches from "@/components/home/PopularSearches";
-import UseCases from "@/components/home/UseCases";
-import HomeToolsSection from "@/components/home/HomeToolsSection";
-import HomeFAQ from "@/components/home/HomeFAQ";
-import SEOLinks from "@/components/home/SEOLinks";
 import CategoryCards from "@/components/home/CategoryCards";
 import HeroSection from "@/components/home/HeroSection";
 import { getCategoryCards } from "@/lib/homeCategoryCards";
 import { useCategoryStats } from "@/hooks/useCategoryStats";
 import { usePopularData } from "@/hooks/usePopularData";
+import MobileViewToggle from "@/components/home/MobileViewToggle";
+import FilterSummaryBar from "@/components/home/FilterSummaryBar";
 
 const HERO_VIDEOS: { src: string; focus: string }[] = [
   { src: "/hero-1.mp4", focus: "90%" },
@@ -140,6 +134,23 @@ export default function HomePage() {
   function handleSelect(inst: UnifiedInstitution) {
     navigate(`/institution/${inst.id}`, { state: { from: location.pathname + location.search } });
   }
+
+  const mapProps = {
+    institutions: radiusFiltered,
+    onSelect: handleSelect,
+    flyTo,
+    highlightedId: hoveredId,
+    onMarkerHover: handleMarkerHover,
+    isFullscreen: mapFullscreen,
+    onToggleFullscreen: () => setMapFullscreen((f: boolean) => !f),
+    onBoundsChange: (bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds),
+    initialCenter: { lat, lng },
+    initialZoom: mapZoom,
+    onViewChange: setMapView,
+    radiusCenter: geo.userLocation,
+    radiusKm,
+    onRadiusChange: setRadiusKm,
+  };
 
 
   const categoryStats = useCategoryStats(institutions);
@@ -266,62 +277,29 @@ export default function HomePage() {
       {/* Everything below only shows when a filter is active */}
       {hasActiveFilter && <>
 
-      {/* Summary bar */}
       {summaryStats && (
-        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 pt-2 sm:pt-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm">
-            <BarChart3 className="w-4 h-4 text-primary shrink-0" />
-            <span className="text-foreground font-medium">
-              {summaryStats.count.toLocaleString("da-DK")} {t.home.summaryInstitutions}
-              {geo.userLocation && radiusKm ? ` ${t.home.summaryWithin} ${radiusKm} km` : ""}
-              {summaryStats.cheapest ? ` — ${t.home.summaryCheapest}: ${formatDKK(summaryStats.cheapest)}${t.common.perMonth}` : ""}
-            </span>
-          </div>
-        </div>
+        <FilterSummaryBar
+          count={summaryStats.count}
+          cheapest={summaryStats.cheapest}
+          hasGeolocation={!!geo.userLocation}
+          radiusKm={radiusKm}
+          t={t}
+        />
       )}
 
-      {/* Mobile list/map toggle */}
-      <div className="lg:hidden flex justify-center py-2 px-4">
-        <div className="inline-flex rounded-lg border border-border overflow-hidden">
-          <button
-            onClick={() => setView("liste")}
-            className={`px-5 py-2 text-sm font-medium transition-colors min-h-[44px] ${
-              mobileView === "list" ? "bg-primary text-primary-foreground" : "bg-bg-card text-foreground hover:bg-primary/5"
-            }`}
-          >
-            {t.home.listView}
-          </button>
-          <button
-            onClick={() => setView("kort")}
-            className={`px-5 py-2 text-sm font-medium transition-colors min-h-[44px] ${
-              mobileView === "map" ? "bg-primary text-primary-foreground" : "bg-bg-card text-foreground hover:bg-primary/5"
-            }`}
-          >
-            {t.home.mapView}
-          </button>
-        </div>
-      </div>
+      <MobileViewToggle
+        mobileView={mobileView}
+        onListView={() => setView("liste")}
+        onMapView={() => setView("kort")}
+        listLabel={t.home.listView}
+        mapLabel={t.home.mapView}
+      />
 
       {/* Fullscreen map overlay */}
       {mapFullscreen && (
         <div className="fixed inset-0 z-50">
           <Suspense fallback={<div className="h-full bg-border/20 animate-pulse" />}>
-            <InstitutionMap
-              institutions={radiusFiltered}
-              onSelect={handleSelect}
-              flyTo={flyTo}
-              highlightedId={hoveredId}
-              onMarkerHover={handleMarkerHover}
-              isFullscreen={mapFullscreen}
-              onToggleFullscreen={() => setMapFullscreen((f) => !f)}
-              onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
-              initialCenter={{ lat, lng }}
-              initialZoom={mapZoom}
-              onViewChange={setMapView}
-              radiusCenter={geo.userLocation}
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-            />
+            <InstitutionMap {...mapProps} />
           </Suspense>
         </div>
       )}
@@ -384,22 +362,7 @@ export default function HomePage() {
         {/* Map */}
         <div className={`h-[calc(100dvh-140px)] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-            <InstitutionMap
-              institutions={radiusFiltered}
-              onSelect={handleSelect}
-              flyTo={flyTo}
-              highlightedId={hoveredId}
-              onMarkerHover={handleMarkerHover}
-              isFullscreen={mapFullscreen}
-              onToggleFullscreen={() => setMapFullscreen((f) => !f)}
-              onBoundsChange={(bounds: { north: number; south: number; east: number; west: number }) => setMapBounds(bounds)}
-              initialCenter={{ lat, lng }}
-              initialZoom={mapZoom}
-              onViewChange={setMapView}
-              radiusCenter={geo.userLocation}
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-            />
+            <InstitutionMap {...mapProps} />
           </Suspense>
         </div>
       </section>
@@ -407,28 +370,13 @@ export default function HomePage() {
       </>}
 
 
-      {/* Populære søgninger — dynamic data cards */}
-      {popularData && <ScrollReveal><PopularSearches data={popularData} language={language} /></ScrollReveal>}
-
-      {/* Use cases — what parents can do */}
-      <ScrollReveal><UseCases language={language} schoolCount={categoryStats.skole?.count.toLocaleString("da-DK") ?? ""} /></ScrollReveal>
-
-      {/* Cross-sell: Suite products */}
-      <ScrollReveal><HomeToolsSection /></ScrollReveal>
-
-      {/* Recently viewed */}
-      <RecentlyViewed />
-
-      {/* FAQ */}
-      <ScrollReveal><HomeFAQ items={FAQ_ITEMS} title={t.home.faq} /></ScrollReveal>
-
-      {/* SEO links */}
-      <ScrollReveal><SEOLinks language={language} /></ScrollReveal>
-
-      {/* Email capture */}
-      <ScrollReveal><section className="max-w-xl mx-auto px-4 py-8">
-        <EmailCapture />
-      </section></ScrollReveal>
+      <HomeDiscovery
+        popularData={popularData}
+        language={language}
+        schoolCount={categoryStats.skole?.count.toLocaleString("da-DK") ?? ""}
+        faqItems={FAQ_ITEMS}
+        faqTitle={t.home.faq}
+      />
 
       {/* Geolocation consent modal */}
       {geo.showGeoModal && (
