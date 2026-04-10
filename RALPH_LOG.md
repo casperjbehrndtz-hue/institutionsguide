@@ -611,3 +611,24 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 **Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
 **Foraelder-effekt**: English-speaking parents can now read all content on municipality category pages
 **Næste**: Check other pages for similar i18n issues
+
+### Iteration 103 — PRIORITET 5: i18n breadcrumb fix for PrivacyPage
+**Produkt-scan**: Tekst-check — scanned all pages for hardcoded "Forside" breadcrumbs. Found 12 instances across 9 files. 8 pages don't have useLanguage (Danish-only), 1 (PrivacyPage) has it.
+**Opgave**: Fix PrivacyPage breadcrumb translations
+**Hvorfor**: English users see "Forside" and "Privatlivspolitik" instead of "Home" and "Privacy policy"
+**Ændringer**:
+1. PrivacyPage.tsx: Breadcrumb labels now use language-conditional rendering
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English users see proper English breadcrumbs on privacy page
+**Næste**: Stop doing i18n polish (PRIORITET 5), switch to product-impactful work
+
+### Iteration 104 — PRIORITET 3: Better internal linking in MunicipalityRanking
+**Produkt-scan**: Navigation-check — on category pages (e.g. /vuggestue), the municipality ranking table linked to /kommune/X (generic). A parent viewing vuggestuer and clicking "Aarhus" in the ranking should see /vuggestue/aarhus (vuggestuer in Aarhus), not all institutions.
+**Opgave**: Update MunicipalityRanking links to point to category+municipality pages
+**Hvorfor**: Better UX (see relevant institutions) + better SEO (internal linking to specific pages)
+**Ændringer**:
+1. MunicipalityRanking.tsx: Changed link from /kommune/X to /category/municipality-slug using toSlug
+2. Added toSlug import
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Clicking a municipality in the category ranking table now shows relevant category, not everything
+**Næste**: Continue looking for product improvements or user flow optimizations
