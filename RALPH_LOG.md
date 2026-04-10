@@ -411,3 +411,23 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 **Verifikation**: tsc: ✓ | tests: 279/279 | 5 commits pushed
 **Produkteffekt**: No more 404s from homepage links, quality-first messaging throughout, gymnasium hidden, reviews tab always visible
 **Næste**: Continue scanning for product bugs
+
+### Iteration 88 — PRODUKT-BUG: Outdated FAQ + systematic scan
+**Opgave**: Fix outdated FAQ + comprehensive product scan
+**Ændringer**:
+1. faqData.ts: Fixed outdated FAQ claiming normering data isn't available (it is — on /normering page and institution profiles)
+**Scanned and verified (no bugs found)**:
+- EfterskoleDetails.tsx: Correctly shows profiles, class levels, available spots, edkUrl
+- HeroImage.tsx: Shows efterskolerne.dk images with fallback to Street View
+- InstitutionDetail.tsx: yearlyPrice shown correctly for efterskoler
+- PriceSection.tsx: Dual weekly/yearly price display for efterskoler, handles undefined gracefully
+- KommunePage.tsx: Correctly hides empty categories (gymnasium shows nothing)
+- ScrollToTop.tsx: Proper scroll restoration on browser back
+- ErrorBoundary: exists and wraps app
+- DataContext: Promise.all parallel loading, graceful failure handling
+- ComparePage, GuidePage, FindPage: All functional
+- robots.txt, sitemaps: Correctly configured
+- Build: 0 errors, clean output
+- **Missing PWA icons**: icon-192.png and icon-512.png referenced in manifest.json don't exist (noted, requires design asset)
+**Verifikation**: tsc: ✓ | tests: 279/279 | build: ✓
+**Næste**: Look for performance issues, SEO meta improvements, or UX friction points
