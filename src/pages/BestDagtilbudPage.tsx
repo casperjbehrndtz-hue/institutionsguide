@@ -158,7 +158,7 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
 
   const pageDesc =
     language === "da"
-      ? `Top ${Math.min(ranked.length, 10)} ${catPluralDa} i ${munName} rangeret efter kvalitetsdata. ${bestInst.score.overall != null ? `${bestInst.inst.name} scorer højest med ${bestInst.score.overall}/100. ` : ""}Se priser, normering og kvalitet for ${totalInCat} ${catPluralDa}.`
+      ? `Top ${Math.min(ranked.length, 10)} ${catPluralDa} i ${munName} rangeret efter kvalitetsdata. ${bestInst.score.overall != null ? `${bestInst.inst.name} scorer højest med ${bestInst.score.overall}/100. ` : ""}Se normering, kvalitet og priser for ${totalInCat} ${catPluralDa}.`
       : `Top ${Math.min(ranked.length, 10)} ${CATEGORY_LABELS_EN[cat].toLowerCase()} in ${munName} ranked by quality data. ${bestInst.score.overall != null ? `${bestInst.inst.name} scores highest at ${bestInst.score.overall}/100.` : ""}`;
 
   // JSON-LD ItemList for SEO
