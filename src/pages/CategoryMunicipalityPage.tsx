@@ -176,7 +176,7 @@ export default function CategoryMunicipalityPage() {
         path={`/${cat}/${munSlug}`}
       />
       <JsonLd data={breadcrumbSchema([
-        { name: "Forside", url: "https://institutionsguiden.dk/" },
+        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
         { name: catLabel, url: `https://institutionsguiden.dk/${cat}` },
         { name: munName, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(munName)}` },
         { name: `${catLabel} i ${munName}`, url: `https://institutionsguiden.dk/${cat}/${munSlug}` },
@@ -192,7 +192,7 @@ export default function CategoryMunicipalityPage() {
 
       <Breadcrumbs
         items={[
-          { label: "Forside", href: "/" },
+          { label: language === "da" ? "Forside" : "Home", href: "/" },
           { label: catLabel, href: `/${cat}` },
           { label: munName, href: `/kommune/${encodeURIComponent(munName)}` },
           { label: `${catLabel} i ${munName}` },
@@ -235,13 +235,13 @@ export default function CategoryMunicipalityPage() {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="card p-4 text-center">
-              <p className="text-xs text-muted mb-1">Gennemsnit</p>
+              <p className="text-xs text-muted mb-1">{language === "da" ? "Gennemsnit" : "Average"}</p>
               <p className="font-mono text-lg font-bold text-primary">
                 <AnimatedNumber value={stats.avg!} format={formatDKK} />
               </p>
             </div>
             <div className="card p-4 text-center">
-              <p className="text-xs text-muted mb-1">Billigste</p>
+              <p className="text-xs text-muted mb-1">{language === "da" ? "Billigste" : "Cheapest"}</p>
               <p className="font-mono text-lg font-bold text-green-600">
                 <AnimatedNumber value={stats.min!} format={formatDKK} />
               </p>
@@ -252,7 +252,7 @@ export default function CategoryMunicipalityPage() {
               )}
             </div>
             <div className="card p-4 text-center">
-              <p className="text-xs text-muted mb-1">Dyreste</p>
+              <p className="text-xs text-muted mb-1">{language === "da" ? "Dyreste" : "Most expensive"}</p>
               <p className="font-mono text-lg font-bold text-red-500">
                 <AnimatedNumber value={stats.max!} format={formatDKK} />
               </p>
@@ -264,17 +264,17 @@ export default function CategoryMunicipalityPage() {
             </div>
             {nationalAvg && (
               <div className="card p-4 text-center">
-                <p className="text-xs text-muted mb-1">Landsgennemsnit</p>
+                <p className="text-xs text-muted mb-1">{language === "da" ? "Landsgennemsnit" : "National avg."}</p>
                 <p className="font-mono text-lg font-bold text-muted">
                   <AnimatedNumber value={nationalAvg} format={formatDKK} />
                 </p>
                 {stats.avg > nationalAvg ? (
                   <p className="text-xs text-red-500 mt-1">
-                    {formatDKK(stats.avg - nationalAvg)} over
+                    {formatDKK(stats.avg - nationalAvg)} {language === "da" ? "over" : "above"}
                   </p>
                 ) : (
                   <p className="text-xs text-green-600 mt-1">
-                    {formatDKK(nationalAvg - stats.avg)} under
+                    {formatDKK(nationalAvg - stats.avg)} {language === "da" ? "under" : "below"}
                   </p>
                 )}
               </div>
@@ -282,11 +282,9 @@ export default function CategoryMunicipalityPage() {
           </div>
           {stats.cheapest && stats.priciest && stats.min !== null && stats.max !== null && (
             <p className="text-sm text-muted mt-4 text-center">
-              Den billigste {catSingular} i {munName} er{" "}
-              <strong>{stats.cheapest.name}</strong> til{" "}
-              {formatDKK(stats.min)}/md, mens den dyreste er{" "}
-              <strong>{stats.priciest.name}</strong> til{" "}
-              {formatDKK(stats.max)}/md.
+              {language === "da"
+                ? <>Den billigste {catSingular} i {munName} er <strong>{stats.cheapest.name}</strong> til {formatDKK(stats.min)}/md, mens den dyreste er <strong>{stats.priciest.name}</strong> til {formatDKK(stats.max)}/md.</>
+                : <>The cheapest {catSingular} in {munName} is <strong>{stats.cheapest.name}</strong> at {formatDKK(stats.min)}/mo, while the most expensive is <strong>{stats.priciest.name}</strong> at {formatDKK(stats.max)}/mo.</>}
             </p>
           )}
         </section></ScrollReveal>
@@ -295,7 +293,7 @@ export default function CategoryMunicipalityPage() {
       {/* Institution list */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
-          Alle {filtered.length} {catLabel.toLowerCase()} i {munName}
+          {language === "da" ? `Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName}` : `All ${filtered.length} ${catLabel.toLowerCase()} in ${munName}`}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filtered.map((inst) => (
@@ -308,7 +306,7 @@ export default function CategoryMunicipalityPage() {
       {otherCategories.length > 0 && (
         <section className="max-w-4xl mx-auto px-4 py-8">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">
-            Andre institutionstyper i {munName}
+            {language === "da" ? `Andre institutionstyper i ${munName}` : `Other institution types in ${munName}`}
           </h2>
           <div className="flex flex-wrap gap-2">
             {otherCategories.map((c) => (
@@ -317,7 +315,7 @@ export default function CategoryMunicipalityPage() {
                 to={`/${c}/${toSlug(munName)}`}
                 className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
               >
-                {CATEGORY_LABELS_DA[c]} i {munName}
+                {CATEGORY_LABELS_DA[c]} {language === "da" ? "i" : "in"} {munName}
               </Link>
             ))}
           </div>
@@ -328,7 +326,7 @@ export default function CategoryMunicipalityPage() {
       {nearbyMuns.length > 0 && (
         <section className="max-w-4xl mx-auto px-4 py-8">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">
-            {catLabel} i nærliggende kommuner
+            {language === "da" ? `${catLabel} i nærliggende kommuner` : `${catLabel} in nearby municipalities`}
           </h2>
           <div className="flex flex-wrap gap-2">
             {nearbyMuns.map((m) => (
