@@ -632,3 +632,94 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 **Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
 **Foraelder-effekt**: Clicking a municipality in the category ranking table now shows relevant category, not everything
 **Næste**: Continue looking for product improvements or user flow optimizations
+
+### Iteration 105 — PRIORITET 1: Normering data on CategoryMunicipalityPage
+**Produkt-scan**: Data-check — meta description claimed "Se normering, kvalitetsdata" but page only showed prices. False SEO promise on ~400 pages.
+**Opgave**: Add normering (staff ratio) display to CategoryMunicipalityPage for dagtilbud categories
+**Hvorfor**: Parents see "Se normering" in Google but land on a page that only shows prices — broken expectation
+**Ændringer**:
+1. CategoryMunicipalityPage.tsx: Added normering computation using useData().normering with category→ageGroup mapping
+2. New normering section above price stats showing børn pr. voksen with link to /normering/kommune
+3. Intro text now mentions normering ratio for the municipality
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents now see actual normering data on municipality category pages — meta description no longer overpromises
+**Næste**: Look for more false promises in meta, or scan for product flow issues
+
+### Iteration 106 — PRIORITET 3: i18n for CategoryMunicipalityPage components
+**Produkt-scan**: Tekst-check — InstitutionPriceCard had 3 hardcoded Danish strings ("Billigst", "Dyrest", "Pris ikke tilgængelig") visible to English users. IntroText paragraph entirely Danish. 404 state Danish.
+**Opgave**: Translate remaining hardcoded strings in CategoryMunicipalityPage and its InstitutionPriceCard child
+**Hvorfor**: English-speaking parents saw Danish on institution cards and contextual text
+**Ændringer**:
+1. InstitutionPriceCard.tsx: Added useLanguage, translated 3 strings
+2. CategoryMunicipalityPage.tsx: IntroText now bilingual (ownership, normering, price comparison)
+3. CategoryMunicipalityPage.tsx: 404 state translated
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English users now see fully translated municipality category pages including cards and contextual analysis
+**Næste**: Scan for more product flow issues or UX friction
+
+### Iteration 107 — PRIORITET 2: Geographic nearby municipalities
+**Produkt-scan**: Navigation-check — "Nærliggende kommuner" section on 3 pages showed alphabetically adjacent municipalities (Aalborg → Aarhus), not geographically nearby ones. Misleading for parents.
+**Opgave**: Replace alphabetical proximity with geographic centroid-based distance
+**Hvorfor**: A parent in Aalborg seeing "Aarhus" as nearby is confusing — actual nearby municipalities are Brønderslev, Jammerbugt, Rebild, etc.
+**Ændringer**:
+1. Created src/hooks/useNearbyMunicipalities.ts — computes centroids from institution lat/lng, sorts by haversine distance
+2. CategoryMunicipalityPage.tsx: Replaced 15-line alphabetical logic with hook call
+3. BestDagtilbudPage.tsx: Same replacement
+4. BestSchoolPage.tsx: Same replacement
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: "Nærliggende kommuner" now shows actual neighbors — parents in Aalborg see Brønderslev, Jammerbugt, Rebild
+**Næste**: Look for more product issues or broken user flows
+
+### Iteration 108 — PRIORITET 3: CheapestPage cross-linking + breadcrumb fix
+**Produkt-scan**: Navigation-check — CheapestPage "Se også" section only linked to other price-comparison pages, not quality rankings. Breadcrumb municipality link went to generic /kommune/ instead of category-specific page.
+**Opgave**: Add quality ranking cross-link, fix breadcrumb
+**Hvorfor**: Parent comparing prices should easily discover quality rankings; breadcrumb should lead to relevant content
+**Ændringer**:
+1. CheapestPage.tsx: Added "Bedste [category] i [municipality]" as first link in "Se også"
+2. CheapestPage.tsx: Breadcrumb municipality link → /{cat}/{toSlug(munName)}
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents on cheapest page can now easily find quality rankings; breadcrumb navigation is contextually relevant
+**Næste**: Continue scanning for product improvements
+
+### Iteration 109 — PRIORITET 3: Breadcrumb fixes + CheapestPage quality cross-link (batch)
+**Produkt-scan**: Navigation-check — BestDagtilbudPage and BestSchoolPage breadcrumbs linked municipality to generic /kommune/ instead of category-specific page. CheapestPage "Se også" only linked to price pages, not quality.
+**Opgave**: Fix breadcrumb links + add quality cross-link from CheapestPage
+**Hvorfor**: Contextual navigation should lead to relevant content; parents comparing prices should discover quality rankings
+**Ændringer**:
+1. BestDagtilbudPage.tsx: Breadcrumb municipality → /{cat}/{toSlug(munName)}
+2. BestSchoolPage.tsx: Breadcrumb municipality → /skole/{toSlug(munName)}
+3. CheapestPage.tsx (iteration 108): Added "Bedste" cross-link + fixed breadcrumb
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Breadcrumbs on ranking pages now lead to contextually relevant pages; price-focused parents discover quality rankings
+**Næste**: Check for performance issues or remaining product gaps
+
+### Selvvurdering — Iteration 110
+
+**Seneste 10 iterationer (100-109)**:
+- Iter 101: Breadcrumb internal linking on InstitutionPage (PRIORITET 2)
+- Iter 102: i18n fix for CategoryMunicipalityPage — 10+ strings (PRIORITET 2)
+- Iter 103: i18n fix for PrivacyPage breadcrumbs (PRIORITET 5)
+- Iter 104: Internal linking in MunicipalityRanking → category pages (PRIORITET 3)
+- Iter 105: Normering data on CategoryMunicipalityPage — fulfilled meta promise (PRIORITET 1)
+- Iter 106: i18n for IntroText + InstitutionPriceCard (PRIORITET 3)
+- Iter 107: Geographic nearby municipalities via centroid + haversine (PRIORITET 2)
+- Iter 108: Cross-link quality from CheapestPage + breadcrumb fix (PRIORITET 3)
+- Iter 109: Breadcrumb fixes on BestDagtilbudPage + BestSchoolPage (PRIORITET 3)
+- Iter 110: Self-assessment
+
+**Fordeling**: 1 prioritet-1 feature, 3 prioritet-2 UX, 5 prioritet-3 navigation/i18n, 1 prioritet-5 polish
+**Foraelder-impact**: HØJ —
+- Normering data now shown on ~400 municipality category pages (was falsely promised in meta)
+- "Nearby municipalities" now geographic (was alphabetical — completely misleading)
+- Quality ranking cross-linked from price pages
+- Breadcrumbs lead to contextually relevant pages across all ranking pages
+- English users can read all text on municipality category pages + cards
+
+**Selvkritik**: Good mix of high-impact features (normering, geographic nearby) and navigation improvements. The normering addition (iter 105) was the biggest single-iteration impact — fixing a false SEO promise on hundreds of pages. The geographic nearby fix (iter 107) eliminated actively misleading information. However, I spent 2 iterations on lower-priority i18n (103, 106) when there were higher-impact options available.
+
+**Kursændring for næste 10 iterationer**:
+1. Check for remaining product-level issues: pages that overpromise in meta, broken user flows
+2. Look at efterskole experience — profile filtering, available spots display
+3. Consider adding normering to institution list cards on CategoryMunicipalityPage
+4. Check if the guide/finder tool produces good results
+5. Look for accessibility improvements (keyboard nav, ARIA)
