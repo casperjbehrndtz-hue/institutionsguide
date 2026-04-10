@@ -28,7 +28,7 @@ export default function CategoryMunicipalityPage() {
     category: string;
     municipality: string;
   }>();
-  const { institutions, municipalities, loading } = useData();
+  const { institutions, municipalities, normering, loading } = useData();
   const { language } = useLanguage();
 
   const slugMap = useMemo(
@@ -77,6 +77,19 @@ export default function CategoryMunicipalityPage() {
       all.reduce((s, i) => s + i.monthlyRate!, 0) / all.length
     );
   }, [institutions, cat]);
+
+  // Normering (staff ratio) for this municipality + category
+  const CATEGORY_AGE_GROUP: Record<string, string> = {
+    vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5",
+  };
+  const normeringRatio = useMemo(() => {
+    const ag = CATEGORY_AGE_GROUP[cat];
+    if (!ag) return null;
+    const entries = normering
+      .filter((n) => n.municipality === munName && n.ageGroup === ag)
+      .sort((a, b) => b.year - a.year);
+    return entries.length > 0 ? entries[0] : null;
+  }, [normering, cat, munName]);
 
   // Related: other categories in this municipality
   const otherCategories = useMemo(() => {
@@ -127,6 +140,11 @@ export default function CategoryMunicipalityPage() {
       parts.push(`Alle ${filtered.length} ${catLabel.toLowerCase()} i ${munName} Kommune er private eller selvejende`);
     }
 
+    // Normering mention
+    if (normeringRatio) {
+      parts.push(`Normeringen i ${munName} er ${normeringRatio.ratio.toFixed(1).replace(".", ",")} børn pr. voksen (${normeringRatio.year})`);
+    }
+
     // Price comparison to national average
     if (stats.avg && nationalAvg) {
       const diff = stats.avg - nationalAvg;
@@ -143,7 +161,7 @@ export default function CategoryMunicipalityPage() {
     }
 
     return parts.join(". ") + ".";
-  }, [filtered, catLabel, munName, stats.avg, nationalAvg]);
+  }, [filtered, catLabel, munName, stats.avg, nationalAvg, normeringRatio]);
 
   if (loading) {
     return (<><SkeletonHero /><SkeletonCardGrid /></>);
@@ -226,6 +244,40 @@ export default function CategoryMunicipalityPage() {
           </p>
         )}
       </section></ScrollReveal>
+
+      {/* Normering (staff ratio) — quality first */}
+      {normeringRatio && (
+        <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
+          <h2 className="font-display text-xl font-bold text-foreground mb-4">
+            {language === "da" ? `Normering i ${munName}` : `Staff ratios in ${munName}`}
+          </h2>
+          <div className="card p-5 flex items-center gap-4">
+            <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center">
+              <span className="font-mono text-xl font-bold text-primary">
+                {normeringRatio.ratio.toFixed(1).replace(".", ",")}
+              </span>
+            </div>
+            <div>
+              <p className="font-medium text-foreground">
+                {language === "da"
+                  ? `${normeringRatio.ratio.toFixed(1).replace(".", ",")} børn pr. voksen`
+                  : `${normeringRatio.ratio.toFixed(1).replace(".", ",")} children per adult`}
+              </p>
+              <p className="text-sm text-muted">
+                {language === "da"
+                  ? `Kommunal normering for ${cat === "dagpleje" ? "dagpleje" : cat === "vuggestue" ? "0-2 år" : "3-5 år"} i ${munName} (${normeringRatio.year})`
+                  : `Municipal staff ratio for ${cat === "dagpleje" ? "family daycare" : cat === "vuggestue" ? "ages 0-2" : "ages 3-5"} in ${munName} (${normeringRatio.year})`}
+              </p>
+              <Link
+                to={`/normering/${toSlug(munName)}`}
+                className="text-sm text-primary hover:underline mt-1 inline-block"
+              >
+                {language === "da" ? `Se historisk normering for ${munName}` : `See historical staff ratios for ${munName}`}
+              </Link>
+            </div>
+          </div>
+        </section></ScrollReveal>
+      )}
 
       {/* Price stats */}
       {stats.avg && (
