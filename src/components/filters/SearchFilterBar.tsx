@@ -7,7 +7,7 @@ import FilterBottomSheet from "./FilterBottomSheet";
 import MunicipalityCombobox from "./MunicipalityCombobox";
 import { normalizeSearch } from "@/lib/normalizeSearch";
 
-const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo", "fritidsklub", "efterskole"];
+const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo", "fritidsklub"];
 const SCHOOL_ONLY_SORT_KEYS: SortKey[] = ["rating", "grades", "absence"];
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -311,7 +311,7 @@ export default function SearchFilterBar({
             />
 
             {/* Quality filter (for schools) */}
-            {(category === "alle" || category === "skole") && (
+            {(category === "alle" || category === "skole" || category === "efterskole") && (
               <select
                 id="quality-select"
                 value={qualityFilter}
@@ -366,7 +366,7 @@ export default function SearchFilterBar({
             municipalities={municipalities}
             qualityFilter={qualityFilter}
             onQualityFilterChange={onQualityFilterChange}
-            showQualityFilter={category === "alle" || category === "skole"}
+            showQualityFilter={category === "alle" || category === "skole" || category === "efterskole"}
             sortKey={sortKey}
             onSortChange={onSortChange}
             sortOptions={sortOptions}
