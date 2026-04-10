@@ -75,7 +75,6 @@ export default function Footer() {
               <li><Link to="/sfo" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.sfo}</Link></li>
               <li><Link to="/fritidsklub" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.fritidsklub}</Link></li>
               <li><Link to="/efterskole" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.efterskole}</Link></li>
-              <li><Link to="/gymnasium" className="text-xs text-muted hover:text-primary transition-colors">{t.categories.gymnasium}</Link></li>
             </ul>
           </div>
 
