@@ -36,9 +36,9 @@ export default function SimilarInstitutions({
             <p className="text-xs text-muted">{n.address}, {n.postalCode} {n.city}</p>
             <div className="flex items-center gap-3 mt-2">
               {n.category === "efterskole" && n.yearlyPrice ? (
-                <span className="font-mono text-sm text-primary">{formatDKK(n.yearlyPrice)}/år</span>
+                <span className="font-mono text-sm text-primary">{formatDKK(n.yearlyPrice)}{language === "da" ? "/år" : "/yr"}</span>
               ) : n.monthlyRate ? (
-                <span className="font-mono text-sm text-primary">{formatDKK(n.monthlyRate)}/md</span>
+                <span className="font-mono text-sm text-primary">{formatDKK(n.monthlyRate)}{language === "da" ? "/md" : "/mo"}</span>
               ) : null}
               <span className="text-xs text-muted">{n.dist.toFixed(1)} km</span>
             </div>
