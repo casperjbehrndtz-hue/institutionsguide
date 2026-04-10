@@ -124,6 +124,9 @@ export interface TranslationStrings {
     classSize: string;
     studentsPerTeacher: string;
     teachingTimePerStudent: string;
+    transitionRate: string;
+    socioEconomicDiff: string;
+    folkeskoleOnly: string;
     studentCount: string;
     nationalAvg: string;
     contact: string;

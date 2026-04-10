@@ -723,3 +723,58 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 3. Consider adding normering to institution list cards on CategoryMunicipalityPage
 4. Check if the guide/finder tool produces good results
 5. Look for accessibility improvements (keyboard nav, ARIA)
+
+### Iteration 111 — PRIORITET 2: Enable quality sort/filter for efterskoler
+**Produkt-scan**: Navigation-check — on /efterskole, sort only showed name/price/municipality. Quality-related sorts (rating, grades, absence) were hidden because efterskole was in DAYCARE_CATEGORIES. Quality filter dropdown also hidden.
+**Opgave**: Remove efterskole from DAYCARE_CATEGORIES, add to quality filter visibility
+**Hvorfor**: Efterskoler are school-type institutions with quality data — parents should be able to sort by rating and filter by quality level
+**Ændringer**:
+1. SearchFilterBar.tsx: Removed "efterskole" from DAYCARE_CATEGORIES → quality sorts visible
+2. SearchFilterBar.tsx: Added "efterskole" to quality filter visibility check (desktop + mobile bottom sheet)
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents browsing efterskoler can now sort by rating, grades, absence and filter by quality level (over/under middel)
+**Næste**: Check for more efterskole UX improvements or other product issues
+
+### Iteration 112 — PRIORITET 2: Default sort by rating for efterskoler
+**Produkt-scan**: Konsistens-check — /skole defaulted to rating sort but /efterskole defaulted to name sort.
+**Ændringer**: CategoryPage.tsx: defaultSortKey now includes "efterskole" → "rating"
+**Verifikation**: tsc: ✓ | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents landing on /efterskole see highest-rated first
+
+### Iteration 113 — PRIORITET 2: TotalCostPage in navigation
+**Produkt-scan**: Navigation-check — /samlet-pris calculator was only reachable from homepage SEO links. Not in navbar or footer.
+**Opgave**: Add /samlet-pris to navbar and footer
+**Ændringer**:
+1. Navbar.tsx: Added to TOOL_LINKS
+2. Footer.tsx: Added link in tools section
+3. translations: Added totalCost key DA/EN
+**Verifikation**: tsc: ✓ | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents can find total cost calculator from any page
+**Næste**: Continue looking for navigation gaps or product issues
+
+### Iteration 114 — PRIORITET 3: Sitemap + quality-first meta + i18n class levels (batch)
+**Produkt-scan**: SEO-check — /metode missing from sitemap. Tekst-check — SFO/fritidsklub meta descriptions still price-first. VsPage meta "Se priser" first. EfterskoleDetails + InstitutionListCard had hardcoded Danish "klasse"/"kl." for class levels.
+**Opgave**: Add /metode to sitemap, fix quality-first meta for remaining pages, translate class levels
+**Hvorfor**: /metode page was invisible to search engines. SFO/fritidsklub were the last holdouts of price-first meta. English users saw Danish "kl." on efterskole cards.
+**Ændringer**:
+1. sitemap-static.xml: Added /metode with priority 0.6
+2. categoryConstants.ts: SFO + fritidsklub meta → "Se kvalitetsdata, priser"
+3. da.ts: SFO + fritidsklub category descriptions → quality-first
+4. VsPage.tsx: Meta "Se priser, antal og forskelle" → "Se kvalitet, priser og forskelle"
+5. InstitutionListCard.tsx: "kl." → language-conditional "kl."/"gr."
+6. EfterskoleDetails.tsx: "klasse" → language-conditional "klasse"/"grade"
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: All meta descriptions now quality-first (sweep complete). /metode indexed. English users see proper class level labels.
+
+### Iteration 115 — PRIORITET 1: Efterskole profile filter chips
+**Produkt-scan**: Navigation-check — parents browsing /efterskole had no way to filter by profile (sport, musik, kunst, etc.). Data shows 238/241 efterskoler have profiles across 8 types.
+**Opgave**: Add clickable profile filter chips on /efterskole category page
+**Hvorfor**: Parents looking for a sport-efterskole or musik-efterskole must currently scroll through 241 results — no filtering possible
+**Ændringer**:
+1. CategoryPage.tsx: Added EFTERSKOLE_PROFILES constant with 8 profile types (DA+EN labels)
+2. CategoryPage.tsx: Added profileFilter state + profileFiltered useMemo
+3. CategoryPage.tsx: Profile chip bar shown between filter bar and view toggle when category is "efterskole"
+4. CategoryPage.tsx: Updated all downstream refs (distanceSorted, AnimatedNumber, itemListSchema, useEffect) to use profileFiltered
+5. CategoryPage.tsx: Clear all filter handler resets profileFilter
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents can now filter efterskoler by profile type with one click — e.g. see only sport-efterskoler or musik-efterskoler

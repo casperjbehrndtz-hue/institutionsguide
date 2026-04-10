@@ -153,6 +153,7 @@ async function fetchOversko(schoolYear) {
       "SocRef Socioøkonomisk reference",
       "SocRef Signifikant forskel",
       "Andel med højest trivsel",
+      "Andel i gang med en ungdomsuddannelse 15 måneder efter afgang",
     ],
     detaljering: [
       "[Institution].[Afdelingsnummer]",
@@ -221,6 +222,7 @@ function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear
       srRef: parseDanish(row["SocRef Socioøkonomisk reference"]),
       sr: row["SocRef Signifikant forskel"] || null,
       trivPct: parseDanish(row["Andel med højest trivsel"]),
+      oug: parseDanish(row["Andel i gang med en ungdomsuddannelse 15 måneder efter afgang"]),
       name: row[NAME_KEY],
     });
   }
@@ -294,6 +296,8 @@ function mergeData(skoleData, overskoData, trivselData, overskoYear, trivselYear
       if (oversko.k != null) q.k = oversko.k;
       if (oversko.kp != null) q.kp = oversko.kp;
       if (oversko.sr) q.sr = oversko.sr;
+      if (oversko.srDiff != null) q.srd = oversko.srDiff;
+      if (oversko.oug != null) q.oug = oversko.oug;
     }
 
     if (trivsel) {

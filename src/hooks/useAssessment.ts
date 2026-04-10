@@ -295,6 +295,8 @@ export function useAssessment(
           kompetencedaekning_pct: inst!.quality?.kp ?? null,
           klassestorrelse: inst!.quality?.kv ?? null,
           undervisningseffekt: inst!.quality?.sr ?? null,
+          socref_forskel: inst!.quality?.srd ?? null,
+          overgang_ungdomsuddannelse_pct: inst!.quality?.oug ?? null,
           score: sr.overall,
           grade: sr.grade,
           nearby: nr.slice(0, 5).map((n) => ({

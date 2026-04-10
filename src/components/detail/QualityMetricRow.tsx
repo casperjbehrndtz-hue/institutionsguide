@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 
-export default function QualityMetricRow({ label, percentile, value, delay = 0, lang = "da" }: {
+export default function QualityMetricRow({ label, percentile, value, delay = 0, lang = "da", badge }: {
   label: string;
   percentile: number;
   value: string;
   delay?: number;
   lang?: string;
+  badge?: string;
 }) {
   const [barWidth, setBarWidth] = useState(0);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -43,7 +44,10 @@ export default function QualityMetricRow({ label, percentile, value, delay = 0, 
       className="grid items-center gap-1.5 sm:gap-3 py-3 border-b border-border/20"
       style={{ gridTemplateColumns: "minmax(70px, 140px) 1fr auto auto" }}
     >
-      <span className="text-xs sm:text-[13px] text-muted font-medium truncate">{label}</span>
+      <span className="text-xs sm:text-[13px] text-muted font-medium truncate">
+        {label}
+        {badge && <span className="ml-1 text-[8px] sm:text-[9px] px-1 py-0.5 rounded bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400 font-semibold align-middle">{badge}</span>}
+      </span>
       <div className="h-1 bg-border/30 rounded-full overflow-hidden min-w-[40px]">
         <div
           className="h-full rounded-full"

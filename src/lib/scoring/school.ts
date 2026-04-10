@@ -77,14 +77,33 @@ export function scoreSchool(q: SchoolQuality, schoolExtra?: SchoolExtraStats): {
           icon: "trending-up",
         }
       : null,
-    schoolExtra?.transitionGymnasiumPct != null
+    q.oug != null
       ? {
-          key: "overgang_gymnasium",
-          label: { da: "Overgang til gymnasium", en: "Transition to upper secondary" },
+          key: "overgang_ungdomsudd",
+          label: { da: "Overgang til ungdomsudd.", en: "Transition to youth education" },
           weight: 0.1,
-          score: linearMap(schoolExtra.transitionGymnasiumPct, 40, 80),
-          value: `${fmt(schoolExtra.transitionGymnasiumPct)}%`,
+          score: linearMap(q.oug, 50, 95),
+          value: `${fmt(q.oug)}%`,
           icon: "arrow-up-right",
+        }
+      : schoolExtra?.transitionGymnasiumPct != null
+        ? {
+            key: "overgang_gymnasium",
+            label: { da: "Overgang til gymnasium", en: "Transition to upper secondary" },
+            weight: 0.1,
+            score: linearMap(schoolExtra.transitionGymnasiumPct, 40, 80),
+            value: `${fmt(schoolExtra.transitionGymnasiumPct)}%`,
+            icon: "arrow-up-right",
+          }
+        : null,
+    q.srd != null
+      ? {
+          key: "socref_forskel",
+          label: { da: "Socioøkonomisk reference", en: "Socioeconomic reference" },
+          weight: 0.05,
+          score: linearMap(q.srd, -1.5, 1.5),
+          value: `${q.srd >= 0 ? "+" : ""}${fmt(q.srd)}`,
+          icon: "scale",
         }
       : null,
   ];
@@ -183,6 +202,20 @@ export function schoolProsAndCons(
       da: "Undervisningseffekt under forventet niveau",
       en: "Teaching effectiveness below expected level",
     });
+  }
+
+  if (q.oug != null) {
+    if (q.oug >= 85) {
+      pros.push({
+        da: `Høj overgang til ungdomsuddannelse (${fmt(q.oug)}%)`,
+        en: `High transition rate to youth education (${fmt(q.oug)}%)`,
+      });
+    } else if (q.oug < 65) {
+      cons.push({
+        da: `Lavere overgang til ungdomsuddannelse (${fmt(q.oug)}%)`,
+        en: `Lower transition rate to youth education (${fmt(q.oug)}%)`,
+      });
+    }
   }
 
   return { pros: pros.slice(0, 4), cons: cons.slice(0, 3) };

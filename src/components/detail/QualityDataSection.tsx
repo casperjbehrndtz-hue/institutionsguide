@@ -35,7 +35,7 @@ export default function QualityDataSection({ percentiles, quality, language, t }
       {/* Metric rows */}
       <div>
         {percentiles.map((p, i) => (
-          <QualityMetricRow key={p.label} label={p.label} percentile={p.percentile} value={p.value} delay={i * 80} lang={language} />
+          <QualityMetricRow key={p.label} label={p.label} percentile={p.percentile} value={p.value} delay={i * 80} lang={language} badge={p.badge} />
         ))}
       </div>
 
@@ -48,11 +48,18 @@ export default function QualityDataSection({ percentiles, quality, language, t }
       {quality.sr && (
         <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15">
           <p className="text-xs text-muted mb-0.5">{t.detail.socioEconomicRef}</p>
-          <p className="text-sm font-semibold text-foreground">{quality.sr}</p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-sm font-semibold text-foreground">{quality.sr}</p>
+            {quality.srd != null && (
+              <span className={`font-mono text-xs font-medium ${quality.srd >= 0 ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
+                ({quality.srd >= 0 ? "+" : ""}{quality.srd.toLocaleString("da-DK")} {language === "da" ? "karakterpoint" : "grade points"})
+              </span>
+            )}
+          </div>
           <p className="text-[10px] text-muted mt-1">
             {language === "da"
-              ? "Sammenligner skolens resultater med forventede resultater baseret på elevernes socioøkonomiske baggrund"
-              : "Compares the school's results with expected results based on students' socioeconomic background"}
+              ? "Forskel mellem faktisk og forventet karaktersnit baseret på elevernes socioøkonomiske baggrund"
+              : "Difference between actual and expected grades based on students' socioeconomic background"}
           </p>
         </div>
       )}
