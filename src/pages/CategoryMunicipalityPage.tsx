@@ -215,8 +215,8 @@ export default function CategoryMunicipalityPage() {
             <>
               {" "}
               {language === "da"
-                ? `Den gennemsnitlige månedlige takst er ${formatDKK(stats.avg)}.`
-                : `The average monthly rate is ${formatDKK(stats.avg)}.`}
+                ? `Sammenlign kvalitet og priser (gns. ${formatDKK(stats.avg)}/md).`
+                : `Compare quality and prices (avg. ${formatDKK(stats.avg)}/mo).`}
             </>
           )}
         </p>
@@ -231,7 +231,7 @@ export default function CategoryMunicipalityPage() {
       {stats.avg && (
         <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
           <h2 className="font-display text-xl font-bold text-foreground mb-4">
-            Prisstatistik for {catLabel.toLowerCase()} i {munName}
+            {language === "da" ? `Priser for ${catLabel.toLowerCase()} i ${munName}` : `Prices for ${catLabel.toLowerCase()} in ${munName}`}
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="card p-4 text-center">
