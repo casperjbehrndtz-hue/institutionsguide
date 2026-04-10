@@ -40,6 +40,7 @@ import { useComparisonRows } from "@/hooks/useComparisonRows";
 import { useScrollDepth } from "@/hooks/useScrollDepth";
 import { useFeatureView } from "@/hooks/useFeatureView";
 import { categoryPath, buildChatContext, buildInstitutionFaqs } from "@/lib/institutionPageHelpers";
+import { toSlug } from "@/lib/slugs";
 
 
 export default function InstitutionPage() {
@@ -219,7 +220,7 @@ export default function InstitutionPage() {
       <JsonLd data={breadcrumbSchema([
         { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
         { name: categoryLabels[inst.category], url: `https://institutionsguiden.dk${categoryPath(inst.category)}` },
-        { name: inst.municipality, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(inst.municipality)}` },
+        { name: inst.municipality, url: `https://institutionsguiden.dk${categoryPath(inst.category)}/${toSlug(inst.municipality)}` },
         { name: inst.name, url: `https://institutionsguiden.dk/institution/${inst.id}` },
       ])} />
 
@@ -234,7 +235,7 @@ export default function InstitutionPage() {
       <Breadcrumbs items={[
         { label: language === "da" ? "Forside" : "Home", href: "/" },
         { label: categoryLabels[inst.category], href: categoryPath(inst.category) },
-        { label: inst.municipality, href: `/kommune/${encodeURIComponent(inst.municipality)}` },
+        { label: `${inst.municipality}`, href: `${categoryPath(inst.category)}/${toSlug(inst.municipality)}` },
         { label: inst.name },
       ]} />
 
