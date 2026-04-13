@@ -91,8 +91,8 @@ export default function FripladsPage() {
         path="/friplads"
       />
       <JsonLd data={breadcrumbSchema([
-        { name: isDa ? "Hjem" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: isDa ? "Fripladstilskud" : "Childcare subsidy", url: "https://institutionsguiden.dk/friplads" },
+        { name: isDa ? "Hjem" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: isDa ? "Fripladstilskud" : "Childcare subsidy", url: "https://www.institutionsguiden.dk/friplads" },
       ])} />
 
       <Breadcrumbs

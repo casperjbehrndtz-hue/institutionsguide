@@ -3,7 +3,7 @@ import { handleCorsPreflightOrGetHeaders } from "../_shared/cors.ts";
 import { getAIConfig, resolveModel, fetchAI, extractJSON } from "../_shared/ai-client.ts";
 
 const INDEXNOW_KEY = Deno.env.get("INDEXNOW_KEY") || "";
-const SITE_URL = "https://institutionsguiden.dk";
+const SITE_URL = "https://www.institutionsguiden.dk";
 const MAX_ARTICLES_PER_RUN = 3;
 const DELAY_BETWEEN_AI_CALLS_MS = 2000;
 

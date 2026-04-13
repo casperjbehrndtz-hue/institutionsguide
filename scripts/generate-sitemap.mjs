@@ -3,7 +3,7 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const BASE_URL = "https://institutionsguiden.dk";
+const BASE_URL = "https://www.institutionsguiden.dk";
 const PUBLIC_DIR = resolve(__dirname, "../public");
 
 // Static routes

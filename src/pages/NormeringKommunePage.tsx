@@ -202,7 +202,7 @@ export default function NormeringKommunePage() {
     "@type": "WebPage",
     name: pageTitle,
     description: pageDesc,
-    url: `https://institutionsguiden.dk/normering/${toSlug(kommuneName)}`,
+    url: `https://www.institutionsguiden.dk/normering/${toSlug(kommuneName)}`,
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
@@ -210,19 +210,19 @@ export default function NormeringKommunePage() {
           "@type": "ListItem",
           position: 1,
           name: "Forside",
-          item: "https://institutionsguiden.dk",
+          item: "https://www.institutionsguiden.dk",
         },
         {
           "@type": "ListItem",
           position: 2,
           name: "Normering",
-          item: "https://institutionsguiden.dk/normering",
+          item: "https://www.institutionsguiden.dk/normering",
         },
         {
           "@type": "ListItem",
           position: 3,
           name: kommuneName,
-          item: `https://institutionsguiden.dk/normering/${toSlug(kommuneName)}`,
+          item: `https://www.institutionsguiden.dk/normering/${toSlug(kommuneName)}`,
         },
       ],
     },

@@ -82,8 +82,8 @@ export default function TotalCostPage() {
         path="/samlet-pris"
       />
       <JsonLd data={breadcrumbSchema([
-        { name: isDa ? "Hjem" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: isDa ? "Samlet pris" : "Total cost", url: "https://institutionsguiden.dk/samlet-pris" },
+        { name: isDa ? "Hjem" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: isDa ? "Samlet pris" : "Total cost", url: "https://www.institutionsguiden.dk/samlet-pris" },
       ])} />
 
       <Breadcrumbs

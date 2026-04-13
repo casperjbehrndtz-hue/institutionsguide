@@ -190,17 +190,17 @@ export default function CategoryMunicipalityPage() {
         path={`/${cat}/${munSlug}`}
       />
       <JsonLd data={breadcrumbSchema([
-        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: catLabel, url: `https://institutionsguiden.dk/${cat}` },
-        { name: munName, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(munName)}` },
-        { name: `${catLabel} i ${munName}`, url: `https://institutionsguiden.dk/${cat}/${munSlug}` },
+        { name: language === "da" ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: catLabel, url: `https://www.institutionsguiden.dk/${cat}` },
+        { name: munName, url: `https://www.institutionsguiden.dk/kommune/${encodeURIComponent(munName)}` },
+        { name: `${catLabel} i ${munName}`, url: `https://www.institutionsguiden.dk/${cat}/${munSlug}` },
       ])} />
       <JsonLd data={itemListSchema(
         filtered.slice(0, 10).map((inst) => ({
           name: inst.name,
           url: `/institution/${inst.id}`,
         })),
-        "https://institutionsguiden.dk",
+        "https://www.institutionsguiden.dk",
         `${catLabel} i ${munName}`,
       )} />
 

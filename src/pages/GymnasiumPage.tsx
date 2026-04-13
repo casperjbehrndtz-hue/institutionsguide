@@ -163,8 +163,8 @@ export default function GymnasiumPage() {
       <SEOHead title={title} description={description} path="/gymnasium" />
       <JsonLd
         data={breadcrumbSchema([
-          { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-          { name: title, url: "https://institutionsguiden.dk/gymnasium" },
+          { name: language === "da" ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+          { name: title, url: "https://www.institutionsguiden.dk/gymnasium" },
         ])}
       />
       <JsonLd
@@ -173,7 +173,7 @@ export default function GymnasiumPage() {
             name: inst.name,
             url: `/institution/${inst.id}`,
           })),
-          "https://institutionsguiden.dk",
+          "https://www.institutionsguiden.dk",
           title
         )}
       />

@@ -139,7 +139,7 @@ export default function CheapestPage() {
       "@type": "ListItem",
       position: idx + 1,
       name: inst.name,
-      url: `https://institutionsguiden.dk/institution/${inst.id}`,
+      url: `https://www.institutionsguiden.dk/institution/${inst.id}`,
     })),
   };
 

@@ -173,20 +173,20 @@ export default function BlogPost() {
         "@type": "BlogPosting",
         headline: post.title,
         description: post.meta_description || "",
-        url: `https://institutionsguiden.dk/blog/${post.slug}`,
+        url: `https://www.institutionsguiden.dk/blog/${post.slug}`,
         datePublished: post.published_at || post.updated_at,
         dateModified: post.updated_at,
         publisher: {
           "@type": "Organization",
           name: "Institutionsguide.dk",
-          url: "https://institutionsguiden.dk",
+          url: "https://www.institutionsguiden.dk",
         },
         inLanguage: language,
       }} />
       <JsonLd data={breadcrumbSchema([
-        { name: isDa ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: "Blog", url: "https://institutionsguiden.dk/blog" },
-        { name: post.title, url: `https://institutionsguiden.dk/blog/${post.slug}` },
+        { name: isDa ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: "Blog", url: "https://www.institutionsguiden.dk/blog" },
+        { name: post.title, url: `https://www.institutionsguiden.dk/blog/${post.slug}` },
       ])} />
 
       <Breadcrumbs items={[

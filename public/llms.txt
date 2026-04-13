@@ -23,22 +23,22 @@ Institutionsguide samler officielle data om vuggestuer, børnehaver, dagplejere,
 
 ## Kategorier
 
-- [Vuggestuer](https://institutionsguiden.dk/vuggestue) (0-2 år)
-- [Børnehaver](https://institutionsguiden.dk/boernehave) (3-5 år)
-- [Dagplejere](https://institutionsguiden.dk/dagpleje) (0-2 år)
-- [Skoler](https://institutionsguiden.dk/skole) (6-16 år) — folkeskoler og privatskoler
-- [SFO](https://institutionsguiden.dk/sfo) (6-9 år)
-- [Fritidsklubber](https://institutionsguiden.dk/fritidsklub) (10-14 år)
-- [Efterskoler](https://institutionsguiden.dk/efterskole) (14-18 år)
+- [Vuggestuer](https://www.institutionsguiden.dk/vuggestue) (0-2 år)
+- [Børnehaver](https://www.institutionsguiden.dk/boernehave) (3-5 år)
+- [Dagplejere](https://www.institutionsguiden.dk/dagpleje) (0-2 år)
+- [Skoler](https://www.institutionsguiden.dk/skole) (6-16 år) — folkeskoler og privatskoler
+- [SFO](https://www.institutionsguiden.dk/sfo) (6-9 år)
+- [Fritidsklubber](https://www.institutionsguiden.dk/fritidsklub) (10-14 år)
+- [Efterskoler](https://www.institutionsguiden.dk/efterskole) (14-18 år)
 
 ## Nøglesider
 
-- [Prissammenligning](https://institutionsguiden.dk/prissammenligning) — Priser i alle kommuner
-- [Normeringer](https://institutionsguiden.dk/normering) — Børn per voksen i alle kommuner
-- [Fripladstilskud](https://institutionsguiden.dk/friplads) — Beregn din friplads
-- [Bedste værdi](https://institutionsguiden.dk/bedste-vaerdi) — Institutioner med bedst pris-kvalitet
-- [Blog](https://institutionsguiden.dk/blog) — Artikler om daginstitutioner og skoler
-- [Metode](https://institutionsguiden.dk/metode) — Datakilder og metode
+- [Prissammenligning](https://www.institutionsguiden.dk/prissammenligning) — Priser i alle kommuner
+- [Normeringer](https://www.institutionsguiden.dk/normering) — Børn per voksen i alle kommuner
+- [Fripladstilskud](https://www.institutionsguiden.dk/friplads) — Beregn din friplads
+- [Bedste værdi](https://www.institutionsguiden.dk/bedste-vaerdi) — Institutioner med bedst pris-kvalitet
+- [Blog](https://www.institutionsguiden.dk/blog) — Artikler om daginstitutioner og skoler
+- [Metode](https://www.institutionsguiden.dk/metode) — Datakilder og metode
 
 ## Vigtige tal (2026)
 

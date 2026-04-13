@@ -1,7 +1,7 @@
 // ─── Site Configuration ─────────────────────────────────────────────────────
 
 export interface SiteConfig {
-  /** Full site URL without trailing slash, e.g. "https://institutionsguiden.dk" */
+  /** Full site URL without trailing slash, e.g. "https://www.institutionsguiden.dk" */
   siteUrl: string;
   /** Site display name, e.g. "Institutionsguide" */
   siteName: string;

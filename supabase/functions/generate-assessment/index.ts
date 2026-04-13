@@ -7,7 +7,7 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const ALLOWED_ORIGINS = new Set([
-  "https://institutionsguiden.dk",
+  "https://www.institutionsguiden.dk",
   "https://www.institutionsguiden.dk",
   "https://institutionsguide.vercel.app",
   "http://localhost:5173",

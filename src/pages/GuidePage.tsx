@@ -128,8 +128,8 @@ export default function GuidePage() {
         path="/guide"
       />
       <JsonLd data={breadcrumbSchema([
-        { name: isDa ? "Hjem" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: isDa ? "Pasningsguide" : "Childcare guide", url: "https://institutionsguiden.dk/guide" },
+        { name: isDa ? "Hjem" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: isDa ? "Pasningsguide" : "Childcare guide", url: "https://www.institutionsguiden.dk/guide" },
       ])} />
 
       <Breadcrumbs

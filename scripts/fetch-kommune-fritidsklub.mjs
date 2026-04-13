@@ -33,7 +33,7 @@ function sleep(ms) {
 
 async function fetchText(url) {
   const res = await fetch(url, {
-    headers: { "User-Agent": "InstitutionsguideBot/1.0 (https://institutionsguiden.dk)" },
+    headers: { "User-Agent": "InstitutionsguideBot/1.0 (https://www.institutionsguiden.dk)" },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.text();

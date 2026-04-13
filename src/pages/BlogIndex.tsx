@@ -78,12 +78,12 @@ export default function BlogIndex() {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
         name: isDa ? "Institutionsguide Blog" : "Institutionsguide Blog",
-        url: "https://institutionsguiden.dk/blog",
+        url: "https://www.institutionsguiden.dk/blog",
         description: pageDesc,
         publisher: {
           "@type": "Organization",
           name: "Institutionsguide.dk",
-          url: "https://institutionsguiden.dk",
+          url: "https://www.institutionsguiden.dk",
         },
         inLanguage: language,
       }} />

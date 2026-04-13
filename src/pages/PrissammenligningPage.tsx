@@ -204,11 +204,11 @@ export default function PrissammenligningPage() {
     "@type": "WebPage",
     name: pageTitle,
     description: pageDesc,
-    url: "https://institutionsguiden.dk/prissammenligning",
+    url: "https://www.institutionsguiden.dk/prissammenligning",
     publisher: {
       "@type": "Organization",
       name: "Institutionsguide.dk",
-      url: "https://institutionsguiden.dk",
+      url: "https://www.institutionsguiden.dk",
     },
   };
 

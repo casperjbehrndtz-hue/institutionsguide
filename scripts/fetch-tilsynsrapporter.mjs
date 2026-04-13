@@ -156,7 +156,7 @@ async function rateLimitedFetch(url, options = {}, timeoutMs = 20000) {
       ...options,
       signal: controller.signal,
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; Institutionsguide/1.0; +https://institutionsguiden.dk)",
+        "User-Agent": "Mozilla/5.0 (compatible; Institutionsguide/1.0; +https://www.institutionsguiden.dk)",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "da,en;q=0.5",
         ...options.headers,

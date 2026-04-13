@@ -8,7 +8,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 const ALLOWED_ORIGINS = new Set([
   "https://institutionsguide.vercel.app",
-  "https://institutionsguiden.dk",
+  "https://www.institutionsguiden.dk",
   "https://www.institutionsguiden.dk",
   "http://localhost:5173",
   "http://localhost:8080",

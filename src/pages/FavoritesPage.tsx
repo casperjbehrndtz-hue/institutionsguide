@@ -49,8 +49,8 @@ export default function FavoritesPage() {
         noIndex
       />
       <JsonLd data={breadcrumbSchema([
-        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: t.favorites.title, url: "https://institutionsguiden.dk/favoritter" },
+        { name: language === "da" ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: t.favorites.title, url: "https://www.institutionsguiden.dk/favoritter" },
       ])} />
 
       <Breadcrumbs items={[

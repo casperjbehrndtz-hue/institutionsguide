@@ -8,7 +8,7 @@ interface SEOHeadProps {
   noIndex?: boolean;
 }
 
-const BASE_URL = "https://institutionsguiden.dk";
+const BASE_URL = "https://www.institutionsguiden.dk";
 
 function truncate(str: string, max: number): string {
   if (str.length <= max) return str;

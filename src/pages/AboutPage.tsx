@@ -92,8 +92,8 @@ export default function AboutPage() {
         path="/om"
       />
       <JsonLd data={breadcrumbSchema([
-        { name: isDa ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: isDa ? "Om os" : "About", url: "https://institutionsguiden.dk/om" },
+        { name: isDa ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: isDa ? "Om os" : "About", url: "https://www.institutionsguiden.dk/om" },
       ])} />
       <Breadcrumbs items={[
         { label: isDa ? "Forside" : "Home", href: "/" },

@@ -39,7 +39,7 @@ Allow: /
 Disallow: /favoritter
 Disallow: /admin
 
-Sitemap: https://institutionsguiden.dk/sitemap.xml
+Sitemap: https://www.institutionsguiden.dk/sitemap.xml
 
 # RSS feed
 Allow: /feed.xml

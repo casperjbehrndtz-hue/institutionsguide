@@ -129,7 +129,7 @@ export default function BestValuePage() {
       "@type": "ListItem",
       position: idx + 1,
       name: item.school.name,
-      url: `https://institutionsguiden.dk/institution/${item.school.id}`,
+      url: `https://www.institutionsguiden.dk/institution/${item.school.id}`,
     })),
   };
 

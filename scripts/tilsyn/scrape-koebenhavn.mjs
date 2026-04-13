@@ -54,7 +54,7 @@ async function safeFetch(url, timeoutMs = 10000) {
       signal: controller.signal,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; Institutionsguide/1.0; +https://institutionsguiden.dk)",
+          "Mozilla/5.0 (compatible; Institutionsguide/1.0; +https://www.institutionsguiden.dk)",
       },
     });
     clearTimeout(timer);

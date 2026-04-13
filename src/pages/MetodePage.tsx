@@ -16,8 +16,8 @@ export default function MetodePage() {
         path="/metode"
       />
       <JsonLd data={breadcrumbSchema([
-        { name: "Forside", url: "https://institutionsguiden.dk/" },
-        { name: "Metode og datakilder", url: "https://institutionsguiden.dk/metode" },
+        { name: "Forside", url: "https://www.institutionsguiden.dk/" },
+        { name: "Metode og datakilder", url: "https://www.institutionsguiden.dk/metode" },
       ])} />
 
       <Breadcrumbs

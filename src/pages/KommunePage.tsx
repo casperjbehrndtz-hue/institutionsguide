@@ -173,15 +173,15 @@ export default function KommunePage() {
         path={`/kommune/${encodeURIComponent(decodedName)}`}
       />
       <JsonLd data={breadcrumbSchema([
-        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: `${decodedName} Kommune`, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(decodedName)}` },
+        { name: language === "da" ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: `${decodedName} Kommune`, url: `https://www.institutionsguiden.dk/kommune/${encodeURIComponent(decodedName)}` },
       ])} />
       <JsonLd data={itemListSchema(
         munInstitutions.slice(0, 10).map((inst) => ({
           name: inst.name,
           url: `/institution/${inst.id}`,
         })),
-        "https://institutionsguiden.dk",
+        "https://www.institutionsguiden.dk",
         `${language === "da" ? "Institutioner i" : "Institutions in"} ${decodedName}`,
       )} />
 

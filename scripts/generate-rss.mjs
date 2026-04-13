@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, "../public");
-const BASE_URL = "https://institutionsguiden.dk";
+const BASE_URL = "https://www.institutionsguiden.dk";
 
 function escapeXml(str) {
   return str

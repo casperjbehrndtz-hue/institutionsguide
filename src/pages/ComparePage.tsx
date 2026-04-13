@@ -71,8 +71,8 @@ export default function ComparePage() {
         noIndex
       />
       <JsonLd data={breadcrumbSchema([
-        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: language === "da" ? "Sammenlign" : "Compare", url: "https://institutionsguiden.dk/sammenlign" },
+        { name: language === "da" ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: language === "da" ? "Sammenlign" : "Compare", url: "https://www.institutionsguiden.dk/sammenlign" },
       ])} />
 
       <Breadcrumbs items={[

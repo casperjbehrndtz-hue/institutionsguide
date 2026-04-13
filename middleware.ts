@@ -6,14 +6,14 @@ const fetchBlog = createArticleFetcher({
   table: "blog_posts",
   select: "title,meta_title,meta_description,content_html,published_at,updated_at,keyword",
   siteName: "Institutionsguide",
-  siteUrl: "https://institutionsguiden.dk",
+  siteUrl: "https://www.institutionsguiden.dk",
   urlPrefix: "/blog",
   parentLabel: "Blog",
   fields: { metaTitle: "meta_title", metaDescription: "meta_description", content: "content_html", publishedAt: "published_at", updatedAt: "updated_at", keyword: "keyword" },
 });
 
 // ── SEO metadata (loaded once per edge instance, then cached) ──
-const SITE = "https://institutionsguiden.dk";
+const SITE = "https://www.institutionsguiden.dk";
 // [name, category, municipality, price, address, postalCode, city, ownership, phone, lat, lng, normering, qualityStr, sameCount]
 let seoCache: { i: Record<string, [string, string, string, number, string, string, string, string, string, number, number, number, string, number]>; m: Record<string, string> } | null = null;
 
@@ -290,15 +290,15 @@ async function fetchVs(slug: string, _su: string, _sk: string): Promise<RouteMet
 
 // ── Middleware ──
 export default createMiddleware({
-  siteUrl: "https://institutionsguiden.dk",
+  siteUrl: "https://www.institutionsguiden.dk",
   siteName: "Institutionsguide",
   defaultOgImage: "/og-image.png",
   supabaseUrl: "https://epkwhvrwcyhlbdvwwvfi.supabase.co",
 
   organization: {
     name: "Institutionsguide",
-    url: "https://institutionsguiden.dk",
-    logo: "https://institutionsguiden.dk/og-image.png",
+    url: "https://www.institutionsguiden.dk",
+    logo: "https://www.institutionsguiden.dk/og-image.png",
     description: "Danmarks mest komplette institutionsoversigt. Sammenlign priser, kvalitet og normeringer for 8.500+ institutioner i alle 98 kommuner.",
     foundingDate: "2025",
   },
@@ -322,7 +322,7 @@ export default createMiddleware({
           "@context": "https://schema.org",
           "@type": "WebApplication",
           name: "Institutionsguide",
-          url: "https://institutionsguiden.dk",
+          url: "https://www.institutionsguiden.dk",
           description: "Sammenlign priser, kvalitetsdata og normeringer for 8.500+ institutioner i alle 98 kommuner.",
           applicationCategory: "EducationalApplication",
           operatingSystem: "Web",
@@ -334,10 +334,10 @@ export default createMiddleware({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "Institutionsguide",
-          url: "https://institutionsguiden.dk",
+          url: "https://www.institutionsguiden.dk",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://institutionsguiden.dk/?q={search_term_string}",
+            target: "https://www.institutionsguiden.dk/?q={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         },
@@ -585,13 +585,13 @@ export default createMiddleware({
 
 <h3>Kategorier</h3>
 <ul>
-  <li><a href="https://institutionsguiden.dk/vuggestue">Vuggestuer</a> (0-2 år)</li>
-  <li><a href="https://institutionsguiden.dk/boernehave">Børnehaver</a> (3-5 år)</li>
-  <li><a href="https://institutionsguiden.dk/dagpleje">Dagplejere</a> (0-2 år)</li>
-  <li><a href="https://institutionsguiden.dk/skole">Skoler</a> (6-16 år)</li>
-  <li><a href="https://institutionsguiden.dk/sfo">SFO</a> (6-9 år)</li>
-  <li><a href="https://institutionsguiden.dk/fritidsklub">Fritidsklubber</a> (10-14 år)</li>
-  <li><a href="https://institutionsguiden.dk/efterskole">Efterskoler</a> (14-18 år)</li>
+  <li><a href="https://www.institutionsguiden.dk/vuggestue">Vuggestuer</a> (0-2 år)</li>
+  <li><a href="https://www.institutionsguiden.dk/boernehave">Børnehaver</a> (3-5 år)</li>
+  <li><a href="https://www.institutionsguiden.dk/dagpleje">Dagplejere</a> (0-2 år)</li>
+  <li><a href="https://www.institutionsguiden.dk/skole">Skoler</a> (6-16 år)</li>
+  <li><a href="https://www.institutionsguiden.dk/sfo">SFO</a> (6-9 år)</li>
+  <li><a href="https://www.institutionsguiden.dk/fritidsklub">Fritidsklubber</a> (10-14 år)</li>
+  <li><a href="https://www.institutionsguiden.dk/efterskole">Efterskoler</a> (14-18 år)</li>
 </ul>
 
 <h3>Officielle datakilder</h3>
@@ -648,12 +648,12 @@ export default createMiddleware({
   },
 
   footerNav: `
-      <a href="https://institutionsguiden.dk/vuggestue">Vuggestuer</a> ·
-      <a href="https://institutionsguiden.dk/boernehave">Børnehaver</a> ·
-      <a href="https://institutionsguiden.dk/skole">Skoler</a> ·
-      <a href="https://institutionsguiden.dk/normering">Normeringer</a> ·
-      <a href="https://institutionsguiden.dk/friplads">Friplads</a> ·
-      <a href="https://institutionsguiden.dk/blog">Blog</a>`,
+      <a href="https://www.institutionsguiden.dk/vuggestue">Vuggestuer</a> ·
+      <a href="https://www.institutionsguiden.dk/boernehave">Børnehaver</a> ·
+      <a href="https://www.institutionsguiden.dk/skole">Skoler</a> ·
+      <a href="https://www.institutionsguiden.dk/normering">Normeringer</a> ·
+      <a href="https://www.institutionsguiden.dk/friplads">Friplads</a> ·
+      <a href="https://www.institutionsguiden.dk/blog">Blog</a>`,
 });
 
 export const config = defaultMatcherConfig;

@@ -4,11 +4,11 @@ import { getAIConfig, resolveModel, fetchAI, extractJSON } from "../_shared/ai-c
 
 // Module → page path mapping for internal links / CTAs
 const MODULE_PATHS: Record<string, { path: string; label: string; site: string }> = {
-  dagtilbud: { path: "/", label: "Institutionsguide", site: "https://institutionsguiden.dk" },
-  skole: { path: "/skole", label: "Skoleguiden", site: "https://institutionsguiden.dk" },
-  normering: { path: "/normering", label: "Normeringstabellen", site: "https://institutionsguiden.dk" },
-  friplads: { path: "/friplads", label: "Fripladsberegneren", site: "https://institutionsguiden.dk" },
-  generel: { path: "/", label: "Institutionsguide.dk", site: "https://institutionsguiden.dk" },
+  dagtilbud: { path: "/", label: "Institutionsguide", site: "https://www.institutionsguiden.dk" },
+  skole: { path: "/skole", label: "Skoleguiden", site: "https://www.institutionsguiden.dk" },
+  normering: { path: "/normering", label: "Normeringstabellen", site: "https://www.institutionsguiden.dk" },
+  friplads: { path: "/friplads", label: "Fripladsberegneren", site: "https://www.institutionsguiden.dk" },
+  generel: { path: "/", label: "Institutionsguide.dk", site: "https://www.institutionsguiden.dk" },
   parfinans: { path: "/", label: "ParFinans", site: "https://parfinans.dk" },
   budget: { path: "/", label: "NemtBudget", site: "https://nemtbudget.nu" },
   boerneskat: { path: "/", label: "Børneskat", site: "https://børneskat.dk" },
@@ -16,7 +16,7 @@ const MODULE_PATHS: Record<string, { path: string; label: string; site: string }
 
 // Suite cross-links for all articles
 const SUITE_LINKS = [
-  { label: "Institutionsguiden", url: "https://institutionsguiden.dk", desc: "Sammenlign 5.000+ vuggestuer, børnehaver og skoler" },
+  { label: "Institutionsguiden", url: "https://www.institutionsguiden.dk", desc: "Sammenlign 5.000+ vuggestuer, børnehaver og skoler" },
   { label: "ParFinans", url: "https://parfinans.dk", desc: "Gratis personlig økonomi for danske familier" },
   { label: "NemtBudget", url: "https://nemtbudget.nu", desc: "Simpelt budget-overblik for din husstand" },
   { label: "Børneskat", url: "https://børneskat.dk", desc: "Skattefri børneopsparing" },
@@ -58,7 +58,7 @@ function slugify(text: string): string {
 // Fetches actual stats from our JSON data files to inject into AI prompts
 // This prevents the AI from hallucinating numbers
 
-const DATA_BASE = "https://institutionsguiden.dk/data";
+const DATA_BASE = "https://www.institutionsguiden.dk/data";
 
 interface DataContext {
   summary: string;

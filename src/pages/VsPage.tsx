@@ -188,9 +188,9 @@ export default function VsPage() {
       />
       <JsonLd data={faqLd} />
       <JsonLd data={breadcrumbSchema([
-        { name: "Forside", url: "https://institutionsguiden.dk/" },
-        { name: munName, url: `https://institutionsguiden.dk/kommune/${encodeURIComponent(munName)}` },
-        { name: `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB}`, url: `https://institutionsguiden.dk/sammenlign/${comparison}/${munSlug}` },
+        { name: "Forside", url: "https://www.institutionsguiden.dk/" },
+        { name: munName, url: `https://www.institutionsguiden.dk/kommune/${encodeURIComponent(munName)}` },
+        { name: `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB}`, url: `https://www.institutionsguiden.dk/sammenlign/${comparison}/${munSlug}` },
       ])} />
 
       <Breadcrumbs

@@ -1,4 +1,4 @@
-const SITEMAP_URL = "https://institutionsguiden.dk/sitemap.xml";
+const SITEMAP_URL = "https://www.institutionsguiden.dk/sitemap.xml";
 
 const endpoints = [
   { name: "Google", url: `https://www.google.com/ping?sitemap=${encodeURIComponent(SITEMAP_URL)}` },

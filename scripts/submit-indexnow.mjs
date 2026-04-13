@@ -6,7 +6,7 @@ import { randomBytes } from "crypto";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = resolve(__dirname, "../public");
 const KEY_FILE = resolve(__dirname, "../.indexnow-key");
-const BASE_URL = "https://institutionsguiden.dk";
+const BASE_URL = "https://www.institutionsguiden.dk";
 const INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow";
 const BATCH_SIZE = 10_000;
 

@@ -163,8 +163,8 @@ export default function FindPage() {
         path="/find"
       />
       <JsonLd data={breadcrumbSchema([
-        { name: language === "da" ? "Forside" : "Home", url: "https://institutionsguiden.dk/" },
-        { name: language === "da" ? "Find institution" : "Find institution", url: "https://institutionsguiden.dk/find" },
+        { name: language === "da" ? "Forside" : "Home", url: "https://www.institutionsguiden.dk/" },
+        { name: language === "da" ? "Find institution" : "Find institution", url: "https://www.institutionsguiden.dk/find" },
       ])} />
 
       <Breadcrumbs items={[
