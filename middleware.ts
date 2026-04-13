@@ -161,9 +161,9 @@ async function fetchInstitution(slug: string, _su: string, _sk: string): Promise
 }
 
 async function fetchKommune(slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
-  const mun = decodeURIComponent(slug);
-  if (!mun) return null;
+  if (!slug) return null;
   const meta = await loadSeo();
+  const mun = munFromSlug(slug, meta);
 
   // Build per-category lists
   const categories = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole"] as const;
