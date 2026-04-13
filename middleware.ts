@@ -163,6 +163,19 @@ async function fetchInstitution(slug: string, _su: string, _sk: string): Promise
 async function fetchKommune(slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
   const mun = decodeURIComponent(slug);
   if (!mun) return null;
+  const meta = await loadSeo();
+
+  // Build per-category lists
+  const categories = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole"] as const;
+  const categorySections: string[] = [];
+  for (const cat of categories) {
+    const list = buildInstitutionList(meta, cat, mun, "name", 10);
+    if (list) {
+      categorySections.push(`<h2>${CAT_LABELS[cat] || cat} i ${mun}</h2>\n${list}`);
+    }
+  }
+  const listsHtml = categorySections.join("\n");
+
   return {
     title: `Institutioner i ${mun} — Priser og sammenligning | Institutionsguide`,
     description: `Se alle vuggestuer, børnehaver, dagplejere, skoler og SFO'er i ${mun}. Sammenlign priser, kvalitetsdata og normeringer.`,
@@ -172,7 +185,7 @@ async function fetchKommune(slug: string, _su: string, _sk: string): Promise<Rou
       { name: "Institutionsguide", url: "/" },
       { name: mun, url: `/kommune/${slug}` },
     ],
-    bodyContent: `<h1>Institutioner i ${mun}</h1><p>Oversigt over alle vuggestuer, børnehaver, dagplejere, skoler og SFO'er i ${mun}. Sammenlign priser, kvalitetsdata og normeringer.</p>`,
+    bodyContent: `<h1>Institutioner i ${mun}</h1><p>Oversigt over alle vuggestuer, børnehaver, dagplejere, skoler og SFO'er i ${mun}. Sammenlign priser, kvalitetsdata og normeringer.</p>\n${listsHtml}`,
   };
 }
 
@@ -193,6 +206,65 @@ async function fetchNormeringKommune(slug: string, _su: string, _sk: string): Pr
   };
 }
 
+// Build an HTML list of institutions for a given category + municipality from seo-meta
+function buildInstitutionList(
+  meta: NonNullable<typeof seoCache>,
+  category: string,
+  mun: string,
+  sortBy: "quality" | "price" | "name" = "name",
+  limit = 15,
+): string {
+  const catMap: Record<string, string[]> = {
+    vuggestue: ["vuggestue"],
+    boernehave: ["boernehave"],
+    dagpleje: ["dagpleje"],
+    skole: ["skole", "folkeskole", "privatskole"],
+    sfo: ["sfo"],
+    fritidsklub: ["fritidsklub"],
+    efterskole: ["efterskole"],
+  };
+  const allowedCats = catMap[category] || [category];
+  const entries = Object.entries(meta.i)
+    .filter(([, v]) => allowedCats.includes(v[1]) && v[2] === mun)
+    .map(([slug, v]) => ({
+      slug, name: v[0], cat: v[1], price: v[3], address: v[4],
+      postalCode: v[5], city: v[6], ownership: v[7], normering: v[11],
+      qualityStr: v[12],
+    }));
+
+  if (entries.length === 0) return "";
+
+  // Sort
+  if (sortBy === "price") {
+    entries.sort((a, b) => (a.price || 99999) - (b.price || 99999));
+  } else if (sortBy === "quality") {
+    entries.sort((a, b) => {
+      const aK = parseFloat(a.qualityStr?.match(/k([\d.]+)/)?.[1] || "0");
+      const bK = parseFloat(b.qualityStr?.match(/k([\d.]+)/)?.[1] || "0");
+      return bK - aK; // highest first
+    });
+  } else {
+    entries.sort((a, b) => a.name.localeCompare(b.name, "da"));
+  }
+
+  const shown = entries.slice(0, limit);
+  const rows = shown.map((e) => {
+    const parts: string[] = [`<strong>${e.name}</strong>`];
+    if (e.ownership) parts.push(e.ownership);
+    if (e.price > 0) parts.push(`${e.price.toLocaleString("da-DK")} kr/md`);
+    if (e.address) parts.push(`${e.address}, ${e.postalCode} ${e.city}`);
+    const km = e.qualityStr?.match(/k([\d.]+)/);
+    const tm = e.qualityStr?.match(/t([\d.]+)/);
+    if (km) parts.push(`karaktersnit ${km[1]}`);
+    if (tm) parts.push(`trivsel ${tm[1]}/5`);
+    if (e.normering > 0) parts.push(`normering ${e.normering} børn/voksen`);
+    return `<li><a href="/institution/${e.slug}">${parts.join(" — ")}</a></li>`;
+  }).join("\n");
+
+  const more = entries.length > limit ? `\n<p>Og ${entries.length - limit} flere. Se alle på Institutionsguide.</p>` : "";
+  return `<ol>\n${rows}\n</ol>${more}`;
+}
+
 function makeCatMunFetcher(category: string) {
   const label = CAT_LABELS[category] || category;
   const singular = CAT_SINGULAR[category] || category;
@@ -202,6 +274,8 @@ function makeCatMunFetcher(category: string) {
   return async function (slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
     const meta = await loadSeo();
     const mun = munFromSlug(slug, meta);
+    const list = buildInstitutionList(meta, category, mun, "name");
+    const listHtml = list ? `<h2>Alle ${label.toLowerCase()} i ${mun}</h2>\n${list}` : "";
     return {
       title: `${label} i ${mun} ${new Date().getFullYear()} — Priser og sammenligning | Institutionsguide`,
       description: `Find og sammenlign ${label.toLowerCase()}${ageStr} i ${mun}. Se priser, kvalitetsdata og beregn fripladstilskud.`,
@@ -212,7 +286,7 @@ function makeCatMunFetcher(category: string) {
         { name: label, url: `/${category}` },
         { name: mun, url: `/${category}/${slug}` },
       ],
-      bodyContent: `<h1>${label} i ${mun}</h1><p>Oversigt over alle ${label.toLowerCase()}${ageStr} i ${mun}. Sammenlign priser, ejerskab og kvalitetsdata. Beregn evt. fripladstilskud.</p>`,
+      bodyContent: `<h1>${label} i ${mun}</h1><p>Oversigt over alle ${label.toLowerCase()}${ageStr} i ${mun}. Sammenlign priser, ejerskab og kvalitetsdata. Beregn evt. fripladstilskud.</p>\n${listHtml}`,
     };
   };
 }
@@ -229,6 +303,8 @@ function makeBedsteFetcher(category: string) {
     const d = isSchool
       ? `Se de bedste skoler i ${mun} baseret på trivsel, karakterer og undervisningseffekt. Officielle kvalitetsdata.`
       : `Se de bedste ${label.toLowerCase()} i ${mun} baseret på kvalitetsdata og normeringer.`;
+    const list = buildInstitutionList(meta, category, mun, "quality", 10);
+    const listHtml = list ? `<h2>Top ${label.toLowerCase()} i ${mun}</h2>\n${list}` : "";
     return {
       title: t,
       description: d,
@@ -239,7 +315,7 @@ function makeBedsteFetcher(category: string) {
         { name: label, url: `/${category}` },
         { name: `Bedste i ${mun}`, url: `/bedste-${category}/${slug}` },
       ],
-      bodyContent: `<h1>${t.split(" | ")[0]}</h1><p>${d}</p>`,
+      bodyContent: `<h1>${t.split(" | ")[0]}</h1><p>${d}</p>\n${listHtml}`,
     };
   };
 }
@@ -249,6 +325,8 @@ function makeBilligsteFetcher(category: string) {
   return async function (slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
     const meta = await loadSeo();
     const mun = munFromSlug(slug, meta);
+    const list = buildInstitutionList(meta, category, mun, "price", 10);
+    const listHtml = list ? `<h2>Billigste ${label.toLowerCase()} i ${mun}</h2>\n${list}` : "";
     return {
       title: `Billigste ${label.toLowerCase()} i ${mun} — Prissammenligning | Institutionsguide`,
       description: `Se de billigste ${label.toLowerCase()} i ${mun}. Sammenlign månedspriser og find den bedste pris.`,
@@ -259,7 +337,7 @@ function makeBilligsteFetcher(category: string) {
         { name: label, url: `/${category}` },
         { name: `Billigste i ${mun}`, url: `/billigste-${category}/${slug}` },
       ],
-      bodyContent: `<h1>Billigste ${label.toLowerCase()} i ${mun}</h1><p>Sammenlign priser for ${label.toLowerCase()} i ${mun}. Se alle institutioner sorteret efter månedspris.</p>`,
+      bodyContent: `<h1>Billigste ${label.toLowerCase()} i ${mun}</h1><p>Sammenlign priser for ${label.toLowerCase()} i ${mun}. Se alle institutioner sorteret efter månedspris.</p>\n${listHtml}`,
     };
   };
 }
