@@ -104,8 +104,8 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
     return Math.round(withScore.reduce((s, r) => s + r.score.overall!, 0) / withScore.length);
   }, [ranked]);
 
-  // Nearby municipalities (geographic proximity)
-  const nearbyMuns = useNearbyMunicipalities(institutions, munName);
+  // Nearby municipalities (geographic proximity, filtered to those with this category)
+  const nearbyMuns = useNearbyMunicipalities(institutions, munName, cat);
 
   if (loading) {
     return (
