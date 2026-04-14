@@ -21,7 +21,6 @@ import DataFreshness from "@/components/shared/DataFreshness";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import ShareButton from "@/components/shared/ShareButton";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
-import { dataVersions } from "@/lib/dataVersions";
 import { FRIPLADS_CONSTANTS } from "@/lib/childcare/friplads";
 
 export default function CheapestPage() {
