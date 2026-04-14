@@ -843,3 +843,140 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 3. Consider accessibility improvements (keyboard nav, screen reader, ARIA)
 4. Check if guide/find tools produce good results
 5. Look for internal linking opportunities between related pages
+
+### Iteration 120 — PRIORITET 1: Fix incorrect friplads threshold on CheapestPage
+**Produkt-scan**: Data-check — CheapestPage had hardcoded "609.700 kr." as friplads upper threshold. FRIPLADS_CONSTANTS.upperThreshold is 677.500 kr. Old value was from a previous year. Wrong data shown to parents.
+**Opgave**: Replace hardcoded amount with FRIPLADS_CONSTANTS.upperThreshold
+**Hvorfor**: Parents on ~300 cheapest-X pages saw incorrect income threshold for fripladstilskud — could cause them to think they don't qualify when they actually do
+**Ændringer**: CheapestPage.tsx: Imported FRIPLADS_CONSTANTS, replaced "609.700 kr." with dynamic constant
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents now see correct 2026 friplads income threshold (677.500 kr.) on all cheapest pages
+**Næste**: Scan for more hardcoded values that should be dynamic, or other data issues
+
+### Iteration 121 — PRIORITET 2: Dynamic friplads thresholds in FAQ
+**Produkt-scan**: Data-check — scanned for hardcoded friplads amounts. Found faqData.ts had hardcoded "677.500 kr." and "218.100 kr." which happen to be correct now but would go stale on next year's update.
+**Opgave**: Replace hardcoded amounts with FRIPLADS_CONSTANTS references
+**Hvorfor**: Single source of truth — when friplads thresholds are updated in friplads.ts, FAQ automatically reflects correct values
+**Ændringer**: faqData.ts: Imported FRIPLADS_CONSTANTS, replaced hardcoded amounts in both DA and EN FAQs
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Prevents future incorrect income thresholds in FAQ. Currently correct but now future-proof.
+**Næste**: Look for more data quality issues or user flow improvements
+
+### Iteration 122 — PRIORITET 3: DataFreshness badge on HomePage
+**Produkt-scan**: Trust-check — HomePage (the most visited landing page) was missing the DataFreshness badge that all other data pages show. Parents seeing "Data opdateret: [date]" builds trust.
+**Opgave**: Add DataFreshness component to HomePage
+**Hvorfor**: Homepage is the first impression — showing when data was last updated signals that the platform is actively maintained
+**Ændringer**: HomePage.tsx: Added DataFreshness import + component before GeoModals
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents on the homepage now see when data was last updated — trust signal
+**Næste**: Continue looking for product improvements — check for accessibility or conversion opportunities
+
+### Iteration 123 — PRIORITET 2: i18n for InstitutionGateModal (conversion-critical)
+**Produkt-scan**: Tekst-check — InstitutionGateModal (the email gate for unlocking institution profiles) was entirely in Danish. English users saw Danish text in the conversion modal. This is the conversion-critical path for email capture.
+**Opgave**: Add full EN/DA i18n support to InstitutionGateModal
+**Hvorfor**: English-speaking parents (expats, internationals) couldn't understand the gate modal — likely caused gate_rejection events and lost conversions
+**Ændringer**:
+1. InstitutionGateModal.tsx: Imported useLanguage hook
+2. FREE_ITEMS/GATED_ITEMS now bilingual objects
+3. All user-facing strings (header, subtitle, validation errors, consent, submit button, aria labels) now language-conditional
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English-speaking parents now see the gate modal in English — directly impacts conversion for international families
+**Næste**: Continue with more product/UX improvements
+
+### Iteration 124 — PRIORITET 2: i18n for GatedSection overlay
+**Produkt-scan**: Tekst-check — GatedSection (blurred overlay prompting email unlock on institution pages) had hardcoded Danish text. Part of the conversion-critical gating flow.
+**Opgave**: Add EN/DA i18n to GatedSection
+**Hvorfor**: English users saw "Lås op med email" and "Gratis — intet kreditkort" in Danish — confusing for conversion
+**Ændringer**: GatedSection.tsx: Added useLanguage hook, translated overlay text and aria-label
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English-speaking parents now see localized unlock prompts throughout the gating flow
+**Næste**: Look for more untranslated components or product issues
+
+### Iteration 125 — PRIORITET 2: i18n for TilsynRapportSection
+**Produkt-scan**: Tekst-check — TilsynRapportSection had hardcoded Danish strings in RapportCard (verdict badges, report links, detail toggles, strengths/concerns headings, status labels). VerdictBadge already had EN translations in config but wasn't using lang prop.
+**Opgave**: Full i18n for TilsynRapportSection including RapportCard and VerdictBadge
+**Hvorfor**: English-speaking parents viewing inspection reports saw mixed Danish UI labels — inconsistent with the already-translated gate flow
+**Ændringer**:
+1. RapportCard: Added `lang` prop, created `isDa` variable
+2. Translated: "Skærpet tilsyn"/"Heightened supervision", "Opfølgning påkrævet"/"Follow-up required", "Se rapport"/"See report", "Vis detaljer"/"Show details", "Skjul detaljer"/"Hide details", "Styrker"/"Strengths", "Opmærksomhedspunkter"/"Points of attention"
+3. VerdictBadge: Now receives lang prop from parent
+4. TilsynRapportSection: Passes language to RapportCard
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English-speaking parents now see fully translated inspection report sections
+**Næste**: Scan for more product issues — check VsPage, CheapestPage, or accessibility
+
+### Iteration 126 — PRIORITET 2: Fix alphabetical "nearby" municipalities in RelatedSearches
+**Produkt-scan**: Link-check — RelatedSearches.tsx still used alphabetical ±3 index logic for nearby municipalities, even though KommunePage, BestSchoolPage, BestDagtilbudPage, and CategoryMunicipalityPage had all been switched to geographic useNearbyMunicipalities hook. This meant "related searches" on EVERY page using RelatedSearches showed alphabetically adjacent municipalities instead of geographically nearby ones.
+**Opgave**: Replace alphabetical nearby logic with useNearbyMunicipalities hook
+**Hvorfor**: Parents in e.g. Albertslund saw "related" links to Allerød (alphabetical neighbor, ~30km away) instead of Brøndby, Glostrup, Hvidovre (actual geographic neighbors). Misleading for parents choosing nearby alternatives.
+**Ændringer**:
+1. RelatedSearches.tsx: Imported useNearbyMunicipalities hook
+2. Replaced 10-line alphabetical ±3 useMemo with single hook call
+3. Hook already handles category filtering and limit, removed redundant .slice(0, 4)
+4. Removed unused `municipalities` from useData destructuring
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents now see genuinely nearby municipalities in "related searches" across all pages — more useful for exploring real alternatives
+**Næste**: Continue scanning for product issues — check for data correctness, missing empty states, or conversion improvements
+
+### Iteration 127 — PRIORITET 2: Fix DataFreshness always showing Danish
+**Produkt-scan**: Konsistens-check — DataFreshness component defaulted to `lang="da"` when prop was omitted. 15 out of 20 pages using DataFreshness didn't pass the lang prop, meaning English users saw "Data opdateret" instead of "Data updated" on most pages. Inconsistent with pages that did pass lang.
+**Opgave**: Make DataFreshness read language from LanguageContext automatically
+**Hvorfor**: English-speaking parents saw Danish "Data opdateret" badge on 15 of 20 pages — inconsistent and breaks the trust signal for international users
+**Ændringer**: DataFreshness.tsx: Added useLanguage hook, uses context language as default, lang prop still works as override
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English users now see "Data updated" consistently across all pages
+**Næste**: Scan for more product issues — check DataAttribution for same pattern, or look for conversion/SEO improvements
+
+### Iteration 128 — PRIORITET 2: Batch i18n for DataAttribution + DataSourceBadges
+**Produkt-scan**: Konsistens-check — DataAttribution ("Datakilder:") and DataSourceBadges ("Pris verificeret", "Kvalitetsdata", "Normeringsdata") had all-Danish strings. These trust-signal components appear on institution detail pages and programmatic SEO pages — English users saw Danish labels for data source attribution.
+**Opgave**: Add useLanguage to both shared trust-signal components
+**Hvorfor**: English users seeing "Datakilder:" and "Pris verificeret" undermines the trust signal these components provide — if you can't read the source labels, they're meaningless
+**Ændringer**:
+1. DataAttribution.tsx: Added useLanguage, translated "Datakilder"/"Data sources", ministry names, "Sidst opdateret"/"Last updated"
+2. DataSourceBadges.tsx: Added useLanguage, translated badge labels (Pris verificeret/Price verified, Kvalitetsdata/Quality data, Normeringsdata/Staff ratio data)
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: English users now see translated data attribution and source badges across all pages
+**Næste**: Must do PRIORITET 1-3 task next (done 2 i18n in a row). Check for data bugs, broken flows, or conversion issues
+
+### Iteration 129 — PRIORITET 2: Orphaned gymnasium page — no navigation links
+**Produkt-scan**: Navigation-check — The /gymnasium route existed in App.tsx with full functionality (GymnasiumPage with filters, sorting, municipality breakdown) but had ZERO inbound links from any navigation element. Navbar, footer, homepage — none linked to it. The page was completely undiscoverable through normal browsing.
+**Opgave**: Add gymnasium to navbar and footer
+**Hvorfor**: Parents looking for gymnasium data had no way to find it through the site. The page was effectively invisible despite being fully built — wasted development effort and missed user value.
+**Ændringer**:
+1. Navbar.tsx: Added gymnasium to CATEGORY_LINKS array with DA/EN labels
+2. Footer.tsx: Added gymnasium link to categories section using t.categories.gymnasium translation
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents can now discover and navigate to the gymnasium comparison page from the main nav and footer
+**Næste**: Continue scanning for product issues — check homepage for gymnasium mention, check for missing internal links, or look at SEO
+
+### Iteration 130 — PRIORITET 2: Add gymnasium to homepage category cards
+**Produkt-scan**: Navigation-check — Following up on iteration 129, checked homepage for gymnasium. The homepage category cards (getCategoryCards) listed 7 categories but NOT gymnasium. With navbar/footer already linking to /gymnasium, the homepage was the remaining gap.
+**Opgave**: Add gymnasium to homepage "other" category cards
+**Hvorfor**: Parents browsing the homepage couldn't see gymnasium as an option in the category grid. Navbar had the link but the main discovery surface (homepage) didn't.
+**Ændringer**:
+1. homeCategoryCards.ts: Added Landmark icon import, added gymnasium card to "other" array with teal color
+2. homeCategoryCards.test.ts: Updated test to expect 4 other cards including gymnasium
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents see gymnasium as an available category on the homepage
+**Næste**: Scan for other product issues — check SEOLinks/PopularSearches for gymnasium, look for data bugs or conversion improvements
+
+### Iteration 131 — PRIORITET 3: Add gymnasium to sitemap + llms.txt
+**Produkt-scan**: SEO-check — Following gymnasium integration (iterations 129-130), checked sitemap and llms.txt. Both were missing the /gymnasium URL. Search engines and LLM crawlers couldn't discover the page through these channels.
+**Opgave**: Add gymnasium to sitemap-static.xml and llms.txt
+**Hvorfor**: Without sitemap presence, Google crawl discovery of /gymnasium depends entirely on internal link crawling. Adding to sitemap ensures direct indexing.
+**Ændringer**:
+1. sitemap-static.xml: Added /gymnasium with priority 0.8, weekly changefreq
+2. llms.txt: Added gymnasium to intro text and categories list with type detail (STX, HHX, HTX, HF, EUX)
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Search engines can now discover and index the gymnasium page directly
+**Næste**: Move on from gymnasium integration. Scan for other product issues — data correctness, mobile UX, or conversion improvements
+
+### Iteration 132 — PRIORITET 1 BLOKERENDE: Fix broken production deploy
+**Produkt-scan**: User reported Vercel deploy failures. Build error: `src/pages/CheapestPage.tsx(24,1): error TS6133: 'dataVersions' is declared but its value is never read.` Production has been BROKEN since iteration 120 (friplads fix) because unused import wasn't removed. Root cause: I was using `tsc --noEmit` for verification, but Vercel uses `tsc -b` which resolves tsconfig.app.json with `noUnusedLocals: true`.
+**Opgave**: Remove unused import and fix verification command
+**Hvorfor**: PRODUCTION WAS DOWN. All deploys since iteration 120 have failed. 8+ failed deploy notifications.
+**Ændringer**: CheapestPage.tsx: Removed unused `import { dataVersions } from "@/lib/dataVersions"`
+**Verifikation**: tsc -b: ✓ (0 errors) | tests: 279/279 | push: ✓
+**LESSON LEARNED**: Use `tsc -b` not `tsc --noEmit` for verification — matches Vercel build pipeline
+**Foraelder-effekt**: Site deploys again. All changes since iteration 120 are now live.
+**Næste**: Continue scanning but use `tsc -b` for all future verification

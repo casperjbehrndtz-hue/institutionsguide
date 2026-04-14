@@ -158,7 +158,7 @@ Inden du koder, svar disse tre spoergsmaal:
 
 ### 7. VERIFICER
 ```bash
-npx tsc --noEmit                  # SKAL: 0 errors
+npx tsc -b                        # SKAL: 0 errors (bruger tsc -b, IKKE --noEmit — matcher Vercel build)
 npx vitest run                    # SKAL: alle tests passer
 ```
 
