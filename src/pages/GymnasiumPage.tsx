@@ -41,7 +41,7 @@ export default function GymnasiumPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("alle");
   const [municipalityFilter, setMunicipalityFilter] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortKey, setSortKey] = useState<SortKey>("grades");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(50);
   const sentinelRef = useRef<HTMLDivElement>(null);
