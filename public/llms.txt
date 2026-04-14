@@ -4,7 +4,7 @@
 
 ## Hvad er Institutionsguide?
 
-Institutionsguide samler officielle data om vuggestuer, børnehaver, dagplejere, skoler, SFO'er, fritidsklubber og efterskoler i hele Danmark. Platformen er gratis, uafhængig og baseret udelukkende på officielle datakilder.
+Institutionsguide samler officielle data om vuggestuer, børnehaver, dagplejere, skoler, SFO'er, fritidsklubber, efterskoler og gymnasier i hele Danmark. Platformen er gratis, uafhængig og baseret udelukkende på officielle datakilder.
 
 ## Datakilder
 
@@ -30,6 +30,7 @@ Institutionsguide samler officielle data om vuggestuer, børnehaver, dagplejere,
 - [SFO](https://www.institutionsguiden.dk/sfo) (6-9 år)
 - [Fritidsklubber](https://www.institutionsguiden.dk/fritidsklub) (10-14 år)
 - [Efterskoler](https://www.institutionsguiden.dk/efterskole) (14-18 år)
+- [Gymnasier](https://www.institutionsguiden.dk/gymnasium) (16-19 år) — STX, HHX, HTX, HF og EUX
 
 ## Nøglesider
 
