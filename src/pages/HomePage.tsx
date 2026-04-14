@@ -29,6 +29,7 @@ import { getCategoryCards } from "@/lib/homeCategoryCards";
 import { useCategoryStats } from "@/hooks/useCategoryStats";
 import { usePopularData } from "@/hooks/usePopularData";
 import MobileViewToggle from "@/components/home/MobileViewToggle";
+import DataFreshness from "@/components/shared/DataFreshness";
 import FilterSummaryBar from "@/components/home/FilterSummaryBar";
 
 const HERO_VIDEOS: { src: string; focus: string }[] = [
@@ -376,6 +377,8 @@ export default function HomePage() {
         faqItems={FAQ_ITEMS}
         faqTitle={t.home.faq}
       />
+
+      <DataFreshness lang={language} />
 
       <GeoModals
         showGeoModal={geo.showGeoModal}
