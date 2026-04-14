@@ -1,4 +1,4 @@
-import { Building2, GraduationCap, Users, Home, BookOpen, Gamepad2, School } from "lucide-react";
+import { Building2, GraduationCap, Users, Home, BookOpen, Gamepad2, School, Landmark } from "lucide-react";
 import type { TranslationStrings } from "@/lib/translations/types";
 import type { Language } from "@/lib/translations/types";
 
@@ -37,6 +37,7 @@ export function getCategoryCards(t: TranslationStrings, language: Language) {
     { category: "dagpleje" as const, label: t.categories.dagpleje, icon: Users, iconColor: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-50 dark:bg-amber-900/30", href: "/dagpleje", desc: t.ageGroups.dagpleje, cta: language === "da" ? "Udforsk" : "Explore" },
     { category: "sfo" as const, label: t.categories.sfo, icon: BookOpen, iconColor: "text-purple-600 dark:text-purple-400", bgColor: "bg-purple-50 dark:bg-purple-900/30", href: "/sfo", desc: t.ageGroups.sfo, cta: language === "da" ? "Udforsk" : "Explore" },
     { category: "fritidsklub" as const, label: t.categories.fritidsklub, icon: Gamepad2, iconColor: "text-orange-600 dark:text-orange-400", bgColor: "bg-orange-50 dark:bg-orange-900/30", href: "/fritidsklub", desc: t.ageGroups.fritidsklub, cta: language === "da" ? "Udforsk" : "Explore" },
+    { category: "gymnasium" as const, label: t.categories.gymnasium, icon: Landmark, iconColor: "text-teal-600 dark:text-teal-400", bgColor: "bg-teal-50 dark:bg-teal-900/30", href: "/gymnasium", desc: t.ageGroups.gymnasium, cta: language === "da" ? "Udforsk" : "Explore" },
   ];
   return { featured, other };
 }

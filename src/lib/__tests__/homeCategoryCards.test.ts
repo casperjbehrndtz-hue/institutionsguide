@@ -22,12 +22,12 @@ describe("getCategoryCards", () => {
     expect(featured.map((c) => c.category)).toEqual(["skole", "vuggestue", "boernehave", "efterskole"]);
   });
 
-  it("returns 3 other cards (no gymnasium — 0 data, efterskole promoted to featured)", () => {
+  it("returns 4 other cards (dagpleje, sfo, fritidsklub, gymnasium)", () => {
     const { other } = getCategoryCards(mockT, "da");
-    expect(other).toHaveLength(3);
+    expect(other).toHaveLength(4);
     expect(other.map((c) => c.category)).toContain("dagpleje");
+    expect(other.map((c) => c.category)).toContain("gymnasium");
     expect(other.map((c) => c.category)).not.toContain("efterskole");
-    expect(other.map((c) => c.category)).not.toContain("gymnasium");
   });
 
   it("all cards have required fields", () => {
