@@ -11,6 +11,7 @@ const CATEGORY_LINKS: { href: string; key: string; labelOverride?: Record<string
   { href: "/sfo", key: "sfo", labelOverride: { da: "SFO", en: "After-school" } },
   { href: "/fritidsklub", key: "fritidsklub", labelOverride: { da: "Fritidsklubber", en: "Youth clubs" } },
   { href: "/efterskole", key: "efterskole", labelOverride: { da: "Efterskoler", en: "Boarding schools" } },
+  { href: "/gymnasium", key: "gymnasium", labelOverride: { da: "Gymnasier", en: "Gymnasiums" } },
 ];
 
 const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = [
