@@ -18,6 +18,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   sfo: "SFO",
   fritidsklub: "Fritidsklub",
   efterskole: "Efterskole",
+  gymnasium: "Gymnasium",
 };
 
 interface Props {
@@ -158,6 +159,7 @@ export default function SearchFilterBar({
     { value: "sfo", label: t.categories.sfo },
     { value: "fritidsklub", label: t.categories.fritidsklub },
     { value: "efterskole", label: t.categories.efterskole },
+    { value: "gymnasium", label: t.categories.gymnasium },
   ];
 
   // Context-aware sort options: hide school-specific sorts for daycare categories
@@ -311,7 +313,7 @@ export default function SearchFilterBar({
             />
 
             {/* Quality filter (for schools) */}
-            {(category === "alle" || category === "skole" || category === "efterskole") && (
+            {(category === "alle" || category === "skole" || category === "efterskole" || category === "gymnasium") && (
               <select
                 id="quality-select"
                 value={qualityFilter}
@@ -366,7 +368,7 @@ export default function SearchFilterBar({
             municipalities={municipalities}
             qualityFilter={qualityFilter}
             onQualityFilterChange={onQualityFilterChange}
-            showQualityFilter={category === "alle" || category === "skole" || category === "efterskole"}
+            showQualityFilter={category === "alle" || category === "skole" || category === "efterskole" || category === "gymnasium"}
             sortKey={sortKey}
             onSortChange={onSortChange}
             sortOptions={sortOptions}
