@@ -40,12 +40,12 @@ const VERDICT_CONFIG: Record<Verdict, {
   },
 };
 
-function VerdictBadge({ verdict }: { verdict: Verdict }) {
+function VerdictBadge({ verdict, lang = "da" }: { verdict: Verdict; lang?: string }) {
   const c = VERDICT_CONFIG[verdict] ?? VERDICT_CONFIG.tilfredsstillende;
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${c.bg} ${c.text}`} title={c.en}>
       <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
-      {c.da}
+      {lang === "da" ? c.da : c.en}
     </span>
   );
 }
@@ -63,8 +63,9 @@ function formatDate(dateStr: string | null): string {
   }
 }
 
-function RapportCard({ report }: { report: TilsynRapport }) {
+function RapportCard({ report, lang }: { report: TilsynRapport; lang: string }) {
   const [expanded, setExpanded] = useState(false);
+  const isDa = lang === "da";
   const hasDetails = (report.strengths.length > 0 || report.concerns.length > 0 || report.summary);
 
   return (
@@ -73,17 +74,17 @@ function RapportCard({ report }: { report: TilsynRapport }) {
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <VerdictBadge verdict={report.overallVerdict} />
+            <VerdictBadge verdict={report.overallVerdict} lang={lang} />
             {report.skaerpetTilsyn && (
               <span className="inline-flex items-center gap-1 text-xs font-medium text-red-700 dark:text-red-400">
                 <AlertTriangle className="h-3 w-3" />
-                Skaerpet tilsyn
+                {isDa ? "Skærpet tilsyn" : "Heightened supervision"}
               </span>
             )}
             {report.followUpRequired && (
               <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 dark:text-amber-400">
                 <Info className="h-3 w-3" />
-                Opfoelgning paakraevet
+                {isDa ? "Opfølgning påkrævet" : "Follow-up required"}
               </span>
             )}
           </div>
@@ -97,10 +98,10 @@ function RapportCard({ report }: { report: TilsynRapport }) {
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 text-xs text-primary hover:underline shrink-0"
-            title="Se original rapport"
+            title={isDa ? "Se original rapport" : "See original report"}
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            <span>Se rapport</span>
+            <span>{isDa ? "Se rapport" : "See report"}</span>
           </a>
         )}
       </div>
@@ -118,7 +119,7 @@ function RapportCard({ report }: { report: TilsynRapport }) {
             className="flex items-center gap-1 text-xs text-primary hover:underline bg-transparent border-none p-0 cursor-pointer"
           >
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            {expanded ? "Skjul detaljer" : "Vis detaljer"}
+            {expanded ? (isDa ? "Skjul detaljer" : "Hide details") : (isDa ? "Vis detaljer" : "Show details")}
           </button>
 
           {expanded && (
@@ -128,7 +129,7 @@ function RapportCard({ report }: { report: TilsynRapport }) {
                 <div>
                   <h4 className="text-xs font-semibold text-green-700 dark:text-green-400 mb-1 flex items-center gap-1">
                     <CheckCircle className="h-3.5 w-3.5" />
-                    Styrker
+                    {isDa ? "Styrker" : "Strengths"}
                   </h4>
                   <ul className="list-disc list-inside text-sm space-y-0.5 text-muted">
                     {report.strengths.map((s, i) => (
@@ -143,7 +144,7 @@ function RapportCard({ report }: { report: TilsynRapport }) {
                 <div>
                   <h4 className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1 flex items-center gap-1">
                     <AlertTriangle className="h-3.5 w-3.5" />
-                    Opmærksomhedspunkter
+                    {isDa ? "Opmærksomhedspunkter" : "Points of attention"}
                   </h4>
                   <ul className="list-disc list-inside text-sm space-y-0.5 text-muted">
                     {report.concerns.map((s, i) => (
@@ -186,7 +187,7 @@ export default function TilsynRapportSection({ reports, institutionName }: Props
       </p>
       <div className="space-y-3">
         {sorted.map((report, i) => (
-          <RapportCard key={`${report.tilsynDate}-${i}`} report={report} />
+          <RapportCard key={`${report.tilsynDate}-${i}`} report={report} lang={language} />
         ))}
       </div>
     </section>
