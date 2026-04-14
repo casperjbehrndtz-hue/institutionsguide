@@ -211,8 +211,8 @@ export default function InstitutionPage() {
       <SEOHead
         title={`${inst.name} — ${categoryLabels[inst.category]} i ${inst.municipality}`}
         description={language === "da"
-          ? `${inst.name} er en ${(categoryLabels[inst.category] || "").toLowerCase()} i ${inst.municipality}. ${inst.category === "efterskole" && inst.yearlyPrice ? `Årspris: ${formatDKK(inst.yearlyPrice)}.` : inst.monthlyRate ? `Månedspris: ${formatDKK(inst.monthlyRate)}.` : ""} Se vurdering, kvalitetsdata og beregn fripladstilskud.`
-          : `${inst.name} is a ${(categoryLabels[inst.category] || "").toLowerCase()} in ${inst.municipality}. ${inst.category === "efterskole" && inst.yearlyPrice ? `Yearly price: ${formatDKK(inst.yearlyPrice)}.` : inst.monthlyRate ? `Monthly rate: ${formatDKK(inst.monthlyRate)}.` : ""} See assessment, quality data and calculate subsidy.`}
+          ? `${inst.name} er en ${(categoryLabels[inst.category] || "").toLowerCase()} i ${inst.municipality}. ${inst.category === "efterskole" && inst.yearlyPrice ? `Årspris: ${formatDKK(inst.yearlyPrice)}.` : inst.monthlyRate ? `Månedspris: ${formatDKK(inst.monthlyRate)}.` : ""} ${inst.category === "skole" ? "Se trivsel, karaktersnit, fravær og kvalitetsvurdering." : inst.category === "efterskole" ? "Se profiler, kvalitetsdata og sammenlign med andre efterskoler." : "Se vurdering, kvalitetsdata og beregn fripladstilskud."}`
+          : `${inst.name} is a ${(categoryLabels[inst.category] || "").toLowerCase()} in ${inst.municipality}. ${inst.category === "efterskole" && inst.yearlyPrice ? `Yearly price: ${formatDKK(inst.yearlyPrice)}.` : inst.monthlyRate ? `Monthly rate: ${formatDKK(inst.monthlyRate)}.` : ""} ${inst.category === "skole" ? "See well-being, grades, absence and quality assessment." : inst.category === "efterskole" ? "See profiles, quality data and compare with other boarding schools." : "See assessment, quality data and calculate subsidy."}`}
         path={`/institution/${inst.id}`}
       />
 
