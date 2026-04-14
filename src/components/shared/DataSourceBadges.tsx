@@ -1,5 +1,6 @@
 import { Database, ShieldCheck, BarChart3 } from "lucide-react";
 import { dataVersions } from "@/lib/dataVersions";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DataSourceBadgesProps {
   category: string;
@@ -9,6 +10,8 @@ interface DataSourceBadgesProps {
 }
 
 export default function DataSourceBadges({ category, hasQuality, hasNormering, hasPrice }: DataSourceBadgesProps) {
+  const { language } = useLanguage();
+  const isDa = language === "da";
   const isSchool = category === "skole" || category === "efterskole";
 
   const badges: { icon: typeof Database; label: string; source: string }[] = [];
@@ -16,7 +19,7 @@ export default function DataSourceBadges({ category, hasQuality, hasNormering, h
   if (hasPrice) {
     badges.push({
       icon: Database,
-      label: "Pris verificeret",
+      label: isDa ? "Pris verificeret" : "Price verified",
       source: `Danmarks Statistik (${dataVersions.prices.year})`,
     });
   }
@@ -24,15 +27,15 @@ export default function DataSourceBadges({ category, hasQuality, hasNormering, h
   if (isSchool && hasQuality) {
     badges.push({
       icon: BarChart3,
-      label: "Kvalitetsdata",
-      source: `Undervisningsministeriet (${dataVersions.schoolQuality.schoolYear})`,
+      label: isDa ? "Kvalitetsdata" : "Quality data",
+      source: `${isDa ? "Undervisningsministeriet" : "Ministry of Education"} (${dataVersions.schoolQuality.schoolYear})`,
     });
   }
 
   if (!isSchool && hasNormering) {
     badges.push({
       icon: ShieldCheck,
-      label: "Normeringsdata",
+      label: isDa ? "Normeringsdata" : "Staff ratio data",
       source: "BUVM",
     });
   }
