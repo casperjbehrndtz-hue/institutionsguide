@@ -122,7 +122,7 @@ export default function CategoryCards({ featured, other, categoryStats, language
       </div>
 
       {/* Secondary categories — horizontal row */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {other.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
