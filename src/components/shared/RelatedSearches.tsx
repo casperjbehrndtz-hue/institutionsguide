@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "@/contexts/DataContext";
 import { toSlug, CATEGORY_LABELS_DA, CATEGORY_SINGULAR_DA, DAYCARE_CATEGORY_SLUGS, VS_PAIRS, vsSlug, type CategorySlug } from "@/lib/slugs";
+import { useNearbyMunicipalities } from "@/hooks/useNearbyMunicipalities";
 
 interface Props {
   municipality?: string;
@@ -14,20 +15,9 @@ interface SearchLink {
 }
 
 export default function RelatedSearches({ municipality, category }: Props) {
-  const { municipalities, institutions } = useData();
+  const { institutions } = useData();
 
-  const nearbyMunicipalities = useMemo(() => {
-    if (!municipality) return [];
-    const idx = municipalities.findIndex((m) => m.municipality === municipality);
-    if (idx === -1) return [];
-    const nearby: string[] = [];
-    for (let i = Math.max(0, idx - 3); i <= Math.min(municipalities.length - 1, idx + 3); i++) {
-      if (municipalities[i].municipality !== municipality) {
-        nearby.push(municipalities[i].municipality);
-      }
-    }
-    return nearby;
-  }, [municipalities, municipality]);
+  const nearbyMunicipalities = useNearbyMunicipalities(institutions, municipality ?? "", category, 4);
 
   const links = useMemo(() => {
     const result: SearchLink[] = [];
@@ -115,7 +105,7 @@ export default function RelatedSearches({ municipality, category }: Props) {
       }
 
       // Nearby municipality links
-      for (const m of nearbyMunicipalities.slice(0, 4)) {
+      for (const m of nearbyMunicipalities) {
         if (category) {
           result.push({
             label: `${CATEGORY_LABELS_DA[category]} i ${m}`,
