@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Lock, Check, X, Loader2 } from "lucide-react";
 import { setInstitutionUnlocked, setSuiteEmail, getSuiteEmail } from "@/lib/institutionGate";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CAPTURE_URL =
   "https://xahajjypbnrpitzdnpjg.supabase.co/functions/v1/capture-suite-lead";
@@ -15,13 +16,24 @@ interface Props {
   onUnlocked: () => void;
 }
 
-const FREE_ITEMS = ["Navn og type", "Adresse og kommune", "Overordnet prisniveau"];
-const GATED_ITEMS = [
-  "Faktisk månedspris",
-  "Normering med udvikling over tid",
-  "Tilsynsrapporter og påtaler",
-  "AI-kvalitetsvurdering",
-];
+const FREE_ITEMS = {
+  da: ["Navn og type", "Adresse og kommune", "Overordnet prisniveau"],
+  en: ["Name and type", "Address and municipality", "General price level"],
+};
+const GATED_ITEMS = {
+  da: [
+    "Faktisk månedspris",
+    "Normering med udvikling over tid",
+    "Tilsynsrapporter og påtaler",
+    "AI-kvalitetsvurdering",
+  ],
+  en: [
+    "Actual monthly price",
+    "Staff ratios over time",
+    "Inspection reports and notices",
+    "AI quality assessment",
+  ],
+};
 
 export default function InstitutionGateModal({
   institutionName,
@@ -29,6 +41,8 @@ export default function InstitutionGateModal({
   onClose,
   onUnlocked,
 }: Props) {
+  const { language } = useLanguage();
+  const isDa = language === "da";
   const [email, setEmail] = useState(() => getSuiteEmail() || "");
   const [marketing, setMarketing] = useState(false);
   const [crossSell, setCrossSell] = useState(false);
@@ -85,11 +99,11 @@ export default function InstitutionGateModal({
 
     const trimmed = email.trim();
     if (!trimmed) {
-      setError("Indtast venligst din email");
+      setError(isDa ? "Indtast venligst din email" : "Please enter your email");
       return;
     }
     if (!EMAIL_RE.test(trimmed)) {
-      setError("Indtast en gyldig email-adresse");
+      setError(isDa ? "Indtast en gyldig email-adresse" : "Please enter a valid email address");
       return;
     }
 
@@ -149,7 +163,7 @@ export default function InstitutionGateModal({
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:px-4"
       role="dialog"
       aria-modal="true"
-      aria-label={`Se den fulde profil for ${institutionName}`}
+      aria-label={isDa ? `Se den fulde profil for ${institutionName}` : `See full profile for ${institutionName}`}
     >
       <div ref={trapRef} className="bg-white dark:bg-card sm:rounded-2xl shadow-2xl w-full h-full sm:h-auto sm:max-w-md relative animate-in fade-in zoom-in-95 duration-200 overflow-y-auto">
         {/* Close button */}
@@ -157,7 +171,7 @@ export default function InstitutionGateModal({
           onClick={handleClose}
           data-dismiss
           className="absolute top-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-          aria-label="Luk"
+          aria-label={isDa ? "Luk" : "Close"}
         >
           <X className="w-5 h-5 text-gray-500" />
         </button>
@@ -169,11 +183,11 @@ export default function InstitutionGateModal({
               <Lock className="w-6 h-6 text-primary" />
             </div>
             <h2 className="font-display text-xl font-bold text-foreground leading-tight">
-              Se den fulde profil for{" "}
+              {isDa ? "Se den fulde profil for" : "See full profile for"}{" "}
               <span className="text-primary">{institutionName}</span>
             </h2>
             <p className="text-sm text-muted mt-1.5">
-              Gratis — vi beder kun om din email
+              {isDa ? "Gratis — vi beder kun om din email" : "Free — we just need your email"}
             </p>
           </div>
 
@@ -181,10 +195,10 @@ export default function InstitutionGateModal({
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div>
               <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
-                Det har du allerede set
+                {isDa ? "Det har du allerede set" : "What you've already seen"}
               </p>
               <ul className="space-y-1.5">
-                {FREE_ITEMS.map((item) => (
+                {FREE_ITEMS[language].map((item) => (
                   <li key={item} className="flex items-start gap-1.5 text-xs text-foreground">
                     <Check className="w-3.5 h-3.5 text-green-500 mt-0.5 shrink-0" />
                     {item}
@@ -194,10 +208,10 @@ export default function InstitutionGateModal({
             </div>
             <div>
               <p className="text-[11px] font-semibold text-primary uppercase tracking-wide mb-2">
-                Lås op gratis
+                {isDa ? "Lås op gratis" : "Unlock for free"}
               </p>
               <ul className="space-y-1.5">
-                {GATED_ITEMS.map((item) => (
+                {GATED_ITEMS[language].map((item) => (
                   <li key={item} className="flex items-start gap-1.5 text-xs text-foreground">
                     <Lock className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
                     {item}
@@ -237,7 +251,7 @@ export default function InstitutionGateModal({
                 className="mt-0.5 accent-primary"
               />
               <span className="text-[11px] text-muted leading-tight">
-                Send mig relevante tips om børnepasning og familieøkonomi
+                {isDa ? "Send mig relevante tips om børnepasning og familieøkonomi" : "Send me relevant tips about childcare and family finances"}
               </span>
             </label>
 
@@ -250,10 +264,10 @@ export default function InstitutionGateModal({
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Vent venligst...
+                  {isDa ? "Vent venligst..." : "Please wait..."}
                 </>
               ) : (
-                "Se den fulde profil"
+                isDa ? "Se den fulde profil" : "See full profile"
               )}
             </button>
           </form>
