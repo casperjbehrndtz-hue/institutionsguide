@@ -22,6 +22,7 @@ import ScrollReveal from "@/components/shared/ScrollReveal";
 import ShareButton from "@/components/shared/ShareButton";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { dataVersions } from "@/lib/dataVersions";
+import { FRIPLADS_CONSTANTS } from "@/lib/childcare/friplads";
 
 export default function CheapestPage() {
   const { category: rawCat, municipality: munSlug } = useParams<{
@@ -235,7 +236,7 @@ export default function CheapestPage() {
       <section className="max-w-3xl mx-auto px-4 py-4">
         <div className="card p-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
           <p className="text-sm text-blue-800 dark:text-blue-300">
-            <strong>Tip:</strong> Har du en husstandsindkomst under 609.700 kr. ({dataVersions.friplads.year}),
+            <strong>Tip:</strong> Har du en husstandsindkomst under {FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr. ({FRIPLADS_CONSTANTS.year}),
             kan du søge om fripladstilskud og få reduceret prisen yderligere.{" "}
             <Link
               to={`/kommune/${encodeURIComponent(munName)}`}
