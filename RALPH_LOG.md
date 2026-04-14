@@ -778,3 +778,68 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 5. CategoryPage.tsx: Clear all filter handler resets profileFilter
 **Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
 **Foraelder-effekt**: Parents can now filter efterskoler by profile type with one click — e.g. see only sport-efterskoler or musik-efterskoler
+
+### Iteration 116 — PRIORITET 2: Quality metrics on InstitutionPriceCard (CategoryMunicipalityPage)
+**Produkt-scan**: Link-check (alle OK) + konsistens-check — InstitutionPriceCard on ~400 CategoryMunicipalityPages was price-dominant (price bar, no quality metrics). InstitutionListCard on main category pages showed trivsel/karakter/fravær but InstitutionPriceCard did not.
+**Opgave**: Add quality metrics strip to InstitutionPriceCard, positioned ABOVE the price line (quality-first)
+**Hvorfor**: Parents on /vuggestue/koebenhavn etc. only saw prices — no trivsel, karakter, or fravær per institution. Violated quality-first principle on hundreds of pages.
+**Ændringer**:
+1. InstitutionPriceCard.tsx: Added quality metrics strip (trivsel, karakter, fravær, kompetence) between name and price
+2. InstitutionPriceCard.tsx: Refactored language === "da" to isDa variable for consistency
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents on ~400 municipality category pages now see quality data per institution before price — trivsel, karakter, fravær, kompetence where available
+**Næste**: Check more product issues — maybe data-check or navigation-check on other pages
+
+### Iteration 117 — PRIORITET 2: KommunePage geographic nearby + quality metrics (batch)
+**Produkt-scan**: Konsistens-check — KommunePage used alphabetical ±3 for "nearby municipalities" while CategoryMunicipalityPage used geographic distance (fixed in iter 107). Also, institution cards on KommunePage had no quality metrics (trivsel, karakter, fravær) — only price.
+**Opgave**: Replace alphabetical nearby with geographic useNearbyMunicipalities hook + add quality metrics strip to institution cards
+**Hvorfor**: "Nærliggende kommuner" showed alphabetically adjacent names — completely misleading (e.g. Albertslund "near" Allerød). Institution cards were price-only with no quality context.
+**Ændringer**:
+1. KommunePage.tsx: Replaced alphabetical nearbyMunicipalities with useNearbyMunicipalities hook (geographic)
+2. KommunePage.tsx: Added quality metrics strip (trivsel, karakter, fravær) above price on institution cards
+3. KommunePage.tsx: Added import for useNearbyMunicipalities
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents on 98 kommune pages now see geographically nearby municipalities + quality data per institution before price
+**Næste**: Continue product scanning — check other pages for consistency issues
+
+### Iteration 118 — PRIORITET 1: Fix broken nearby links on BestDagtilbudPage
+**Produkt-scan**: Konsistens-check — BestDagtilbudPage did not pass category to useNearbyMunicipalities (unlike BestSchoolPage which correctly passes "skole"). This caused "nearby municipality" links to point to municipalities without that category → "Side ikke fundet" error.
+**Opgave**: Add category filter to useNearbyMunicipalities call on BestDagtilbudPage
+**Hvorfor**: Parents clicking "nearby municipality" links on bedste-vuggestue/bedste-dagpleje pages could land on 404 pages — broken user flow
+**Ændringer**: BestDagtilbudPage.tsx: useNearbyMunicipalities(institutions, munName) → useNearbyMunicipalities(institutions, munName, cat)
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Nearby municipality links on ~400 "bedste" pages now only show municipalities that actually have institutions in the relevant category
+**Næste**: Continue scanning for broken links and product issues
+
+### Iteration 119 — PRIORITET 3: Category-specific meta descriptions on InstitutionPage
+**Produkt-scan**: Tekst-check — InstitutionPage meta description said "beregn fripladstilskud" for ALL categories including skoler and efterskoler where friplads doesn't apply. Misleading SEO on ~8,000+ institution pages.
+**Opgave**: Make meta description category-aware
+**Hvorfor**: Parents Googling a school see "beregn fripladstilskud" in the snippet — irrelevant and reduces click-through trust
+**Ændringer**: InstitutionPage.tsx: Meta description now category-specific:
+- Skoler: "Se trivsel, karaktersnit, fravær og kvalitetsvurdering"
+- Efterskoler: "Se profiler, kvalitetsdata og sammenlign med andre efterskoler"
+- Dagtilbud: "Se vurdering, kvalitetsdata og beregn fripladstilskud" (unchanged)
+**Verifikation**: tsc: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Google snippets for ~1,600 skoler and ~241 efterskoler now show relevant CTA text matching actual page content
+**Næste**: Continue product/SEO scanning
+
+### Selvvurdering — Iteration 120
+**Seneste 5 iterationer (116-119)**:
+- Iter 116: Quality metrics on InstitutionPriceCard — quality before price on ~400 municipality pages (PRIORITET 2)
+- Iter 117: KommunePage geographic nearby + quality metrics on cards (PRIORITET 2)
+- Iter 118: Fix broken nearby links on BestDagtilbudPage — category filter missing (PRIORITET 1)
+- Iter 119: Category-specific meta descriptions on InstitutionPage — 8,000+ pages (PRIORITET 3)
+
+**Fordeling**: 1 prioritet-1 bug fix, 2 prioritet-2 UX, 1 prioritet-3 SEO, 0 polish
+**Foraelder-impact**: HØJ —
+- Fixed a broken user flow (BestDagtilbudPage nearby links → 404)
+- Quality data now visible on ~500 pages where it was missing (KommunePage + CategoryMunicipalityPage cards)
+- Geographic nearby on KommunePage (was alphabetical — actively misleading)
+- 8,000+ institution pages now have accurate meta descriptions matching actual content
+**Selvkritik**: Good focus on high-impact issues. Every change affects hundreds to thousands of pages. The BestDagtilbudPage fix (iter 118) was a genuine P1 broken link bug. No polish or code-only changes.
+**Kursændring for næste iterationer**:
+1. Check VsPage and CheapestPage for similar issues
+2. Look for more broken user flows (empty states, dead-end pages)
+3. Consider accessibility improvements (keyboard nav, screen reader, ARIA)
+4. Check if guide/find tools produce good results
+5. Look for internal linking opportunities between related pages
