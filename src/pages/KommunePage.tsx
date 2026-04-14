@@ -23,6 +23,7 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import DataFreshness from "@/components/shared/DataFreshness";
 import ShareButton from "@/components/shared/ShareButton";
+import { useNearbyMunicipalities } from "@/hooks/useNearbyMunicipalities";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole", "gymnasium"] as const;
 
@@ -98,15 +99,8 @@ export default function KommunePage() {
     return avg;
   }, [munInstitutions]);
 
-  const nearbyMunicipalities = useMemo(() => {
-    const idx = municipalities.findIndex((m) => m.municipality === decodedName);
-    if (idx === -1) return [];
-    const nearby: string[] = [];
-    for (let i = Math.max(0, idx - 3); i <= Math.min(municipalities.length - 1, idx + 3); i++) {
-      if (i !== idx) nearby.push(municipalities[i].municipality);
-    }
-    return nearby;
-  }, [municipalities, decodedName]);
+  // Geographic nearby municipalities (no category filter — show all nearby)
+  const nearbyMunicipalities = useNearbyMunicipalities(institutions, decodedName);
 
   function handleSelect(inst: UnifiedInstitution) {
     setSelected(inst);
@@ -319,6 +313,20 @@ export default function KommunePage() {
                         </span>
                       )}
                     </div>
+                    {/* Quality metrics — before price */}
+                    {inst.quality && (inst.quality.ts != null || inst.quality.k != null || inst.quality.fp != null) && (
+                      <div className="flex items-center gap-2 mt-1.5 text-[11px] text-muted">
+                        {inst.quality.ts != null && (
+                          <span className="shrink-0">{language === "da" ? "Trivsel" : "Well-being"} <strong className="text-foreground font-mono">{inst.quality.ts.toFixed(1).replace(".", ",")}</strong></span>
+                        )}
+                        {inst.quality.k != null && (
+                          <span className="shrink-0">{language === "da" ? "Karakter" : "Grades"} <strong className="text-foreground font-mono">{inst.quality.k.toFixed(1).replace(".", ",")}</strong></span>
+                        )}
+                        {inst.quality.fp != null && (
+                          <span className="shrink-0">{language === "da" ? "Fravær" : "Absence"} <strong className="text-foreground font-mono">{inst.quality.fp.toFixed(1).replace(".", ",")}%</strong></span>
+                        )}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 mt-2">
                       <span className="font-mono text-sm text-primary">
                         {inst.category === "efterskole" && inst.yearlyPrice
