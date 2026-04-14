@@ -1,9 +1,10 @@
 import { dataVersions, getFripladsYear } from "@/lib/dataVersions";
+import { FRIPLADS_CONSTANTS } from "@/lib/childcare/friplads";
 
 export const FAQ_ITEMS_DA = [
   {
     q: "Hvad er fripladstilskud, og hvem kan få det?",
-    a: `Fripladstilskud er en rabat på forældrebetalingen for dagtilbud. Tilskuddet afhænger af husstandsindkomsten. I ${getFripladsYear()} kan familier med en indkomst under 677.500 kr. få delvist tilskud, og under 218.100 kr. får man fuld friplads.`,
+    a: `Fripladstilskud er en rabat på forældrebetalingen for dagtilbud. Tilskuddet afhænger af husstandsindkomsten. I ${getFripladsYear()} kan familier med en indkomst under ${FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("da-DK")} kr. få delvist tilskud, og under ${FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("da-DK")} kr. får man fuld friplads.`,
   },
   {
     q: "Hvad er forskellen på dagpleje og vuggestue?",
@@ -34,7 +35,7 @@ export const FAQ_ITEMS_DA = [
 export const FAQ_ITEMS_EN = [
   {
     q: "What is childcare subsidy, and who can get it?",
-    a: `Childcare subsidy (fripladstilskud) is a discount on parental fees for daycare. The subsidy depends on household income. In ${getFripladsYear()}, families with an income below DKK 677,500 can receive partial subsidy, and below DKK 218,100 full subsidy.`,
+    a: `Childcare subsidy (fripladstilskud) is a discount on parental fees for daycare. The subsidy depends on household income. In ${getFripladsYear()}, families with an income below DKK ${FRIPLADS_CONSTANTS.upperThreshold.toLocaleString("en-US")} can receive partial subsidy, and below DKK ${FRIPLADS_CONSTANTS.lowerThreshold.toLocaleString("en-US")} full subsidy.`,
   },
   {
     q: "What is the difference between childminder and nursery?",
