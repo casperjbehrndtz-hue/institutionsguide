@@ -14,7 +14,7 @@ interface QualityDataSectionProps {
 
 export default function QualityDataSection({ percentiles, quality, language, t }: QualityDataSectionProps) {
   return (
-    <div className="bg-bg-card rounded-2xl border border-border/50 p-6 sm:p-9 shadow-sm">
+    <div className="bg-bg-card rounded-2xl border border-border/50 p-4 sm:p-9 shadow-sm">
       <div className="flex justify-between items-baseline mb-1">
         <h2 className="font-display text-xl font-medium">{t.detail.qualityData}</h2>
         <span className="text-[11px] text-muted/50 tracking-wide">UVM {dataVersions.schoolQuality.schoolYear}</span>

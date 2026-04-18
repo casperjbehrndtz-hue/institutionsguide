@@ -95,13 +95,13 @@ export default function SuiteBar() {
 
   return (
     <div data-suite-bar className="bg-primary/90 text-primary-foreground text-[11px] sm:text-xs">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-7 sm:h-6 flex items-center justify-end gap-3">
-        <span className="text-primary-foreground/70 hidden sm:inline">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-6 flex items-center justify-end gap-2 sm:gap-3 overflow-x-auto no-scrollbar">
+        <span className="text-primary-foreground/70 hidden sm:inline shrink-0">
           {t.common.partOfFamily}
         </span>
         {suiteLinks.map((link, i) => (
-          <span key={link.label} className="inline-flex items-center gap-3">
-            {i > 0 && <span className="text-primary-foreground/40">·</span>}
+          <span key={link.label} className="inline-flex items-center gap-2 sm:gap-3 shrink-0">
+            {i > 0 && <span className="text-primary-foreground/40 hidden sm:inline">·</span>}
             {link.current ? (
               <span className="text-primary-foreground font-semibold">{link.label}</span>
             ) : (
@@ -120,7 +120,7 @@ export default function SuiteBar() {
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
-          className="text-primary-foreground/50 hover:text-primary-foreground transition-all duration-300"
+          className="text-primary-foreground/50 hover:text-primary-foreground transition-all duration-300 shrink-0"
           aria-label={dark ? "Light mode" : "Dark mode"}
         >
           {dark ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}

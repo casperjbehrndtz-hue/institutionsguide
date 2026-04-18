@@ -45,7 +45,7 @@ interface CategoryCardsProps {
 
 export default function CategoryCards({ featured, other, categoryStats, language, showLabel }: CategoryCardsProps) {
   return (
-    <section className="max-w-5xl mx-auto px-4 -mt-8 relative z-20 mb-10">
+    <section className="max-w-5xl mx-auto px-4 -mt-4 sm:-mt-8 relative z-20 mb-10">
       {/* Featured: large prominent cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
         {featured.map((card) => {

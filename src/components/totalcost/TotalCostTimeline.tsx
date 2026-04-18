@@ -107,7 +107,7 @@ export default function TotalCostTimeline({
             </p>
           </div>
           <div className="text-right">
-            <p className="font-mono text-3xl font-bold text-primary">
+            <p className="font-mono text-2xl sm:text-3xl font-bold text-primary">
               {formatDKK(grandTotal)}
             </p>
             {grandTotalFull !== grandTotal && (

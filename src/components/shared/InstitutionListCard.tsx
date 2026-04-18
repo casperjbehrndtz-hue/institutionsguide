@@ -116,8 +116,8 @@ export default function InstitutionListCard({
           {/* Row 1: Name + badges + price */}
           <div className="flex justify-between items-start gap-2">
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="font-semibold text-foreground text-sm sm:text-base truncate">{inst.name}</p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="font-semibold text-foreground text-sm truncate max-w-[calc(100%-40px)] sm:max-w-none sm:text-base">{inst.name}</p>
                 {badge && (
                   <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-md ${badge.className}`}>
                     {badge.label}

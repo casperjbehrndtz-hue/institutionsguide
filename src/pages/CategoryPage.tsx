@@ -241,10 +241,10 @@ export default function CategoryPage({ category }: Props) {
         <div className="absolute top-4 right-4">
           <ShareButton title={categoryTitle} url={`/${category}`} />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           {categoryTitle}
         </h1>
-        <p className="text-muted text-base max-w-2xl mx-auto mb-4">
+        <p className="text-muted text-sm sm:text-base max-w-2xl mx-auto mb-4 px-2">
           {t.categoryDescriptions[category]}
         </p>
         <p className="font-mono text-primary text-lg font-semibold">
@@ -381,7 +381,7 @@ export default function CategoryPage({ category }: Props) {
 
       {/* Split layout */}
       <section className={`max-w-[1440px] mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-6 ${mapFullscreen ? "hidden" : ""}`}>
-        <div ref={listContainerRef} className={`space-y-3 overflow-y-auto max-h-[600px] lg:max-h-[calc(100vh-180px)] ${mobileView !== "list" ? "hidden lg:block" : ""}`}>
+        <div ref={listContainerRef} className={`space-y-3 lg:overflow-y-auto lg:max-h-[calc(100vh-180px)] ${mobileView !== "list" ? "hidden lg:block" : ""}`}>
           {/* Map bounds indicator */}
           {mapBounds && (
             <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm text-primary">
@@ -441,7 +441,7 @@ export default function CategoryPage({ category }: Props) {
           )}
         </div>
 
-        <div className={`h-[calc(100vh-200px)] sm:h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
+        <div className={`h-[calc(100dvh-200px)] sm:h-[70vh] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <InstitutionMap {...mapProps} />
         </div>
       </section>

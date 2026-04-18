@@ -179,7 +179,7 @@ export default function FindPage() {
             <Lightbulb className="w-3.5 h-3.5" />
             {language === "da" ? "Personlig ranking" : "Personal ranking"}
           </div>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-2">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-2">
             {language === "da" ? "Find den rette institution" : "Find the right institution"}
           </h1>
           <p className="text-muted max-w-xl mx-auto">

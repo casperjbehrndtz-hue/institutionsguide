@@ -28,15 +28,20 @@ export function usePercentiles(
   t: TranslationStrings,
 ): PercentileEntry[] | null {
   return useMemo(() => {
-    if (!inst || inst.category !== "skole" || !inst.quality) return null;
-    const schools = institutions.filter((i) => i.category === "skole" && i.quality);
+    if (!inst || !inst.quality) return null;
+    if (inst.category !== "skole" && inst.category !== "gymnasium") return null;
+
+    const isGymnasium = inst.category === "gymnasium";
+    const peers = institutions.filter((i) => i.category === inst.category && i.quality);
     const q = inst.quality;
     const result: PercentileEntry[] = [];
 
     const isFolkeskole = inst.subtype === "folkeskole";
     const folkeskoleBadge = t.detail.folkeskoleOnly;
 
-    const metrics: { key: keyof NonNullable<UnifiedInstitution["quality"]>; label: string; inverse?: boolean; suffix?: string; folkeskoleOnly?: boolean }[] = [
+    type MetricDef = { key: keyof NonNullable<UnifiedInstitution["quality"]>; label: string; inverse?: boolean; suffix?: string; folkeskoleOnly?: boolean };
+
+    const schoolMetrics: MetricDef[] = [
       { key: "ts", label: t.detail.wellbeing },
       { key: "tf", label: t.detail.wellbeingAcademic },
       { key: "tg", label: t.detail.wellbeingGeneral },
@@ -52,13 +57,21 @@ export function usePercentiles(
       { key: "upe", label: t.detail.teachingTimePerStudent, suffix: " t" },
     ];
 
+    const gymnasiumMetrics: MetricDef[] = [
+      { key: "k", label: t.detail.grades },
+      { key: "fp", label: t.detail.absence, inverse: true, suffix: "%" },
+      { key: "oug", label: t.detail.transitionRate, suffix: "%" },
+    ];
+
+    const metrics = isGymnasium ? gymnasiumMetrics : schoolMetrics;
+
     for (const m of metrics) {
       const val = q[m.key];
       if (val == null || typeof val !== "number") continue;
       // For folkeskole-only metrics, only compare against folkeskoler
       const pool = m.folkeskoleOnly
-        ? schools.filter((s) => s.subtype === "folkeskole")
-        : schools;
+        ? peers.filter((s) => s.subtype === "folkeskole")
+        : peers;
       const allVals = pool.map((s) => s.quality![m.key]).filter((v): v is number => v != null);
       if (allVals.length === 0) continue;
       const percentile = m.inverse ? pctRankInverse(allVals, val) : pctRank(allVals, val);

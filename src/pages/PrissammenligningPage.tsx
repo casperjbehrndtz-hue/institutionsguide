@@ -229,10 +229,10 @@ export default function PrissammenligningPage() {
         <div className="absolute top-4 right-4">
           <ShareButton title="Prissammenligning — Børnepasning i alle kommuner" url="/prissammenligning" />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           Prissammenligning på tværs af kommuner
         </h1>
-        <p className="text-muted text-base max-w-2xl mx-auto">
+        <p className="text-muted text-sm sm:text-base max-w-2xl mx-auto">
           Find den billigste børnepasning i Danmark. Sammenlign månedlige takster for
           vuggestue, børnehave, dagpleje og SFO i alle {municipalities.length} kommuner.
         </p>
@@ -306,12 +306,12 @@ export default function PrissammenligningPage() {
             Dyreste kvartil
           </span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm" role="table">
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <table className="w-full text-sm min-w-[540px]" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b border-border">
-                <th className="w-8 py-3 px-2 font-medium text-muted text-center" scope="col">#</th>
-                <th className="text-left py-3 px-2 font-medium text-muted" scope="col">
+                <th className="w-8 py-3 px-1 sm:px-2 font-medium text-muted text-center" scope="col">#</th>
+                <th className="text-left py-3 px-1 sm:px-2 font-medium text-muted whitespace-nowrap" scope="col">
                   <button
                     onClick={() => handleSort("municipality")}
                     className="hover:text-foreground transition-colors"
@@ -320,10 +320,10 @@ export default function PrissammenligningPage() {
                   </button>
                 </th>
                 {RATE_KEYS.map((key) => (
-                  <th key={key} className="text-right py-3 px-2 font-medium text-muted" scope="col">
+                  <th key={key} className="text-right py-3 px-1 sm:px-2 font-medium text-muted whitespace-nowrap" scope="col">
                     <button
                       onClick={() => handleSort(key)}
-                      className="hover:text-foreground transition-colors"
+                      className="hover:text-foreground transition-colors text-xs sm:text-sm"
                     >
                       {RATE_LABELS[key]}{sortIndicator(key)}
                     </button>

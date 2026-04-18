@@ -240,6 +240,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const quality = gymQuality ? {
               k: gymQuality.karaktersnit ?? undefined,
               fp: gymQuality.frafaldPct ?? undefined,
+              oug: gymQuality.overgangVideregaaendePct ?? undefined,
             } : undefined;
 
             unified.push({

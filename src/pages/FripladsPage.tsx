@@ -113,10 +113,10 @@ export default function FripladsPage() {
               <Calculator className="w-4 h-4" />
               {isDa ? `Opdateret med ${FRIPLADS_CONSTANTS.year}-satser` : `Updated with ${FRIPLADS_CONSTANTS.year} rates`}
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
+            <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground">
               {isDa ? "Beregn dit fripladstilskud" : "Calculate your childcare subsidy"}
             </h1>
-            <p className="text-muted text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-muted text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
               {isDa
                 ? "Fripladstilskud er en indkomstafhængig rabat på forældrebetalingen for dagtilbud. Se præcis hvad du skal betale for vuggestue, børnehave, dagpleje eller SFO i din kommune."
                 : "Fripladstilskud is an income-based subsidy that reduces childcare costs in Denmark. See exactly what you'll pay for nursery, kindergarten, childminder, or after-school care in your municipality."}
@@ -202,7 +202,7 @@ export default function FripladsPage() {
 
                 {/* Annual overview */}
                 <div className="border-t border-border pt-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted">{t.friplads.annualSavings}</span>
                       <span className="font-mono text-base font-bold text-success">{formatDKK(result.annualSavings)}</span>

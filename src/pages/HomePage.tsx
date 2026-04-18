@@ -307,7 +307,7 @@ export default function HomePage() {
       {/* Split layout: List + Map */}
       <section className={`max-w-[1440px] mx-auto px-3 sm:px-4 py-3 sm:py-4 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-3 sm:gap-4 ${mapFullscreen ? "hidden" : ""}`}>
         {/* Sidebar list */}
-        <div ref={listContainerRef} className={`space-y-2 overflow-y-auto max-h-[calc(100dvh-200px)] lg:max-h-[calc(100vh-180px)] ${mobileView !== "list" ? "hidden lg:block" : ""}`}>
+        <div ref={listContainerRef} className={`space-y-2 lg:overflow-y-auto lg:max-h-[calc(100vh-180px)] ${mobileView !== "list" ? "hidden lg:block" : ""}`}>
           {/* Map bounds indicator */}
           {mapBounds && (
             <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm text-primary">
@@ -360,7 +360,7 @@ export default function HomePage() {
         </div>
 
         {/* Map */}
-        <div className={`h-[calc(100dvh-140px)] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
+        <div className={`h-[calc(100dvh-180px)] lg:h-[calc(100vh-180px)] lg:sticky lg:top-[60px] ${mobileView !== "map" ? "hidden lg:block" : ""}`}>
           <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
             <InstitutionMap {...mapProps} />
           </Suspense>

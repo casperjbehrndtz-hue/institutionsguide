@@ -232,10 +232,10 @@ export default function NormeringPage() {
         <div className="absolute top-4 right-4">
           <ShareButton title="Normering i danske dagtilbud" url="/normering" />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           Normering i danske dagtilbud
         </h1>
-        <p className="text-muted text-base max-w-2xl mx-auto">
+        <p className="text-muted text-sm sm:text-base max-w-2xl mx-auto">
           Oversigt over normering (børn per voksen) i alle <AnimatedNumber value={kommuneRows.length} /> kommuner.
           Lavere tal = bedre normering. Data for {latestYear}.
         </p>
@@ -298,12 +298,12 @@ export default function NormeringPage() {
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" />{isDa ? "Middel" : "Average"}</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500" />{isDa ? "Over grænseværdi" : "Above threshold"}</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm" role="table">
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <table className="w-full text-sm min-w-[420px]" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b border-border">
-                <th scope="col" className="w-8 py-3 px-2 font-medium text-muted text-center">#</th>
-                <th scope="col" className="text-left py-3 px-2 font-medium text-muted">
+                <th scope="col" className="w-8 py-3 px-1 sm:px-2 font-medium text-muted text-center">#</th>
+                <th scope="col" className="text-left py-3 px-1 sm:px-2 font-medium text-muted whitespace-nowrap">
                   <button
                     onClick={() => handleSort("municipality")}
                     className="hover:text-foreground transition-colors"
@@ -312,10 +312,10 @@ export default function NormeringPage() {
                   </button>
                 </th>
                 {AGE_GROUPS.map((ag) => (
-                  <th key={ag} scope="col" className="text-right py-3 px-2 font-medium text-muted">
+                  <th key={ag} scope="col" className="text-right py-3 px-1 sm:px-2 font-medium text-muted whitespace-nowrap">
                     <button
                       onClick={() => handleSort(ag)}
-                      className="hover:text-foreground transition-colors"
+                      className="hover:text-foreground transition-colors text-xs sm:text-sm"
                     >
                       {AGE_GROUP_LABELS[ag]}{sortIndicator(ag)}
                     </button>

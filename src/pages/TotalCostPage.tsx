@@ -101,12 +101,12 @@ export default function TotalCostPage() {
               <Calculator className="w-4 h-4" />
               {isDa ? `${FRIPLADS_CONSTANTS.year}-satser` : `${FRIPLADS_CONSTANTS.year} rates`}
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
+            <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground">
               {isDa
                 ? "Hvad koster børnepasning i alt?"
                 : "What does childcare cost in total?"}
             </h1>
-            <p className="text-muted text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-muted text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed">
               {isDa
                 ? "Se den samlede pris for børnepasning fra vuggestue (0 år) til SFO (9 år) i din kommune — med fripladstilskud beregnet automatisk."
                 : "See the total cost of childcare from nursery (age 0) through after-school care (age 9) in your municipality — with subsidy calculated automatically."}

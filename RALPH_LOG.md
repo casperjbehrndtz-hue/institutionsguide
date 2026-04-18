@@ -980,3 +980,30 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 **LESSON LEARNED**: Use `tsc -b` not `tsc --noEmit` for verification — matches Vercel build pipeline
 **Foraelder-effekt**: Site deploys again. All changes since iteration 120 are now live.
 **Næste**: Continue scanning but use `tsc -b` for all future verification
+
+### Iteration 133 — PRIORITET 2: Fix homepage category grid layout for 4 secondary cards
+**Produkt-scan**: Navigation-check — After adding gymnasium as 4th secondary category on homepage (iteration 130), the grid used grid-cols-3 which created an unbalanced layout: 3 cards on row 1, lonely gymnasium card on row 2. Looks unprofessional.
+**Opgave**: Fix grid to accommodate 4 cards cleanly
+**Hvorfor**: A lonely card on its own row signals an afterthought or mistake to parents visiting the homepage — undermines the professional Danske Bank/Boliga aesthetic
+**Ændringer**: CategoryCards.tsx: Changed secondary grid from `grid-cols-3` to `grid-cols-2 sm:grid-cols-4` — 2x2 on mobile, 4 across on desktop
+**Verifikation**: tsc -b: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Homepage secondary categories look balanced and intentional across all screen sizes
+**Næste**: Continue scanning for product issues — check for other layout problems, missing features, or conversion improvements
+
+### Iteration 134 — PRIORITET 2: Add gymnasium to SearchFilterBar category pills + quality filter
+**Produkt-scan**: Navigation-check — SearchFilterBar.tsx (used on /alle and homepage search) listed 8 category pills but NOT gymnasium. Also, CATEGORY_LABELS for autocomplete suggestion badges was missing gymnasium. Quality filter dropdown was hidden for gymnasium despite having quality data (grades, trivsel).
+**Opgave**: Add gymnasium to CATEGORIES array, CATEGORY_LABELS, and quality filter visibility condition
+**Hvorfor**: Parents browsing all institutions couldn't filter to gymnasium via category pills. When searching, gymnasium results showed raw "gymnasium" instead of formatted label. Quality filter was unavailable for gymnasium.
+**Ændringer**: SearchFilterBar.tsx: Added gymnasium to CATEGORY_LABELS, CATEGORIES array, and quality filter condition (3 locations — desktop, mobile bottom sheet prop)
+**Verifikation**: tsc -b: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents can now filter to gymnasium from the search bar, see proper labels in autocomplete, and use quality filters for gymnasium results
+**Næste**: Scan for more product issues — data-check, broken flows, or accessibility improvements
+
+### Iteration 135 — PRIORITET 2: Default gymnasium sort to grades (quality-first)
+**Produkt-scan**: Konsistens-check — GymnasiumPage defaulted to sort by "name" while /skole and /efterskole default to "rating". Parents landing on /gymnasium saw alphabetical list instead of quality-ranked. Violated quality-first principle.
+**Opgave**: Change GymnasiumPage default sort from "name" to "grades" (karaktersnit)
+**Hvorfor**: Parents searching for gymnasiums want to see the best-rated first, not alphabetical — consistent with skole/efterskole behavior
+**Ændringer**: GymnasiumPage.tsx: `useState<SortKey>("name")` → `useState<SortKey>("grades")`
+**Verifikation**: tsc -b: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Parents on /gymnasium now see highest-rated gymnasiums first
+**Næste**: Continue product scanning — look for data quality, accessibility, or conversion issues

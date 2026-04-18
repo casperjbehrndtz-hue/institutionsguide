@@ -90,8 +90,8 @@ export default function ComparePage() {
             <ArrowLeft className="w-4 h-4" />
             {t.compare.backToSearch}
           </Link>
-          <div className="flex items-center justify-between gap-4">
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground">
               {t.compare.title}
             </h1>
             <div className="flex items-center gap-2 print:hidden">
@@ -102,14 +102,14 @@ export default function ComparePage() {
                     setTimeout(() => setCopied(false), 2000);
                   });
                 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
               >
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Share2 className="w-4 h-4" />}
                 {copied ? (language === "da" ? "Kopieret!" : "Copied!") : (language === "da" ? "Del" : "Share")}
               </button>
               <button
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[44px]"
               >
                 <Printer className="w-4 h-4" />
                 {t.compare.print}

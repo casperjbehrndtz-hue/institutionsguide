@@ -24,7 +24,7 @@ export default function PrivacyPage() {
           {t.privacy.englishBanner}
         </div>
       )}
-      <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-8">
+      <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-8">
         Privatlivspolitik
       </h1>
 

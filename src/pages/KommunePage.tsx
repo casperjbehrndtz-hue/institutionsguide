@@ -190,10 +190,10 @@ export default function KommunePage() {
         <div className="absolute top-4 right-4">
           <ShareButton title={`${decodedName} — Institutioner, normering og priser`} url={`/kommune/${encodeURIComponent(decodedName)}`} />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           {decodedName}
         </h1>
-        <p className="text-muted text-base mb-2">
+        <p className="text-muted text-sm sm:text-base mb-2">
           {t.municipality.institutionsIn} {decodedName}
         </p>
         <p className="font-mono text-primary text-lg font-semibold">

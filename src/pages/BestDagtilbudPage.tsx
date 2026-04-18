@@ -196,7 +196,7 @@ export default function BestDagtilbudPage({ category: cat }: BestDagtilbudPagePr
           <div className="absolute top-4 right-4">
             <ShareButton title={`Bedste ${catPluralDa} i ${munName}`} url={`/bedste-${cat}/${munSlug}`} />
           </div>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
             {language === "da"
               ? `Bedste ${catPluralDa} i ${munName}`
               : `Best ${CATEGORY_LABELS_EN[cat].toLowerCase()} in ${munName}`}

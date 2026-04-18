@@ -218,7 +218,7 @@ export default function CategoryMunicipalityPage() {
         <div className="absolute top-4 right-4">
           <ShareButton title={`${catLabel} i ${munName}`} url={`/${category}/${munSlug}`} />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           {catLabel} i {munName}
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">

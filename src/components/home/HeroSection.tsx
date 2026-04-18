@@ -90,23 +90,23 @@ export default function HeroSection({
         </div>
 
         {/* Trust stats */}
-        <div className="inline-flex items-center gap-6 sm:gap-8 text-white/50 text-xs sm:text-sm font-medium">
+        <div className="flex items-center justify-center gap-4 sm:gap-8 text-white/50 text-xs sm:text-sm font-medium flex-wrap">
           <div className="text-center">
-            <p className="text-white font-display text-lg sm:text-xl font-bold leading-none mb-0.5">
+            <p className="text-white font-display text-base sm:text-xl font-bold leading-none mb-0.5">
               <AnimatedNumber value={institutionCount} format={formatCount} duration={1200} />
             </p>
             <p>{language === "da" ? "institutioner" : "institutions"}</p>
           </div>
-          <div className="w-px h-8 bg-white/20" />
+          <div className="w-px h-8 bg-white/20 hidden sm:block" />
           <div className="text-center">
-            <p className="text-white font-display text-lg sm:text-xl font-bold leading-none mb-0.5">
+            <p className="text-white font-display text-base sm:text-xl font-bold leading-none mb-0.5">
               {municipalityCount}
             </p>
             <p>{language === "da" ? "kommuner" : "municipalities"}</p>
           </div>
-          <div className="w-px h-8 bg-white/20" />
-          <div className="text-center">
-            <p className="text-white font-display text-lg sm:text-xl font-bold leading-none mb-0.5">
+          <div className="w-px h-8 bg-white/20 hidden sm:block" />
+          <div className="text-center hidden sm:block">
+            <p className="text-white font-display text-base sm:text-xl font-bold leading-none mb-0.5">
               {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}
             </p>
             <p>{language === "da" ? "senest opdateret" : "last updated"}</p>

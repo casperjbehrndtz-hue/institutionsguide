@@ -101,7 +101,7 @@ export default function AboutPage() {
       ]} />
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
         {/* About section */}
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-4">
           {isDa ? "Om Institutionsguide.dk" : "About Institutionsguide.dk"}
         </h1>
         <div className="prose prose-sm text-muted space-y-4 mb-12">

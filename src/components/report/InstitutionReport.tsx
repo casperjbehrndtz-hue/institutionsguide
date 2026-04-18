@@ -94,7 +94,7 @@ export default function InstitutionReport({
       {/* Hero card */}
       <div className="bg-bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm">
         {/* Top section: info left, score right */}
-        <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-8 sm:gap-12 items-start">
+        <div className="p-4 sm:p-10 flex flex-col sm:flex-row gap-5 sm:gap-12 items-start">
           {/* Left: Info */}
           <div className="flex-1 min-w-0">
             {/* Grade badge */}
@@ -113,7 +113,7 @@ export default function InstitutionReport({
               </div>
             )}
 
-            <h1 className="font-display text-3xl sm:text-[40px] font-medium text-foreground leading-[1.05] tracking-[-0.03em] mb-2">
+            <h1 className="font-display text-2xl sm:text-[40px] font-medium text-foreground leading-[1.05] tracking-[-0.03em] mb-2 break-words">
               {institutionName}
             </h1>
 
@@ -142,12 +142,12 @@ export default function InstitutionReport({
           </div>
 
           {/* Right: Score ring + mini metrics */}
-          <div className="flex flex-col items-center gap-4 shrink-0">
+          <div className="flex flex-col items-center gap-4 shrink-0 self-center sm:self-start">
             {s10 != null ? (
-              <ScoreRing score={s10} size={160} />
+              <ScoreRing score={s10} size={120} />
             ) : (
-              <div className="w-[160px] h-[160px] rounded-full border-[8px] border-border/20 flex items-center justify-center">
-                <span className="font-mono text-4xl text-muted">&mdash;</span>
+              <div className="w-[120px] h-[120px] rounded-full border-[8px] border-border/20 flex items-center justify-center">
+                <span className="font-mono text-3xl text-muted">&mdash;</span>
               </div>
             )}
 
@@ -183,7 +183,7 @@ export default function InstitutionReport({
 
         {/* Strengths strip */}
         {pros.length > 0 && (
-          <div className="border-t border-[#0d7c5f]/10 bg-[#0d7c5f]/[0.03] px-6 sm:px-10 py-4 flex flex-wrap gap-x-8 gap-y-2">
+          <div className="border-t border-[#0d7c5f]/10 bg-[#0d7c5f]/[0.03] px-4 sm:px-10 py-4 flex flex-wrap gap-x-8 gap-y-2">
             {pros.map((pro, i) => (
               <div key={i} className="flex items-center gap-2.5">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="shrink-0">
@@ -199,7 +199,7 @@ export default function InstitutionReport({
 
       {/* Concerns (if any) */}
       {cons.length > 0 && (
-        <div className="mt-4 bg-[#FEF3E2] rounded-2xl border border-[#b8860b]/10 p-6 sm:p-8">
+        <div className="mt-4 bg-[#FEF3E2] rounded-2xl border border-[#b8860b]/10 p-4 sm:p-8">
           <p className="text-sm font-semibold text-[#8A5A12] mb-3">
             {lang === "da" ? "Opmærksomhedspunkter" : "Areas of concern"}
           </p>
@@ -218,7 +218,7 @@ export default function InstitutionReport({
       )}
 
       {/* Assessment — left border accent */}
-      <div className="mt-4 bg-primary/[0.03] rounded-2xl p-6 sm:p-7 border-l-[3px] border-primary">
+      <div className="mt-4 bg-primary/[0.03] rounded-2xl p-4 sm:p-7 border-l-[3px] border-primary">
         <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
           {lang === "da" ? "Vores vurdering" : "Our assessment"}
         </p>

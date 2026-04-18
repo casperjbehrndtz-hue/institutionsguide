@@ -16,7 +16,7 @@ export default function TermsPage() {
         { label: "Vilkår" },
       ]} />
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
-      <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-8">
+      <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-8">
         Vilkår
       </h1>
 

@@ -142,7 +142,7 @@ export default function BestSchoolPage() {
         <div className="absolute top-4 right-4">
           <ShareButton title={`Bedste skoler i ${munName}`} url={`/bedste-skole/${munSlug}`} />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           Bedste skoler i {munName}
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">
@@ -236,17 +236,17 @@ export default function BestSchoolPage() {
         <h2 className="font-display text-xl font-bold text-foreground mb-4">
           Alle {schools.length} skoler med kvalitetsdata
         </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm" role="table">
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <table className="w-full text-sm min-w-[560px]" role="table">
             <thead className="sticky top-0 bg-bg z-10">
               <tr className="border-b text-left">
-                <th scope="col" className="py-2 pr-2 text-muted font-medium">#</th>
-                <th scope="col" className="py-2 pr-4 text-muted font-medium">Skole</th>
-                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center">Score</th>
-                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center">Trivsel</th>
-                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center">Karaktersnit</th>
-                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center">Fravær</th>
-                <th scope="col" className="py-2 text-muted font-medium text-center">Kompetence</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium text-xs sm:text-sm">#</th>
+                <th scope="col" className="py-2 pr-4 text-muted font-medium text-xs sm:text-sm">Skole</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center text-xs sm:text-sm">Score</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center text-xs sm:text-sm">Trivsel</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center text-xs sm:text-sm">Karaktersnit</th>
+                <th scope="col" className="py-2 pr-2 text-muted font-medium text-center text-xs sm:text-sm">Fravær</th>
+                <th scope="col" className="py-2 text-muted font-medium text-center text-xs sm:text-sm">Kompetence</th>
               </tr>
             </thead>
             <tbody>

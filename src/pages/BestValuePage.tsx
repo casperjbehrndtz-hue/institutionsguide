@@ -151,7 +151,7 @@ export default function BestValuePage() {
         <div className="absolute top-4 right-4">
           <ShareButton title="Bedste værdi — Skoler der giver mest kvalitet for pengene" url="/bedste-vaerdi" />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           Skoler der giver mest kvalitet for pengene
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">

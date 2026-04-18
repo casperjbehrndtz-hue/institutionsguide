@@ -59,9 +59,9 @@ export default function FavoritesPage() {
       ]} />
 
       <section className="max-w-4xl mx-auto px-4 py-10">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground flex items-center gap-3">
-            <Heart className="w-8 h-8 text-red-500 fill-red-500" />
+        <div className="flex items-center justify-between gap-3 mb-8">
+          <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground flex items-center gap-2 sm:gap-3">
+            <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 fill-red-500 shrink-0" />
             {t.favorites.title}
           </h1>
           {favoriteInstitutions.length > 0 && (

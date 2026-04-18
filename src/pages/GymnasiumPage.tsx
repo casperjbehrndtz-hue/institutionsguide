@@ -189,7 +189,7 @@ export default function GymnasiumPage() {
           <div className="absolute top-4 right-4">
             <ShareButton title={title} url="/gymnasium" />
           </div>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">{title}</h1>
+          <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">{title}</h1>
           <p className="text-muted text-base max-w-2xl mx-auto mb-4">{description}</p>
           <p className="font-mono text-primary text-lg font-semibold">
             <AnimatedNumber value={filtered.length} /> {language === "da" ? "gymnasier" : "gymnasiums"}
@@ -309,7 +309,7 @@ export default function GymnasiumPage() {
         <div className="space-y-3">
           {visibleList.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted text-lg mb-4">
+              <p className="text-muted text-sm sm:text-lg mb-4">
                 {language === "da"
                   ? "Ingen gymnasier fundet med de valgte filtre."
                   : "No gymnasiums found with the selected filters."}

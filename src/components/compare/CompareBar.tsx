@@ -43,7 +43,7 @@ export default function CompareBar() {
                 <span className="truncate">{inst.name}</span>
                 <button
                   onClick={() => onRemove(inst.id)}
-                  className="p-0.5 hover:bg-primary/20 rounded-full min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
+                  className="p-1 hover:bg-primary/20 rounded-full flex items-center justify-center shrink-0"
                   aria-label={t.compare.removeAriaLabel.replace("{name}", inst.name)}
                 >
                   <X className="w-3.5 h-3.5" />

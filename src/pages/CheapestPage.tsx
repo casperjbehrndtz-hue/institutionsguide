@@ -166,7 +166,7 @@ export default function CheapestPage() {
         <div className="absolute top-4 right-4">
           <ShareButton title={`Billigste ${catSingular} i ${munName}`} url={`/billigste/${rawCat}/${munSlug}`} />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           Billigste {catSingular} i {munName}
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">
@@ -221,7 +221,7 @@ export default function CheapestPage() {
         <ScrollReveal><section className="max-w-3xl mx-auto px-4 py-4">
           <div className="card p-5 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800 text-center">
             <p className="text-xs text-green-700 dark:text-green-400 uppercase tracking-wider font-semibold mb-1">Potentiel besparelse</p>
-            <p className="font-display text-3xl font-bold text-green-700 dark:text-green-400">
+            <p className="font-display text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-400">
               <AnimatedNumber value={savings * 12} format={formatDKK} /><span className="text-lg font-normal">/år</span>
             </p>
             <p className="text-sm text-green-600 dark:text-green-500 mt-1">

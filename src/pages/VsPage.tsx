@@ -206,7 +206,7 @@ export default function VsPage() {
         <div className="absolute top-4 right-4">
           <ShareButton title={`${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB} i ${munName}`} url={`/sammenlign/${comparison}/${munSlug}`} />
         </div>
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           {singA.charAt(0).toUpperCase() + singA.slice(1)} vs {singB} i {munName}
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">

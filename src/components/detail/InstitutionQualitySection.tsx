@@ -24,12 +24,12 @@ function StatCard({ icon, label, value, subtext, color }: {
   };
 
   return (
-    <div className={`rounded-lg border p-3 ${colorMap[color ?? "neutral"]}`}>
+    <div className={`rounded-lg border p-3 min-w-0 ${colorMap[color ?? "neutral"]}`}>
       <div className="flex items-center gap-2 mb-1">
         {icon}
-        <span className="text-xs text-muted">{label}</span>
+        <span className="text-xs text-muted truncate">{label}</span>
       </div>
-      <p className="font-mono text-lg font-bold text-foreground">{value}</p>
+      <p className="font-mono text-base sm:text-lg font-bold text-foreground break-words">{value}</p>
       {subtext && <p className="text-[10px] text-muted mt-0.5">{subtext}</p>}
     </div>
   );

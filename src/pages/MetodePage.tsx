@@ -29,7 +29,7 @@ export default function MetodePage() {
 
       {/* Header */}
       <ScrollReveal><section className="px-4 py-10 sm:py-14 text-center bg-gradient-to-b from-primary/5 to-transparent">
-        <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-3">
+        <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-3">
           Metode og datakilder
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">
