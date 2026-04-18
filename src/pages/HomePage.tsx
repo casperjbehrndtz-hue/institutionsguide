@@ -25,6 +25,8 @@ import { haversineKm } from "@/lib/geo";
 import { FAQ_ITEMS_DA, FAQ_ITEMS_EN } from "@/lib/faqData";
 import CategoryCards from "@/components/home/CategoryCards";
 import HeroSection from "@/components/home/HeroSection";
+import DataSourcesStrip from "@/components/home/DataSourcesStrip";
+import HowItWorks from "@/components/home/HowItWorks";
 import { getCategoryCards } from "@/lib/homeCategoryCards";
 import { useCategoryStats } from "@/hooks/useCategoryStats";
 import { usePopularData } from "@/hooks/usePopularData";
@@ -229,6 +231,8 @@ export default function HomePage() {
         municipalityCount={98}
       />
 
+      <DataSourcesStrip />
+
       <CategoryCards
         featured={FEATURED_CARDS}
         other={OTHER_CARDS}
@@ -236,6 +240,8 @@ export default function HomePage() {
         language={language}
         showLabel={t.common.show}
       />
+
+      {!hasActiveFilter && <HowItWorks />}
 
       {/* Filter bar — only when user has actively filtered */}
       {hasActiveFilter && <div className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}>

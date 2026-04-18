@@ -96,6 +96,10 @@ export interface TranslationStrings {
     step2Desc: string;
     step3Title: string;
     step3Desc: string;
+    step4Title: string;
+    step4Desc: string;
+    howItWorksSubtitle: string;
+    dataSourcesTitle: string;
     allInstitutions: string;
     locationPromptTitle: string;
     locationPromptUseLocation: string;
