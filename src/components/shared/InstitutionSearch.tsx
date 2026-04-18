@@ -29,33 +29,37 @@ export default function InstitutionSearch({ variant = "inline", placeholder, aut
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const [open, setOpen] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [highlightIdx, setHighlightIdx] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const index = useSearchIndex(institutions);
   const suggestions = useMemo(() => searchIndex(index, deferredQuery, 8), [index, deferredQuery]);
-
-  useEffect(() => {
-    setHighlightIdx(-1);
-    setOpen(suggestions.length > 0);
-  }, [suggestions]);
+  const open = !dismissed && suggestions.length > 0;
+  const clampedHighlight = highlightIdx >= suggestions.length ? -1 : highlightIdx;
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setOpen(false);
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) setDismissed(true);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const select = useCallback((id: string) => {
-    setOpen(false);
+    setDismissed(true);
     setQuery("");
+    setHighlightIdx(-1);
     onSelect?.();
     navigate(`/institution/${id}`);
   }, [navigate, onSelect]);
+
+  function handleChange(value: string) {
+    setQuery(value);
+    setDismissed(false);
+    setHighlightIdx(-1);
+  }
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (!open || suggestions.length === 0) return;
@@ -65,11 +69,11 @@ export default function InstitutionSearch({ variant = "inline", placeholder, aut
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlightIdx((p) => Math.max(p - 1, -1));
-    } else if (e.key === "Enter" && highlightIdx >= 0) {
+    } else if (e.key === "Enter" && clampedHighlight >= 0) {
       e.preventDefault();
-      select(suggestions[highlightIdx].id);
+      select(suggestions[clampedHighlight].id);
     } else if (e.key === "Escape") {
-      setOpen(false);
+      setDismissed(true);
       inputRef.current?.blur();
     }
   }
@@ -92,8 +96,8 @@ export default function InstitutionSearch({ variant = "inline", placeholder, aut
         type="search"
         value={query}
         autoFocus={autoFocus}
-        onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
+        onChange={(e) => handleChange(e.target.value)}
+        onFocus={() => setDismissed(false)}
         onKeyDown={onKeyDown}
         placeholder={placeholderText}
         className={inputCls}
@@ -101,7 +105,7 @@ export default function InstitutionSearch({ variant = "inline", placeholder, aut
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-controls={open ? "global-search-suggestions" : undefined}
-        aria-activedescendant={open && highlightIdx >= 0 ? `global-suggestion-${highlightIdx}` : undefined}
+        aria-activedescendant={open && clampedHighlight >= 0 ? `global-suggestion-${clampedHighlight}` : undefined}
         aria-label={t.common.searchPlaceholder}
         autoComplete="off"
       />
@@ -129,7 +133,7 @@ export default function InstitutionSearch({ variant = "inline", placeholder, aut
               aria-selected={highlightIdx === i}
               onMouseDown={() => select(inst.id)}
               className={`w-full text-left px-3 sm:px-4 py-3 sm:py-2.5 flex items-center gap-2 sm:gap-3 text-sm hover:bg-primary/5 transition-colors ${
-                highlightIdx === i ? "bg-primary/10" : ""
+                clampedHighlight === i ? "bg-primary/10" : ""
               }`}
             >
               <span className="flex-1 min-w-0">

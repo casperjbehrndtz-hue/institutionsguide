@@ -80,10 +80,10 @@ export default function CategoryMunicipalityPage() {
   }, [institutions, cat]);
 
   // Normering (staff ratio) for this municipality + category
-  const CATEGORY_AGE_GROUP: Record<string, string> = {
-    vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5",
-  };
   const normeringRatio = useMemo(() => {
+    const CATEGORY_AGE_GROUP: Record<string, string> = {
+      vuggestue: "0-2", boernehave: "3-5", dagpleje: "dagpleje", sfo: "3-5",
+    };
     const ag = CATEGORY_AGE_GROUP[cat];
     if (!ag) return null;
     const entries = normering

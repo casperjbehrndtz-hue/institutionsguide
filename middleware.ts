@@ -351,7 +351,6 @@ function buildOverviewList(entries: InstitutionEntry[], limit = 15): string {
 
 function makeCatMunFetcher(category: string) {
   const label = CAT_LABELS[category] || category;
-  const singular = CAT_SINGULAR[category] || category;
   const age = CAT_AGE[category] || "";
   const ageStr = age ? ` (${age})` : "";
   const isDagtilbud = ["vuggestue", "boernehave", "dagpleje"].includes(category);
