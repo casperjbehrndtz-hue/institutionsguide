@@ -1,11 +1,11 @@
-import { useMemo, useState, useRef, useEffect, useCallback } from "react";
+import { useMemo, useState, useRef, useEffect, useCallback, useDeferredValue } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, SlidersHorizontal, MapPin, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { InstitutionCategory, AgeGroup, SortKey, UnifiedInstitution } from "@/lib/types";
 import FilterBottomSheet from "./FilterBottomSheet";
 import MunicipalityCombobox from "./MunicipalityCombobox";
-import { normalizeSearch } from "@/lib/normalizeSearch";
+import { useSearchIndex, searchIndex } from "@/hooks/useSearchIndex";
 
 const DAYCARE_CATEGORIES: InstitutionCategory[] = ["vuggestue", "boernehave", "dagpleje", "sfo", "fritidsklub"];
 const SCHOOL_ONLY_SORT_KEYS: SortKey[] = ["rating", "grades", "absence"];
@@ -84,19 +84,12 @@ export default function SearchFilterBar({
     return count;
   }, [ageGroup, municipality, qualityFilter, sortKey]);
 
-  const suggestions = useMemo(() => {
-    if (!institutions || search.trim().length < 2) return [];
-    const q = search.toLowerCase().trim();
-    const qNorm = normalizeSearch(q);
-    const tiers: UnifiedInstitution[][] = [[], [], []];
-    for (const inst of institutions) {
-      const n = inst.name.toLowerCase(), nN = normalizeSearch(n);
-      if (n.startsWith(q) || nN.startsWith(qNorm)) tiers[0].push(inst);
-      else if (n.includes(q) || nN.includes(qNorm)) tiers[1].push(inst);
-      else { const c = inst.city.toLowerCase(), a = inst.address.toLowerCase(); if (c.includes(q) || a.includes(q) || normalizeSearch(c).includes(qNorm) || normalizeSearch(a).includes(qNorm)) tiers[2].push(inst); }
-    }
-    return [...tiers[0], ...tiers[1], ...tiers[2]].slice(0, 8);
-  }, [institutions, search]);
+  const index = useSearchIndex(institutions ?? []);
+  const deferredSearch = useDeferredValue(search);
+  const suggestions = useMemo(
+    () => searchIndex(index, deferredSearch, 8),
+    [index, deferredSearch],
+  );
 
   useEffect(() => { setHighlightIdx(-1); setShowSuggestions(suggestions.length > 0); }, [suggestions]);
 

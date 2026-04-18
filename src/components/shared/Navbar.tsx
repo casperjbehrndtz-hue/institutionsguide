@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ChevronDown, Heart } from "lucide-react";
+import { Menu, X, ChevronDown, Heart, Search as SearchIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import InstitutionSearch from "./InstitutionSearch";
 
 const CATEGORY_LINKS: { href: string; key: string; labelOverride?: Record<string, string> }[] = [
   { href: "/vuggestue", key: "vuggestue", labelOverride: { da: "Vuggestuer", en: "Nurseries" } },
@@ -27,6 +28,7 @@ const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const { t, language, setLanguage } = useLanguage();
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -34,16 +36,17 @@ export default function Navbar() {
   const closeMenu = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
-    if (!open && !toolsOpen) return;
+    if (!open && !toolsOpen && !searchOpen) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         closeMenu();
         setToolsOpen(false);
+        setSearchOpen(false);
       }
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [open, toolsOpen, closeMenu]);
+  }, [open, toolsOpen, searchOpen, closeMenu]);
 
   useEffect(() => {
     if (open) {
@@ -68,7 +71,10 @@ export default function Navbar() {
 
   // Close dropdown on route change
   useEffect(() => {
-    queueMicrotask(() => setToolsOpen(false));
+    queueMicrotask(() => {
+      setToolsOpen(false);
+      setSearchOpen(false);
+    });
   }, [location.pathname]);
 
   const toolPaths = TOOL_LINKS.map((l) => l.href);
@@ -137,6 +143,19 @@ export default function Navbar() {
             )}
           </div>
 
+          <button
+            onClick={() => setSearchOpen((s) => !s)}
+            className={`ml-1 p-2 rounded-lg transition-colors ${
+              searchOpen
+                ? "bg-primary/10 text-primary"
+                : "text-muted hover:text-foreground hover:bg-border/30"
+            }`}
+            aria-label={language === "da" ? "Søg institution" : "Search institution"}
+            aria-expanded={searchOpen}
+          >
+            <SearchIcon className="w-4 h-4" />
+          </button>
+
           <Link
             to="/favoritter"
             className={`ml-1 p-2 rounded-lg transition-colors ${
@@ -157,8 +176,18 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile hamburger */}
-        <div className="md:hidden">
+        {/* Mobile: search + hamburger */}
+        <div className="md:hidden flex items-center gap-1">
+          <button
+            onClick={() => setSearchOpen((s) => !s)}
+            className={`p-2 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center ${
+              searchOpen ? "bg-primary/10 text-primary" : "hover:bg-border/30"
+            }`}
+            aria-label={language === "da" ? "Søg institution" : "Search institution"}
+            aria-expanded={searchOpen}
+          >
+            <SearchIcon className="w-5 h-5" />
+          </button>
           <button
             onClick={() => setOpen(!open)}
             className="p-2 rounded-lg hover:bg-border/30 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
@@ -169,6 +198,19 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+
+      {/* Global search panel */}
+      {searchOpen && (
+        <div className="border-t border-border bg-bg px-4 sm:px-6 py-3 animate-fade-in">
+          <div className="max-w-2xl mx-auto">
+            <InstitutionSearch
+              variant="inline"
+              autoFocus
+              onSelect={() => setSearchOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {open && (
         <div
