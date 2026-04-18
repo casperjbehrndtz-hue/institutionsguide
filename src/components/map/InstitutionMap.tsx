@@ -50,15 +50,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   gymnasium: "#0D9488",
 };
 
-function getSchoolColor(quality?: { o?: number }): string {
-  if (!quality || quality.o === undefined) return CATEGORY_COLORS.skole;
-  if (quality.o === 1) return "#1B8F5F";  // over middel — green
-  if (quality.o === 0) return "#F4B82C";  // middel — amber
-  return "#D73C3C";                        // under middel — red
-}
-
 function getColor(inst: UnifiedInstitution): string {
-  if (inst.category === "skole") return getSchoolColor(inst.quality);
   return CATEGORY_COLORS[inst.category] || "#6B7280";
 }
 
@@ -225,6 +217,7 @@ function InstitutionMap({
           id: inst.id,
           price: inst.monthlyRate,
           category: inst.category,
+          qualityTier: inst.category === "skole" ? inst.quality?.o : undefined,
           popupHtml: `<div style="font-size:13px;line-height:1.4;max-width:220px;font-family:system-ui,-apple-system,sans-serif;">
   <p style="font-weight:600;margin:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(inst.name)}</p>
   <p style="color:${textSecondary};font-size:11px;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${subtitle}</p>

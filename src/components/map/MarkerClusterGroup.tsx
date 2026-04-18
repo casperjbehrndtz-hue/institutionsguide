@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet.markercluster";
+import { getCategoryIcon } from "./markerIcons";
 
 interface MarkerData {
   lat: number;
@@ -11,6 +12,8 @@ interface MarkerData {
   id: string;
   price: number | null;
   category?: string;
+  /** School quality tier: 1 = over middel, 0 = middel, -1 = under middel, undefined = no ring */
+  qualityTier?: number;
 }
 
 interface MarkerClusterGroupProps {
@@ -29,48 +32,59 @@ function formatPrice(price: number | null): string | null {
   return String(price);
 }
 
-// Category abbreviations for pin markers
-const CATEGORY_SYMBOL: Record<string, string> = {
-  vuggestue: "V",
-  boernehave: "B",
-  dagpleje: "D",
-  skole: "S",
-  sfo: "F",
-  fritidsklub: "FK",
-  efterskole: "EF",
-  gymnasium: "G",
-};
+function qualityRingColor(tier: number | undefined): string | null {
+  if (tier === 1) return "#16A34A";
+  if (tier === 0) return "#D97706";
+  if (tier === -1) return "#DC2626";
+  return null;
+}
 
-// SVG pin marker — teardrop shape with category symbol
-function pinSvg(color: string, symbol: string, size: number, shadow = true): string {
+/**
+ * SVG teardrop pin with a bespoke category pictogram centered in the top circle,
+ * and an optional concentric quality-ring for schools.
+ */
+function pinSvg(color: string, category: string, size: number, qualityTier?: number): string {
   const s = size;
   const half = s / 2;
-  // Teardrop: circle top + pointed bottom
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s * 1.3}" viewBox="0 0 ${s} ${s * 1.3}">
-    ${shadow ? `<ellipse cx="${half}" cy="${s * 1.22}" rx="${s * 0.22}" ry="${s * 0.06}" fill="rgba(0,0,0,0.2)"/>` : ""}
+  const ringColor = qualityRingColor(qualityTier);
+  // Top bulb of the teardrop is roughly a circle centered at (half, half) with radius ~half*0.85
+  const bulbR = half * 0.85;
+  // The ring sits just outside the pin stroke, tangent to the bulb
+  const ringR = bulbR + 2.4;
+  // Scale a 16×16 icon viewBox to fit ~55% of pin width, centered on the bulb
+  const iconSize = s * 0.55;
+  const iconOffset = half - iconSize / 2;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${s + 6}" height="${s * 1.3 + 6}" viewBox="${-3} ${-3} ${s + 6} ${s * 1.3 + 6}" style="color:${color}">
+    <ellipse cx="${half}" cy="${s * 1.22}" rx="${s * 0.22}" ry="${s * 0.06}" fill="rgba(15,23,42,0.25)"/>
+    ${ringColor ? `<circle cx="${half}" cy="${half}" r="${ringR}" fill="none" stroke="${ringColor}" stroke-width="2.4" opacity="0.95"/>` : ""}
     <path d="M${half} ${s * 1.15} C${half} ${s * 1.15} ${s * 0.05} ${half * 1.1} ${s * 0.05} ${half * 0.85} C${s * 0.05} ${s * 0.15} ${s * 0.15} ${s * 0.05} ${half} ${s * 0.05} C${s * 0.85} ${s * 0.05} ${s * 0.95} ${s * 0.15} ${s * 0.95} ${half * 0.85} C${s * 0.95} ${half * 1.1} ${half} ${s * 1.15} ${half} ${s * 1.15} Z" fill="${color}" stroke="#fff" stroke-width="1.5"/>
-    <text x="${half}" y="${half * 0.95}" text-anchor="middle" dominant-baseline="central" font-size="${s * 0.38}" fill="#fff" font-weight="600" font-family="Inter,system-ui,sans-serif">${symbol}</text>
+    <svg x="${iconOffset}" y="${iconOffset * 0.85}" width="${iconSize}" height="${iconSize}" viewBox="0 0 16 16">
+      ${getCategoryIcon(category)}
+    </svg>
   </svg>`;
 }
 
 // Cache pin icons by key
 const pinIconCache = new Map<string, L.DivIcon>();
 
-function getPinIcon(color: string, category: string, highlighted: boolean): L.DivIcon {
-  const key = `${color}-${category}-${highlighted ? "h" : "n"}`;
+function getPinIcon(color: string, category: string, highlighted: boolean, qualityTier?: number): L.DivIcon {
+  const key = `${color}-${category}-${highlighted ? "h" : "n"}-${qualityTier ?? "x"}`;
   const cached = pinIconCache.get(key);
   if (cached) return cached;
 
   const size = highlighted ? 34 : 28;
-  const symbol = CATEGORY_SYMBOL[category] || "•";
-  const svg = pinSvg(color, symbol, size);
+  const svg = pinSvg(color, category, size, qualityTier);
+  // Account for ring padding (3px on each side built into viewBox)
+  const w = size + 6;
+  const h = size * 1.3 + 6;
 
   const icon = L.divIcon({
     className: "custom-circle-marker",
     html: svg,
-    iconSize: [size, size * 1.3],
-    iconAnchor: [size / 2, size * 1.3],
-    popupAnchor: [0, -size * 1.1],
+    iconSize: [w, h],
+    iconAnchor: [w / 2, h - 3],
+    popupAnchor: [0, -(h - 3)],
   });
   pinIconCache.set(key, icon);
   return icon;
@@ -137,7 +151,7 @@ export default function MarkerClusterGroup({
       const sp = showPricesRef.current;
       const icon = sp
         ? createPriceIcon(m.color, m.price, false, m.category)
-        : getPinIcon(m.color, m.category || "", false);
+        : getPinIcon(m.color, m.category || "", false, m.qualityTier);
 
       const marker = L.marker([m.lat, m.lng], {
         icon,
@@ -184,7 +198,7 @@ export default function MarkerClusterGroup({
         const isHighlighted = id === highlightedId;
         const icon = showPrices
           ? createPriceIcon(data.color, data.price, isHighlighted, data.category)
-          : getPinIcon(data.color, data.category || "", isHighlighted);
+          : getPinIcon(data.color, data.category || "", isHighlighted, data.qualityTier);
         marker.setIcon(icon);
         marker.setZIndexOffset(isHighlighted ? 1000 : 0);
       });
@@ -197,7 +211,7 @@ export default function MarkerClusterGroup({
         const prevData = dataMap.get(prevId);
         if (prevMarker && prevData) {
           prevMarker.setIcon(
-            showPrices ? createPriceIcon(prevData.color, prevData.price, false, prevData.category) : getPinIcon(prevData.color, prevData.category || "", false)
+            showPrices ? createPriceIcon(prevData.color, prevData.price, false, prevData.category) : getPinIcon(prevData.color, prevData.category || "", false, prevData.qualityTier)
           );
           prevMarker.setZIndexOffset(0);
         }
@@ -208,7 +222,7 @@ export default function MarkerClusterGroup({
         const curData = dataMap.get(highlightedId);
         if (curMarker && curData) {
           curMarker.setIcon(
-            showPrices ? createPriceIcon(curData.color, curData.price, true, curData.category) : getPinIcon(curData.color, curData.category || "", true)
+            showPrices ? createPriceIcon(curData.color, curData.price, true, curData.category) : getPinIcon(curData.color, curData.category || "", true, curData.qualityTier)
           );
           curMarker.setZIndexOffset(1000);
         }
