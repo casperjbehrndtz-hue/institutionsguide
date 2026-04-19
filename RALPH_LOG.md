@@ -1007,3 +1007,18 @@ v2 fokus: produkt-kvalitet > kode-kvalitet. Tænk som en forælder, ikke bare en
 **Verifikation**: tsc -b: ✓ (0 errors) | tests: 279/279 | push: ✓
 **Foraelder-effekt**: Parents on /gymnasium now see highest-rated gymnasiums first
 **Næste**: Continue product scanning — look for data quality, accessibility, or conversion issues
+
+### Iteration 136 — PRIORITET 2: Hero section — financial-grade refinement per design spec
+**Produkt-scan**: Design-spec fra bruger — krav om strammere hierarki, større primær-action, mindre støj fra sekundære elementer. Gennemgik `HeroSection.tsx` mod spec punkt for punkt.
+**Opgave**: Stram hero til Danske Bank/Boliga-standard: stærkere headline, tættere vertikal rytme, dominant søgefelt, kvieteret sekundær-UI, klar numerisk hierarki i trust bar, mere neutral video-behandling.
+**Hvorfor**: Hero er første møde med produktet. Hvis søgefeltet ikke klart er det dominerende element, hesitates forældre. Spec insisterer på: "This is a serious tool for making an important decision". Hver bestanddel skal være intentionel, ikke dekorativ.
+**Ændringer** (HeroSection.tsx):
+1. Video-behandling: `brightness(0.55) saturate(0.55)` → `0.45/0.45`, overlay `bg-primary/70` → `/75` — video bliver pure tekstur, aldrig indhold
+2. Headline: `text-[2rem] sm:5xl lg:3.5rem font-semibold leading-1.08 mb-5` → `2.25rem/3.25rem/3.75rem font-bold leading-1.06 mb-4` — +7% størrelse, bolder, tættere
+3. Subtitle: `text-white/65 mb-10` → `/70 mb-7` — bedre kontrast, tættere på søgefelt
+4. Søgefelt: `py-[1.125rem]` → `py-[1.375rem]` (+22% højde), glowy two-layer shadow → subtil 1px border + tight shadow, placeholder `muted/55` → `/75`, ikon `muted/60` → `/70`
+5. Sekundære actions: underlined text-links → quiet outline-pills (`border border-white/20 px-3.5 py-1.5 rounded-full`) — klart sekundære, ikke ambiguøse
+6. Trust bar: numre `text-lg font-medium` → `text-2xl font-semibold` (+33%, stærk hierarki), labels eksplicit `text-white/55 text-[12px]`, padding `py-5` → `py-7`, gap `gap-x-10` → `gap-x-12`
+**Verifikation**: tsc -b: ✓ (0 errors) | tests: 279/279 | push: ✓
+**Foraelder-effekt**: Forældre der lander fra Google møder nu et hero hvor søgefeltet umiddelbart er det dominerende element. Numre ("9.900 institutioner") læses som autoritative data, ikke som decorative footer. Sekundære "find tæt på mig"-actions er synlige men tydeligt sekundære, så de ikke trækker opmærksomhed fra søgningen.
+**Næste**: Scan for andre homepage-elementer der bryder den nye hierarki-standard, eller gå til navbar (spec nævner også sekundær-nav weight reduction).

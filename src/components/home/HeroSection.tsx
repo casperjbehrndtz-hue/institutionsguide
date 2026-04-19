@@ -51,7 +51,7 @@ export default function HeroSection({
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: "url('/og-image.png')",
-            filter: "brightness(0.55) saturate(0.55) contrast(0.95)",
+            filter: "brightness(0.45) saturate(0.45) contrast(0.95)",
           }}
         />
         {shouldLoadVideo && (
@@ -68,14 +68,14 @@ export default function HeroSection({
             style={{
               top: heroVideo.focus,
               transform: `translateY(-${heroVideo.focus})`,
-              filter: "brightness(0.55) saturate(0.55) contrast(0.95)",
+              filter: "brightness(0.45) saturate(0.45) contrast(0.95)",
             }}
           >
             <source src={heroVideo.src} type="video/mp4" />
           </video>
         )}
-        {/* Flat navy tint — primary readability layer (70% = strong but lets video breathe as texture) */}
-        <div aria-hidden="true" className="absolute inset-0 bg-primary/70" />
+        {/* Flat navy tint — primary readability layer. Stronger at 75% so video is pure texture, never content */}
+        <div aria-hidden="true" className="absolute inset-0 bg-primary/75" />
         {/* Subtle vignette — focuses attention on center content without introducing mood/drama */}
         <div
           aria-hidden="true"
@@ -88,42 +88,42 @@ export default function HeroSection({
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 pt-16 pb-20 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 text-center">
-        <h1 className="font-display text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-white leading-[1.08] mb-5 tracking-tight">
+        <h1 className="font-display text-[2.25rem] sm:text-[3.25rem] lg:text-[3.75rem] font-bold text-white leading-[1.06] mb-4 tracking-tight">
           {heroTitle}
         </h1>
-        <p className="text-white/65 text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+        <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-7 leading-relaxed">
           {heroSubtitle}
         </p>
 
-        {/* Search bar — primary focal point */}
+        {/* Search bar — dominant focal point, no other element may compete */}
         <div className="max-w-xl mx-auto" role="search">
           <div className="relative">
             <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/60 pointer-events-none" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/70 pointer-events-none" />
             <input
               id="hero-search"
               type="search"
               value={searchInput}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
-              className="w-full py-[1.125rem] pl-[3.5rem] pr-6 text-[17px] rounded-full bg-white text-foreground placeholder:text-muted/55 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary shadow-[0_2px_12px_rgba(0,0,0,0.12),0_14px_32px_-8px_rgba(0,0,0,0.25)]"
+              className="w-full py-[1.375rem] pl-[3.5rem] pr-6 text-[17px] rounded-full bg-white text-foreground placeholder:text-muted/75 border border-black/5 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary shadow-[0_1px_2px_rgba(0,0,0,0.06),0_6px_16px_-6px_rgba(0,0,0,0.18)]"
               autoComplete="off"
             />
           </div>
 
-          {/* Secondary actions — deliberately quiet, must not compete with search */}
-          <div className="flex items-center justify-center gap-6 mt-6 text-sm">
+          {/* Secondary actions — quiet outline pills so they read clearly as secondary, never compete with search */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6 text-[13px]">
             <button
               onClick={onNearMe}
               disabled={nearMeLoading}
-              className="inline-flex items-center gap-1.5 text-white/55 hover:text-white/90 transition-colors disabled:opacity-60 underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-white/20 text-white/75 hover:text-white hover:border-white/40 transition-colors disabled:opacity-60"
             >
               {nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
               {language === "da" ? "Find tæt på mig" : "Find near me"}
             </button>
             <Link
               to="/find"
-              className="inline-flex items-center gap-1.5 text-white/55 hover:text-white/90 transition-colors underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-white/20 text-white/75 hover:text-white hover:border-white/40 transition-colors"
             >
               {language === "da" ? "Find den rette for jer" : "Find your perfect match"}
             </Link>
@@ -131,24 +131,24 @@ export default function HeroSection({
         </div>
       </div>
 
-      {/* Trust bar — quiet metadata strip, must not compete with search */}
+      {/* Trust bar — numbers dominant, labels supporting. Clear horizontal grid, never competes with search */}
       <div className="relative z-10 border-t border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-white/45 text-[13px]">
+        <div className="max-w-5xl mx-auto px-4 py-7 flex flex-wrap items-baseline justify-center gap-x-12 gap-y-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-white/85 font-display text-lg font-medium tabular-nums">
+            <span className="text-white font-display text-2xl font-semibold tabular-nums">
               <AnimatedNumber value={institutionCount} format={formatCount} duration={1200} />
             </span>
-            <span>{language === "da" ? "institutioner" : "institutions"}</span>
+            <span className="text-white/55 text-[12px]">{language === "da" ? "institutioner" : "institutions"}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-white/85 font-display text-lg font-medium tabular-nums">{municipalityCount}</span>
-            <span>{language === "da" ? "kommuner" : "municipalities"}</span>
+            <span className="text-white font-display text-2xl font-semibold tabular-nums">{municipalityCount}</span>
+            <span className="text-white/55 text-[12px]">{language === "da" ? "kommuner" : "municipalities"}</span>
           </div>
           <div className="hidden sm:flex items-baseline gap-2">
-            <span className="text-white/85 font-display text-lg font-medium tabular-nums">
+            <span className="text-white font-display text-2xl font-semibold tabular-nums">
               {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}
             </span>
-            <span>{language === "da" ? "senest opdateret" : "last updated"}</span>
+            <span className="text-white/55 text-[12px]">{language === "da" ? "senest opdateret" : "last updated"}</span>
           </div>
         </div>
       </div>
