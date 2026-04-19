@@ -6,6 +6,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const BASE_URL = "https://www.institutionsguiden.dk";
 const PUBLIC_DIR = resolve(__dirname, "../public");
 
+// Dynamic lastmod — regenerated on every run so Google sees fresh content signals
+const TODAY = new Date().toISOString().split("T")[0];
+
 // Static routes
 const staticRoutes = [
   { path: "/", priority: "1.0", changefreq: "weekly" },
@@ -103,7 +106,9 @@ function loadData() {
   processDagtilbud(vugData, "vuggestue");
   processDagtilbud(bhData, "boernehave");
   processDagtilbud(dagData, null);
-  processDagtilbud(sfoData, "sfo");
+  // sfoData contains both SFO (tp="sfo") and fritidsklub (tp="klub") entries,
+  // so pass null and let the tp field decide — otherwise /fritidsklub/:mun URLs never appear.
+  processDagtilbud(sfoData, null);
 
   return { munCatMap, schoolQualityMuns, allInstitutionIds };
 }
@@ -119,13 +124,23 @@ try {
   const { munCatMap, schoolQualityMuns, allInstitutionIds } = loadData();
   const municipalities = [...munCatMap.keys()].sort();
 
-  // Municipality routes
+  // Municipality routes — /kommune/:name uses decodeURIComponent(name) on the client,
+  // so we preserve the existing encoded-name format (NOT slug) for these URLs.
   kommuneRoutes = municipalities.map((name) => ({
     path: `/kommune/${encodeURIComponent(name)}`,
     priority: "0.6",
     changefreq: "monthly",
   }));
   console.log(`Found ${kommuneRoutes.length} municipalities`);
+
+  // /normering/:slug routes — NormeringKommunePage uses slug format (toSlug + buildSlugMap).
+  for (const mun of municipalities) {
+    programmaticRoutes.push({
+      path: `/normering/${toSlug(mun)}`,
+      priority: "0.6",
+      changefreq: "monthly",
+    });
+  }
 
   // Category + municipality pages
   for (const mun of municipalities) {
@@ -234,10 +249,35 @@ try {
   console.warn("Could not fetch blog posts:", err.message);
 }
 
+// Fallback: if we couldn't fetch blog posts (no Supabase creds, network error, etc.),
+// reuse the URLs from the existing sitemap-blog.xml so the file still gets re-stamped
+// with a fresh lastmod on every run.
+if (blogRoutes.length === 0) {
+  try {
+    const existing = readFileSync(resolve(PUBLIC_DIR, "sitemap-blog.xml"), "utf-8");
+    const locRe = /<loc>([^<]+)<\/loc>\s*<lastmod>[^<]*<\/lastmod>\s*<changefreq>([^<]+)<\/changefreq>\s*<priority>([^<]+)<\/priority>/g;
+    const recovered = [];
+    let m;
+    while ((m = locRe.exec(existing)) !== null) {
+      const loc = m[1];
+      const path = loc.startsWith(BASE_URL) ? loc.slice(BASE_URL.length) : loc;
+      recovered.push({ path, changefreq: m[2], priority: m[3] });
+    }
+    if (recovered.length > 0) {
+      blogRoutes = recovered;
+      console.log(`Reused ${recovered.length} blog URLs from existing sitemap-blog.xml (fresh lastmod will be applied)`);
+    }
+  } catch {
+    // No existing blog sitemap — skip silently.
+  }
+}
+
 // --- Dates ---
-const DATA_LASTMOD = "2026-03-01";
-const STATIC_LASTMOD = new Date().toISOString().split("T")[0];
-const BLOG_LASTMOD = new Date().toISOString().split("T")[0];
+// All sitemaps share TODAY so every regeneration emits a fresh lastmod.
+// Google deprioritizes sites whose sitemaps claim content never changes.
+const DATA_LASTMOD = TODAY;
+const STATIC_LASTMOD = TODAY;
+const BLOG_LASTMOD = TODAY;
 
 // --- Helper to build a <urlset> XML ---
 function buildUrlset(routes, getLastmod) {
@@ -292,7 +332,6 @@ if (blogRoutes.length > 0) {
 }
 
 // --- Generate sitemap index ---
-const today = new Date().toISOString().split("T")[0];
 const subSitemaps = [
   "sitemap-static.xml",
   "sitemap-institutions.xml",
@@ -308,7 +347,7 @@ ${subSitemaps
   .map(
     (f) => `  <sitemap>
     <loc>${BASE_URL}/${f}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${TODAY}</lastmod>
   </sitemap>`
   )
   .join("\n")}

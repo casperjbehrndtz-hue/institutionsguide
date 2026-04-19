@@ -51,6 +51,51 @@ const CAT_AGE: Record<string, string> = {
   skole: "6-16 år", sfo: "6-9 år", fritidsklub: "10-14 år", efterskole: "14-18 år",
 };
 
+// Normalise a raw category (as stored in meta.i) to the URL route segment.
+function catToRoute(cat: string): string {
+  if (cat === "folkeskole" || cat === "privatskole") return "skole";
+  return cat;
+}
+
+// Memoised national stats per category-route (survives across requests in the edge instance).
+const natStatsCache: Map<string, { count: number; avgPrice: number; avgNorm: number }> = new Map();
+function cachedNationalStats(meta: NonNullable<typeof seoCache>, category: string) {
+  const cached = natStatsCache.get(category);
+  if (cached) return cached;
+  const fresh = computeNationalStats(meta, category);
+  natStatsCache.set(category, fresh);
+  return fresh;
+}
+
+// Memoised alphabetically sorted muni-slug list (for neighbor cross-links).
+let sortedMunSlugsCache: string[] | null = null;
+function sortedMunSlugs(meta: NonNullable<typeof seoCache>): string[] {
+  if (sortedMunSlugsCache) return sortedMunSlugsCache;
+  sortedMunSlugsCache = Object.keys(meta.m).sort((a, b) => a.localeCompare(b, "da"));
+  return sortedMunSlugsCache;
+}
+
+// Pick up to `count` alphabetically-neighboring muni slugs to `munSlug`, excluding itself.
+function neighborMunis(meta: NonNullable<typeof seoCache>, munSlug: string, count = 4): string[] {
+  const list = sortedMunSlugs(meta);
+  const idx = list.indexOf(munSlug);
+  if (idx === -1) return list.slice(0, count);
+  const out: string[] = [];
+  let before = idx - 1;
+  let after = idx + 1;
+  while (out.length < count && (before >= 0 || after < list.length)) {
+    if (before >= 0) { out.push(list[before]); before--; if (out.length >= count) break; }
+    if (after < list.length) { out.push(list[after]); after++; }
+  }
+  return out;
+}
+
+// HTML-escape helper (dk-seo does not expose its own, and we control input, but be safe for
+// free-form strings coming from seo-meta.json like names, addresses).
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 // ── Dynamic route fetchers ──
 
 async function fetchInstitution(slug: string, _su: string, _sk: string): Promise<RouteMeta | null> {
@@ -90,37 +135,188 @@ async function fetchInstitution(slug: string, _su: string, _sk: string): Promise
   }
   description = description.slice(0, 155);
 
+  // Gather sibling institutions in the same category + municipality (for context + cross-links).
+  // We group folkeskole/privatskole under `skole` so e.g. a folkeskole page compares with all skoler in kommunen.
+  const siblingCatKey = catToRoute(cat);
+  const siblingEntries = getEntries(meta, siblingCatKey, mun);
+  const othersInCatMun = siblingEntries.filter((e) => e.slug !== slug);
+  const catMunStats = computeStats(siblingEntries);
+  const nationalStats = cachedNationalStats(meta, siblingCatKey);
+  const siblingLabel = CAT_LABELS[siblingCatKey] || catUpper;
+  const siblingLabelLower = siblingLabel.toLowerCase();
+
   // Build rich body content for bots
   const bodyParts: string[] = [];
   bodyParts.push(`<h1>${name}</h1>`);
   bodyParts.push(`<p>${name} er en ${ownership ? ownership + " " : ""}${catLabel} i ${mun} Kommune${age ? ` for børn i alderen ${age}` : ""}.</p>`);
 
+  // Kommune context paragraph — institution's role in the municipality.
+  if (catMunStats.count > 1) {
+    const kContextBits: string[] = [];
+    kContextBits.push(`${mun} har i alt ${catMunStats.count} ${siblingLabelLower}${age ? "" : ""}, og ${name} er én af dem.`);
+    if (catMunStats.avgPrice > 0 && price > 0) {
+      if (price < catMunStats.avgPrice) {
+        kContextBits.push(`Med ${formatPrice(price)} kr/md hører institutionen til de billigere i kommunen (gns. ${formatPrice(catMunStats.avgPrice)} kr/md).`);
+      } else if (price > catMunStats.avgPrice) {
+        kContextBits.push(`Med ${formatPrice(price)} kr/md ligger prisen over kommunens gennemsnit på ${formatPrice(catMunStats.avgPrice)} kr/md.`);
+      } else {
+        kContextBits.push(`Prisen svarer til kommunens gennemsnit på ${formatPrice(catMunStats.avgPrice)} kr/md.`);
+      }
+    }
+    bodyParts.push(`<p>${kContextBits.join(" ")}</p>`);
+  }
+
   if (price > 0) {
     bodyParts.push(`<h2>Takster og priser 2026</h2>`);
     bodyParts.push(`<p>Månedsprisen for ${name} er ${price.toLocaleString("da-DK")} kr.</p>`);
+
+    // Price-context comparison vs kommune and country.
+    if (catMunStats.avgPrice > 0) {
+      const diff = price - catMunStats.avgPrice;
+      const pct = Math.round(Math.abs(diff) / catMunStats.avgPrice * 100);
+      const direction = diff < 0 ? "billigere" : diff > 0 ? "dyrere" : "på niveau med";
+      const rangeStr = catMunStats.minPrice !== catMunStats.maxPrice
+        ? `, hvor priserne spænder fra ${formatPrice(catMunStats.minPrice)} til ${formatPrice(catMunStats.maxPrice)} kr/md`
+        : "";
+      if (diff === 0) {
+        bodyParts.push(`<p>Månedsprisen på ${formatPrice(price)} kr er på niveau med gennemsnittet på ${formatPrice(catMunStats.avgPrice)} kr/md for ${siblingLabelLower} i ${mun}${rangeStr}.</p>`);
+      } else {
+        bodyParts.push(`<p>Månedsprisen på ${formatPrice(price)} kr er ${pct}% ${direction} end gennemsnittet på ${formatPrice(catMunStats.avgPrice)} kr/md for ${siblingLabelLower} i ${mun}${rangeStr}.</p>`);
+      }
+    }
+    if (nationalStats.avgPrice > 0) {
+      const natDiff = price - nationalStats.avgPrice;
+      const natDirection = natDiff < 0 ? "under" : natDiff > 0 ? "over" : "svarende til";
+      bodyParts.push(`<p>På landsplan koster ${siblingLabelLower} i gennemsnit ${formatPrice(nationalStats.avgPrice)} kr/md — ${name} ligger ${natDirection} landsgennemsnittet.</p>`);
+    }
+
+    // Annual cost for dagtilbud.
+    if (isDagtilbud) {
+      const yearCost = price * 11; // typisk 11 måneders betaling (juli ofte fri)
+      bodyParts.push(`<p>Det svarer til ca. ${formatPrice(yearCost)} kr om året (11 betalingsmåneder) før evt. fripladstilskud.</p>`);
+    }
   }
 
   if (address || phone) {
     bodyParts.push(`<h2>Adresse og kontakt</h2>`);
-    if (address) bodyParts.push(`<address>${address}, ${postalCode} ${city}</address>`);
-    if (phone) bodyParts.push(`<p>Telefon: ${phone}</p>`);
+    if (address) bodyParts.push(`<address>${escapeHtml(address)}, ${escapeHtml(postalCode)} ${escapeHtml(city)}</address>`);
+    if (phone) bodyParts.push(`<p>Telefon: ${escapeHtml(phone)}</p>`);
   }
 
   if (isDagtilbud && normering > 0) {
     const ageGroup = cat === "boernehave" ? "børnehavebørn (3-5 år)" : "vuggestuebørn (0-2 år)";
     bodyParts.push(`<h2>Normering i ${mun}</h2>`);
-    bodyParts.push(`<p>Den gennemsnitlige normering i ${mun} er ${normering} børn per voksen for ${ageGroup}.</p>`);
+    const normParts: string[] = [];
+    normParts.push(`Den gennemsnitlige normering i ${mun} er ${normering} børn per voksen for ${ageGroup}.`);
+    if (nationalStats.avgNorm > 0) {
+      const nDiff = +(normering - nationalStats.avgNorm).toFixed(1);
+      if (Math.abs(nDiff) >= 0.2) {
+        normParts.push(nDiff < 0
+          ? `Det er bedre end landsgennemsnittet på ${nationalStats.avgNorm} børn/voksen (færre børn per voksen betyder mere voksentid).`
+          : `Landsgennemsnittet er ${nationalStats.avgNorm} børn/voksen.`);
+      } else {
+        normParts.push(`Det svarer til landsgennemsnittet på ${nationalStats.avgNorm} børn/voksen.`);
+      }
+    }
+    bodyParts.push(`<p>${normParts.join(" ")}</p>`);
   }
 
   if (isSchool && kvalK) {
     bodyParts.push(`<h2>Kvalitetsdata</h2>`);
-    bodyParts.push(`<p>Karaktersnit: ${kvalK}. Trivsel: ${kvalT}/5.</p>`);
+    const qParts: string[] = [];
+    qParts.push(`${name} har et karaktersnit på ${kvalK}${kvalT ? ` og en trivselsscore på ${kvalT}/5` : ""}.`);
+    qParts.push(`Data er hentet fra Undervisningsministeriet og opdateres årligt.`);
+    bodyParts.push(`<p>${qParts.join(" ")}</p>`);
   }
 
-  bodyParts.push(`<nav>`);
-  bodyParts.push(`<a href="/${catRoute}/${munSlug}">Se alle ${CAT_LABELS[catRoute] || catUpper} i ${mun}</a>`);
-  bodyParts.push(`<a href="/kommune/${encodeURIComponent(mun)}">Alle institutioner i ${mun} Kommune</a>`);
-  bodyParts.push(`</nav>`);
+  // Nearby similar institutions — link to 10 siblings.
+  let listSource = othersInCatMun;
+  let listHeading = `Andre ${siblingLabelLower} i ${mun}`;
+  if (listSource.length < 5) {
+    // Broaden to any category in same municipality.
+    const allInMun: InstitutionEntry[] = Object.entries(meta.i)
+      .filter(([s, v]) => s !== slug && v[2] === mun)
+      .map(([s, v]) => ({
+        slug: s, name: v[0], cat: v[1], price: v[3], address: v[4],
+        postalCode: v[5], city: v[6], ownership: v[7], normering: v[11], qualityStr: v[12],
+      }));
+    listSource = allInMun;
+    listHeading = `Andre institutioner i ${mun}`;
+  }
+  if (listSource.length > 0) {
+    const sorted = [...listSource].sort((a, b) => {
+      // Priced first (cheapest), then alphabetical.
+      if (a.price > 0 && b.price > 0) return a.price - b.price;
+      if (a.price > 0) return -1;
+      if (b.price > 0) return 1;
+      return a.name.localeCompare(b.name, "da");
+    });
+    const shown = sorted.slice(0, 10);
+    const rows = shown.map((e) => {
+      const parts: string[] = [escapeHtml(e.name)];
+      if (e.price > 0) parts.push(`${formatPrice(e.price)} kr/md`);
+      else if (e.ownership) parts.push(e.ownership);
+      return `<li><a href="/institution/${e.slug}">${parts.join(" — ")}</a></li>`;
+    }).join("\n");
+    bodyParts.push(`<h2>${listHeading}</h2>`);
+    bodyParts.push(`<ul>\n${rows}\n</ul>`);
+    if (listSource.length > 10) {
+      bodyParts.push(`<p><a href="/${catRoute}/${munSlug}">Se alle ${listSource.length} ${siblingLabelLower} i ${mun} →</a></p>`);
+    }
+  }
+
+  // Category-specific FAQ section with real data-driven answers.
+  if (isDagtilbud) {
+    const faqParts: string[] = [];
+    faqParts.push(`<h2>Ofte stillede spørgsmål</h2>`);
+    if (catMunStats.avgPrice > 0) {
+      faqParts.push(`<h3>Hvad koster en ${catLabel} i ${mun}?</h3>`);
+      const rangeTxt = catMunStats.minPrice !== catMunStats.maxPrice
+        ? ` med priser fra ${formatPrice(catMunStats.minPrice)} til ${formatPrice(catMunStats.maxPrice)} kr/md`
+        : "";
+      faqParts.push(`<p>En ${catLabel} i ${mun} koster i gennemsnit ${formatPrice(catMunStats.avgPrice)} kr om måneden${rangeTxt}. ${name} koster ${formatPrice(price)} kr/md.</p>`);
+    }
+    if (catMunStats.avgNorm > 0) {
+      faqParts.push(`<h3>Hvordan er normeringen i ${mun}?</h3>`);
+      faqParts.push(`<p>Den gennemsnitlige normering i ${mun} er ${catMunStats.avgNorm} børn per voksen${nationalStats.avgNorm > 0 ? ` — landsgennemsnittet er ${nationalStats.avgNorm}` : ""}.</p>`);
+    }
+    faqParts.push(`<h3>Kan jeg få friplads?</h3>`);
+    faqParts.push(`<p>Ja, hvis husstandens samlede årsindkomst er under ca. 609.600 kr. i 2026. Fuld friplads gives ved indkomst under ca. 202.400 kr./år. <a href="/friplads">Beregn din friplads her</a>.</p>`);
+    bodyParts.push(faqParts.join("\n"));
+  } else if (isSchool) {
+    const faqParts: string[] = [];
+    faqParts.push(`<h2>Ofte stillede spørgsmål</h2>`);
+    if (kvalK) {
+      faqParts.push(`<h3>Hvad er karaktersnittet på ${name}?</h3>`);
+      faqParts.push(`<p>${name} har et karaktersnit på ${kvalK}${kvalT ? ` og en trivselsscore på ${kvalT}/5` : ""}. Data er fra Undervisningsministeriet.</p>`);
+    }
+    if (kvalT) {
+      faqParts.push(`<h3>Hvordan klarer skolen sig trivselsmæssigt?</h3>`);
+      faqParts.push(`<p>Elevtrivslen på ${name} er målt til ${kvalT}/5 i den nationale trivselsmåling. Det afspejler elevernes generelle velbefindende på skolen.</p>`);
+    }
+    faqParts.push(`<h3>Hvordan kan jeg sammenligne ${siblingLabelLower} i ${mun}?</h3>`);
+    if (siblingCatKey === "skole") {
+      faqParts.push(`<p>Se <a href="/bedste-skole/${munSlug}">ranking af skoler i ${mun}</a> eller <a href="/skole/${munSlug}">alle skoler i kommunen</a> for at sammenligne karaktersnit, trivsel og profiler.</p>`);
+    } else {
+      faqParts.push(`<p>Se <a href="/${catRoute}/${munSlug}">alle ${siblingLabelLower} i ${mun}</a> for at sammenligne profiler, priser og kontaktinfo.</p>`);
+    }
+    bodyParts.push(faqParts.join("\n"));
+  }
+
+  // Related pages cross-links block.
+  const relLinks: string[] = [];
+  relLinks.push(`<li><a href="/${catRoute}/${munSlug}">Alle ${siblingLabelLower} i ${mun}</a></li>`);
+  if (isDagtilbud || siblingCatKey === "skole" || siblingCatKey === "sfo") {
+    relLinks.push(`<li><a href="/bedste-${catRoute}/${munSlug}">Bedste ${siblingLabelLower} i ${mun}</a></li>`);
+  }
+  if (isDagtilbud) {
+    relLinks.push(`<li><a href="/billigste-${catRoute}/${munSlug}">Billigste ${siblingLabelLower} i ${mun}</a></li>`);
+    relLinks.push(`<li><a href="/normering/${munSlug}">Normering i ${mun}</a></li>`);
+    relLinks.push(`<li><a href="/friplads">Beregn friplads</a></li>`);
+  }
+  relLinks.push(`<li><a href="/kommune/${encodeURIComponent(mun)}">Alle institutioner i ${mun} Kommune</a></li>`);
+  bodyParts.push(`<h2>Relaterede sider</h2>`);
+  bodyParts.push(`<ul>\n${relLinks.join("\n")}\n</ul>`);
 
   // Rich JSON-LD
   const schemaType = ["folkeskole", "privatskole", "efterskole"].includes(cat) ? "School" : "ChildCare";
@@ -194,12 +390,15 @@ async function fetchKommune(slug: string, _su: string, _sk: string): Promise<Rou
   }
   bodyParts.push(`</tbody></table>`);
 
-  // Per-category sections with top 5 institutions
+  // Per-category sections with top 20 institutions + continuation link to dedicated page.
   for (const c of catData) {
-    const list = buildOverviewList(c.entries, 5);
+    const list = buildOverviewList(c.entries, 20);
     if (list) {
       const priceStr = c.stats.avgPrice > 0 ? ` — gns. ${formatPrice(c.stats.avgPrice)} kr/md` : "";
       bodyParts.push(`<h2>${c.label} i ${mun}${priceStr}</h2>\n${list}`);
+      if (c.entries.length > 20) {
+        bodyParts.push(`<p><a href="/${c.cat}/${slug}">Se alle ${c.entries.length} ${c.label.toLowerCase()} i ${mun} →</a></p>`);
+      }
     }
   }
 
@@ -214,7 +413,7 @@ async function fetchKommune(slug: string, _su: string, _sk: string): Promise<Rou
     ogDescription: `Se alle ${totalCount} institutioner i ${mun}. Sammenlign priser, kvalitetsdata og normeringer på tværs af ${catData.length} kategorier.`,
     breadcrumbs: [
       { name: "Institutionsguide", url: "/" },
-      { name: mun, url: `/kommune/${slug}` },
+      { name: mun, url: `/kommune/${encodeURIComponent(mun)}` },
     ],
     bodyContent: bodyParts.join("\n"),
   };
@@ -290,7 +489,7 @@ function computeNationalStats(meta: NonNullable<typeof seoCache>, category: stri
 function formatPrice(n: number): string { return n.toLocaleString("da-DK"); }
 
 // Build a quality-focused list (for bedste-* pages)
-function buildQualityList(entries: InstitutionEntry[], limit = 10): string {
+function buildQualityList(entries: InstitutionEntry[], limit = 25): string {
   const sorted = [...entries].sort((a, b) => {
     const aK = parseFloat(a.qualityStr?.match(/k([\d.]+)/)?.[1] || "0");
     const bK = parseFloat(b.qualityStr?.match(/k([\d.]+)/)?.[1] || "0");
@@ -316,7 +515,7 @@ function buildQualityList(entries: InstitutionEntry[], limit = 10): string {
 }
 
 // Build a price-focused list (for billigste-* pages)
-function buildPriceList(entries: InstitutionEntry[], avgPrice: number, limit = 10): string {
+function buildPriceList(entries: InstitutionEntry[], avgPrice: number, limit = 25): string {
   const withPrice = [...entries].filter((e) => e.price > 0).sort((a, b) => a.price - b.price);
   if (withPrice.length === 0) return "";
   const shown = withPrice.slice(0, limit);
@@ -361,7 +560,7 @@ function makeCatMunFetcher(category: string) {
     const entries = getEntries(meta, category, mun);
     const stats = computeStats(entries);
     const nat = computeNationalStats(meta, category);
-    const list = buildOverviewList(entries);
+    const list = buildOverviewList(entries, 50);
     const year = new Date().getFullYear();
 
     // Data-driven intro paragraph
@@ -407,6 +606,29 @@ function makeCatMunFetcher(category: string) {
 
     if (list) bodyParts.push(`<h2>Alle ${label.toLowerCase()} i ${mun}</h2>\n${list}`);
 
+    // Dense cross-link block at the bottom pointing to related pages.
+    const relLinks: string[] = [];
+    const isSchoolCat = category === "skole";
+    if (entries.length > 0 && (isDagtilbud || isSchoolCat || category === "sfo")) {
+      relLinks.push(`<li><a href="/bedste-${category}/${slug}">Bedste ${label.toLowerCase()} i ${mun}</a></li>`);
+    }
+    if (isDagtilbud) {
+      relLinks.push(`<li><a href="/billigste-${category}/${slug}">Billigste ${label.toLowerCase()} i ${mun}</a></li>`);
+      relLinks.push(`<li><a href="/normering/${slug}">Normering i ${mun}</a></li>`);
+      relLinks.push(`<li><a href="/friplads">Beregn friplads</a></li>`);
+    }
+    relLinks.push(`<li><a href="/kommune/${encodeURIComponent(mun)}">Alle institutioner i ${mun} Kommune</a></li>`);
+
+    // Link to 3-5 alphabetically neighboring kommuner for the same category.
+    const neighbors = neighborMunis(meta, slug, 4);
+    for (const n of neighbors) {
+      const nMun = munFromSlug(n, meta);
+      relLinks.push(`<li><a href="/${category}/${n}">${label} i ${nMun}</a></li>`);
+    }
+
+    bodyParts.push(`<h2>Se også</h2>`);
+    bodyParts.push(`<ul>\n${relLinks.join("\n")}\n</ul>`);
+
     return {
       title: `${label} i ${mun} ${year} — Priser og sammenligning | Institutionsguide`,
       description: `${mun} har ${stats.count} ${label.toLowerCase()}${ageStr}. ${stats.avgPrice > 0 ? `Gns. pris: ${formatPrice(stats.avgPrice)} kr/md. ` : ""}Sammenlign priser, ejerskab og kvalitetsdata.`,
@@ -432,7 +654,7 @@ function makeBedsteFetcher(category: string) {
     const entries = getEntries(meta, category, mun);
     const stats = computeStats(entries);
     const nat = computeNationalStats(meta, category);
-    const list = buildQualityList(entries, 10);
+    const list = buildQualityList(entries, 25);
 
     const bodyParts: string[] = [];
     const titleBase = isSchool
@@ -476,8 +698,8 @@ function makeBedsteFetcher(category: string) {
     bodyParts.push(`</nav>`);
 
     const d = isSchool
-      ? `De ${Math.min(stats.count, 10)} bedste skoler i ${mun} rangeret efter karaktersnit og trivsel. ${stats.count} skoler sammenlignet.`
-      : `De ${Math.min(stats.count, 10)} bedste ${label.toLowerCase()} i ${mun} rangeret efter kvalitet og normering.${stats.avgNorm > 0 ? ` Gns. normering: ${stats.avgNorm} børn/voksen.` : ""}`;
+      ? `De ${Math.min(stats.count, 25)} bedste skoler i ${mun} rangeret efter karaktersnit og trivsel. ${stats.count} skoler sammenlignet.`
+      : `De ${Math.min(stats.count, 25)} bedste ${label.toLowerCase()} i ${mun} rangeret efter kvalitet og normering.${stats.avgNorm > 0 ? ` Gns. normering: ${stats.avgNorm} børn/voksen.` : ""}`;
 
     return {
       title: `${titleBase} | Institutionsguide`,
@@ -503,7 +725,7 @@ function makeBilligsteFetcher(category: string) {
     const entries = getEntries(meta, category, mun);
     const stats = computeStats(entries);
     const nat = computeNationalStats(meta, category);
-    const list = buildPriceList(entries, stats.avgPrice, 10);
+    const list = buildPriceList(entries, stats.avgPrice, 25);
 
     const bodyParts: string[] = [];
     bodyParts.push(`<h1>Billigste ${label.toLowerCase()} i ${mun} — Prissammenligning</h1>`);
