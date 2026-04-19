@@ -1,8 +1,8 @@
 import { useRef, useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, MapPin, Loader2 } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
+import Button from "@/components/ui/Button";
 
 interface HeroSectionProps {
   heroVideo: { src: string; focus: string };
@@ -111,22 +111,18 @@ export default function HeroSection({
             />
           </div>
 
-          {/* Secondary actions — quiet outline pills so they read clearly as secondary, never compete with search */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-6 text-[13px]">
-            <button
+          {/* Single secondary action — proper button that pairs naturally with search (geolocate as alt to typing) */}
+          <div className="flex justify-center mt-5">
+            <Button
+              variant="secondary"
+              tone="light"
+              size="md"
               onClick={onNearMe}
-              disabled={nearMeLoading}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-white/20 text-white/75 hover:text-white hover:border-white/40 transition-colors disabled:opacity-60"
+              loading={nearMeLoading}
+              leadingIcon={<MapPin className="w-4 h-4" />}
             >
-              {nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
               {language === "da" ? "Find tæt på mig" : "Find near me"}
-            </button>
-            <Link
-              to="/find"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-white/20 text-white/75 hover:text-white hover:border-white/40 transition-colors"
-            >
-              {language === "da" ? "Find den rette for jer" : "Find your perfect match"}
-            </Link>
+            </Button>
           </div>
         </div>
       </div>
