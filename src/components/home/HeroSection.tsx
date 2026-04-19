@@ -70,11 +70,11 @@ export default function HeroSection({
         <div className="absolute inset-0 bg-primary/85" />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-20 pb-24 sm:pt-28 sm:pb-32 lg:pt-36 lg:pb-40 text-center">
-        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.05] mb-6 tracking-tight">
+      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-16 pb-20 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 text-center">
+        <h1 className="font-display text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-white leading-[1.08] mb-5 tracking-tight">
           {heroTitle}
         </h1>
-        <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+        <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-9 leading-relaxed">
           {heroSubtitle}
         </p>
 
