@@ -87,93 +87,103 @@ export default function Navbar() {
           Institutionsguide
         </Link>
 
-        {/* Desktop nav — categories + tools dropdown + language toggle */}
-        <div className="hidden md:flex items-center gap-1">
-          {CATEGORY_LINKS.map((link) => {
-            const active = location.pathname === link.href;
-            return (
-              <Link
-                key={link.key}
-                to={link.href}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted hover:text-foreground hover:bg-border/30"
-                }`}
-              >
-                {link.labelOverride?.[language] ?? (t.categories as Record<string, string>)[link.key] ?? link.key}
-              </Link>
-            );
-          })}
-
-          {/* Tools dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setToolsOpen(!toolsOpen)}
-              className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                toolsActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted hover:text-foreground hover:bg-border/30"
-              }`}
-              aria-expanded={toolsOpen}
-              aria-haspopup="true"
-            >
-              {t.nav.tools}
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
-            </button>
-            {toolsOpen && (
-              <div className="absolute right-0 mt-1 w-52 rounded-xl border border-border bg-bg shadow-lg py-1 animate-fade-in z-50">
-                {TOOL_LINKS.map((link) => {
-                  const active = location.pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      className={`block px-4 py-2.5 text-sm transition-colors ${
-                        active
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted hover:text-foreground hover:bg-border/30"
-                      }`}
-                    >
-                      {link.labelOverride[language]}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
+        {/* Desktop nav — strict hierarchy: primary (categories) | meta (tools, search, favorites, lang) */}
+        <div className="hidden md:flex items-center">
+          {/* Primary: institution categories — strongest weight */}
+          <div className="flex items-center gap-0.5">
+            {CATEGORY_LINKS.map((link) => {
+              const active = location.pathname === link.href;
+              return (
+                <Link
+                  key={link.key}
+                  to={link.href}
+                  className={`px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
+                    active
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground/80 hover:text-foreground hover:bg-foreground/[0.04]"
+                  }`}
+                >
+                  {link.labelOverride?.[language] ?? (t.categories as Record<string, string>)[link.key] ?? link.key}
+                </Link>
+              );
+            })}
           </div>
 
-          <button
-            onClick={() => setSearchOpen((s) => !s)}
-            className={`ml-1 p-2 rounded-lg transition-colors ${
-              searchOpen
-                ? "bg-primary/10 text-primary"
-                : "text-muted hover:text-foreground hover:bg-border/30"
-            }`}
-            aria-label={language === "da" ? "Søg institution" : "Search institution"}
-            aria-expanded={searchOpen}
-          >
-            <SearchIcon className="w-4 h-4" />
-          </button>
+          {/* Visual separator between primary and meta */}
+          <div className="h-5 w-px bg-border/70 mx-3" aria-hidden="true" />
 
-          <Link
-            to="/favoritter"
-            className={`ml-1 p-2 rounded-lg transition-colors ${
-              location.pathname === "/favoritter"
-                ? "bg-primary/10 text-primary"
-                : "text-muted hover:text-foreground hover:bg-border/30"
-            }`}
-            aria-label={language === "da" ? "Mine favoritter" : "My favorites"}
-          >
-            <Heart className="w-4 h-4" />
-          </Link>
-          <button
-            onClick={() => setLanguage(language === "da" ? "en" : "da")}
-            className="ml-1 px-2 py-1.5 rounded-lg text-xs font-medium text-muted hover:text-foreground hover:bg-border/30 transition-colors"
-            aria-label={language === "da" ? "Switch to English" : "Skift til dansk"}
-          >
-            {language === "da" ? "EN" : "DA"}
-          </button>
+          {/* Meta cluster — utilities, lower contrast, smaller hit area */}
+          <div className="flex items-center gap-0.5">
+            {/* Tools dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setToolsOpen(!toolsOpen)}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
+                  toolsActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted hover:text-foreground/85 hover:bg-foreground/[0.04]"
+                }`}
+                aria-expanded={toolsOpen}
+                aria-haspopup="true"
+              >
+                {t.nav.tools}
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
+              </button>
+              {toolsOpen && (
+                <div className="absolute right-0 mt-1 w-52 rounded-xl border border-border bg-bg shadow-lg py-1 animate-fade-in z-50">
+                  {TOOL_LINKS.map((link) => {
+                    const active = location.pathname === link.href;
+                    return (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        className={`block px-4 py-2.5 text-sm transition-colors ${
+                          active
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground/85 hover:text-foreground hover:bg-foreground/[0.04]"
+                        }`}
+                      >
+                        {link.labelOverride[language]}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setSearchOpen((s) => !s)}
+              className={`p-1.5 rounded-md transition-colors ${
+                searchOpen
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted hover:text-foreground/85 hover:bg-foreground/[0.04]"
+              }`}
+              aria-label={language === "da" ? "Søg institution" : "Search institution"}
+              aria-expanded={searchOpen}
+            >
+              <SearchIcon className="w-4 h-4" />
+            </button>
+
+            <Link
+              to="/favoritter"
+              className={`p-1.5 rounded-md transition-colors ${
+                location.pathname === "/favoritter"
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted hover:text-foreground/85 hover:bg-foreground/[0.04]"
+              }`}
+              aria-label={language === "da" ? "Mine favoritter" : "My favorites"}
+            >
+              <Heart className="w-4 h-4" />
+            </Link>
+
+            <button
+              onClick={() => setLanguage(language === "da" ? "en" : "da")}
+              className="px-2 py-1 rounded-md text-[11px] font-semibold tracking-wide text-muted hover:text-foreground/85 hover:bg-foreground/[0.04] transition-colors"
+              aria-label={language === "da" ? "Switch to English" : "Skift til dansk"}
+            >
+              {language === "da" ? "EN" : "DA"}
+            </button>
+          </div>
         </div>
 
         {/* Mobile: search + hamburger */}
