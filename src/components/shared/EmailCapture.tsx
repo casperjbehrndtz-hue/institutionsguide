@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import Button from "@/components/ui/Button";
 
 interface EmailCaptureProps {
   compact?: boolean;
@@ -71,14 +72,11 @@ export default function EmailCapture({ compact = false }: EmailCaptureProps) {
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t.emailCapture.placeholder}
             className="flex-1 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            aria-label={t.emailCapture.placeholder}
           />
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50"
-          >
+          <Button type="submit" variant="primary" size="sm" loading={loading}>
             {t.emailCapture.subscribe}
-          </button>
+          </Button>
         </div>
         {error && <p className="text-xs text-destructive mt-1">{error}</p>}
       </form>
@@ -110,26 +108,20 @@ export default function EmailCapture({ compact = false }: EmailCaptureProps) {
         {t.emailCapture.subtitle}
       </p>
 
-      <form onSubmit={handleSubmit} className="flex items-stretch gap-0 border-b-2 border-foreground/80 focus-within:border-accent transition-colors">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch gap-3">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t.emailCapture.placeholder}
-          className="flex-1 min-w-0 py-3 text-base bg-transparent text-foreground placeholder:text-muted/60 focus:outline-none"
+          className="flex-1 min-w-0 h-12 px-4 rounded-lg border border-border bg-bg-card text-base text-foreground placeholder:text-muted/70 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow"
           aria-label={t.emailCapture.placeholder}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex items-center gap-1.5 pl-4 text-sm font-medium text-accent hover:text-accent-light transition-colors disabled:opacity-50 whitespace-nowrap"
-        >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+        <Button type="submit" variant="primary" size="lg" loading={loading}>
           {t.emailCapture.subscribe}
-          <span aria-hidden="true">→</span>
-        </button>
+        </Button>
       </form>
-      {error && <p className="text-xs text-destructive mt-2">{error}</p>}
+      {error && <p className="text-sm text-destructive mt-2">{error}</p>}
     </div>
   );
 }
