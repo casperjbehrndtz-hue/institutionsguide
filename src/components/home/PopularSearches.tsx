@@ -35,11 +35,11 @@ export default function PopularSearches({ data, language }: { data: PopularData;
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 border-t border-border/70">
+        <div className="grid grid-cols-1 md:grid-cols-2 border-t border-l border-border/70">
           {lists.map(({ title, subtitle, items, href, ctaLabel }, idx) => (
             <div
               key={title}
-              className={`py-10 md:px-8 lg:px-10 ${idx === 0 ? "border-b md:border-b-0 md:border-r border-border/70" : ""}`}
+              className="px-6 py-10 md:px-8 lg:px-10 border-r border-b border-border/70"
             >
               <div className="mb-8">
                 <p className="font-mono text-[11px] text-muted/60 tracking-widest mb-3">

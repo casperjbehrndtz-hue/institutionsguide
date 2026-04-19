@@ -41,14 +41,14 @@ export default function HomeToolsSection() {
                 : t.home.moreToolsSubtitle}
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 border-t border-border/70">
-            {products.map((p, idx) => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 border-t border-l border-border/70">
+            {products.map((p) => (
               <a
                 key={p.name}
                 href={p.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`group flex flex-col justify-between py-8 sm:py-10 sm:px-6 lg:px-8 border-b border-border/70 sm:border-b-0 ${idx < products.length - 1 ? "sm:border-r" : ""} hover:bg-[var(--color-bg-card)]/60 transition-colors min-h-[200px]`}
+                className="group flex flex-col justify-between px-6 py-8 lg:px-8 lg:py-10 border-r border-b border-border/70 hover:bg-[var(--color-bg-card)]/60 transition-colors min-h-[200px]"
               >
                 <div>
                   <p className="font-mono text-[11px] text-muted/60 tracking-widest mb-6">

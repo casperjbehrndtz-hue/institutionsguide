@@ -57,8 +57,8 @@ export default function CategoryCards({ featured, other, categoryStats, language
         </p>
       </div>
 
-      {/* Featured: large prominent cards — no colored tiles, no hover-lift */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-border/70">
+      {/* Featured: intersecting-border grid (container: top+left; cells: right+bottom) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-border/70">
         {featured.map((card, idx) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
@@ -72,7 +72,7 @@ export default function CategoryCards({ featured, other, categoryStats, language
             <Link
               key={card.category}
               to={card.href}
-              className="group relative flex flex-col justify-between py-8 sm:py-10 sm:px-6 lg:px-8 border-b border-border/70 sm:border-r last:sm:border-r-0 lg:border-b-0 hover:bg-[var(--color-border)]/20 transition-colors min-h-[280px]"
+              className="group relative flex flex-col justify-between px-6 py-8 lg:px-8 lg:py-10 border-r border-b border-border/70 hover:bg-[var(--color-border)]/20 transition-colors min-h-[280px]"
               aria-label={`${showLabel} ${card.label}`}
             >
               <div>
@@ -123,7 +123,7 @@ export default function CategoryCards({ featured, other, categoryStats, language
                   ({count.toLocaleString("da-DK")})
                 </span>
               )}
-              {i < other.length - 1 && <span aria-hidden="true" className="text-muted/30 ml-1">·</span>}
+              {i < other.length - 1 && <span aria-hidden="true" className="text-muted/30">·</span>}
             </span>
           );
         })}

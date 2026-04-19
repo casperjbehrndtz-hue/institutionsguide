@@ -24,11 +24,11 @@ export default function HowItWorks() {
             {t.home.howItWorksSubtitle}
           </p>
         </div>
-        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-border/70">
+        <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-border/70">
           {steps.map((step, i) => (
             <li
               key={step.title}
-              className="py-8 sm:py-10 sm:px-6 lg:px-8 border-b border-border/70 sm:border-r last:sm:border-r-0 lg:border-b-0"
+              className="px-6 py-8 lg:px-8 lg:py-10 border-r border-b border-border/70"
             >
               <p className="font-mono text-[11px] text-muted/60 tracking-widest mb-6">
                 {String(i + 1).padStart(2, "0")}

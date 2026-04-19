@@ -29,12 +29,12 @@ export default function UseCases({ language, schoolCount }: { language: string; 
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-border/70">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-l border-border/70">
           {cards.map((card, i) => (
             <Link
               key={card.href}
               to={card.href}
-              className="group flex flex-col justify-between py-8 sm:py-10 sm:px-6 lg:px-8 border-b border-border/70 sm:border-r last:sm:border-r-0 lg:border-b-0 hover:bg-[var(--color-border)]/20 transition-colors min-h-[220px]"
+              className="group flex flex-col justify-between px-6 py-8 lg:px-8 lg:py-10 border-r border-b border-border/70 hover:bg-[var(--color-border)]/20 transition-colors min-h-[220px]"
             >
               <div>
                 <p className="font-mono text-[11px] text-muted/60 tracking-widest mb-6">
