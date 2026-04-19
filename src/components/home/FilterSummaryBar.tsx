@@ -1,4 +1,3 @@
-import { BarChart3 } from "lucide-react";
 import { formatDKK } from "@/lib/format";
 
 interface Props {
@@ -14,15 +13,27 @@ interface Props {
 
 export default function FilterSummaryBar({ count, cheapest, hasGeolocation, radiusKm, t }: Props) {
   return (
-    <div className="max-w-[1440px] mx-auto px-3 sm:px-4 pt-2 sm:pt-3">
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm">
-        <BarChart3 className="w-4 h-4 text-primary shrink-0" />
-        <span className="text-foreground font-medium">
-          {count.toLocaleString("da-DK")} {t.home.summaryInstitutions}
-          {hasGeolocation && radiusKm ? ` ${t.home.summaryWithin} ${radiusKm} km` : ""}
-          {cheapest ? ` — ${t.home.summaryCheapest}: ${formatDKK(cheapest)}${t.common.perMonth}` : ""}
-        </span>
-      </div>
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 pt-3 sm:pt-4 pb-1">
+      <p className="text-sm text-muted">
+        <span className="tabular-nums font-medium text-foreground">{count.toLocaleString("da-DK")}</span>{" "}
+        {t.home.summaryInstitutions}
+        {hasGeolocation && radiusKm ? (
+          <>
+            {" "}
+            {t.home.summaryWithin} <span className="tabular-nums font-medium text-foreground">{radiusKm}</span> km
+          </>
+        ) : null}
+        {cheapest ? (
+          <>
+            {" — "}
+            {t.home.summaryCheapest}:{" "}
+            <span className="tabular-nums font-medium text-foreground">
+              {formatDKK(cheapest)}
+              {t.common.perMonth}
+            </span>
+          </>
+        ) : null}
+      </p>
     </div>
   );
 }

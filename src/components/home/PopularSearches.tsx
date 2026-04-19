@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
-import ScrollReveal from "@/components/shared/ScrollReveal";
 import type { PopularData } from "@/hooks/usePopularData";
 
 export default function PopularSearches({ data, language }: { data: PopularData; language: string }) {
@@ -22,8 +21,7 @@ export default function PopularSearches({ data, language }: { data: PopularData;
   ];
 
   return (
-    <ScrollReveal>
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
         <div className="mb-12 sm:mb-16 max-w-2xl">
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight mb-3">
             {language === "da" ? "Topplaceringer lige nu" : "Top rankings right now"}
@@ -82,7 +80,6 @@ export default function PopularSearches({ data, language }: { data: PopularData;
             </div>
           ))}
         </div>
-      </section>
-    </ScrollReveal>
+    </section>
   );
 }

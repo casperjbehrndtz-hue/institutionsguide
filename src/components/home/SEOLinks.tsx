@@ -16,7 +16,7 @@ export default function SEOLinks({ language }: { language: string }) {
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-border/70">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-muted/70 font-medium mb-5">
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/60 mb-5">
         {language === "da" ? "Populære sider" : "Popular pages"}
       </p>
       <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">

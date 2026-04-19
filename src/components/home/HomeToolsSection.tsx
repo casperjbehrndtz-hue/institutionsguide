@@ -1,5 +1,4 @@
 import { ArrowUpRight } from "lucide-react";
-import ScrollReveal from "@/components/shared/ScrollReveal";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function HomeToolsSection() {
@@ -28,8 +27,7 @@ export default function HomeToolsSection() {
   ];
 
   return (
-    <ScrollReveal>
-      <section className="bg-[var(--color-border)]/25 border-y border-border/70">
+    <section className="bg-[var(--color-border)]/25 border-y border-border/70">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <div className="mb-12 sm:mb-16 max-w-2xl">
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight mb-3">
@@ -69,7 +67,6 @@ export default function HomeToolsSection() {
             ))}
           </div>
         </div>
-      </section>
-    </ScrollReveal>
+    </section>
   );
 }

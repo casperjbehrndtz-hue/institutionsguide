@@ -16,7 +16,7 @@ import CompareBar from "@/components/compare/CompareBar";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import { websiteSchema, faqSchema } from "@/lib/schema";
-import { SkeletonGrid, SkeletonList } from "@/components/shared/SkeletonCard";
+import { SkeletonList } from "@/components/shared/SkeletonCard";
 import { useFavorites } from "@/hooks/useFavorites";
 import NoResults from "@/components/filters/NoResults";
 import InstitutionListCard from "@/components/shared/InstitutionListCard";
@@ -184,12 +184,14 @@ export default function HomePage() {
           description={language === "da" ? "Sammenlign vuggestuer, børnehaver, dagplejere, skoler og SFO i alle 98 kommuner." : "Compare nurseries, kindergartens, childminders, schools and after-school care in all 98 municipalities."}
           path="/"
         />
-        <section className="px-4 py-12 sm:py-16 text-center bg-gradient-to-b from-primary/5 to-transparent">
-          <div className="skeleton h-10 w-2/3 mx-auto mb-4" />
-          <div className="skeleton h-5 w-1/2 mx-auto mb-8" />
-          <SkeletonGrid count={5} />
+        <section className="bg-primary">
+          <div className="max-w-3xl mx-auto px-4 pt-16 pb-20 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 text-center">
+            <div className="skeleton h-12 w-3/4 mx-auto mb-5 bg-white/10" />
+            <div className="skeleton h-5 w-1/2 mx-auto mb-9 bg-white/10" />
+            <div className="skeleton h-14 max-w-xl mx-auto rounded-full bg-white/80" />
+          </div>
         </section>
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
           <SkeletonList count={4} />
         </div>
       </>
@@ -315,9 +317,9 @@ export default function HomePage() {
         <div ref={listContainerRef} className={`space-y-2 lg:overflow-y-auto lg:max-h-[calc(100vh-180px)] ${mobileView !== "list" ? "hidden lg:block" : ""}`}>
           {/* Map bounds indicator */}
           {mapBounds && (
-            <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-sm text-primary">
+            <div className="flex items-center justify-between px-3 py-2 border border-border/70 bg-[var(--color-border)]/25 text-sm text-foreground">
               <span>{language === "da" ? "Viser kort-omr\u00e5de" : "Showing map area"}</span>
-              <button onClick={() => setMapBounds(null)} className="p-1 hover:bg-primary/10 rounded" aria-label="Clear bounds filter">
+              <button onClick={() => setMapBounds(null)} className="p-1 hover:text-accent transition-colors" aria-label="Clear bounds filter">
                 <X className="w-4 h-4" />
               </button>
             </div>

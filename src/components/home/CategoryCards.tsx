@@ -103,7 +103,7 @@ export default function CategoryCards({ featured, other, categoryStats, language
 
       {/* Secondary categories — quiet inline row */}
       <div className="mt-10 pt-8 border-t border-border/70 flex flex-wrap items-baseline gap-x-2 gap-y-3 text-sm">
-        <span className="text-[11px] uppercase tracking-widest text-muted/60 font-semibold mr-3">
+        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/60 mr-3">
           {language === "da" ? "Også:" : "Also:"}
         </span>
         {other.map((card, i) => {

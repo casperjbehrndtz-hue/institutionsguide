@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
-import ScrollReveal from "@/components/shared/ScrollReveal";
 
 export default function UseCases({ language, schoolCount }: { language: string; schoolCount: string }) {
   const cards = language === "da" ? [
@@ -16,8 +15,7 @@ export default function UseCases({ language, schoolCount }: { language: string; 
   ];
 
   return (
-    <ScrollReveal>
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
         <div className="mb-12 sm:mb-16 max-w-2xl">
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight mb-3">
             {language === "da" ? "Sådan bruger forældre siden" : "How parents use the site"}
@@ -52,7 +50,6 @@ export default function UseCases({ language, schoolCount }: { language: string; 
             </Link>
           ))}
         </div>
-      </section>
-    </ScrollReveal>
+    </section>
   );
 }

@@ -1,4 +1,3 @@
-import ScrollReveal from "@/components/shared/ScrollReveal";
 import PopularSearches from "@/components/home/PopularSearches";
 import UseCases from "@/components/home/UseCases";
 import HomeToolsSection from "@/components/home/HomeToolsSection";
@@ -18,19 +17,17 @@ interface Props {
 export default function HomeDiscovery({ popularData, language, schoolCount, faqItems, faqTitle }: Props) {
   return (
     <>
-      {popularData && <ScrollReveal><PopularSearches data={popularData} language={language} /></ScrollReveal>}
-      <ScrollReveal><UseCases language={language} schoolCount={schoolCount} /></ScrollReveal>
-      <ScrollReveal><HomeToolsSection /></ScrollReveal>
+      {popularData && <PopularSearches data={popularData} language={language} />}
+      <UseCases language={language} schoolCount={schoolCount} />
+      <HomeToolsSection />
       <RecentlyViewed />
-      <ScrollReveal><HomeFAQ items={faqItems} title={faqTitle} /></ScrollReveal>
-      <ScrollReveal><SEOLinks language={language} /></ScrollReveal>
-      <ScrollReveal>
-        <section className="border-t border-border/70">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
-            <EmailCapture />
-          </div>
-        </section>
-      </ScrollReveal>
+      <HomeFAQ items={faqItems} title={faqTitle} />
+      <SEOLinks language={language} />
+      <section className="border-t border-border/70">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+          <EmailCapture />
+        </div>
+      </section>
     </>
   );
 }
