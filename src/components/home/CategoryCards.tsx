@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { formatDKK } from "@/lib/format";
 import type { LucideIcon } from "lucide-react";
 
@@ -45,15 +45,26 @@ interface CategoryCardsProps {
 
 export default function CategoryCards({ featured, other, categoryStats, language, showLabel }: CategoryCardsProps) {
   return (
-    <section className="max-w-6xl mx-auto px-4 -mt-6 sm:-mt-10 relative z-20 mb-12">
-      {/* Featured: large prominent cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-3">
-        {featured.map((card) => {
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+      <div className="mb-12 sm:mb-16 max-w-2xl">
+        <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight mb-3">
+          {language === "da" ? "Hvad leder I efter?" : "What are you looking for?"}
+        </h2>
+        <p className="text-muted text-base sm:text-lg leading-relaxed">
+          {language === "da"
+            ? "Hvert område har sine egne kvalitetsmål. Vi samler dem ét sted så I kan sammenligne på tværs af landet."
+            : "Each area has its own quality metrics. We bring them together so you can compare nationwide."}
+        </p>
+      </div>
+
+      {/* Featured: large prominent cards — no colored tiles, no hover-lift */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border-t border-border/70">
+        {featured.map((card, idx) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
           const hero =
             card.category === "efterskole" && stats?.minYearlyPrice != null
-              ? { value: `${formatDKK(stats.minYearlyPrice)}`, label: language === "da" ? "pr. år fra" : "per year from" }
+              ? { value: formatDKK(stats.minYearlyPrice), label: language === "da" ? "pr. år fra" : "per year from" }
               : stats?.avgKaraktersnit != null
                 ? { value: stats.avgKaraktersnit.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 }), label: language === "da" ? "gns. karaktersnit" : "avg. grade" }
                 : { value: count.toLocaleString("da-DK"), label: language === "da" ? "institutioner" : "institutions" };
@@ -61,38 +72,28 @@ export default function CategoryCards({ featured, other, categoryStats, language
             <Link
               key={card.category}
               to={card.href}
-              className="group relative rounded-2xl bg-[var(--color-bg-card)] border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col"
+              className="group relative flex flex-col justify-between py-8 sm:py-10 sm:px-6 lg:px-8 border-b border-border/70 sm:border-r last:sm:border-r-0 lg:border-b-0 hover:bg-[var(--color-border)]/20 transition-colors min-h-[280px]"
               aria-label={`${showLabel} ${card.label}`}
             >
-              <div className={`h-1 ${card.bgColor}`} />
+              <div>
+                <p className="font-mono text-[11px] text-muted/60 tracking-widest mb-6">
+                  {String(idx + 1).padStart(2, "0")}
+                </p>
+                <h3 className="font-display text-2xl sm:text-3xl font-semibold text-foreground tracking-tight mb-3">
+                  {card.label}
+                </h3>
+                <p className="text-sm text-muted leading-relaxed mb-8">{card.desc}</p>
+              </div>
 
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex items-start gap-3 mb-5">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${card.bgColor}`}>
-                    <card.icon className={`w-5 h-5 ${card.iconColor}`} />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-display font-bold text-foreground text-lg leading-tight">{card.label}</h3>
-                    <p className="text-xs text-muted mt-0.5 leading-relaxed">{card.desc}</p>
-                  </div>
-                </div>
+              <div>
+                <p className="font-display text-[2.5rem] sm:text-[3rem] font-semibold text-foreground leading-none tracking-tight tabular-nums mb-1">
+                  {hero.value}
+                </p>
+                <p className="text-xs text-muted mb-6">{hero.label}</p>
 
-                {/* Hero stat */}
-                <div className="mb-5">
-                  <p className="font-display font-bold text-foreground text-3xl sm:text-[2rem] leading-none tracking-tight tabular-nums">
-                    {hero.value}
-                  </p>
-                  <p className="text-[11px] text-muted uppercase tracking-widest mt-1.5 font-semibold">
-                    {hero.label}
-                  </p>
-                </div>
-
-                {/* Metric tag (trust signal) */}
-                <p className="text-xs text-muted leading-relaxed mb-5 flex-1">{card.metric}</p>
-
-                <div className="flex items-center gap-1.5 text-sm font-semibold text-primary mt-auto">
-                  {card.cta}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-accent font-medium">{card.cta}</span>
+                  <ArrowUpRight className="w-4 h-4 text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
             </Link>
@@ -100,31 +101,30 @@ export default function CategoryCards({ featured, other, categoryStats, language
         })}
       </div>
 
-      {/* Secondary categories — compact row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-        {other.map((card) => {
+      {/* Secondary categories — quiet inline row */}
+      <div className="mt-10 pt-8 border-t border-border/70 flex flex-wrap items-baseline gap-x-2 gap-y-3 text-sm">
+        <span className="text-[11px] uppercase tracking-widest text-muted/60 font-semibold mr-3">
+          {language === "da" ? "Også:" : "Also:"}
+        </span>
+        {other.map((card, i) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
           return (
-            <Link
-              key={card.category}
-              to={card.href}
-              className="group flex items-center gap-3 rounded-xl bg-[var(--color-bg-card)] border border-border/50 px-3.5 py-3 hover:border-primary/40 hover:shadow-md transition-all duration-200"
-              aria-label={`${showLabel} ${card.label}`}
-            >
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
-                <card.icon className={`w-4 h-4 ${card.iconColor}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-foreground text-sm leading-tight truncate">{card.label}</p>
-                {count > 0 && (
-                  <p className="text-[11px] text-muted tabular-nums mt-0.5">
-                    {count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}
-                  </p>
-                )}
-              </div>
-              <ArrowRight className="w-4 h-4 text-muted/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
-            </Link>
+            <span key={card.category} className="flex items-baseline gap-2">
+              <Link
+                to={card.href}
+                className="text-foreground hover:text-accent transition-colors underline-offset-4 hover:underline font-medium"
+                aria-label={`${showLabel} ${card.label}`}
+              >
+                {card.label}
+              </Link>
+              {count > 0 && (
+                <span className="text-muted tabular-nums text-[13px]">
+                  ({count.toLocaleString("da-DK")})
+                </span>
+              )}
+              {i < other.length - 1 && <span aria-hidden="true" className="text-muted/30 ml-1">·</span>}
+            </span>
           );
         })}
       </div>

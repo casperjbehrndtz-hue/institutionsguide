@@ -1,22 +1,20 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Trophy, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 import type { PopularData } from "@/hooks/usePopularData";
 
 export default function PopularSearches({ data, language }: { data: PopularData; language: string }) {
   const lists = [
     {
-      icon: Sparkles,
       title: language === "da" ? "Bedste trivsel" : "Best well-being",
-      subtitle: language === "da" ? "Top 5 skoler på trivselsmåling" : "Top 5 schools by well-being",
+      subtitle: language === "da" ? "Trivselsmåling, 9. klassetrin" : "Well-being score, 9th grade",
       items: data.bestTrivsel,
       href: "/skole",
       ctaLabel: language === "da" ? "Se alle skoler på trivsel" : "See all schools by well-being",
     },
     {
-      icon: Trophy,
       title: language === "da" ? "Højeste karaktersnit" : "Highest grade average",
-      subtitle: language === "da" ? "Top 5 skoler på 9. klasses karakterer" : "Top 5 schools by 9th grade marks",
+      subtitle: language === "da" ? "Afgangsprøve, 9. klassetrin" : "Exit exams, 9th grade",
       items: data.bestSchools,
       href: "/skole",
       ctaLabel: language === "da" ? "Se alle skoler på karakterer" : "See all schools by grades",
@@ -25,41 +23,45 @@ export default function PopularSearches({ data, language }: { data: PopularData;
 
   return (
     <ScrollReveal>
-      <section className="max-w-5xl mx-auto px-4 py-12 sm:py-16">
-        <div className="text-center mb-8 sm:mb-10">
-          <p className="text-[11px] uppercase tracking-widest text-accent font-semibold mb-2">
-            {language === "da" ? "Data du ikke finder andre steder" : "Data you won't find elsewhere"}
-          </p>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+        <div className="mb-12 sm:mb-16 max-w-2xl">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight mb-3">
             {language === "da" ? "Topplaceringer lige nu" : "Top rankings right now"}
           </h2>
-          <p className="text-muted text-sm sm:text-base max-w-xl mx-auto">
-            {language === "da" ? "Baseret på officielle data fra Undervisningsministeriet" : "Based on official data from the Ministry of Education"}
+          <p className="text-muted text-base sm:text-lg leading-relaxed">
+            {language === "da"
+              ? "Baseret på officielle data fra Undervisningsministeriet. Opdateres efter hvert skoleår."
+              : "Based on official data from the Ministry of Education. Updated each school year."}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {lists.map(({ icon: Icon, title, subtitle, items, href, ctaLabel }) => (
-            <div key={title} className="rounded-2xl bg-[var(--color-bg-card)] border border-border/60 shadow-sm p-6 flex flex-col">
-              <div className="flex items-start gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-foreground text-lg leading-tight">{title}</h3>
-                  <p className="text-xs text-muted mt-0.5">{subtitle}</p>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 border-t border-border/70">
+          {lists.map(({ title, subtitle, items, href, ctaLabel }, idx) => (
+            <div
+              key={title}
+              className={`py-10 md:px-8 lg:px-10 ${idx === 0 ? "border-b md:border-b-0 md:border-r border-border/70" : ""}`}
+            >
+              <div className="mb-8">
+                <p className="font-mono text-[11px] text-muted/60 tracking-widest mb-3">
+                  {String(idx + 1).padStart(2, "0")}
+                </p>
+                <h3 className="font-display text-2xl sm:text-3xl font-semibold text-foreground tracking-tight mb-1">
+                  {title}
+                </h3>
+                <p className="text-sm text-muted">{subtitle}</p>
               </div>
 
-              <ol className="space-y-0.5 mb-4 flex-1">
+              <ol className="divide-y divide-border/70 mb-6">
                 {items.map((item, i) => (
                   <li key={item.id}>
                     <Link
                       to={`/institution/${item.id}`}
-                      className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-primary/5 transition-colors group/row"
+                      className="flex items-center gap-4 py-3 group/row hover:text-accent transition-colors"
                     >
-                      <span className="font-mono text-[11px] text-muted/60 w-4 shrink-0">{i + 1}</span>
-                      <span className="text-sm text-foreground truncate flex-1 group-hover/row:text-primary transition-colors">
+                      <span className="font-mono text-[11px] text-muted/50 w-5 shrink-0 tabular-nums">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="text-sm text-foreground truncate flex-1 group-hover/row:text-accent transition-colors">
                         {item.navn}
                       </span>
                       <span className="font-mono text-sm font-semibold text-foreground tabular-nums shrink-0">
@@ -72,10 +74,10 @@ export default function PopularSearches({ data, language }: { data: PopularData;
 
               <Link
                 to={href}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline underline-offset-4"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline"
               >
                 {ctaLabel}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
           ))}

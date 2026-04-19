@@ -1,6 +1,6 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin, SlidersHorizontal, Loader2 } from "lucide-react";
+import { Search, MapPin, Loader2 } from "lucide-react";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 
@@ -67,72 +67,71 @@ export default function HeroSection({
             <source src={heroVideo.src} type="video/mp4" />
           </video>
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/70 via-primary/55 to-primary/80" />
+        <div className="absolute inset-0 bg-primary/85" />
       </div>
 
-      <div className="relative z-10 max-w-3xl mx-auto px-4 py-14 sm:py-20 text-center">
-        <h1 className="font-display text-3xl sm:text-4xl lg:text-[2.75rem] font-bold text-white leading-[1.15] mb-3 tracking-tight">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-20 pb-24 sm:pt-28 sm:pb-32 lg:pt-36 lg:pb-40 text-center">
+        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-[1.05] mb-6 tracking-tight">
           {heroTitle}
         </h1>
-        <p className="text-white/75 text-sm sm:text-base max-w-xl mx-auto mb-7 leading-relaxed">
+        <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
           {heroSubtitle}
         </p>
 
         {/* Search bar */}
-        <div className="max-w-xl mx-auto mb-4" role="search">
+        <div className="max-w-xl mx-auto" role="search">
           <div className="relative">
             <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/40 pointer-events-none" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
             <input
               id="hero-search"
               type="search"
               value={searchInput}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
-              className="w-full py-4 pl-12 pr-4 text-base rounded-2xl bg-[var(--color-bg-card)] text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-accent shadow-2xl transition-shadow"
+              className="w-full py-4 pl-14 pr-5 text-base rounded-full bg-white text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-accent shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
               autoComplete="off"
             />
           </div>
-        </div>
 
-        {/* Quick actions */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-          <button
-            onClick={onNearMe}
-            disabled={nearMeLoading}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white text-sm font-medium transition-colors disabled:opacity-60"
-          >
-            {nearMeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
-            {language === "da" ? "Find tæt på mig" : "Find near me"}
-          </button>
-          <Link
-            to="/find"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white text-sm font-medium transition-colors"
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-            {language === "da" ? "Find den rette for jer" : "Find your perfect match"}
-          </Link>
+          {/* Subtle secondary actions */}
+          <div className="flex items-center justify-center gap-6 mt-5 text-sm">
+            <button
+              onClick={onNearMe}
+              disabled={nearMeLoading}
+              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors disabled:opacity-60 underline-offset-4 hover:underline"
+            >
+              {nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
+              {language === "da" ? "Find tæt på mig" : "Find near me"}
+            </button>
+            <Link
+              to="/find"
+              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors underline-offset-4 hover:underline"
+            >
+              {language === "da" ? "Find den rette for jer" : "Find your perfect match"}
+            </Link>
+          </div>
         </div>
+      </div>
 
-        {/* Trust stats */}
-        <div className="flex items-center justify-center gap-8 sm:gap-12 text-white/60 text-xs sm:text-sm flex-wrap">
-          <div className="text-center">
-            <p className="text-white font-display text-2xl sm:text-3xl font-bold leading-none mb-1 tracking-tight">
+      {/* Trust bar — subtle strip at bottom of hero */}
+      <div className="relative z-10 border-t border-white/10">
+        <div className="max-w-5xl mx-auto px-4 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-white/60 text-[13px]">
+          <div className="flex items-baseline gap-2">
+            <span className="text-white font-display text-lg font-semibold tabular-nums">
               <AnimatedNumber value={institutionCount} format={formatCount} duration={1200} />
-            </p>
-            <p className="tracking-wide">{language === "da" ? "institutioner" : "institutions"}</p>
+            </span>
+            <span>{language === "da" ? "institutioner" : "institutions"}</span>
           </div>
-          <div className="text-center">
-            <p className="text-white font-display text-2xl sm:text-3xl font-bold leading-none mb-1 tracking-tight">
-              {municipalityCount}
-            </p>
-            <p className="tracking-wide">{language === "da" ? "kommuner" : "municipalities"}</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-white font-display text-lg font-semibold tabular-nums">{municipalityCount}</span>
+            <span>{language === "da" ? "kommuner" : "municipalities"}</span>
           </div>
-          <div className="text-center hidden sm:block">
-            <p className="text-white font-display text-2xl sm:text-3xl font-bold leading-none mb-1 tracking-tight">
+          <div className="hidden sm:flex items-baseline gap-2">
+            <span className="text-white font-display text-lg font-semibold tabular-nums">
               {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}
-            </p>
-            <p className="tracking-wide">{language === "da" ? "senest opdateret" : "last updated"}</p>
+            </span>
+            <span>{language === "da" ? "senest opdateret" : "last updated"}</span>
           </div>
         </div>
       </div>

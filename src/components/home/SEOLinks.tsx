@@ -15,18 +15,22 @@ export default function SEOLinks({ language }: { language: string }) {
   ];
 
   return (
-    <section className="max-w-5xl mx-auto px-4 py-8">
-      <div className="flex flex-wrap gap-2 justify-center">
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 border-t border-border/70">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-muted/70 font-medium mb-5">
+        {language === "da" ? "Populære sider" : "Popular pages"}
+      </p>
+      <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
         {links.map((link) => (
-          <Link
-            key={link.to}
-            to={link.to}
-            className="card px-4 py-2 text-sm text-primary hover:bg-primary/5 transition-colors min-h-[44px] flex items-center"
-          >
-            {link.label}
-          </Link>
+          <li key={link.to}>
+            <Link
+              to={link.to}
+              className="text-foreground hover:text-accent transition-colors underline-offset-4 hover:underline"
+            >
+              {link.label}
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }

@@ -8,27 +8,25 @@ interface FAQItem {
 export default function HomeFAQ({ items, title }: { items: FAQItem[]; title: string }) {
   return (
     <ScrollReveal>
-      <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
-        <div className="text-center mb-8 sm:mb-10">
-          <p className="text-[11px] uppercase tracking-widest text-accent font-semibold mb-2">FAQ</p>
-          <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground">{title}</h2>
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+        <div className="mb-12 sm:mb-16 max-w-2xl">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground tracking-tight">
+            {title}
+          </h2>
         </div>
-        <div className="space-y-2">
+        <div className="divide-y divide-border/70 border-t border-b border-border/70">
           {items.map((faq) => (
-            <details
-              key={faq.q}
-              className="group rounded-xl bg-[var(--color-bg-card)] border border-border/60 hover:border-primary/30 transition-colors"
-            >
-              <summary className="font-semibold text-foreground cursor-pointer list-none flex justify-between items-center gap-4 p-5 min-h-[44px]">
-                <span className="text-sm sm:text-base">{faq.q}</span>
+            <details key={faq.q} className="group">
+              <summary className="font-medium text-foreground cursor-pointer list-none flex justify-between items-start gap-6 py-6 min-h-[44px]">
+                <span className="font-display text-lg sm:text-xl leading-snug tracking-tight pt-0.5">{faq.q}</span>
                 <span
                   aria-hidden="true"
-                  className="w-6 h-6 rounded-full bg-primary/8 text-primary flex items-center justify-center shrink-0 group-open:rotate-45 transition-transform text-lg font-light leading-none"
+                  className="text-2xl leading-none text-muted/60 group-open:rotate-45 transition-transform font-light shrink-0 mt-1"
                 >
                   +
                 </span>
               </summary>
-              <p className="text-muted text-sm leading-relaxed px-5 pb-5 -mt-1">{faq.a}</p>
+              <p className="text-muted text-[15px] leading-relaxed pb-6 pr-10 max-w-3xl">{faq.a}</p>
             </details>
           ))}
         </div>
