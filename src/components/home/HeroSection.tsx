@@ -49,7 +49,10 @@ export default function HeroSection({
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/og-image.png')" }}
+          style={{
+            backgroundImage: "url('/og-image.png')",
+            filter: "brightness(0.55) saturate(0.55) contrast(0.95)",
+          }}
         />
         {shouldLoadVideo && (
           <video
@@ -62,51 +65,65 @@ export default function HeroSection({
             aria-hidden="true"
             poster="/og-image.png"
             className="absolute left-0 w-full min-h-full object-cover pointer-events-none"
-            style={{ top: heroVideo.focus, transform: `translateY(-${heroVideo.focus})` }}
+            style={{
+              top: heroVideo.focus,
+              transform: `translateY(-${heroVideo.focus})`,
+              filter: "brightness(0.55) saturate(0.55) contrast(0.95)",
+            }}
           >
             <source src={heroVideo.src} type="video/mp4" />
           </video>
         )}
-        <div className="absolute inset-0 bg-primary/85" />
+        {/* Flat navy tint — primary readability layer (70% = strong but lets video breathe as texture) */}
+        <div aria-hidden="true" className="absolute inset-0 bg-primary/70" />
+        {/* Subtle vignette — focuses attention on center content without introducing mood/drama */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 0%, transparent 45%, rgba(13,28,47,0.35) 100%)",
+          }}
+        />
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 pt-16 pb-20 sm:pt-20 sm:pb-24 lg:pt-24 lg:pb-28 text-center">
         <h1 className="font-display text-[2rem] sm:text-5xl lg:text-[3.5rem] font-semibold text-white leading-[1.08] mb-5 tracking-tight">
           {heroTitle}
         </h1>
-        <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-9 leading-relaxed">
+        <p className="text-white/65 text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
           {heroSubtitle}
         </p>
 
-        {/* Search bar */}
+        {/* Search bar — primary focal point */}
         <div className="max-w-xl mx-auto" role="search">
           <div className="relative">
             <label htmlFor="hero-search" className="sr-only">{language === "da" ? "Søg institution" : "Search institution"}</label>
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/50 pointer-events-none" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted/60 pointer-events-none" />
             <input
               id="hero-search"
               type="search"
               value={searchInput}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={language === "da" ? "Søg postnummer, by eller institution..." : "Search postal code, city or institution..."}
-              className="w-full py-4 pl-14 pr-5 text-base rounded-full bg-white text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-accent shadow-[0_12px_40px_rgba(0,0,0,0.25)]"
+              className="w-full py-[1.125rem] pl-[3.5rem] pr-6 text-[17px] rounded-full bg-white text-foreground placeholder:text-muted/55 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary shadow-[0_2px_12px_rgba(0,0,0,0.12),0_14px_32px_-8px_rgba(0,0,0,0.25)]"
               autoComplete="off"
             />
           </div>
 
-          {/* Subtle secondary actions */}
-          <div className="flex items-center justify-center gap-6 mt-5 text-sm">
+          {/* Secondary actions — deliberately quiet, must not compete with search */}
+          <div className="flex items-center justify-center gap-6 mt-6 text-sm">
             <button
               onClick={onNearMe}
               disabled={nearMeLoading}
-              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors disabled:opacity-60 underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1.5 text-white/55 hover:text-white/90 transition-colors disabled:opacity-60 underline-offset-4 hover:underline"
             >
               {nearMeLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
               {language === "da" ? "Find tæt på mig" : "Find near me"}
             </button>
             <Link
               to="/find"
-              className="inline-flex items-center gap-1.5 text-white/70 hover:text-white transition-colors underline-offset-4 hover:underline"
+              className="inline-flex items-center gap-1.5 text-white/55 hover:text-white/90 transition-colors underline-offset-4 hover:underline"
             >
               {language === "da" ? "Find den rette for jer" : "Find your perfect match"}
             </Link>
@@ -114,21 +131,21 @@ export default function HeroSection({
         </div>
       </div>
 
-      {/* Trust bar — subtle strip at bottom of hero */}
+      {/* Trust bar — quiet metadata strip, must not compete with search */}
       <div className="relative z-10 border-t border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-white/60 text-[13px]">
+        <div className="max-w-5xl mx-auto px-4 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-white/45 text-[13px]">
           <div className="flex items-baseline gap-2">
-            <span className="text-white font-display text-lg font-semibold tabular-nums">
+            <span className="text-white/85 font-display text-lg font-medium tabular-nums">
               <AnimatedNumber value={institutionCount} format={formatCount} duration={1200} />
             </span>
             <span>{language === "da" ? "institutioner" : "institutions"}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-white font-display text-lg font-semibold tabular-nums">{municipalityCount}</span>
+            <span className="text-white/85 font-display text-lg font-medium tabular-nums">{municipalityCount}</span>
             <span>{language === "da" ? "kommuner" : "municipalities"}</span>
           </div>
           <div className="hidden sm:flex items-baseline gap-2">
-            <span className="text-white font-display text-lg font-semibold tabular-nums">
+            <span className="text-white/85 font-display text-lg font-medium tabular-nums">
               {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}
             </span>
             <span>{language === "da" ? "senest opdateret" : "last updated"}</span>
