@@ -24,7 +24,13 @@ export default function HomeDiscovery({ popularData, language, schoolCount, faqI
       <RecentlyViewed />
       <ScrollReveal><HomeFAQ items={faqItems} title={faqTitle} /></ScrollReveal>
       <ScrollReveal><SEOLinks language={language} /></ScrollReveal>
-      <ScrollReveal><section className="max-w-xl mx-auto px-4 py-8"><EmailCapture /></section></ScrollReveal>
+      <ScrollReveal>
+        <section className="border-t border-border/70">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+            <EmailCapture />
+          </div>
+        </section>
+      </ScrollReveal>
     </>
   );
 }

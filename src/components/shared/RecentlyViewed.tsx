@@ -1,19 +1,8 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Clock, Baby, Users, Home, GraduationCap, BookOpen, Trophy, School, MapPin, type LucideIcon } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { formatDKK } from "@/lib/format";
-
-const CATEGORY_ICON: Record<string, LucideIcon> = {
-  vuggestue: Baby,
-  boernehave: Users,
-  dagpleje: Home,
-  skole: GraduationCap,
-  sfo: BookOpen,
-  fritidsklub: Trophy,
-  efterskole: School,
-};
 
 export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
   const { institutions } = useData();
@@ -30,29 +19,27 @@ export default function RecentlyViewed({ excludeId }: { excludeId?: string }) {
   if (recentInsts.length === 0) return null;
 
   return (
-    <section className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="font-display text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-        <Clock className="w-4 h-4 text-muted" />
+    <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12 border-t border-border/70">
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/60 mb-5">
         Senest set
-      </h2>
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+      </p>
+      <div className="flex gap-0 overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6 divide-x divide-border/70">
         {recentInsts.map((inst) => (
           <Link
             key={inst.id}
             to={`/institution/${inst.id}`}
-            className="card p-3 min-w-[200px] max-w-[240px] shrink-0 hover:bg-primary/5 transition-colors"
+            className="min-w-[220px] max-w-[260px] shrink-0 pl-5 first:pl-0 pr-5 py-1 hover:text-accent transition-colors group"
           >
-            <div className="flex items-center gap-2 mb-1">
-              {(() => { const Icon = CATEGORY_ICON[inst.category] || MapPin; return <Icon className="w-4 h-4 text-muted shrink-0" />; })()}
-              <p className="font-medium text-sm text-foreground truncate">{inst.name}</p>
-            </div>
-            <p className="text-xs text-muted truncate">{inst.municipality}</p>
+            <p className="font-display text-[15px] font-medium text-foreground leading-tight truncate group-hover:text-accent transition-colors">
+              {inst.name}
+            </p>
+            <p className="text-xs text-muted mt-1 truncate">{inst.municipality}</p>
             {inst.category === "efterskole" && inst.yearlyPrice ? (
-              <p className="text-xs font-mono text-primary mt-1">
+              <p className="text-xs font-mono text-muted mt-1 tabular-nums">
                 {formatDKK(inst.yearlyPrice)}/år
               </p>
             ) : inst.monthlyRate != null ? (
-              <p className="text-xs font-mono text-primary mt-1">
+              <p className="text-xs font-mono text-muted mt-1 tabular-nums">
                 {formatDKK(inst.monthlyRate)}/md
               </p>
             ) : null}
