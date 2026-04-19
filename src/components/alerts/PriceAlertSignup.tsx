@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Bell } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 interface PriceAlertSignupProps {
   municipality?: string;
@@ -115,13 +116,9 @@ export default function PriceAlertSignup({ municipality, category, compact = fal
             placeholder={labels.emailPlaceholder}
             className="flex-1 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50"
-          >
+          <Button type="submit" variant="primary" size="sm" loading={status === "loading"}>
             {labels.subscribe}
-          </button>
+          </Button>
         </div>
         <label className="flex items-start gap-2 cursor-pointer">
           <input
@@ -158,13 +155,9 @@ export default function PriceAlertSignup({ municipality, category, compact = fal
             placeholder={labels.emailPlaceholder}
             className="flex-1 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50"
-          >
+          <Button type="submit" variant="primary" size="sm" loading={status === "loading"}>
             {labels.subscribe}
-          </button>
+          </Button>
         </div>
 
         <label className="flex items-start gap-2 cursor-pointer">

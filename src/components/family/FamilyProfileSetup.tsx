@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useFamily, type FamilyProfile } from "@/contexts/FamilyContext";
+import Button from "@/components/ui/Button";
 
 interface Props {
   onClose?: () => void;
@@ -85,19 +86,13 @@ export default function FamilyProfileSetup({ onClose }: Props) {
 
       {/* Actions */}
       <div className="flex gap-2 pt-2">
-        <button
-          onClick={handleSave}
-          className="flex-1 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium min-h-[44px] hover:opacity-90 transition-opacity"
-        >
+        <Button variant="primary" size="md" onClick={handleSave} fullWidth>
           Gem profil
-        </button>
+        </Button>
         {onClose && (
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-border text-sm text-muted min-h-[44px] hover:bg-bg-card transition-colors"
-          >
+          <Button variant="secondary" size="md" onClick={onClose}>
             Annuller
-          </button>
+          </Button>
         )}
       </div>
     </div>

@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { toSlug } from "@/lib/slugs";
 import type { InstitutionType } from "@/lib/childcare/types";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import Button from "@/components/ui/Button";
 
 const CATEGORY_URL_MAP: Record<InstitutionType, string> = {
   vuggestue: "vuggestue", boernehave: "boernehave", dagpleje: "dagpleje", sfo: "sfo",
@@ -27,13 +28,15 @@ export default function FripladsBottomCTAs({ municipality, categoryLabels, isDa 
               ? "Se den samlede pris for vuggestue, børnehave og SFO over 10 år i din kommune."
               : "See the total cost of nursery, kindergarten and after-school care over 10 years in your municipality."}
           </p>
-          <Link
+          <Button
+            as="link"
             to="/samlet-pris"
-            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors min-h-[44px]"
+            variant="primary"
+            size="md"
+            trailingIcon={<ArrowRight className="w-4 h-4" />}
           >
             {isDa ? "Se samlet pris" : "See total cost"}
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          </Button>
         </section>
       </ScrollReveal>
 

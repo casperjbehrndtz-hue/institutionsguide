@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubmitReview, REVIEW_DIMENSIONS, type DimensionKey, type DimensionRatings } from "@/hooks/useReviews";
+import Button from "@/components/ui/Button";
 
 interface ReviewFormV2Props {
   institutionId: string;
@@ -93,15 +94,16 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
         </div>
         <p className="text-lg font-semibold mb-2">{l.successTitle}</p>
         <p className="text-sm text-muted mb-4">{l.successMessage}</p>
-        <button
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => {
             reset();
             onClose?.();
           }}
-          className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           {l.close}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -304,13 +306,9 @@ export default function ReviewFormV2({ institutionId, onClose }: ReviewFormV2Pro
         <p className="text-xs text-destructive">{submitError}</p>
       )}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full py-2.5 px-4 rounded-lg bg-primary text-white font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
-      >
-        {submitting ? "..." : l.submit}
-      </button>
+      <Button type="submit" variant="primary" size="md" loading={submitting} fullWidth>
+        {l.submit}
+      </Button>
     </form>
   );
 }
