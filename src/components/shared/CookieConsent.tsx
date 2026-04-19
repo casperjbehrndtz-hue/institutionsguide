@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { loadAnalytics, removeAnalytics, hasConsent } from "@/lib/initAnalytics";
+import Button from "@/components/ui/Button";
 
 function getInitialVisibility(): boolean {
   try {
@@ -48,20 +49,22 @@ export default function CookieConsent() {
           <Link to="/privatliv" className="text-primary underline hover:text-accent transition-colors">{t.footer.privacy.toLowerCase()}</Link>.
         </p>
         <div className="flex gap-3">
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => handleChoice(false)}
-            className="px-4 py-2 text-sm rounded-lg border border-border text-muted hover:bg-border/30 transition-colors min-h-[44px]"
             aria-label={t.cookie.decline}
           >
             {t.cookie.decline}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => handleChoice(true)}
-            className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary-light transition-colors min-h-[44px]"
             aria-label={t.cookie.accept}
           >
             {t.cookie.accept}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, ChevronRight } from "lucide-react";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import Button from "@/components/ui/Button";
 import { formatDKK } from "@/lib/format";
 import { toSlug } from "@/lib/slugs";
 import type { InstitutionType } from "@/lib/childcare/types";
@@ -136,15 +137,17 @@ export default function GuideResults({
           )}
 
           {/* CTA */}
-          <Link
+          <Button
+            as="link"
             to={ctaUrl}
-            className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors min-h-[44px]"
+            variant="primary"
+            size="md"
+            trailingIcon={<ArrowRight className="w-4 h-4" />}
           >
             {isDa
               ? `Se alle ${TYPE_LABELS_DA[recommendation.primary].toLowerCase()} i ${validMunicipality}`
               : `See all ${TYPE_LABELS_EN[recommendation.primary].toLowerCase()} in ${validMunicipality}`}
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          </Button>
         </div>
       </ScrollReveal>
 

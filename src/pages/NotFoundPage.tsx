@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import SEOHead from "@/components/shared/SEOHead";
+import Button from "@/components/ui/Button";
 import { CATEGORY_SLUGS, CATEGORY_LABELS_DA, type CategorySlug } from "@/lib/slugs";
 
 const POPULAR_CATEGORIES: CategorySlug[] = [
@@ -74,12 +75,9 @@ export default function NotFoundPage() {
             ))}
           </div>
 
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-          >
+          <Button as="link" to="/" variant="primary" size="md">
             {isDa ? "Gå til forsiden" : "Go to homepage"}
-          </Link>
+          </Button>
         </div>
       </div>
     </>

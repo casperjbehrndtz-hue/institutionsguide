@@ -1,6 +1,7 @@
 import { SearchX, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { InstitutionCategory, AgeGroup } from "@/lib/types";
+import Button from "@/components/ui/Button";
 
 interface ActiveFilter {
   label: string;
@@ -131,12 +132,9 @@ export default function NoResults({
       )}
 
       {onClearAll && (
-        <button
-          onClick={onClearAll}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary-light transition-colors"
-        >
+        <Button variant="primary" size="sm" onClick={onClearAll}>
           {t.common.clearAllFilters}
-        </button>
+        </Button>
       )}
     </div>
   );

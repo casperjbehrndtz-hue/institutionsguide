@@ -1,5 +1,6 @@
 import { Component, type ReactNode, type ErrorInfo } from "react";
 import { captureException } from "@/lib/errorTracking";
+import Button from "@/components/ui/Button";
 
 interface Props {
   children: ReactNode;
@@ -81,20 +82,17 @@ export default class ErrorBoundary extends Component<Props, State> {
               {this.state.error?.message}
             </p>
             <div className="flex gap-3 justify-center">
-              <button
-                onClick={this.handleRetry}
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-                aria-label={m.tryAgain}
-              >
+              <Button variant="primary" size="md" onClick={this.handleRetry} aria-label={m.tryAgain}>
                 {m.tryAgain}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => window.location.reload()}
-                className="px-6 py-3 border border-border rounded-lg font-medium text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
                 aria-label={m.reload}
               >
                 {m.reload}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
