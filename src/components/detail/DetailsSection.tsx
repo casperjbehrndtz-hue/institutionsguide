@@ -1,5 +1,4 @@
 import { lazy, Suspense, useMemo } from "react";
-import GatedSection from "@/components/shared/GatedSection";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import FripladsCalculator from "@/components/detail/FripladsCalculator";
 import ArbejdstilsynSection from "@/components/detail/ArbejdstilsynSection";
@@ -20,27 +19,25 @@ interface DetailsSectionProps {
   municipalityAvgPrice: number | null;
   normering: NormeringEntry[];
   tilsynRapporter: Record<string, TilsynRapport[]>;
-  unlocked: boolean;
-  onRequestUnlock: () => void;
   language: string;
   t: TranslationStrings;
 }
 
 export default function DetailsSection({
   inst, nearby, municipalityAvgPrice, normering,
-  tilsynRapporter, unlocked, onRequestUnlock, language, t,
+  tilsynRapporter, language, t,
 }: DetailsSectionProps) {
   const meta = useMemo(() => ({ institution: inst.id }), [inst.id]);
-  const priceRef = useFeatureView("price_details", unlocked, meta);
-  const arbejdstilsynRef = useFeatureView("arbejdstilsyn", unlocked, meta);
-  const priceHistoryRef = useFeatureView("price_history", unlocked, meta);
-  const tilsynRef = useFeatureView("tilsynsrapporter", unlocked, meta);
-  const normeringRef = useFeatureView("normering", unlocked, meta);
+  const priceRef = useFeatureView("price_details", true, meta);
+  const arbejdstilsynRef = useFeatureView("arbejdstilsyn", true, meta);
+  const priceHistoryRef = useFeatureView("price_history", true, meta);
+  const tilsynRef = useFeatureView("tilsynsrapporter", true, meta);
+  const normeringRef = useFeatureView("normering", true, meta);
 
   return (
     <section className="max-w-[1020px] mx-auto px-4 pb-12 space-y-6">
       <div ref={priceRef}>
-        <PriceSection inst={inst} municipalityAvgPrice={municipalityAvgPrice} unlocked={unlocked} onRequestUnlock={onRequestUnlock} language={language} t={t} />
+        <PriceSection inst={inst} municipalityAvgPrice={municipalityAvgPrice} language={language} t={t} />
       </div>
 
       {inst.annualRate && inst.annualRate > 0 && !["skole", "efterskole", "fritidsklub"].includes(inst.category) && (
@@ -48,21 +45,17 @@ export default function DetailsSection({
       )}
 
       <div ref={normeringRef}>
-        <NormeringSection inst={inst} normering={normering} unlocked={unlocked} onRequestUnlock={onRequestUnlock} />
+        <NormeringSection inst={inst} normering={normering} />
       </div>
 
       <div ref={arbejdstilsynRef}>
-        <GatedSection unlocked={unlocked} onRequestUnlock={onRequestUnlock}>
-          <ArbejdstilsynSection institutionId={inst.id} institutionName={inst.name} />
-        </GatedSection>
+        <ArbejdstilsynSection institutionId={inst.id} institutionName={inst.name} />
       </div>
 
       <div ref={priceHistoryRef}>
-        <GatedSection unlocked={unlocked} onRequestUnlock={onRequestUnlock}>
-          <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-            <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
-          </Suspense>
-        </GatedSection>
+        <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+          <PriceHistoryChart institutionId={inst.id} institutionName={inst.name} />
+        </Suspense>
       </div>
 
       {!["skole", "efterskole", "gymnasium"].includes(inst.category) && (
@@ -81,9 +74,7 @@ export default function DetailsSection({
 
       {tilsynRapporter[inst.id]?.length > 0 && (
         <div ref={tilsynRef}>
-          <GatedSection unlocked={unlocked} onRequestUnlock={onRequestUnlock}>
-            <TilsynRapportSection reports={tilsynRapporter[inst.id]} institutionName={inst.name} />
-          </GatedSection>
+          <TilsynRapportSection reports={tilsynRapporter[inst.id]} institutionName={inst.name} />
         </div>
       )}
 

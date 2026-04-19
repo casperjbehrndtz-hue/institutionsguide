@@ -10,6 +10,8 @@ export default function HeroImage({ inst }: { inst: { imageUrl?: string; lat: nu
         <img
           src={inst.imageUrl}
           alt={inst.name}
+          fetchPriority="high"
+          decoding="async"
           className="w-full h-[200px] sm:h-[260px] rounded-xl object-cover"
           onError={() => setImgFailed(true)}
         />

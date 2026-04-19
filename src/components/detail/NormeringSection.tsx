@@ -1,5 +1,4 @@
 import { lazy, Suspense } from "react";
-import GatedSection from "@/components/shared/GatedSection";
 import type { UnifiedInstitution, NormeringEntry } from "@/lib/types";
 
 const NormeringBadge = lazy(() => import("@/components/charts/NormeringBadge"));
@@ -11,11 +10,9 @@ const AGE_GROUP_MAP: Record<string, string> = {
 interface NormeringSectionProps {
   inst: UnifiedInstitution;
   normering: NormeringEntry[];
-  unlocked: boolean;
-  onRequestUnlock: () => void;
 }
 
-export default function NormeringSection({ inst, normering, unlocked, onRequestUnlock }: NormeringSectionProps) {
+export default function NormeringSection({ inst, normering }: NormeringSectionProps) {
   if (inst.category === "skole") return null;
   const ag = AGE_GROUP_MAP[inst.category];
   const latest = normering
@@ -26,16 +23,14 @@ export default function NormeringSection({ inst, normering, unlocked, onRequestU
   const prev = latest.length > 1 ? latest[1] : undefined;
 
   return (
-    <GatedSection unlocked={unlocked} onRequestUnlock={onRequestUnlock}>
-      <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
-        <NormeringBadge
-          municipality={inst.municipality}
-          ageGroup={current.ageGroup}
-          ratio={current.ratio}
-          year={current.year}
-          previousRatio={prev?.ratio}
-        />
-      </Suspense>
-    </GatedSection>
+    <Suspense fallback={<div className="h-[250px] bg-border/20 rounded-xl animate-pulse" />}>
+      <NormeringBadge
+        municipality={inst.municipality}
+        ageGroup={current.ageGroup}
+        ratio={current.ratio}
+        year={current.year}
+        previousRatio={prev?.ratio}
+      />
+    </Suspense>
   );
 }

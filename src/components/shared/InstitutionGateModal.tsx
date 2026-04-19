@@ -17,21 +17,31 @@ interface Props {
 }
 
 const FREE_ITEMS = {
-  da: ["Navn og type", "Adresse og kommune", "Overordnet prisniveau"],
-  en: ["Name and type", "Address and municipality", "General price level"],
-};
-const GATED_ITEMS = {
   da: [
     "Faktisk månedspris",
-    "Normering med udvikling over tid",
+    "Normering og udvikling over tid",
     "Tilsynsrapporter og påtaler",
-    "AI-kvalitetsvurdering",
+    "Prishistorik og sammenligninger",
   ],
   en: [
     "Actual monthly price",
     "Staff ratios over time",
     "Inspection reports and notices",
+    "Price history and comparisons",
+  ],
+};
+const GATED_ITEMS = {
+  da: [
+    "AI-kvalitetsvurdering",
+    "AI-chat om institutionen",
+    "Prisalarm ved stigninger",
+    "Sammenlign flere samtidig",
+  ],
+  en: [
     "AI quality assessment",
+    "AI chat about the institution",
+    "Price alerts on changes",
+    "Compare multiple at once",
   ],
 };
 
@@ -183,7 +193,7 @@ export default function InstitutionGateModal({
               <Lock className="w-6 h-6 text-primary" />
             </div>
             <h2 className="font-display text-xl font-bold text-foreground leading-tight">
-              {isDa ? "Se den fulde profil for" : "See full profile for"}{" "}
+              {isDa ? "AI-vurdering af" : "AI assessment of"}{" "}
               <span className="text-primary">{institutionName}</span>
             </h2>
             <p className="text-sm text-muted mt-1.5">
@@ -191,11 +201,11 @@ export default function InstitutionGateModal({
             </p>
           </div>
 
-          {/* Two-column: free vs gated */}
+          {/* Two-column: already free vs what email unlocks */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div>
               <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
-                {isDa ? "Det har du allerede set" : "What you've already seen"}
+                {isDa ? "Allerede gratis" : "Already free"}
               </p>
               <ul className="space-y-1.5">
                 {FREE_ITEMS[language].map((item) => (
@@ -208,7 +218,7 @@ export default function InstitutionGateModal({
             </div>
             <div>
               <p className="text-[11px] font-semibold text-primary uppercase tracking-wide mb-2">
-                {isDa ? "Lås op gratis" : "Unlock for free"}
+                {isDa ? "Med email" : "With email"}
               </p>
               <ul className="space-y-1.5">
                 {GATED_ITEMS[language].map((item) => (
@@ -267,7 +277,7 @@ export default function InstitutionGateModal({
                   {isDa ? "Vent venligst..." : "Please wait..."}
                 </>
               ) : (
-                isDa ? "Se den fulde profil" : "See full profile"
+                isDa ? "Lås op med email" : "Unlock with email"
               )}
             </button>
           </form>

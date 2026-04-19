@@ -64,6 +64,7 @@ function StreetViewThumb({ lat, lng, name, category }: { lat: number; lng: numbe
       src={`https://maps.googleapis.com/maps/api/streetview?size=160x120&location=${lat},${lng}&fov=80&pitch=0&key=${API_KEY}`}
       alt={name}
       loading="lazy"
+      decoding="async"
       onError={() => setFailed(true)}
       className="w-full h-full object-cover"
     />
@@ -105,7 +106,7 @@ export default function InstitutionListCard({
         {/* Thumbnail — efterskole image, Street View, or category initial */}
         <div className="w-16 sm:w-20 shrink-0 overflow-hidden rounded-l-[inherit]">
           {inst.imageUrl && !imgFailed ? (
-            <img src={inst.imageUrl} alt={inst.name} loading="lazy" className="w-full h-full object-cover" onError={() => setImgFailed(true)} />
+            <img src={inst.imageUrl} alt={inst.name} loading="lazy" decoding="async" className="w-full h-full object-cover" onError={() => setImgFailed(true)} />
           ) : (
             <StreetViewThumb lat={inst.lat} lng={inst.lng} name={inst.name} category={inst.category} />
           )}

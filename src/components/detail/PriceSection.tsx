@@ -1,19 +1,16 @@
 import { formatDKK } from "@/lib/format";
 import { dataVersions } from "@/lib/dataVersions";
-import GatedSection from "@/components/shared/GatedSection";
 import type { UnifiedInstitution } from "@/lib/types";
 import type { TranslationStrings } from "@/lib/translations/types";
 
 interface PriceSectionProps {
   inst: UnifiedInstitution;
   municipalityAvgPrice: number | null;
-  unlocked: boolean;
-  onRequestUnlock: () => void;
   language: string;
   t: TranslationStrings;
 }
 
-export default function PriceSection({ inst, municipalityAvgPrice, unlocked, onRequestUnlock, language, t }: PriceSectionProps) {
+export default function PriceSection({ inst, municipalityAvgPrice, language, t }: PriceSectionProps) {
   if (inst.monthlyRate == null && inst.yearlyPrice == null) return null;
 
   return (
@@ -35,8 +32,7 @@ export default function PriceSection({ inst, municipalityAvgPrice, unlocked, onR
           })()}
         </div>
       )}
-      <GatedSection unlocked={unlocked} onRequestUnlock={onRequestUnlock}>
-        {inst.category === "efterskole" && inst.yearlyPrice ? (
+      {inst.category === "efterskole" && inst.yearlyPrice ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="bg-bg-card border border-border rounded-lg p-4 text-center">
               <p className="text-xs text-muted mb-1">{language === "da" ? "Ugepris" : "Weekly rate"}</p>
@@ -61,15 +57,14 @@ export default function PriceSection({ inst, municipalityAvgPrice, unlocked, onR
             </div>
           </div>
         )}
-        {municipalityAvgPrice != null && inst.monthlyRate != null && (
-          <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 text-center">
-            <p className="text-xs text-muted mb-0.5">
-              {language === "da" ? `Gennemsnit i ${inst.municipality}` : `Average in ${inst.municipality}`}
-            </p>
-            <p className="font-mono text-lg font-bold text-foreground">{formatDKK(municipalityAvgPrice)}<span className="text-xs font-normal text-muted">{t.common.perMonth}</span></p>
-          </div>
-        )}
-      </GatedSection>
+      {municipalityAvgPrice != null && inst.monthlyRate != null && (
+        <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/15 text-center">
+          <p className="text-xs text-muted mb-0.5">
+            {language === "da" ? `Gennemsnit i ${inst.municipality}` : `Average in ${inst.municipality}`}
+          </p>
+          <p className="font-mono text-lg font-bold text-foreground">{formatDKK(municipalityAvgPrice)}<span className="text-xs font-normal text-muted">{t.common.perMonth}</span></p>
+        </div>
+      )}
       <p className="text-[10px] text-muted mt-3 text-center">
         {language === "da" ? `Priser fra ${dataVersions.prices.year} \u2014 kan afvige fra aktuelle takster` : `Prices from ${dataVersions.prices.year} \u2014 may differ from current rates`}
       </p>

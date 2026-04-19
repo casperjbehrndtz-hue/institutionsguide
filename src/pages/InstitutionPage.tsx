@@ -267,103 +267,105 @@ export default function InstitutionPage() {
       {/* ═══════════════ REPORT + SIDEBAR (2-col) ═══════════════ */}
       {scoreResult && (
         <section id="section-overblik" className="max-w-[1020px] mx-auto px-4 pb-6" ref={heroRef}>
-          <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
-            {/* Hero card spans full width */}
-            <div ref={reportRef}>
-            <InstitutionReport
-              score={scoreResult}
-              institutionName={inst.name}
-              category={inst.category}
-              municipality={inst.municipality}
-              language={language}
-              aiAssessment={aiAssessment}
-              aiLoading={aiState === "loading"}
-              googleRating={googleRating}
-            />
-            </div>
-
-            {/* 2-column: metrics left, sidebar right */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-6">
-              <div className="space-y-6">
-                {/* AI Chat */}
-                <div ref={aiChatRef}>
-                <Suspense fallback={null}>
-                  <InstitutionChat
-                    institutionId={inst.id}
-                    category={inst.category}
-                    language={language}
-                    context={buildChatContext(inst, instStats, municipalityAvgPrice, scoreResult, percentiles)}
-                  />
-                </Suspense>
-                </div>
-
-                {/* Quality data — v3 animated bar grid */}
-                {percentiles && percentiles.length > 0 && inst.quality && (
-                  <QualityDataSection percentiles={percentiles} quality={inst.quality} language={language} t={t} />
-                )}
-
-                {/* Dagtilbud quality — institution-level normering, staff, satisfaction */}
-                {inst.category !== "skole" && hasInstitutionQuality && (
-                  <div className="bg-bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
-                    <InstitutionQualitySection
-                      stats={instStats}
-                      kommuneStats={komStats}
-                      municipality={inst.municipality}
-                      category={inst.category}
-                    />
-                  </div>
-                )}
-
-                {/* Comparison table */}
-                {comparisonRows.length > 0 && (
-                  <ComparisonTable
-                    current={inst}
-                    currentScore={scoreResult}
-                    nearby={comparisonRows}
-                    language={language}
-                  />
-                )}
-              </div>
-
-              {/* Sidebar — desktop: sticky column */}
-              <div className="hidden lg:block">
-                <div className="sticky top-16">
-                  <InstitutionSidebar
-                    inst={inst}
-                    language={language}
-                    kommuneStats={komStats}
-                    instStats={instStats}
-                    tilsynCount={tilsynCount}
-                    tilsynClear={hasTilsynData && tilsynCount === 0}
-                    hasTilsynData={hasTilsynData}
-                    googleRating={googleRating}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Sidebar — mobile: stacked below content */}
-            <div className="lg:hidden mt-6">
-              <InstitutionSidebar
-                inst={inst}
+          {/* AI-rapport (gated — premium value-add) */}
+          <div ref={reportRef}>
+            <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+              <InstitutionReport
+                score={scoreResult}
+                institutionName={inst.name}
+                category={inst.category}
+                municipality={inst.municipality}
                 language={language}
-                kommuneStats={komStats}
-                instStats={instStats}
-                tilsynCount={tilsynCount}
-                tilsynClear={hasTilsynData && tilsynCount === 0}
-                hasTilsynData={hasTilsynData}
+                aiAssessment={aiAssessment}
+                aiLoading={aiState === "loading"}
+                googleRating={googleRating}
               />
-            </div>
-          </GatedSection>
+            </GatedSection>
+          </div>
 
-          {/* Prominent CTA to unlock full profile */}
+          {/* 2-column: metrics left, sidebar right — all free */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 mt-6">
+            <div className="space-y-6">
+              {/* AI Chat (gated — expensive premium feature) */}
+              <div ref={aiChatRef}>
+                <GatedSection unlocked={unlocked} onRequestUnlock={openGate}>
+                  <Suspense fallback={null}>
+                    <InstitutionChat
+                      institutionId={inst.id}
+                      category={inst.category}
+                      language={language}
+                      context={buildChatContext(inst, instStats, municipalityAvgPrice, scoreResult, percentiles)}
+                    />
+                  </Suspense>
+                </GatedSection>
+              </div>
+
+              {/* Quality data — free */}
+              {percentiles && percentiles.length > 0 && inst.quality && (
+                <QualityDataSection percentiles={percentiles} quality={inst.quality} language={language} t={t} />
+              )}
+
+              {/* Dagtilbud quality — free (moat: normering + staff) */}
+              {inst.category !== "skole" && hasInstitutionQuality && (
+                <div className="bg-bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+                  <InstitutionQualitySection
+                    stats={instStats}
+                    kommuneStats={komStats}
+                    municipality={inst.municipality}
+                    category={inst.category}
+                  />
+                </div>
+              )}
+
+              {/* Comparison table — free */}
+              {comparisonRows.length > 0 && (
+                <ComparisonTable
+                  current={inst}
+                  currentScore={scoreResult}
+                  nearby={comparisonRows}
+                  language={language}
+                />
+              )}
+            </div>
+
+            {/* Sidebar — desktop: sticky column */}
+            <div className="hidden lg:block">
+              <div className="sticky top-16">
+                <InstitutionSidebar
+                  inst={inst}
+                  language={language}
+                  kommuneStats={komStats}
+                  instStats={instStats}
+                  tilsynCount={tilsynCount}
+                  tilsynClear={hasTilsynData && tilsynCount === 0}
+                  hasTilsynData={hasTilsynData}
+                  googleRating={googleRating}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar — mobile: stacked below content */}
+          <div className="lg:hidden mt-6">
+            <InstitutionSidebar
+              inst={inst}
+              language={language}
+              kommuneStats={komStats}
+              instStats={instStats}
+              tilsynCount={tilsynCount}
+              tilsynClear={hasTilsynData && tilsynCount === 0}
+              hasTilsynData={hasTilsynData}
+            />
+          </div>
+
+          {/* CTA: unlock AI-vurdering (no longer gates moat data) */}
           {!unlocked && (
             <button
               onClick={openGate}
               className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary-light transition-colors min-h-[48px] shadow-md"
             >
               <Lock className="w-4 h-4" />
-              {language === "da" ? "Se fuld profil — gratis" : "See full profile — free"}
+              {language === "da" ? "Få AI-vurdering + chat — gratis" : "Get AI assessment + chat — free"}
             </button>
           )}
         </section>
@@ -375,7 +377,7 @@ export default function InstitutionPage() {
       <DetailsSection
         inst={inst} nearby={nearby} municipalityAvgPrice={municipalityAvgPrice}
         normering={normering} tilsynRapporter={tilsynRapporter}
-        unlocked={unlocked} onRequestUnlock={openGate} language={language} t={t}
+        language={language} t={t}
       />
 
       {/* Similar institutions — internal linking for SEO */}

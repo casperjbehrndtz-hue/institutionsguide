@@ -33,6 +33,7 @@ export default function StaticMapThumb({ lat, lng, name, zoom = 15, className = 
         src={src}
         alt={name}
         loading="lazy"
+        decoding="async"
         width={80}
         height={60}
         className="w-full h-full object-cover"
