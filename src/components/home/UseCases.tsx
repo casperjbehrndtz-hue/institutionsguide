@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BarChart3, GraduationCap, Calculator, Users } from "lucide-react";
+import { BarChart3, GraduationCap, Calculator, Users, ArrowRight } from "lucide-react";
 import ScrollReveal from "@/components/shared/ScrollReveal";
 
 export default function UseCases({ language, schoolCount }: { language: string; schoolCount: string }) {
@@ -16,20 +16,40 @@ export default function UseCases({ language, schoolCount }: { language: string; 
   ];
 
   return (
-    <ScrollReveal><section className="max-w-5xl mx-auto px-4 py-10 sm:py-14 border-t border-border/30">
-      <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-6 text-center">
-        {language === "da" ? "Sådan bruger forældre Institutionsguiden" : "How parents use Institutionsguiden"}
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {cards.map((card) => (
-          <Link key={card.href} to={card.href} className="card p-5 hover:border-primary/30 hover:shadow-md transition-all group">
-            <card.icon className="w-6 h-6 text-primary mb-3" />
-            <h3 className="font-display font-bold text-foreground text-sm mb-1.5">{card.title}</h3>
-            <p className="text-xs text-muted mb-3 leading-relaxed">{card.desc}</p>
-            <span className="text-xs text-primary font-semibold">{card.cta} →</span>
-          </Link>
-        ))}
-      </div>
-    </section></ScrollReveal>
+    <ScrollReveal>
+      <section className="max-w-6xl mx-auto px-4 py-12 sm:py-16">
+        <div className="text-center mb-8 sm:mb-10">
+          <p className="text-[11px] uppercase tracking-widest text-accent font-semibold mb-2">
+            {language === "da" ? "Værktøjer" : "Tools"}
+          </p>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground mb-2">
+            {language === "da" ? "Sådan bruger forældre Institutionsguiden" : "How parents use Institutionsguiden"}
+          </h2>
+          <p className="text-muted text-sm sm:text-base max-w-xl mx-auto">
+            {language === "da" ? "Fire måder at finde den rette løsning for din familie" : "Four ways to find the right fit for your family"}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {cards.map((card) => (
+            <Link
+              key={card.href}
+              to={card.href}
+              className="group rounded-2xl bg-[var(--color-bg-card)] border border-border/60 p-6 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
+            >
+              <div className="w-11 h-11 rounded-xl bg-primary/8 text-primary border border-primary/15 flex items-center justify-center mb-4">
+                <card.icon className="w-5 h-5" />
+              </div>
+              <h3 className="font-display font-bold text-foreground text-base leading-tight mb-2">{card.title}</h3>
+              <p className="text-sm text-muted leading-relaxed mb-5 flex-1">{card.desc}</p>
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                {card.cta}
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </ScrollReveal>
   );
 }

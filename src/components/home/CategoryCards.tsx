@@ -45,73 +45,52 @@ interface CategoryCardsProps {
 
 export default function CategoryCards({ featured, other, categoryStats, language, showLabel }: CategoryCardsProps) {
   return (
-    <section className="max-w-5xl mx-auto px-4 -mt-4 sm:-mt-8 relative z-20 mb-10">
+    <section className="max-w-6xl mx-auto px-4 -mt-6 sm:-mt-10 relative z-20 mb-12">
       {/* Featured: large prominent cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-3">
         {featured.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
+          const hero =
+            card.category === "efterskole" && stats?.minYearlyPrice != null
+              ? { value: `${formatDKK(stats.minYearlyPrice)}`, label: language === "da" ? "pr. år fra" : "per year from" }
+              : stats?.avgKaraktersnit != null
+                ? { value: stats.avgKaraktersnit.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 }), label: language === "da" ? "gns. karaktersnit" : "avg. grade" }
+                : { value: count.toLocaleString("da-DK"), label: language === "da" ? "institutioner" : "institutions" };
           return (
             <Link
               key={card.category}
               to={card.href}
-              className="group relative rounded-2xl bg-[var(--color-bg-card)] border border-border/60 shadow-sm hover:shadow-lg hover:border-primary/40 transition-all duration-200 overflow-hidden"
+              className="group relative rounded-2xl bg-[var(--color-bg-card)] border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col"
               aria-label={`${showLabel} ${card.label}`}
             >
-              {/* Top accent bar */}
               <div className={`h-1 ${card.bgColor}`} />
 
-              <div className="p-5 sm:p-6">
-                {/* Icon + title */}
-                <div className="flex items-start gap-3 mb-4">
+              <div className="p-6 flex flex-col flex-1">
+                <div className="flex items-start gap-3 mb-5">
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${card.bgColor}`}>
-                    <card.icon className={`w-5.5 h-5.5 ${card.iconColor}`} />
+                    <card.icon className={`w-5 h-5 ${card.iconColor}`} />
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-display font-bold text-foreground text-lg leading-tight">{card.label}</h3>
-                    <p className="text-xs text-muted mt-0.5">{card.desc}</p>
+                    <p className="text-xs text-muted mt-0.5 leading-relaxed">{card.desc}</p>
                   </div>
                 </div>
 
-                {/* Stats — quality first */}
-                <div className="space-y-2 mb-4">
-                  {count > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted">{language === "da" ? "Antal" : "Count"}</span>
-                      <span className="font-mono font-semibold text-foreground">{count.toLocaleString("da-DK")}</span>
-                    </div>
-                  )}
-                  {stats?.avgKaraktersnit != null && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted">{language === "da" ? "Gns. karaktersnit" : "Avg. grade"}</span>
-                      <span className="font-mono font-semibold text-foreground">{stats.avgKaraktersnit.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
-                    </div>
-                  )}
-                  {stats?.avgTrivsel != null && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted">{language === "da" ? "Gns. trivsel" : "Avg. well-being"}</span>
-                      <span className="font-mono font-semibold text-foreground">{stats.avgTrivsel.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
-                    </div>
-                  )}
-                  {stats?.municipalityCount > 0 && !stats?.avgKaraktersnit && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted">{language === "da" ? "Kommuner" : "Municipalities"}</span>
-                      <span className="font-mono font-semibold text-foreground">{stats.municipalityCount}</span>
-                    </div>
-                  )}
-                  {card.category === "efterskole" && stats?.minYearlyPrice != null && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted">{language === "da" ? "Fra" : "From"}</span>
-                      <span className="font-mono font-semibold text-foreground">{formatDKK(stats.minYearlyPrice)}{language === "da" ? "/år" : "/year"}</span>
-                    </div>
-                  )}
+                {/* Hero stat */}
+                <div className="mb-5">
+                  <p className="font-display font-bold text-foreground text-3xl sm:text-[2rem] leading-none tracking-tight tabular-nums">
+                    {hero.value}
+                  </p>
+                  <p className="text-[11px] text-muted uppercase tracking-widest mt-1.5 font-semibold">
+                    {hero.label}
+                  </p>
                 </div>
 
-                {/* Metric tag */}
-                <p className="text-xs text-muted mb-4 leading-relaxed">{card.metric}</p>
+                {/* Metric tag (trust signal) */}
+                <p className="text-xs text-muted leading-relaxed mb-5 flex-1">{card.metric}</p>
 
-                {/* CTA */}
-                <div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-primary mt-auto">
                   {card.cta}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -121,42 +100,30 @@ export default function CategoryCards({ featured, other, categoryStats, language
         })}
       </div>
 
-      {/* Secondary categories — horizontal row */}
+      {/* Secondary categories — compact row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {other.map((card) => {
           const stats = categoryStats[card.category];
           const count = stats?.count ?? 0;
-          const minYearlyPrice = stats?.minYearlyPrice;
           return (
             <Link
               key={card.category}
               to={card.href}
-              className="group rounded-xl bg-[var(--color-bg-card)] border border-border/40 px-3.5 py-3.5 hover:shadow-md hover:border-primary/30 transition-all duration-200"
+              className="group flex items-center gap-3 rounded-xl bg-[var(--color-bg-card)] border border-border/50 px-3.5 py-3 hover:border-primary/40 hover:shadow-md transition-all duration-200"
               aria-label={`${showLabel} ${card.label}`}
             >
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
-                  <card.icon className={`w-4 h-4 ${card.iconColor}`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-foreground text-sm leading-tight">{card.label}</p>
-                  <p className="text-[10px] text-muted leading-tight">{card.desc}</p>
-                </div>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${card.bgColor}`}>
+                <card.icon className={`w-4 h-4 ${card.iconColor}`} />
               </div>
-              <div className="text-xs text-muted space-y-0.5">
-                {count > 0 && <p>{count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}</p>}
-                {stats?.avgKaraktersnit != null && (
-                  <p className="font-mono text-foreground font-medium">
-                    {language === "da" ? "snit" : "avg."} {stats.avgKaraktersnit.toLocaleString("da-DK", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-foreground text-sm leading-tight truncate">{card.label}</p>
+                {count > 0 && (
+                  <p className="text-[11px] text-muted tabular-nums mt-0.5">
+                    {count.toLocaleString("da-DK")} {language === "da" ? "steder" : "places"}
                   </p>
                 )}
-                {card.category === "efterskole" && minYearlyPrice != null && (
-                  <p className="font-mono text-foreground font-medium">{language === "da" ? "fra" : "from"} {formatDKK(minYearlyPrice)}{language === "da" ? "/år" : "/year"}</p>
-                )}
               </div>
-              <p className="text-[11px] text-primary font-medium mt-2.5 flex items-center gap-0.5">
-                {card.cta} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-              </p>
+              <ArrowRight className="w-4 h-4 text-muted/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
             </Link>
           );
         })}
