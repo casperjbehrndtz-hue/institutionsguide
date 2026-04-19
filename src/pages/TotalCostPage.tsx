@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Calculator, ArrowRight, Info } from "lucide-react";
 import SEOHead from "@/components/shared/SEOHead";
+import Button from "@/components/ui/Button";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
@@ -210,20 +211,24 @@ export default function TotalCostPage() {
                 : "See the price for a specific type of care and calculate your subsidy with sibling discount."}
             </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Link
+              <Button
+                as="link"
                 to="/friplads"
-                className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors min-h-[44px]"
+                variant="primary"
+                size="md"
+                trailingIcon={<ArrowRight className="w-4 h-4" />}
               >
                 {isDa ? "Fripladstilskud-beregner" : "Subsidy calculator"}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
+              </Button>
+              <Button
+                as="link"
                 to="/prissammenligning"
-                className="inline-flex items-center gap-2 bg-[var(--color-bg-card)] border border-border px-6 py-3 rounded-lg font-medium text-sm text-foreground hover:border-primary hover:text-primary transition-colors min-h-[44px]"
+                variant="secondary"
+                size="md"
+                trailingIcon={<ArrowRight className="w-4 h-4" />}
               >
                 {isDa ? "Prissammenligning" : "Price comparison"}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              </Button>
             </div>
           </section>
         </ScrollReveal>

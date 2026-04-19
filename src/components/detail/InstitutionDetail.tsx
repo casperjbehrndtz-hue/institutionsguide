@@ -1,12 +1,12 @@
 import { useRef, useEffect } from "react";
 import { X, MapPin, ExternalLink, Mail, Phone, Heart, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useCompare } from "@/contexts/CompareContext";
 import type { UnifiedInstitution } from "@/lib/types";
 import { formatDKK } from "@/lib/format";
 import StreetViewImage from "@/components/shared/StreetViewImage";
+import Button from "@/components/ui/Button";
 
 interface Props {
   institution: UnifiedInstitution;
@@ -155,13 +155,16 @@ export default function InstitutionDetail({ institution: inst, onClose, onCompar
 
       {/* CTA buttons */}
       <div className="space-y-2">
-        <Link
+        <Button
+          as="link"
           to={`/institution/${inst.id}`}
-          className="w-full py-2.5 px-4 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary-light transition-colors flex items-center justify-center gap-2 min-h-[44px] text-sm"
+          variant="primary"
+          size="md"
+          fullWidth
+          trailingIcon={<ArrowRight className="w-4 h-4" />}
         >
           {t.common.seeFullProfile}
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        </Button>
         {onCompare && !isInCompare(inst.id) && (
           <button
             onClick={() => onCompare(inst)}

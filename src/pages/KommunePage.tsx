@@ -23,6 +23,7 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import DataFreshness from "@/components/shared/DataFreshness";
 import ShareButton from "@/components/shared/ShareButton";
+import Button from "@/components/ui/Button";
 import { useNearbyMunicipalities } from "@/hooks/useNearbyMunicipalities";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole", "gymnasium"] as const;
@@ -128,12 +129,9 @@ export default function KommunePage() {
               ? "Kunne ikke indlæse data. Prøv igen."
               : "Could not load data. Please try again."}
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-          >
+          <Button variant="primary" size="md" onClick={() => window.location.reload()}>
             {language === "da" ? "Prøv igen" : "Try again"}
-          </button>
+          </Button>
         </div>
       </div>
     );

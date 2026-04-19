@@ -1,6 +1,7 @@
 import { MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import Button from "@/components/ui/Button";
 
 interface GeoModalProps {
   onAccept: () => void;
@@ -37,19 +38,12 @@ export function GeoModal({ onAccept, onDismiss }: GeoModalProps) {
             : "Your location is processed locally in your browser only and is not sent to our servers. We use it solely to show distance to institutions."}
         </p>
         <div className="flex gap-3 justify-end">
-          <button
-            onClick={onDismiss}
-            data-dismiss
-            className="px-4 py-2 text-sm rounded-lg border border-border text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
-          >
+          <Button variant="secondary" size="sm" onClick={onDismiss} data-dismiss>
             {language === "da" ? "Nej tak" : "No thanks"}
-          </button>
-          <button
-            onClick={onAccept}
-            className="px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-          >
+          </Button>
+          <Button variant="primary" size="sm" onClick={onAccept}>
             {language === "da" ? "Tillad placering" : "Allow location"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

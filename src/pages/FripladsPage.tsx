@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { Calculator, ArrowRight, Info } from "lucide-react";
 import FripladsCalculatorForm from "@/components/friplads/FripladsCalculatorForm";
+import Button from "@/components/ui/Button";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
@@ -222,15 +222,17 @@ export default function FripladsPage() {
 
                 {/* CTA */}
                 <div className="pt-2">
-                  <Link
+                  <Button
+                    as="link"
                     to={ctaUrl}
-                    className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-primary/90 transition-colors min-h-[44px]"
+                    variant="primary"
+                    size="md"
+                    trailingIcon={<ArrowRight className="w-4 h-4" />}
                   >
                     {isDa
                       ? `Find ${categoryLabels[category].split(" (")[0].toLowerCase()} i ${municipality}`
                       : `Find ${categoryLabels[category].split(" (")[0].toLowerCase()} in ${municipality}`}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  </Button>
                 </div>
               </div>
             ) : null}

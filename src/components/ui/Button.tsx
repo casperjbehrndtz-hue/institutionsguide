@@ -18,7 +18,7 @@ interface CommonProps {
 }
 
 type ButtonProps = CommonProps & Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & { as?: "button" };
-type LinkProps = CommonProps & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children" | "href"> & { as: "link"; to: string };
+type LinkProps = CommonProps & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children" | "href"> & { as: "link"; to: string; state?: unknown };
 type AnchorProps = CommonProps & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children"> & { as: "a"; href: string };
 
 type Props = ButtonProps | LinkProps | AnchorProps;
@@ -100,9 +100,9 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, Props>((props, 
   );
 
   if (props.as === "link") {
-    const { to, ...linkRest } = rest as { to: string } & AnchorHTMLAttributes<HTMLAnchorElement>;
+    const { to, state, ...linkRest } = rest as { to: string; state?: unknown } & AnchorHTMLAttributes<HTMLAnchorElement>;
     return (
-      <Link ref={ref as React.Ref<HTMLAnchorElement>} to={to} className={cls} {...linkRest}>
+      <Link ref={ref as React.Ref<HTMLAnchorElement>} to={to} state={state} className={cls} {...linkRest}>
         {inner}
       </Link>
     );

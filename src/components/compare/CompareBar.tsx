@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { X, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import type { UnifiedInstitution } from "@/lib/types";
 import { useCompare } from "@/contexts/CompareContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
+import Button from "@/components/ui/Button";
 
 export default function CompareBar() {
   const { compareList: selected, removeFromCompare: onRemove, clearCompare } = useCompare();
@@ -16,12 +16,11 @@ export default function CompareBar() {
 
   if (minimized) {
     return (
-      <button
-        onClick={() => setMinimized(false)}
-        className="print:hidden fixed bottom-4 right-4 z-40 bg-primary text-primary-foreground px-4 py-2.5 rounded-full shadow-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-      >
-        {t.compare.barTitle.replace("{count}", String(selected.length))}
-      </button>
+      <div className="print:hidden fixed bottom-4 right-4 z-40">
+        <Button variant="primary" size="md" onClick={() => setMinimized(false)}>
+          {t.compare.barTitle.replace("{count}", String(selected.length))}
+        </Button>
+      </div>
     );
   }
 
@@ -68,15 +67,17 @@ export default function CompareBar() {
               {t.compare.clear}
             </button>
             {selected.length >= 2 && (
-              <Link
+              <Button
+                as="link"
                 to="/sammenlign"
                 state={{ institutions: selected }}
-                className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-light transition-colors flex items-center gap-2 min-h-[44px]"
+                variant="primary"
+                size="md"
+                trailingIcon={<ArrowRight className="w-4 h-4" />}
                 aria-label={t.compare.show}
               >
                 {t.compare.show}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              </Button>
             )}
           </div>
         </div>

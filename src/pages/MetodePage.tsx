@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SEOHead from "@/components/shared/SEOHead";
+import Button from "@/components/ui/Button";
 import JsonLd from "@/components/shared/JsonLd";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { breadcrumbSchema } from "@/lib/schema";
@@ -212,12 +213,9 @@ export default function MetodePage() {
           <p className="text-sm text-muted mb-4">
             Brug vores søgning til at sammenligne priser, kvalitet og normering.
           </p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary-light transition-colors"
-          >
+          <Button as="link" to="/" variant="primary" size="md">
             Find institution &rarr;
-          </Link>
+          </Button>
         </section>
       </div>
 

@@ -26,6 +26,7 @@ import {
 } from "@/lib/guideEngine";
 import GuideResults from "@/components/guide/GuideResults";
 import DataFreshness from "@/components/shared/DataFreshness";
+import Button from "@/components/ui/Button";
 
 export default function GuidePage() {
   const { language } = useLanguage();
@@ -348,18 +349,21 @@ export default function GuidePage() {
         {/* Navigation buttons */}
         {step < 5 && (
           <div className="flex items-center justify-between pt-4">
-            <button
+            <Button
+              variant="secondary"
+              size="md"
               onClick={back}
               disabled={step === 1}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-sm font-medium text-foreground border border-border hover:bg-bg-muted transition-colors min-h-[44px] disabled:opacity-30 disabled:cursor-not-allowed"
+              leadingIcon={<ArrowLeft className="w-4 h-4" />}
             >
-              <ArrowLeft className="w-4 h-4" />
               {isDa ? "Tilbage" : "Back"}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
               onClick={next}
               disabled={!canNext()}
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary/90 transition-colors min-h-[44px] disabled:opacity-30 disabled:cursor-not-allowed"
+              trailingIcon={<ArrowRight className="w-4 h-4" />}
             >
               {step === 4
                 ? isDa
@@ -368,26 +372,26 @@ export default function GuidePage() {
                 : isDa
                 ? "Næste"
                 : "Next"}
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         )}
 
         {/* Start over button on results */}
         {step === 5 && (
           <div className="text-center pt-4">
-            <button
+            <Button
+              variant="secondary"
+              size="md"
               onClick={() => {
                 setStep(1);
                 setWizard({ age: null, priorities: [], municipality: validMunicipality, income: null });
                 setIncomeInput("");
                 setSkipIncome(false);
               }}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-sm font-medium text-muted border border-border hover:bg-bg-muted transition-colors min-h-[44px]"
+              leadingIcon={<ArrowLeft className="w-4 h-4" />}
             >
-              <ArrowLeft className="w-4 h-4" />
               {isDa ? "Start forfra" : "Start over"}
-            </button>
+            </Button>
           </div>
         )}
       </main>

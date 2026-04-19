@@ -15,6 +15,7 @@ import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import type { UnifiedInstitution } from "@/lib/types";
 import GymnasiumCard from "@/components/gymnasium/GymnasiumCard";
 import MunicipalityBreakdown from "@/components/gymnasium/MunicipalityBreakdown";
+import Button from "@/components/ui/Button";
 
 const GYM_TYPES = ["stx", "hhx", "htx", "hf", "eux"] as const;
 
@@ -314,16 +315,17 @@ export default function GymnasiumPage() {
                   ? "Ingen gymnasier fundet med de valgte filtre."
                   : "No gymnasiums found with the selected filters."}
               </p>
-              <button
+              <Button
+                variant="primary"
+                size="md"
                 onClick={() => {
                   setSearch("");
                   setTypeFilter("alle");
                   setMunicipalityFilter("");
                 }}
-                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors"
               >
                 {language === "da" ? "Nulstil filtre" : "Reset filters"}
-              </button>
+              </Button>
             </div>
           )}
 

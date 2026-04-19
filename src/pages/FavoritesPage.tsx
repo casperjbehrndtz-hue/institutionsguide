@@ -12,6 +12,7 @@ import { SkeletonHero, SkeletonCardGrid } from "@/components/shared/Skeletons";
 import { formatDKK } from "@/lib/format";
 import PriceAlertSignup from "@/components/alerts/PriceAlertSignup";
 import RecentlyViewed from "@/components/shared/RecentlyViewed";
+import Button from "@/components/ui/Button";
 
 export default function FavoritesPage() {
   const { institutions, loading } = useData();
@@ -82,12 +83,9 @@ export default function FavoritesPage() {
               {t.favorites.emptyTitle}
             </h2>
             <p className="text-muted mb-6">{t.favorites.emptyMessage}</p>
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-            >
+            <Button as="link" to="/" variant="primary" size="md">
               {t.favorites.backToHome}
-            </Link>
+            </Button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -163,18 +161,16 @@ export default function FavoritesPage() {
                 : `${favoriteInstitutions.length} favorites will be removed.`}
             </p>
             <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 text-sm rounded-lg border border-border text-foreground hover:bg-border/30 transition-colors min-h-[44px]"
-              >
+              <Button variant="secondary" size="sm" onClick={() => setShowConfirm(false)}>
                 {language === "da" ? "Annuller" : "Cancel"}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
                 onClick={() => { clearFavorites(); setShowConfirm(false); }}
-                className="px-4 py-2 text-sm rounded-lg bg-destructive text-white hover:bg-destructive/90 transition-colors min-h-[44px]"
               >
                 {language === "da" ? "Ryd alle" : "Clear all"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

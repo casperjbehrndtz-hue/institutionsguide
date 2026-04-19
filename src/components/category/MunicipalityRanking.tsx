@@ -5,6 +5,7 @@ import { useData } from "@/contexts/DataContext";
 import { formatDKK } from "@/lib/format";
 import { toSlug } from "@/lib/slugs";
 import ScrollReveal from "@/components/shared/ScrollReveal";
+import Button from "@/components/ui/Button";
 
 interface Props {
   category: string;
@@ -78,12 +79,9 @@ export default function MunicipalityRanking({ category, categoryTitle }: Props) 
       </div>
       {!showAll && catMunicipalities.length > 30 && (
         <div className="text-center mt-4">
-          <button
-            onClick={() => setShowAll(true)}
-            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-light transition-colors min-h-[44px]"
-          >
+          <Button variant="primary" size="md" onClick={() => setShowAll(true)}>
             {language === "da" ? `Vis alle ${catMunicipalities.length} kommuner` : `Show all ${catMunicipalities.length} municipalities`}
-          </button>
+          </Button>
         </div>
       )}
     </section></ScrollReveal>
