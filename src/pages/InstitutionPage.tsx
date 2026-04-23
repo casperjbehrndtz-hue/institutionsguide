@@ -41,6 +41,8 @@ import { useScrollDepth } from "@/hooks/useScrollDepth";
 import { useFeatureView } from "@/hooks/useFeatureView";
 import { categoryPath, buildChatContext, buildInstitutionFaqs } from "@/lib/institutionPageHelpers";
 import { toSlug } from "@/lib/slugs";
+import ComparisonCard from "@/components/mi/ComparisonCard";
+import { isInTrack } from "@/lib/mi/metrics";
 
 
 export default function InstitutionPage() {
@@ -325,6 +327,11 @@ export default function InstitutionPage() {
                   nearby={comparisonRows}
                   language={language}
                 />
+              )}
+
+              {/* MIL: Direction-corrected comparison vs Kommune + Landsmedian */}
+              {(isInTrack("daycare", inst) || isInTrack("school", inst)) && (
+                <ComparisonCard institutionId={inst.id} />
               )}
             </div>
 

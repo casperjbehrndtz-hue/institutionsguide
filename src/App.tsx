@@ -5,6 +5,7 @@ import { DataProvider } from "@/contexts/DataContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CompareProvider } from "@/contexts/CompareContext";
 import { FamilyProvider } from "@/contexts/FamilyContext";
+import { TrackProvider } from "@/contexts/TrackContext";
 import Layout from "@/components/shared/Layout";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
@@ -47,6 +48,7 @@ const TotalCostPage = lazyRetry(() => import("@/pages/TotalCostPage"));
 const GuidePage = lazyRetry(() => import("@/pages/GuidePage"));
 const FindPage = lazyRetry(() => import("@/pages/FindPage"));
 const GymnasiumPage = lazyRetry(() => import("@/pages/GymnasiumPage"));
+const KommuneIntelligensPage = lazyRetry(() => import("@/pages/KommuneIntelligensPage"));
 
 function Loading() {
   return (
@@ -63,6 +65,7 @@ export default function App() {
       <CompareProvider>
       <FamilyProvider>
       <DataProvider>
+      <TrackProvider>
         <ScrollToTop />
         <Layout>
           <Suspense fallback={<Loading />}>
@@ -96,6 +99,8 @@ export default function App() {
               <Route path="/guide" element={<GuidePage />} />
               {/* Find — preference-based ranking */}
               <Route path="/find" element={<FindPage />} />
+              {/* Kommune-intelligens — Municipality Intelligence Layer */}
+              <Route path="/kommune-intelligens" element={<KommuneIntelligensPage />} />
               {/* Metode */}
               <Route path="/metode" element={<MetodePage />} />
               {/* Blog */}
@@ -116,6 +121,7 @@ export default function App() {
             </Routes>
           </Suspense>
         </Layout>
+      </TrackProvider>
       </DataProvider>
       </FamilyProvider>
       </CompareProvider>
