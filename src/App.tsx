@@ -49,6 +49,8 @@ const GuidePage = lazyRetry(() => import("@/pages/GuidePage"));
 const FindPage = lazyRetry(() => import("@/pages/FindPage"));
 const GymnasiumPage = lazyRetry(() => import("@/pages/GymnasiumPage"));
 const KommuneIntelligensPage = lazyRetry(() => import("@/pages/KommuneIntelligensPage"));
+const KommuneCompareMIPage = lazyRetry(() => import("@/pages/KommuneCompareMIPage"));
+const KommuneIntelligensMunicipalityPage = lazyRetry(() => import("@/pages/KommuneIntelligensMunicipalityPage"));
 
 function Loading() {
   return (
@@ -99,8 +101,11 @@ export default function App() {
               <Route path="/guide" element={<GuidePage />} />
               {/* Find — preference-based ranking */}
               <Route path="/find" element={<FindPage />} />
-              {/* Kommune-intelligens — Municipality Intelligence Layer */}
+              {/* Kommune-intelligens — Municipality Intelligence Layer.
+                  Specific routes MUST come before /:kommune catch-all. */}
               <Route path="/kommune-intelligens" element={<KommuneIntelligensPage />} />
+              <Route path="/kommune-intelligens/sammenlign" element={<KommuneCompareMIPage />} />
+              <Route path="/kommune-intelligens/:kommune" element={<KommuneIntelligensMunicipalityPage />} />
               {/* Metode */}
               <Route path="/metode" element={<MetodePage />} />
               {/* Blog */}

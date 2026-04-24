@@ -27,6 +27,8 @@ const staticRoutes = [
   { path: "/samlet-pris", priority: "0.7", changefreq: "monthly" },
   { path: "/guide", priority: "0.6", changefreq: "monthly" },
   { path: "/find", priority: "0.7", changefreq: "monthly" },
+  { path: "/kommune-intelligens", priority: "0.8", changefreq: "weekly" },
+  { path: "/kommune-intelligens/sammenlign", priority: "0.6", changefreq: "monthly" },
   { path: "/blog", priority: "0.7", changefreq: "weekly" },
   { path: "/om", priority: "0.4", changefreq: "yearly" },
   { path: "/billigste-boernehave", priority: "0.8", changefreq: "monthly" },
@@ -139,6 +141,15 @@ try {
       path: `/normering/${toSlug(mun)}`,
       priority: "0.6",
       changefreq: "monthly",
+    });
+  }
+
+  // /kommune-intelligens/:slug routes — MIL single-kommune landing pages.
+  for (const mun of municipalities) {
+    programmaticRoutes.push({
+      path: `/kommune-intelligens/${toSlug(mun)}`,
+      priority: "0.6",
+      changefreq: "weekly",
     });
   }
 

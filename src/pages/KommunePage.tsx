@@ -25,6 +25,8 @@ import DataFreshness from "@/components/shared/DataFreshness";
 import ShareButton from "@/components/shared/ShareButton";
 import Button from "@/components/ui/Button";
 import { useNearbyMunicipalities } from "@/hooks/useNearbyMunicipalities";
+import KommuneVsNationalCard from "@/components/mi/KommuneVsNationalCard";
+import LifeStageToggle from "@/components/mi/LifeStageToggle";
 
 const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "fritidsklub", "efterskole", "gymnasium"] as const;
 
@@ -270,6 +272,29 @@ export default function KommunePage() {
         </div>
       </section>
 
+
+      {/* Kommune-intelligens card — MIL scoring vs national median */}
+      <ScrollReveal><section className="max-w-4xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <div>
+            <h2 className="font-display text-lg sm:text-xl font-bold text-foreground">
+              {language === "da" ? "Kvalitetsindeks vs. landsmedianen" : "Quality index vs. national median"}
+            </h2>
+            <p className="text-xs text-muted mt-0.5">
+              {language === "da"
+                ? "Kommunens median pr. metrik. Skift spor og se hele rangeringen."
+                : "Municipality median per metric. Switch track or see the full leaderboard."}
+            </p>
+          </div>
+          <LifeStageToggle />
+        </div>
+        <KommuneVsNationalCard municipality={decodedName} showHeader={false} />
+        <div className="mt-3 flex items-center justify-end gap-3 text-sm">
+          <Link to={`/kommune-intelligens/${toSlug(decodedName)}`} className="text-primary hover:underline font-medium">
+            {language === "da" ? "Se fuld kommune-intelligens" : "See full intelligence page"} →
+          </Link>
+        </div>
+      </section></ScrollReveal>
 
       {/* Dagpleje vs Vuggestue comparison */}
       {dagplejeAvg && vuggestueAvg && (

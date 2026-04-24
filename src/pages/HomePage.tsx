@@ -67,6 +67,8 @@ export default function HomePage() {
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const listContainerRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const hadActiveFilterRef = useRef(false);
 
   const filtered = useFilteredInstitutions(institutions, { search, category, municipality, qualityFilter, sortKey, ageGroup });
   const municipalityNames = useMemo(() => municipalities.map((m) => m.municipality), [municipalities]);
@@ -163,6 +165,25 @@ export default function HomePage() {
   // Show filter bar + list/map when user has actively filtered
   const hasActiveFilter = !!(searchInput || municipality || geo.userLocation || category !== "alle" || ageGroup);
 
+  // When search activates, smoothly scroll results into view so the user isn't
+  // left at the hero wondering where the list went. Also surface the map on
+  // mobile by default (rather than the quieter list view).
+  useEffect(() => {
+    const wasActive = hadActiveFilterRef.current;
+    hadActiveFilterRef.current = hasActiveFilter;
+    if (!wasActive && hasActiveFilter) {
+      // Wait for layout to settle before scrolling — otherwise the target
+      // height is 0 and scroll lands at 0.
+      const raf = requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      if (view === "liste" && window.matchMedia("(max-width: 1023px)").matches) {
+        setView("kort");
+      }
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [hasActiveFilter, view, setView]);
+
   // Summary stats for the active filter
   const summaryStats = useMemo(() => {
     if (!hasActiveFilter) return null;
@@ -245,7 +266,7 @@ export default function HomePage() {
       {!hasActiveFilter && <HowItWorks />}
 
       {/* Filter bar — only when user has actively filtered */}
-      {hasActiveFilter && <div className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}>
+      {hasActiveFilter && <div ref={resultsRef} className="sticky top-14 z-30 bg-bg-card border-b border-border" style={{ WebkitTransform: "translateZ(0)" }}>
         {/* Mobile: filter toggle */}
         <div className="sm:hidden px-4 py-3 flex items-center gap-2">
           <button

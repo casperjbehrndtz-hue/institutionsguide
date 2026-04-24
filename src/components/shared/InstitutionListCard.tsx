@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Heart, MapPin, Camera } from "lucide-react";
 import { formatDKK } from "@/lib/format";
@@ -36,22 +36,23 @@ interface Props {
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
   showCategoryBadge?: boolean;
-  /** Optional quality badge */
   badge?: { label: string; className: string } | null;
-  /** Optional normering value */
   normering?: number | null;
-  /** Optional subtitle info (e.g. subtype label) */
   subtypeLabel?: string;
+}
+
+interface MetricChip {
+  label: string;
+  value: string;
 }
 
 function StreetViewThumb({ lat, lng, name, category }: { lat: number; lng: number; name: string; category: string }) {
   const [failed, setFailed] = useState(false);
 
   if (!API_KEY || failed) {
-    // Fallback: category-colored initial
     return (
       <div className={`w-full h-full flex flex-col items-center justify-center gap-0.5 ${THUMB_BG[category] || "bg-primary/5"}`}>
-        <span className={`text-lg font-bold ${THUMB_TEXT[category] || "text-primary"}`}>
+        <span className={`text-2xl font-bold ${THUMB_TEXT[category] || "text-primary"}`}>
           {name.charAt(0)}
         </span>
         <Camera className="w-3 h-3 text-muted/30" />
@@ -61,7 +62,7 @@ function StreetViewThumb({ lat, lng, name, category }: { lat: number; lng: numbe
 
   return (
     <img
-      src={`https://maps.googleapis.com/maps/api/streetview?size=160x120&location=${lat},${lng}&fov=80&pitch=0&key=${API_KEY}`}
+      src={`https://maps.googleapis.com/maps/api/streetview?size=200x200&location=${lat},${lng}&fov=80&pitch=0&key=${API_KEY}`}
       alt={name}
       loading="lazy"
       decoding="async"
@@ -86,13 +87,39 @@ export default function InstitutionListCard({
   const { t, language } = useLanguage();
   const loc = useLocation();
   const [imgFailed, setImgFailed] = useState(false);
+  const isDa = language === "da";
+
+  // Priority-ordered metric chips. Cap to 3 so the row stays readable on all
+  // screen sizes and never needs a horizontal scroll.
+  const chips: MetricChip[] = useMemo(() => {
+    const out: MetricChip[] = [];
+    if (normering != null) {
+      out.push({ label: isDa ? "Normering" : "Ratio", value: `${normering.toFixed(1).replace(".", ",")} ${isDa ? "pr. voksen" : "per adult"}` });
+    }
+    if (inst.quality?.ts != null) {
+      out.push({ label: isDa ? "Trivsel" : "Well-being", value: `${inst.quality.ts.toFixed(1).replace(".", ",")} / 5` });
+    }
+    if (inst.quality?.k != null && out.length < 3) {
+      out.push({ label: isDa ? "Karakter" : "Grade", value: inst.quality.k.toFixed(1).replace(".", ",") });
+    }
+    if (inst.quality?.fp != null && out.length < 3) {
+      out.push({ label: isDa ? "Fravær" : "Absence", value: `${inst.quality.fp.toFixed(1).replace(".", ",")}%` });
+    }
+    if (inst.quality?.el != null && out.length < 3) {
+      out.push({ label: isDa ? "Elever" : "Students", value: inst.quality.el.toLocaleString("da-DK") });
+    }
+    if (inst.category === "efterskole" && inst.availableSpots != null && inst.availableSpots > 0 && out.length < 3) {
+      out.push({ label: isDa ? "Ledige" : "Available", value: `${inst.availableSpots}` });
+    }
+    return out.slice(0, 3);
+  }, [normering, inst, isDa]);
 
   return (
     <Link
       to={`/institution/${inst.id}`}
       state={{ from: loc.pathname + loc.search }}
       data-inst-id={inst.id}
-      className={`card transition-all block ${
+      className={`card transition-all block hover:shadow-md ${
         hoveredId === inst.id ? "ring-2 ring-primary/50 bg-primary/5" : ""
       }`}
       onMouseEnter={() => {
@@ -103,8 +130,7 @@ export default function InstitutionListCard({
       }}
     >
       <div className="flex">
-        {/* Thumbnail — efterskole image, Street View, or category initial */}
-        <div className="w-16 sm:w-20 shrink-0 overflow-hidden rounded-l-[inherit]">
+        <div className="w-20 sm:w-28 shrink-0 overflow-hidden rounded-l-[inherit]">
           {inst.imageUrl && !imgFailed ? (
             <img src={inst.imageUrl} alt={inst.name} loading="lazy" decoding="async" className="w-full h-full object-cover" onError={() => setImgFailed(true)} />
           ) : (
@@ -112,13 +138,13 @@ export default function InstitutionListCard({
           )}
         </div>
 
-        {/* Content */}
         <div className="flex-1 min-w-0 p-3 sm:p-4">
-          {/* Row 1: Name + badges + price */}
-          <div className="flex justify-between items-start gap-2">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <p className="font-semibold text-foreground text-sm truncate max-w-[calc(100%-40px)] sm:max-w-none sm:text-base">{inst.name}</p>
+                <p className="font-semibold text-foreground text-sm sm:text-base leading-tight truncate">
+                  {inst.name}
+                </p>
                 {badge && (
                   <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-md ${badge.className}`}>
                     {badge.label}
@@ -130,72 +156,49 @@ export default function InstitutionListCard({
                   </span>
                 )}
               </div>
-              {/* Row 2: Address + distance */}
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <p className="text-xs text-muted truncate">{inst.address}, {inst.postalCode} {inst.city}</p>
+              <p className="text-xs text-muted mt-1 truncate">
+                {inst.municipality}
+                {inst.postalCode && <span className="text-muted/60"> · {inst.postalCode} {inst.city}</span>}
                 {userLocation && (
-                  <span className="inline-flex items-center gap-0.5 text-xs text-primary/70 shrink-0">
+                  <span className="inline-flex items-center gap-0.5 text-primary/80 ml-1.5">
                     <MapPin className="w-3 h-3" />
                     {formatDistance(haversineKm(userLocation.lat, userLocation.lng, inst.lat, inst.lng))}
                   </span>
                 )}
-              </div>
+              </p>
             </div>
             <div className="text-right shrink-0">
               {inst.category === "efterskole" && inst.yearlyPrice ? (
                 <>
-                  <p className="font-mono text-xs sm:text-sm font-bold tabular-nums text-primary">{formatDKK(inst.yearlyPrice)}</p>
-                  <span className="text-[10px] text-muted">{language === "da" ? "/år" : "/year"}</span>
+                  <p className="font-mono text-sm sm:text-base font-bold tabular-nums text-primary leading-none">{formatDKK(inst.yearlyPrice)}</p>
+                  <span className="text-[10px] text-muted">{isDa ? "/år" : "/year"}</span>
                 </>
               ) : inst.monthlyRate ? (
                 <>
-                  <p className="font-mono text-xs sm:text-sm font-bold tabular-nums text-primary">{formatDKK(inst.monthlyRate)}</p>
+                  <p className="font-mono text-sm sm:text-base font-bold tabular-nums text-primary leading-none">{formatDKK(inst.monthlyRate)}</p>
                   <span className="text-[10px] text-muted">{t.common.perMonth}</span>
                 </>
               ) : null}
             </div>
           </div>
 
-          {/* Row 3: Metrics strip */}
-          <div className="flex items-center gap-2 sm:gap-3 mt-2 pt-2 border-t border-border/40 text-[11px] text-muted overflow-x-auto no-scrollbar">
-            {normering != null && (
-              <span className="shrink-0">{language === "da" ? "Normering" : "Ratio"} <strong className="text-foreground font-mono">{normering.toFixed(1).replace(".", ",")}</strong></span>
-            )}
-            {inst.quality?.ts != null && (
-              <span className="shrink-0">{language === "da" ? "Trivsel" : "Well-being"} <strong className="text-foreground font-mono">{inst.quality.ts.toFixed(1).replace(".", ",")}</strong></span>
-            )}
-            {inst.quality?.k != null && (
-              <span className="shrink-0">{language === "da" ? "Karakter" : "Grades"} <strong className="text-foreground font-mono">{inst.quality.k.toFixed(1).replace(".", ",")}</strong></span>
-            )}
-            {inst.quality?.fp != null && (
-              <span className="shrink-0">{language === "da" ? "Fravær" : "Absence"} <strong className="text-foreground font-mono">{inst.quality.fp.toFixed(1).replace(".", ",")}%</strong></span>
-            )}
-            {inst.quality?.kp != null && (
-              <span className="shrink-0">{language === "da" ? "Komp." : "Comp."} <strong className="text-foreground font-mono">{inst.quality.kp.toFixed(0)}%</strong></span>
-            )}
-            {inst.quality?.el != null && (
-              <span className="shrink-0">{inst.quality.el.toLocaleString("da-DK")} {language === "da" ? "elever" : "students"}</span>
-            )}
-            {inst.quality?.kv != null && (
-              <span className="shrink-0">{language === "da" ? "Klasse" : "Class"} <strong className="text-foreground font-mono">{inst.quality.kv.toLocaleString("da-DK")}</strong></span>
-            )}
-            {inst.category === "efterskole" && inst.availableSpots != null && inst.availableSpots > 0 && (
-              <span className="shrink-0 text-green-600 dark:text-green-400 font-medium">
-                {inst.availableSpots} {language === "da" ? "ledige" : "available"}
-              </span>
-            )}
-            {inst.category === "efterskole" && inst.schoolType && inst.schoolType !== "Almen" && (
-              <span className="shrink-0 font-medium text-primary">{inst.schoolType}</span>
-            )}
-            {inst.category === "efterskole" && inst.classLevels && inst.classLevels.length > 0 && (
-              <span className="shrink-0">{inst.classLevels.join(". + ")}. {language === "da" ? "kl." : "gr."}</span>
-            )}
-            {subtypeLabel && <span className="shrink-0">{subtypeLabel}</span>}
-            <span className="shrink-0">{inst.municipality}</span>
-          </div>
-          {/* Efterskole profiles */}
+          {chips.length > 0 && (
+            <div className="mt-2.5 pt-2.5 border-t border-border/40 grid grid-cols-3 gap-2">
+              {chips.map((chip) => (
+                <div key={chip.label} className="min-w-0">
+                  <p className="text-[10px] text-muted uppercase tracking-wide truncate">{chip.label}</p>
+                  <p className="text-[13px] font-semibold text-foreground font-mono tabular-nums truncate">{chip.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {subtypeLabel && (
+            <p className="text-[11px] text-muted mt-2">{subtypeLabel}</p>
+          )}
+
           {inst.category === "efterskole" && inst.profiles && inst.profiles.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-1.5">
+            <div className="flex flex-wrap gap-1 mt-2">
               {inst.profiles.slice(0, 4).map((p) => (
                 <span key={p} className="text-[10px] px-1.5 py-0.5 rounded-full bg-pink-50 text-pink-600 dark:bg-pink-950/30 dark:text-pink-400">
                   {p}
@@ -207,17 +210,16 @@ export default function InstitutionListCard({
             </div>
           )}
 
-          {/* Row 4: Actions */}
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-xs text-primary font-medium">
+          <div className="flex items-center justify-between mt-2.5">
+            <span className="text-xs text-primary font-semibold">
               {t.common.seeFullProfile} &rarr;
             </span>
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(inst.id); }}
-              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
               aria-label={isFavorite ? t.favorites.removeFavorite : t.favorites.addFavorite}
             >
-              <Heart className={`w-5 h-5 transition-colors ${isFavorite ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
+              <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
             </button>
           </div>
         </div>

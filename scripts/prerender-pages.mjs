@@ -102,6 +102,16 @@ const PAGES = [
     title: "Samlet pris for et børneliv — Fra vuggestue til skole 2026 | Institutionsguide",
     description: "Se den samlede pris fra vuggestue til SFO i alle kommuner. Beregn hvad det koster over et helt børneliv.",
   },
+  {
+    path: "/kommune-intelligens",
+    title: "Kommune-intelligens — Sammenlign Danmarks 98 kommuner på børnepasning og skole | Institutionsguide",
+    description: "Volumen-vægtet kvalitetsindeks for alle 98 kommuner. Vælg selv hvor meget normering, trivsel, karakter og pris skal tælle — leaderboardet genberegnes med det samme.",
+  },
+  {
+    path: "/kommune-intelligens/sammenlign",
+    title: "Sammenlign kommuner side om side — Kommune-intelligens | Institutionsguide",
+    description: "Pin op til 3 kommuner og se deres score, drivers og råtal i kolonner. Del linket med din partner.",
+  },
 ];
 
 // Generate municipality pages from school data
@@ -120,6 +130,26 @@ function getMunicipalityPages() {
     }));
   } catch {
     console.warn("[prerender] Could not read school data for municipality pages");
+    return [];
+  }
+}
+
+// Generate /kommune-intelligens/:slug MIL landing pages for all municipalities
+function getKommuneIntelligensPages() {
+  try {
+    const dataPath = path.join(__dirname, "../public/data/skole-data.json");
+    const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+    const municipalities = new Set();
+    for (const s of data.s) {
+      if (s.m) municipalities.add(s.m.replace(" Kommune", ""));
+    }
+    return [...municipalities].sort().map((name) => ({
+      path: `/kommune-intelligens/${toSlug(name)}`,
+      title: `Kommune-intelligens: ${name} — Score, normering, trivsel 2026 | Institutionsguide`,
+      description: `Se hvordan ${name} Kommune ligger på kvalitetsindekset — normering, trivsel, karakter og pris målt mod landsmedianen. Justér dine prioriteter og se hvordan rangeringen ændrer sig.`,
+    }));
+  } catch {
+    console.warn("[prerender] Could not read school data for kommune-intelligens pages");
     return [];
   }
 }
@@ -192,6 +222,21 @@ function buildPage(shellHtml, page) {
     jsonLd = jsonLdTag(breadcrumbJsonLd([
       { name: "Forside", url: `${SITE_URL}/` },
       { name: `${kommuneName} Kommune`, url: `${SITE_URL}${page.path}` },
+    ]));
+  } else if (page.path.startsWith("/kommune-intelligens/") && page.path !== "/kommune-intelligens/sammenlign") {
+    // MIL landing per kommune: BreadcrumbList
+    const slug = page.path.replace("/kommune-intelligens/", "");
+    const name = page.title.replace(/Kommune-intelligens: /, "").split(" —")[0];
+    jsonLd = jsonLdTag(breadcrumbJsonLd([
+      { name: "Forside", url: `${SITE_URL}/` },
+      { name: "Kommune-intelligens", url: `${SITE_URL}/kommune-intelligens` },
+      { name, url: `${SITE_URL}/kommune-intelligens/${slug}` },
+    ]));
+  } else if (page.path === "/kommune-intelligens") {
+    // MIL hub: BreadcrumbList
+    jsonLd = jsonLdTag(breadcrumbJsonLd([
+      { name: "Forside", url: `${SITE_URL}/` },
+      { name: "Kommune-intelligens", url: `${SITE_URL}/kommune-intelligens` },
     ]));
   } else if (["/vuggestue", "/boernehave", "/dagpleje", "/skole", "/sfo"].includes(page.path)) {
     // Category page: BreadcrumbList
@@ -949,7 +994,7 @@ function main() {
     console.warn("[prerender] Could not generate programmatic pages:", err.message);
   }
 
-  const allPages = [...PAGES, ...getMunicipalityPages(), ...programmaticPages, ...institutionDetailPages, ...nationalRankingPages];
+  const allPages = [...PAGES, ...getMunicipalityPages(), ...getKommuneIntelligensPages(), ...programmaticPages, ...institutionDetailPages, ...nationalRankingPages];
   console.log(`[prerender] Total pages to render: ${allPages.length}`);
 
   let count = 0;

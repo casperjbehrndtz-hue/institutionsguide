@@ -61,6 +61,17 @@ const DAYCARE_METRICS: MetricDef[] = [
       stats?.pctPaedagoger ?? kommuneStats?.pctPaedagogerKommune ?? null,
   },
   {
+    id: "d_stabil",
+    track: "daycare",
+    direction: -1,
+    labelDa: "Personalestabilitet",
+    labelEn: "Staff stability",
+    unit: "sygedage/år",
+    defaultWeight: 2,
+    source: "KRL — gennemsnitligt sygefravær pr. ansat",
+    extract: ({ kommuneStats }) => kommuneStats?.avgSygefravaerDage ?? null,
+  },
+  {
     id: "d_tilfreds",
     track: "daycare",
     direction: 1,

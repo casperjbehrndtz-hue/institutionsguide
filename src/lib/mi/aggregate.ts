@@ -359,3 +359,58 @@ export function nationalPercentileOfMedian(metric: MetricDef, dataset: MIDataset
   const p = percentileOf(ecdf, rawMedian);
   return metric.direction === 1 ? p : 100 - p;
 }
+
+export interface MetricDriver {
+  metric: MetricDef;
+  /** Weighted delta vs national median (percentile points). Positive = lifts score. */
+  contribution: number;
+  /** Volume-weighted municipality median percentile for this metric. */
+  municipalityPercentile: number;
+}
+
+/**
+ * Which 2-3 metrics drive a municipality's score vs the national median?
+ * Computes weighted contribution = normalizedWeight × (muniMedianPercentile − 50).
+ * Positive drivers are shown first (what lifts the kommune), then negatives (drags).
+ */
+export function topDriversForMunicipality(args: {
+  dataset: MIDataset;
+  municipality: string;
+  weights: Record<string, number>;
+  max?: number;
+}): MetricDriver[] {
+  const { dataset, municipality, weights, max = 2 } = args;
+  let normalized: Record<string, number>;
+  try {
+    normalized = normalizeWeights(weights);
+  } catch {
+    return [];
+  }
+  const rows = dataset.byMunicipality.get(municipality) ?? [];
+  if (rows.length === 0) return [];
+  const metrics = METRICS_BY_TRACK[dataset.track];
+
+  const drivers: MetricDriver[] = [];
+  for (const metric of metrics) {
+    const w = normalized[metric.id] ?? 0;
+    if (w === 0) continue;
+    let num = 0;
+    let den = 0;
+    for (const row of rows) {
+      const cell = row.cells[metric.id];
+      if (!cell) continue;
+      const c = cell.imputed === 0 ? 1 : cell.imputed === 1 ? ALPHA : ALPHA * ALPHA;
+      num += row.volume * c * cell.percentile;
+      den += row.volume * c;
+    }
+    if (den === 0) continue;
+    const muniPercentile = num / den;
+    drivers.push({
+      metric,
+      contribution: w * (muniPercentile - 50),
+      municipalityPercentile: muniPercentile,
+    });
+  }
+  drivers.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
+  return drivers.slice(0, max);
+}
