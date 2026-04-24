@@ -1,14 +1,20 @@
-import { Link } from "react-router-dom";
-import { ArrowRight, Baby, GraduationCap, Sparkles } from "lucide-react";
+import { lazy, Suspense, useCallback, useMemo, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { ArrowRight, Baby, GraduationCap, MapPin, Maximize2, Sparkles } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import InstantAnswer from "@/components/home/InstantAnswer";
 import SEOHead from "@/components/shared/SEOHead";
 import JsonLd from "@/components/shared/JsonLd";
 import { websiteSchema, faqSchema } from "@/lib/schema";
 import FAQAccordion from "@/components/shared/FAQAccordion";
 import CompareBar from "@/components/compare/CompareBar";
+import GeoModals from "@/components/shared/GeoModals";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
+import type { UnifiedInstitution } from "@/lib/types";
+
+const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 
 const CATEGORY_CHIPS: { href: string; label: string }[] = [
   { href: "/vuggestue", label: "Vuggestuer" },
@@ -54,22 +60,59 @@ const FAQ: { q: string; a: string }[] = [
 ];
 
 export default function HomePage() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { institutions, loading, error } = useData();
   const { language } = useLanguage();
+  const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+  const [mapFullscreen, setMapFullscreen] = useState(false);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const geo = useGeolocation(useCallback((loc) => {
+    setFlyTo({ ...loc, zoom: 13 });
+  }, []));
+
   const institutionCount = institutions.length;
+
+  const handleMapSelect = useCallback((inst: UnifiedInstitution) => {
+    navigate(`/institution/${inst.id}`, { state: { from: location.pathname + location.search } });
+  }, [navigate, location]);
+
+  const handleLocationSelected = useCallback((kommune: string, _postnummer?: string) => {
+    // Fly map to that kommune's rough centroid
+    const instsInKommune = institutions.filter((i) => i.municipality === kommune);
+    if (instsInKommune.length === 0) return;
+    const avgLat = instsInKommune.reduce((s, i) => s + i.lat, 0) / instsInKommune.length;
+    const avgLng = instsInKommune.reduce((s, i) => s + i.lng, 0) / instsInKommune.length;
+    setFlyTo({ lat: avgLat, lng: avgLng, zoom: 12 });
+    // Scroll map into view
+    const mapEl = document.getElementById("homepage-map");
+    if (mapEl) mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [institutions]);
+
+  const mapProps = useMemo(() => ({
+    institutions,
+    onSelect: handleMapSelect,
+    flyTo,
+    highlightedId: hoveredId,
+    onMarkerHover: setHoveredId,
+    isFullscreen: mapFullscreen,
+    onToggleFullscreen: () => setMapFullscreen((f) => !f),
+    radiusCenter: geo.userLocation,
+  }), [institutions, handleMapSelect, flyTo, hoveredId, mapFullscreen, geo.userLocation]);
 
   return (
     <>
       <SEOHead
         title="Institutionsguide — Find og sammenlign børnepasning og skoler i Danmark"
-        description="Se top-rangerede vuggestuer, børnehaver, dagplejere og skoler i dit område. Officiel data fra Undervisningsministeriet og Danmarks Statistik. Gratis og uafhængigt."
+        description="Se top-rangerede vuggestuer, børnehaver, dagplejere og skoler i dit område. Interaktivt Danmarkskort med 10.000+ institutioner. Gratis og uafhængigt."
         path="/"
       />
       <JsonLd data={websiteSchema("https://www.institutionsguiden.dk")} />
       <JsonLd data={faqSchema(FAQ)} />
 
-      {/* 1. Hero — Instant Answer Engine */}
-      <InstantAnswer />
+      {/* 1. Hero — Instant Answer Engine with video backdrop */}
+      <InstantAnswer onLocationSelected={handleLocationSelected} />
 
       {/* 2. Trust bar */}
       <section className="border-b border-border/70 bg-bg">
@@ -87,7 +130,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. Kommune-intelligens preview */}
+      {/* 3. Map — the core visual feature, always visible */}
+      <section id="homepage-map" className="border-b border-border/70">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 py-8 sm:py-12">
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+            <div>
+              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight">
+                Udforsk alle institutioner på kort
+              </h2>
+              <p className="text-muted text-sm mt-1 max-w-2xl">
+                <span className="font-mono tabular-nums text-foreground font-semibold">{institutionCount.toLocaleString("da-DK")}</span> institutioner i hele Danmark. Klik en markør for detaljer, eller brug "Find i nærheden".
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={geo.handleNearMe}
+                disabled={geo.nearMeLoading}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px] disabled:opacity-50"
+              >
+                <MapPin className="w-4 h-4" />
+                {geo.nearMeLoading ? "Henter…" : "Find i nærheden"}
+              </button>
+              <button
+                onClick={() => setMapFullscreen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px]"
+              >
+                <Maximize2 className="w-4 h-4" />
+                Fuldskærm
+              </button>
+            </div>
+          </div>
+
+          <div className="h-[520px] sm:h-[600px] rounded-2xl overflow-hidden border border-border shadow-sm">
+            <Suspense fallback={<div className="h-full bg-border/20 animate-pulse flex items-center justify-center text-sm text-muted">Indlæser kort…</div>}>
+              <InstitutionMap {...mapProps} />
+            </Suspense>
+          </div>
+
+          {mapFullscreen && (
+            <div className="fixed inset-0 z-50">
+              <Suspense fallback={<div className="h-full bg-border/20 animate-pulse" />}>
+                <InstitutionMap {...mapProps} isFullscreen />
+              </Suspense>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 4. Kommune-intelligens preview */}
       <section className="border-b border-border/70">
         <div className="max-w-5xl mx-auto px-4 py-14 sm:py-20">
           <div className="flex items-start gap-3 mb-6 max-w-2xl">
@@ -156,14 +246,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. Browse direct */}
+      {/* 5. Browse direct */}
       <section className="border-b border-border/70 bg-[var(--color-border)]/20">
         <div className="max-w-5xl mx-auto px-4 py-14 sm:py-20">
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight mb-3">
             Browse direkte
           </h2>
           <p className="text-muted text-base leading-relaxed mb-8 max-w-2xl">
-            Hele landet opdelt efter kategori eller kommune. Klik for at se alle institutioner.
+            Hele landet opdelt efter kategori eller kommune.
           </p>
 
           <div>
@@ -202,7 +292,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. FAQ */}
+      {/* 6. FAQ */}
       <section className="border-b border-border/70">
         <div className="max-w-3xl mx-auto px-4 py-14 sm:py-20">
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight mb-6">
@@ -212,20 +302,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Compare bar */}
+      {/* Geolocation consent — only via explicit "Find i nærheden" click */}
+      <GeoModals
+        showGeoModal={geo.showGeoModal}
+        geoError={geo.geoError}
+        onAccept={geo.acceptConsent}
+        onDismiss={geo.dismissModal}
+        onDismissError={geo.dismissError}
+        onRetry={geo.retryGeolocation}
+      />
+
       <CompareBar />
 
-      {/* Loading / error states — non-blocking: hero handles its own via candidates=[] */}
-      {loading && (
-        <div className="sr-only" aria-live="polite">Indlæser data…</div>
-      )}
+      {loading && <div className="sr-only" aria-live="polite">Indlæser data…</div>}
       {error && (
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="card p-4 text-sm text-muted">Data kunne ikke indlæses fuldt ud — prøv at genopfriske siden.</div>
         </div>
       )}
-      {/* Hidden debug stat — used by legacy SEO signal expectations */}
-      <span className="sr-only">{institutionCount.toLocaleString("da-DK")} institutioner</span>
     </>
   );
 }

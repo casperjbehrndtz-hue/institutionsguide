@@ -9,6 +9,10 @@ import { formatDKK } from "@/lib/format";
 import { toSlug } from "@/lib/slugs";
 import type { UnifiedInstitution } from "@/lib/types";
 
+interface InstantAnswerProps {
+  onLocationSelected?: (kommune: string, postnummer?: string) => void;
+}
+
 interface PostIndexEntry { city: string; kommune: string; count: number }
 type PostIndex = Record<string, PostIndexEntry>;
 
@@ -60,7 +64,7 @@ function scoreInstitutionForCategory(
   return null;
 }
 
-export default function InstantAnswer() {
+export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps = {}) {
   const { institutions, institutionStats, kommuneStats, normering } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -68,10 +72,27 @@ export default function InstantAnswer() {
   const [selected, setSelected] = useState<LocationCandidate | null>(null);
   const [category, setCategory] = useState<CategoryKey>("vuggestue");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const [postIndex, setPostIndex] = useState<PostIndex | null>(null);
+
+  // Load hero video after idle + not on slow networks or when user prefers reduced motion
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) return;
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    if (conn?.saveData === true) return;
+    if (conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g") return;
+    const idle = (cb: () => void) =>
+      "requestIdleCallback" in window
+        ? (window as Window & { requestIdleCallback: (cb: () => void) => void }).requestIdleCallback(cb)
+        : setTimeout(cb, 400);
+    idle(() => setShouldLoadVideo(true));
+  }, []);
 
   // Load postnummer index once
   useEffect(() => {
@@ -231,6 +252,7 @@ export default function InstantAnswer() {
     setQuery("");
     setDropdownOpen(false);
     inputRef.current?.blur();
+    onLocationSelected?.(c.kommune, c.postnummer);
   }
 
   function clearSelection() {
@@ -247,17 +269,33 @@ export default function InstantAnswer() {
 
   return (
     <section className="relative overflow-hidden bg-primary">
-      {/* Static backdrop — removed video on mobile per design */}
+      {/* Poster backdrop always — video fades in when idle & network OK */}
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/og-image.png')", filter: "brightness(0.35) saturate(0.6)" }}
+        style={{ backgroundImage: "url('/og-image.png')", filter: "brightness(0.45) saturate(0.5) contrast(0.95)" }}
       />
-      <div aria-hidden="true" className="absolute inset-0 bg-primary/80" />
+      {shouldLoadVideo && (
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden="true"
+          poster="/og-image.png"
+          className="absolute left-0 top-[90%] w-full min-h-full object-cover pointer-events-none"
+          style={{ transform: "translateY(-90%)", filter: "brightness(0.45) saturate(0.5) contrast(0.95)" }}
+        >
+          <source src="/hero-1.mp4" type="video/mp4" />
+        </video>
+      )}
+      <div aria-hidden="true" className="absolute inset-0 bg-primary/75" />
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(13,28,47,0.35) 100%)" }}
+        style={{ background: "radial-gradient(ellipse at center, transparent 0%, transparent 45%, rgba(13,28,47,0.35) 100%)" }}
       />
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 pt-12 pb-8 sm:pt-16 sm:pb-12">
