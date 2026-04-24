@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, MapPin, Search, X } from "lucide-react";
+import { ArrowRight, MapPin, Search, Sparkles, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
+import { useGeolocation } from "@/hooks/useGeolocation";
 import { buildMIDataset } from "@/lib/mi/aggregate";
 import { percentileOf } from "@/lib/mi/percentiles";
 import GradeBadge from "@/components/shared/GradeBadge";
@@ -12,6 +13,16 @@ import type { UnifiedInstitution } from "@/lib/types";
 interface InstantAnswerProps {
   onLocationSelected?: (kommune: string, postnummer?: string) => void;
 }
+
+/** Popular quick-click destinations shown above the input on empty state */
+const QUICK_PICKS: { pn: string; city: string }[] = [
+  { pn: "2100", city: "København Ø" },
+  { pn: "2300", city: "København S" },
+  { pn: "8000", city: "Aarhus C" },
+  { pn: "5000", city: "Odense C" },
+  { pn: "9000", city: "Aalborg" },
+  { pn: "6000", city: "Kolding" },
+];
 
 interface PostIndexEntry { city: string; kommune: string; count: number }
 type PostIndex = Record<string, PostIndexEntry>;
@@ -67,6 +78,7 @@ function scoreInstitutionForCategory(
 export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps = {}) {
   const { institutions, institutionStats, kommuneStats, normering } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
+  const geo = useGeolocation(() => { /* no-op — we react via geo.userLocation below */ });
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<LocationCandidate | null>(null);
@@ -217,7 +229,6 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
       inst,
       percentile: scoreInstitutionForCategory(inst, category, daycareDataset, schoolDataset),
     }));
-    // Sort: rated first (desc), then unrated by name
     scored.sort((a, b) => {
       const pa = a.percentile ?? -1;
       const pb = b.percentile ?? -1;
@@ -226,6 +237,20 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
     });
     return { total: filtered.length, top: scored.slice(0, 5) };
   }, [selected, category, institutions, daycareDataset, schoolDataset]);
+
+  // National top 5 for current category — shown as "Danmarks 5 bedste" when
+  // nothing is selected. Gives immediate value at first paint.
+  const nationalTop = useMemo(() => {
+    const filtered = institutions.filter((i) => i.category === category);
+    const scored = filtered
+      .map((inst) => ({
+        inst,
+        percentile: scoreInstitutionForCategory(inst, category, daycareDataset, schoolDataset),
+      }))
+      .filter((s) => s.percentile != null);
+    scored.sort((a, b) => (b.percentile ?? 0) - (a.percentile ?? 0));
+    return scored.slice(0, 5);
+  }, [category, institutions, daycareDataset, schoolDataset]);
 
   // Kommune-level percentile for badge
   const kommunePercentile = useMemo<number | null>(() => {
@@ -254,6 +279,41 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
     inputRef.current?.blur();
     onLocationSelected?.(c.kommune, c.postnummer);
   }
+
+  function handleQuickPick(pn: string) {
+    const e = postIndex?.[pn];
+    if (!e) return;
+    handleSelect({
+      kind: "postnummer",
+      id: `pn-${pn}`,
+      label: `${pn} ${e.city}`,
+      sublabel: `${e.kommune} Kommune`,
+      kommune: e.kommune,
+      postnummer: pn,
+      count: e.count,
+    });
+  }
+
+  /** Resolve the user's geolocation to nearest postnummer and select it */
+  function handleNearMe() {
+    geo.handleNearMe();
+  }
+
+  // When geolocation resolves, find nearest postnummer with data and select it
+  useEffect(() => {
+    if (!geo.userLocation || selected) return;
+    // Find nearest institution with postalCode, then use that postnummer
+    let nearest: { inst: UnifiedInstitution; dist: number } | null = null;
+    for (const inst of institutions) {
+      if (!inst.postalCode) continue;
+      const dLat = inst.lat - geo.userLocation.lat;
+      const dLng = (inst.lng - geo.userLocation.lng) * Math.cos(geo.userLocation.lat * Math.PI / 180);
+      const dist = Math.hypot(dLat, dLng);
+      if (!nearest || dist < nearest.dist) nearest = { inst, dist };
+    }
+    if (nearest?.inst.postalCode) handleQuickPick(nearest.inst.postalCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geo.userLocation]);
 
   function clearSelection() {
     setSelected(null);
@@ -303,18 +363,20 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
           Find den bedste institution til dit barn
         </h1>
         <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-8 leading-relaxed text-center">
-          Se hvordan vuggestuer, børnehaver og skoler i dit område rangerer nationalt
-          på uafhængig kvalitetsdata. Skriv postnummer eller by.
+          Uafhængig kvalitetsdata fra Undervisningsministeriet og Danmarks Statistik.
+          Find skolen, børnehaven eller vuggestuen med den bedste kvalitet i dit område.
         </p>
 
         {/* Category toggle — primary options emphasized, rest muted */}
-        <div className="flex flex-wrap gap-1.5 justify-center mb-3">
+        <div role="tablist" aria-label="Vælg institutionstype" className="flex flex-wrap gap-1.5 justify-center mb-3">
           {CATEGORY_OPTIONS.map((opt) => {
             const active = category === opt.key;
             if (opt.primary) {
               return (
                 <button
                   key={opt.key}
+                  role="tab"
+                  aria-selected={active}
                   onClick={() => setCategory(opt.key)}
                   className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors min-h-[40px] ${
                     active
@@ -329,6 +391,8 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
             return (
               <button
                 key={opt.key}
+                role="tab"
+                aria-selected={active}
                 onClick={() => setCategory(opt.key)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[32px] ${
                   active
@@ -396,16 +460,100 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
                 </div>
               )}
               {dropdownOpen && query.length >= 2 && candidates.length === 0 && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-border/50 px-4 py-3 z-20">
-                  <p className="text-sm text-muted">Ingen match. Prøv et postnummer eller kommunenavn.</p>
+                <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-border/50 p-4 z-20">
+                  <p className="text-sm text-foreground font-medium mb-2">Ingen match på "{query}"</p>
+                  <p className="text-xs text-muted mb-3">Prøv et 4-cifret postnummer eller fuldt kommunenavn, eller lad os finde dit nærområde automatisk.</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => { handleNearMe(); setDropdownOpen(false); setQuery(""); }}
+                      disabled={geo.nearMeLoading}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary-light transition-colors disabled:opacity-50"
+                    >
+                      <MapPin className="w-3 h-3" />
+                      {geo.nearMeLoading ? "Henter…" : "Find i nærheden"}
+                    </button>
+                    <Link
+                      to="/kommune-intelligens"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold border border-border text-foreground hover:bg-primary/5 transition-colors"
+                    >
+                      Se alle 98 kommuner <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
                 </div>
               )}
             </>
           )}
         </div>
+
+        {/* Quick-pick popular locations — shown only when nothing selected */}
+        {!selected && postIndex && (
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 max-w-2xl mx-auto">
+            <span className="text-[11px] font-mono uppercase tracking-[0.15em] text-white/55">Populære:</span>
+            {QUICK_PICKS.filter((q) => postIndex[q.pn]).map((q) => (
+              <button
+                key={q.pn}
+                onClick={() => handleQuickPick(q.pn)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-white text-[12px] font-medium hover:bg-white/20 transition-colors"
+              >
+                {q.pn} {q.city}
+              </button>
+            ))}
+            <button
+              onClick={handleNearMe}
+              disabled={geo.nearMeLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-white text-[12px] font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
+            >
+              <MapPin className="w-3 h-3" />
+              {geo.nearMeLoading ? "Henter…" : "Min position"}
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Results panel — inside hero so transition is seamless */}
+      {/* Default results panel — "Danmarks 5 bedste" when nothing selected */}
+      {!selected && nationalTop.length > 0 && (
+        <div className="relative z-10 bg-bg border-t border-border/30">
+          <div className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 className="font-display text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Danmarks 5 bedste {CATEGORY_OPTIONS.find((c) => c.key === category)?.label.toLowerCase()}
+                </h2>
+                <p className="text-[11px] text-muted mt-0.5">Rangeret på national percentil — vælg område ovenfor for dine lokale resultater.</p>
+              </div>
+              <Link to={`/${category === "sfo" || category === "efterskole" ? category : category}`} className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                Se alle <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <ol className="rounded-xl border border-border bg-bg-card overflow-hidden divide-y divide-border">
+              {nationalTop.map(({ inst, percentile }, i) => (
+                <li key={inst.id}>
+                  <Link
+                    to={`/institution/${inst.id}`}
+                    className="flex items-center gap-3 px-3 sm:px-4 py-3 hover:bg-primary/5 transition-colors"
+                  >
+                    <span className="text-muted font-mono tabular-nums text-xs w-5 shrink-0">{i + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-foreground truncate">{inst.name}</p>
+                      <p className="text-[11px] text-muted truncate">
+                        {inst.municipality} · {inst.postalCode} {inst.city}
+                        {inst.monthlyRate ? <> · <span className="font-mono tabular-nums">{formatDKK(inst.monthlyRate)}/md</span></> : null}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <GradeBadge percentile={percentile} variant="compact" />
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted shrink-0" />
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      )}
+
+      {/* Location-specific results panel */}
       {selected && topResults && (
         <div className="relative z-10 bg-bg border-t border-border/30">
           <div className="max-w-3xl mx-auto px-4 py-6 sm:py-8">

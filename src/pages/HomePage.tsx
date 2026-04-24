@@ -110,12 +110,14 @@ export default function HomePage() {
   return (
     <>
       <SEOHead
-        title="Institutionsguide — Find og sammenlign børnepasning og skoler i Danmark"
-        description="Se top-rangerede vuggestuer, børnehaver, dagplejere og skoler i dit område. Interaktivt Danmarkskort med 10.000+ institutioner. Gratis og uafhængigt."
+        title="Institutionsguide — Find den bedste skole, børnehave eller vuggestue i Danmark"
+        description="Se top-rangerede folkeskoler, vuggestuer, børnehaver og dagplejere i dit område. Uafhængig kvalitetsdata fra Undervisningsministeriet og Danmarks Statistik. Gratis."
         path="/"
       />
       <JsonLd data={websiteSchema("https://www.institutionsguiden.dk")} />
       <JsonLd data={faqSchema(FAQ)} />
+
+      <main>
 
       {/* 1. Hero — Instant Answer Engine with video backdrop */}
       <InstantAnswer onLocationSelected={handleLocationSelected} />
@@ -137,36 +139,35 @@ export default function HomePage() {
       </section>
 
       {/* 3. Map — the core visual feature, always visible */}
-      <section id="homepage-map" className="border-b border-border/70">
+      <section id="homepage-map" aria-label="Udforsk institutioner på kort" className="border-b border-border/70">
         <div className="max-w-[1440px] mx-auto px-3 sm:px-4 py-8 sm:py-12">
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div>
               <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight">
                 {mapMode === "institutions"
                   ? "Udforsk alle institutioner på kort"
-                  : "Se Danmark efter kvalitet"}
+                  : "Se Danmarks kommuner farvet efter kvalitet"}
               </h2>
               <p className="text-muted text-sm mt-1 max-w-2xl">
                 {mapMode === "institutions" ? (
-                  <><span className="font-mono tabular-nums text-foreground font-semibold">{institutionCount.toLocaleString("da-DK")}</span> institutioner i hele Danmark. Klik en markør for detaljer.</>
+                  <><span className="font-mono tabular-nums text-foreground font-semibold">{institutionCount.toLocaleString("da-DK")}</span> institutioner i hele Danmark. Klik en markør for at se institutionen.</>
                 ) : (
-                  <>Hver kommune farves efter samlet kvalitet i det valgte spor. Større cirkel = flere institutioner. Klik for dybde.</>
+                  <>Hver kommune har én cirkel — farve viser samlet kvalitet i det valgte spor, størrelse viser antal institutioner. Klik eller tryk for at se kommunen.</>
                 )}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={geo.handleNearMe}
-                disabled={geo.nearMeLoading || mapMode !== "institutions"}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={geo.nearMeLoading}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px] disabled:opacity-50"
               >
                 <MapPin className="w-4 h-4" />
                 {geo.nearMeLoading ? "Henter…" : "Find i nærheden"}
               </button>
               <button
                 onClick={() => setMapFullscreen(true)}
-                disabled={mapMode !== "institutions"}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px]"
               >
                 <Maximize2 className="w-4 h-4" />
                 Fuldskærm
@@ -176,8 +177,10 @@ export default function HomePage() {
 
           {/* Mode toggle */}
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <div className="inline-flex p-1 rounded-lg bg-bg-card border border-border">
+            <div role="tablist" aria-label="Kort-visning" className="inline-flex p-1 rounded-lg bg-bg-card border border-border">
               <button
+                role="tab"
+                aria-selected={mapMode === "institutions"}
                 onClick={() => setMapMode("institutions")}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors min-h-[36px] ${
                   mapMode === "institutions" ? "bg-primary text-primary-foreground" : "text-muted hover:text-foreground"
@@ -186,6 +189,8 @@ export default function HomePage() {
                 Alle institutioner
               </button>
               <button
+                role="tab"
+                aria-selected={mapMode === "kommune-quality"}
                 onClick={() => setMapMode("kommune-quality")}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors min-h-[36px] ${
                   mapMode === "kommune-quality" ? "bg-primary text-primary-foreground" : "text-muted hover:text-foreground"
@@ -195,8 +200,10 @@ export default function HomePage() {
               </button>
             </div>
             {mapMode === "kommune-quality" && (
-              <div className="inline-flex p-1 rounded-lg bg-bg-card border border-border">
+              <div role="tablist" aria-label="Vælg spor" className="inline-flex p-1 rounded-lg bg-bg-card border border-border">
                 <button
+                  role="tab"
+                  aria-selected={qualityTrack === "school"}
                   onClick={() => setQualityTrack("school")}
                   className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors min-h-[32px] ${
                     qualityTrack === "school" ? "bg-foreground/10 text-foreground" : "text-muted hover:text-foreground"
@@ -205,6 +212,8 @@ export default function HomePage() {
                   Folkeskole
                 </button>
                 <button
+                  role="tab"
+                  aria-selected={qualityTrack === "daycare"}
                   onClick={() => setQualityTrack("daycare")}
                   className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors min-h-[32px] ${
                     qualityTrack === "daycare" ? "bg-foreground/10 text-foreground" : "text-muted hover:text-foreground"
@@ -225,18 +234,20 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="h-[520px] sm:h-[600px] rounded-2xl overflow-hidden border border-border shadow-sm">
+          <div className="h-[320px] sm:h-[520px] lg:h-[600px] rounded-2xl overflow-hidden border border-border shadow-sm">
             <Suspense fallback={<div className="h-full bg-border/20 animate-pulse flex items-center justify-center text-sm text-muted">Indlæser kort…</div>}>
               {mapMode === "institutions"
                 ? <InstitutionMap {...mapProps} />
-                : <KommuneQualityMap track={qualityTrack} />}
+                : <KommuneQualityMap track={qualityTrack} flyTo={flyTo} isFullscreen={mapFullscreen} onToggleFullscreen={() => setMapFullscreen((f) => !f)} />}
             </Suspense>
           </div>
 
-          {mapFullscreen && mapMode === "institutions" && (
+          {mapFullscreen && (
             <div className="fixed inset-0 z-50">
               <Suspense fallback={<div className="h-full bg-border/20 animate-pulse" />}>
-                <InstitutionMap {...mapProps} isFullscreen />
+                {mapMode === "institutions"
+                  ? <InstitutionMap {...mapProps} isFullscreen />
+                  : <KommuneQualityMap track={qualityTrack} flyTo={flyTo} isFullscreen onToggleFullscreen={() => setMapFullscreen(false)} />}
               </Suspense>
             </div>
           )}
@@ -363,7 +374,7 @@ export default function HomePage() {
       </section>
 
       {/* 6. FAQ */}
-      <section className="border-b border-border/70">
+      <section aria-label="Ofte stillede spørgsmål" className="border-b border-border/70">
         <div className="max-w-3xl mx-auto px-4 py-14 sm:py-20">
           <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight mb-6">
             Ofte stillede spørgsmål
@@ -371,6 +382,8 @@ export default function HomePage() {
           <FAQAccordion items={FAQ} />
         </div>
       </section>
+
+      </main>
 
       {/* Geolocation consent — only via explicit "Find i nærheden" click */}
       <GeoModals
