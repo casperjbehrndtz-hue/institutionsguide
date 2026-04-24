@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/generate-sitemap.mjs && node scripts/generate-seo-data.mjs",
+    "prebuild": "node scripts/generate-sitemap.mjs && node scripts/generate-seo-data.mjs && node scripts/build-postnummer-index.mjs",
     "build": "tsc -b && vite build",
     "postbuild": "node scripts/prerender-articles.mjs && node scripts/prerender-pages.mjs",
     "lint": "eslint .",
