@@ -15,12 +15,16 @@ import { dataVersions, formatDataDate } from "@/lib/dataVersions";
 import type { UnifiedInstitution } from "@/lib/types";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
+const KommuneQualityMap = lazy(() => import("@/components/home/KommuneQualityMap"));
 
-const CATEGORY_CHIPS: { href: string; label: string }[] = [
-  { href: "/vuggestue", label: "Vuggestuer" },
-  { href: "/boernehave", label: "Børnehaver" },
+type MapMode = "institutions" | "kommune-quality";
+type QualityTrack = "daycare" | "school";
+
+const CATEGORY_CHIPS: { href: string; label: string; primary?: boolean }[] = [
+  { href: "/skole", label: "Folkeskoler", primary: true },
+  { href: "/vuggestue", label: "Vuggestuer", primary: true },
+  { href: "/boernehave", label: "Børnehaver", primary: true },
   { href: "/dagpleje", label: "Dagplejere" },
-  { href: "/skole", label: "Folkeskoler" },
   { href: "/sfo", label: "SFO" },
   { href: "/efterskole", label: "Efterskoler" },
   { href: "/gymnasium", label: "Gymnasier" },
@@ -67,6 +71,8 @@ export default function HomePage() {
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [mapMode, setMapMode] = useState<MapMode>("institutions");
+  const [qualityTrack, setQualityTrack] = useState<QualityTrack>("school");
 
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 13 });
@@ -136,24 +142,31 @@ export default function HomePage() {
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div>
               <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight">
-                Udforsk alle institutioner på kort
+                {mapMode === "institutions"
+                  ? "Udforsk alle institutioner på kort"
+                  : "Se Danmark efter kvalitet"}
               </h2>
               <p className="text-muted text-sm mt-1 max-w-2xl">
-                <span className="font-mono tabular-nums text-foreground font-semibold">{institutionCount.toLocaleString("da-DK")}</span> institutioner i hele Danmark. Klik en markør for detaljer, eller brug "Find i nærheden".
+                {mapMode === "institutions" ? (
+                  <><span className="font-mono tabular-nums text-foreground font-semibold">{institutionCount.toLocaleString("da-DK")}</span> institutioner i hele Danmark. Klik en markør for detaljer.</>
+                ) : (
+                  <>Hver kommune farves efter samlet kvalitet i det valgte spor. Større cirkel = flere institutioner. Klik for dybde.</>
+                )}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={geo.handleNearMe}
-                disabled={geo.nearMeLoading}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px] disabled:opacity-50"
+                disabled={geo.nearMeLoading || mapMode !== "institutions"}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <MapPin className="w-4 h-4" />
                 {geo.nearMeLoading ? "Henter…" : "Find i nærheden"}
               </button>
               <button
                 onClick={() => setMapFullscreen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px]"
+                disabled={mapMode !== "institutions"}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-bg-card text-sm font-medium text-foreground hover:bg-primary/5 transition-colors min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Maximize2 className="w-4 h-4" />
                 Fuldskærm
@@ -161,13 +174,66 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* Mode toggle */}
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <div className="inline-flex p-1 rounded-lg bg-bg-card border border-border">
+              <button
+                onClick={() => setMapMode("institutions")}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors min-h-[36px] ${
+                  mapMode === "institutions" ? "bg-primary text-primary-foreground" : "text-muted hover:text-foreground"
+                }`}
+              >
+                Alle institutioner
+              </button>
+              <button
+                onClick={() => setMapMode("kommune-quality")}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors min-h-[36px] ${
+                  mapMode === "kommune-quality" ? "bg-primary text-primary-foreground" : "text-muted hover:text-foreground"
+                }`}
+              >
+                Kort efter kvalitet
+              </button>
+            </div>
+            {mapMode === "kommune-quality" && (
+              <div className="inline-flex p-1 rounded-lg bg-bg-card border border-border">
+                <button
+                  onClick={() => setQualityTrack("school")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors min-h-[32px] ${
+                    qualityTrack === "school" ? "bg-foreground/10 text-foreground" : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  Folkeskole
+                </button>
+                <button
+                  onClick={() => setQualityTrack("daycare")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors min-h-[32px] ${
+                    qualityTrack === "daycare" ? "bg-foreground/10 text-foreground" : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  Dagtilbud
+                </button>
+              </div>
+            )}
+            {mapMode === "kommune-quality" && (
+              <div className="flex items-center gap-2 ml-auto text-[11px] text-muted flex-wrap">
+                <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-emerald-600" />Top 10%</span>
+                <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-emerald-500" />Top 25%</span>
+                <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-primary" />Over middel</span>
+                <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-500" />Under middel</span>
+                <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-600" />Bund 25%</span>
+              </div>
+            )}
+          </div>
+
           <div className="h-[520px] sm:h-[600px] rounded-2xl overflow-hidden border border-border shadow-sm">
             <Suspense fallback={<div className="h-full bg-border/20 animate-pulse flex items-center justify-center text-sm text-muted">Indlæser kort…</div>}>
-              <InstitutionMap {...mapProps} />
+              {mapMode === "institutions"
+                ? <InstitutionMap {...mapProps} />
+                : <KommuneQualityMap track={qualityTrack} />}
             </Suspense>
           </div>
 
-          {mapFullscreen && (
+          {mapFullscreen && mapMode === "institutions" && (
             <div className="fixed inset-0 z-50">
               <Suspense fallback={<div className="h-full bg-border/20 animate-pulse" />}>
                 <InstitutionMap {...mapProps} isFullscreen />
@@ -263,7 +329,11 @@ export default function HomePage() {
                 <Link
                   key={c.href}
                   to={c.href}
-                  className="inline-flex items-center px-4 py-2 rounded-full border border-border bg-bg text-sm font-medium text-foreground hover:border-primary/60 hover:bg-primary/5 transition-colors min-h-[40px]"
+                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors min-h-[40px] ${
+                    c.primary
+                      ? "bg-primary text-primary-foreground border border-primary hover:bg-primary-light"
+                      : "border border-border bg-bg text-foreground hover:border-primary/60 hover:bg-primary/5"
+                  }`}
                 >
                   {c.label}
                 </Link>

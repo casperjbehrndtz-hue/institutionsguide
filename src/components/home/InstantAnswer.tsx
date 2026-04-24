@@ -18,11 +18,11 @@ type PostIndex = Record<string, PostIndexEntry>;
 
 type CategoryKey = "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "efterskole";
 
-const CATEGORY_OPTIONS: { key: CategoryKey; label: string }[] = [
-  { key: "vuggestue", label: "Vuggestuer" },
-  { key: "boernehave", label: "Børnehaver" },
+const CATEGORY_OPTIONS: { key: CategoryKey; label: string; primary?: boolean }[] = [
+  { key: "skole", label: "Folkeskoler", primary: true },
+  { key: "vuggestue", label: "Vuggestuer", primary: true },
+  { key: "boernehave", label: "Børnehaver", primary: true },
   { key: "dagpleje", label: "Dagplejere" },
-  { key: "skole", label: "Folkeskoler" },
   { key: "sfo", label: "SFO" },
   { key: "efterskole", label: "Efterskoler" },
 ];
@@ -70,7 +70,7 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<LocationCandidate | null>(null);
-  const [category, setCategory] = useState<CategoryKey>("vuggestue");
+  const [category, setCategory] = useState<CategoryKey>("skole");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -307,21 +307,39 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
           på uafhængig kvalitetsdata. Skriv postnummer eller by.
         </p>
 
-        {/* Category toggle */}
+        {/* Category toggle — primary options emphasized, rest muted */}
         <div className="flex flex-wrap gap-1.5 justify-center mb-3">
-          {CATEGORY_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => setCategory(opt.key)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors min-h-[36px] ${
-                category === opt.key
-                  ? "bg-white text-primary"
-                  : "bg-white/10 text-white/80 hover:bg-white/15"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+          {CATEGORY_OPTIONS.map((opt) => {
+            const active = category === opt.key;
+            if (opt.primary) {
+              return (
+                <button
+                  key={opt.key}
+                  onClick={() => setCategory(opt.key)}
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors min-h-[40px] ${
+                    active
+                      ? "bg-white text-primary shadow-md"
+                      : "bg-white/15 text-white hover:bg-white/25"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            }
+            return (
+              <button
+                key={opt.key}
+                onClick={() => setCategory(opt.key)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[32px] ${
+                  active
+                    ? "bg-white text-primary"
+                    : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white/80"
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Location input + dropdown */}

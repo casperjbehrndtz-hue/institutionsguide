@@ -9,6 +9,7 @@ import { nationalPercentileOfMedian } from "@/lib/mi/aggregate";
 import { METRICS_BY_TRACK } from "@/lib/mi/metrics";
 import LifeStageToggle from "@/components/mi/LifeStageToggle";
 import WeightSliders from "@/components/mi/WeightSliders";
+import KommuneHeadlines from "@/components/mi/KommuneHeadlines";
 import SEOHead from "@/components/shared/SEOHead";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import JsonLd from "@/components/shared/JsonLd";
@@ -112,6 +113,10 @@ export default function KommuneCompareMIPage() {
                 </Link>
               </div>
             ) : (
+              <>
+              {resolvedPins.length >= 2 && (
+                <KommuneHeadlines pinned={resolvedPins} dataset={dataset} track={track} />
+              )}
               <div className="rounded-xl border border-border bg-bg-card overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[560px]">
@@ -214,6 +219,7 @@ export default function KommuneCompareMIPage() {
                   </button>
                 </footer>
               </div>
+              </>
             )}
           </main>
         </div>

@@ -13,6 +13,8 @@ interface PersistedState {
 }
 
 function defaultState(): PersistedState {
+  // School is the primary interest for most Danish parents (10-year commitment,
+  // ties to neighborhood choice). Default accordingly.
   return {
     track: "school",
     weights: { daycare: defaultWeights("daycare"), school: defaultWeights("school") },
