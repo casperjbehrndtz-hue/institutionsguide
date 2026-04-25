@@ -41,8 +41,8 @@ const DATA_SOURCES = [
 
 const FAQ_DA = [
   {
-    q: "Er det gratis at bruge Institutionsguide.dk?",
-    a: "Ja, Institutionsguide.dk er helt gratis at bruge. Vi tror på, at alle forældre skal have adgang til gennemsigtige data om dagtilbud og skoler.",
+    q: "Er det gratis at bruge Institutionsguiden.dk?",
+    a: "Ja, Institutionsguiden.dk er helt gratis at bruge. Vi tror på, at alle forældre skal have adgang til gennemsigtige data om dagtilbud og skoler.",
   },
   {
     q: "Hvor ofte opdateres data?",
@@ -60,8 +60,8 @@ const FAQ_DA = [
 
 const FAQ_EN = [
   {
-    q: "Is Institutionsguide.dk free to use?",
-    a: "Yes, Institutionsguide.dk is completely free. We believe all parents should have access to transparent data about childcare and schools.",
+    q: "Is Institutionsguiden.dk free to use?",
+    a: "Yes, Institutionsguiden.dk is completely free. We believe all parents should have access to transparent data about childcare and schools.",
   },
   {
     q: "How often is data updated?",
@@ -85,10 +85,10 @@ export default function AboutPage() {
   return (
     <>
       <SEOHead
-        title={isDa ? "Om Institutionsguide.dk — Kontakt og datakilder" : "About Institutionsguide.dk — Contact and data sources"}
+        title={isDa ? "Om Institutionsguiden.dk — Kontakt og datakilder" : "About Institutionsguiden.dk — Contact and data sources"}
         description={isDa
-          ? "Lær mere om Institutionsguide.dk, vores datakilder og hvordan vi hjælper forældre med at sammenligne dagtilbud og skoler i Danmark."
-          : "Learn more about Institutionsguide.dk, our data sources and how we help parents compare childcare and schools in Denmark."}
+          ? "Lær mere om Institutionsguiden.dk, vores datakilder og hvordan vi hjælper forældre med at sammenligne dagtilbud og skoler i Danmark."
+          : "Learn more about Institutionsguiden.dk, our data sources and how we help parents compare childcare and schools in Denmark."}
         path="/om"
       />
       <JsonLd data={breadcrumbSchema([
@@ -102,13 +102,13 @@ export default function AboutPage() {
       <section className="max-w-3xl mx-auto px-4 py-12 sm:py-16">
         {/* About section */}
         <h1 className="font-display text-2xl sm:text-4xl font-bold text-foreground mb-4">
-          {isDa ? "Om Institutionsguide.dk" : "About Institutionsguide.dk"}
+          {isDa ? "Om Institutionsguiden.dk" : "About Institutionsguiden.dk"}
         </h1>
         <div className="prose prose-sm text-muted space-y-4 mb-12">
           <p>
             {isDa
-              ? "Institutionsguide.dk er en gratis platform, der hjælper danske forældre med at sammenligne vuggestuer, børnehaver, dagplejere, skoler og SFO'er på tværs af hele Danmark. Vi samler officielle data fra offentlige kilder, så du kan træffe et informeret valg om dit barns institution."
-              : "Institutionsguide.dk is a free platform that helps Danish parents compare nurseries, kindergartens, childminders, schools and after-school programs across Denmark. We gather official data from public sources so you can make an informed choice about your child's institution."}
+              ? "Institutionsguiden.dk er en gratis platform, der hjælper danske forældre med at sammenligne vuggestuer, børnehaver, dagplejere, skoler og SFO'er på tværs af hele Danmark. Vi samler officielle data fra offentlige kilder, så du kan træffe et informeret valg om dit barns institution."
+              : "Institutionsguiden.dk is a free platform that helps Danish parents compare nurseries, kindergartens, childminders, schools and after-school programs across Denmark. We gather official data from public sources so you can make an informed choice about your child's institution."}
           </p>
           <p>
             {isDa

@@ -207,7 +207,7 @@ export default function PrissammenligningPage() {
     url: "https://www.institutionsguiden.dk/prissammenligning",
     publisher: {
       "@type": "Organization",
-      name: "Institutionsguide.dk",
+      name: "Institutionsguiden.dk",
       url: "https://www.institutionsguiden.dk",
     },
   };

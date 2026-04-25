@@ -15,16 +15,42 @@ const CATEGORY_LINKS: { href: string; key: string; labelOverride?: Record<string
   { href: "/gymnasium", key: "gymnasium", labelOverride: { da: "Gymnasier", en: "Gymnasiums" } },
 ];
 
-const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = [
-  { href: "/find", labelOverride: { da: "Find den rette", en: "Find your match" } },
-  { href: "/kommune-intelligens", labelOverride: { da: "Kommune-intelligens", en: "Municipality intelligence" } },
-  { href: "/guide", labelOverride: { da: "Pasningsguide", en: "Childcare guide" } },
-  { href: "/prissammenligning", labelOverride: { da: "Prissammenligning", en: "Price comparison" } },
-  { href: "/bedste-vaerdi", labelOverride: { da: "Bedste værdi", en: "Best value" } },
-  { href: "/friplads", labelOverride: { da: "Fripladsberegner", en: "Subsidy calculator" } },
-  { href: "/normering", labelOverride: { da: "Børn pr. voksen", en: "Children per adult" } },
-  { href: "/samlet-pris", labelOverride: { da: "Samlet pris", en: "Total cost" } },
+interface ToolGroup {
+  headingDa: string;
+  headingEn: string;
+  links: { href: string; labelOverride: Record<string, string> }[];
+}
+
+const TOOL_GROUPS: ToolGroup[] = [
+  {
+    headingDa: "Rangeringer",
+    headingEn: "Rankings",
+    links: [
+      { href: "/kommune-intelligens", labelOverride: { da: "Kommune-intelligens", en: "Municipality intelligence" } },
+      { href: "/bedste-vaerdi", labelOverride: { da: "Bedste værdi for pengene", en: "Best value" } },
+      { href: "/find", labelOverride: { da: "Find efter præferencer", en: "Find by preferences" } },
+    ],
+  },
+  {
+    headingDa: "Kalkulatorer",
+    headingEn: "Calculators",
+    links: [
+      { href: "/friplads", labelOverride: { da: "Fripladsberegner", en: "Subsidy calculator" } },
+      { href: "/samlet-pris", labelOverride: { da: "Samlet pris for et børneliv", en: "Total cost" } },
+    ],
+  },
+  {
+    headingDa: "Data",
+    headingEn: "Data",
+    links: [
+      { href: "/normering", labelOverride: { da: "Normering pr. kommune", en: "Children per adult" } },
+      { href: "/prissammenligning", labelOverride: { da: "Prissammenligning", en: "Price comparison" } },
+      { href: "/guide", labelOverride: { da: "Pasningsguide", en: "Childcare guide" } },
+    ],
+  },
 ];
+
+const TOOL_LINKS: { href: string; labelOverride: Record<string, string> }[] = TOOL_GROUPS.flatMap((g) => g.links);
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -85,7 +111,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 glass-subtle border-b border-border/50" aria-label="Main navigation">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
         <Link to="/" className="font-display font-bold text-base sm:text-lg text-foreground hover:text-primary transition-colors">
-          Institutionsguide
+          Institutionsguiden
         </Link>
 
         {/* Desktop nav — strict hierarchy: primary (categories) | meta (tools, search, favorites, lang) */}
@@ -131,23 +157,30 @@ export default function Navbar() {
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
               </button>
               {toolsOpen && (
-                <div className="absolute right-0 mt-1 w-52 rounded-xl border border-border bg-bg shadow-lg py-1 animate-fade-in z-50">
-                  {TOOL_LINKS.map((link) => {
-                    const active = location.pathname === link.href;
-                    return (
-                      <Link
-                        key={link.href}
-                        to={link.href}
-                        className={`block px-4 py-2.5 text-sm transition-colors ${
-                          active
-                            ? "bg-primary/10 text-primary"
-                            : "text-foreground/85 hover:text-foreground hover:bg-foreground/[0.04]"
-                        }`}
-                      >
-                        {link.labelOverride[language]}
-                      </Link>
-                    );
-                  })}
+                <div className="absolute right-0 mt-1 w-64 rounded-xl border border-border bg-bg shadow-lg py-2 animate-fade-in z-50">
+                  {TOOL_GROUPS.map((group, gi) => (
+                    <div key={group.headingDa} className={gi > 0 ? "mt-1 pt-1 border-t border-border/50" : ""}>
+                      <p className="px-4 pt-1 pb-1 text-[10px] font-semibold tracking-widest uppercase text-muted">
+                        {language === "da" ? group.headingDa : group.headingEn}
+                      </p>
+                      {group.links.map((link) => {
+                        const active = location.pathname === link.href;
+                        return (
+                          <Link
+                            key={link.href}
+                            to={link.href}
+                            className={`block px-4 py-2 text-sm transition-colors ${
+                              active
+                                ? "bg-primary/10 text-primary"
+                                : "text-foreground/85 hover:text-foreground hover:bg-foreground/[0.04]"
+                            }`}
+                          >
+                            {link.labelOverride[language]}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -253,26 +286,32 @@ export default function Navbar() {
             })}
           </div>
           <div className="px-4 pb-2">
-            <p className="px-3 pt-2 pb-1 text-[10px] font-semibold text-muted uppercase tracking-widest">{t.nav.tools}</p>
-            <div className="flex flex-wrap gap-1">
-              {TOOL_LINKS.map((link) => {
-                const active = location.pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    onClick={() => setOpen(false)}
-                    className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      active
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted hover:text-foreground hover:bg-border/30"
-                    }`}
-                  >
-                    {link.labelOverride[language]}
-                  </Link>
-                );
-              })}
-            </div>
+            {TOOL_GROUPS.map((group) => (
+              <div key={group.headingDa} className="mb-3">
+                <p className="px-3 pt-2 pb-1 text-[10px] font-semibold text-muted uppercase tracking-widest">
+                  {language === "da" ? group.headingDa : group.headingEn}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {group.links.map((link) => {
+                    const active = location.pathname === link.href;
+                    return (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        onClick={() => setOpen(false)}
+                        className={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          active
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted hover:text-foreground hover:bg-border/30"
+                        }`}
+                      >
+                        {link.labelOverride[language]}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
           <div className="px-4 pb-2 flex items-center gap-2">
             <Link

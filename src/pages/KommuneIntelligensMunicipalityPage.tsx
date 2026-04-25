@@ -55,7 +55,7 @@ export default function KommuneIntelligensMunicipalityPage() {
   return (
     <>
       <SEOHead
-        title={`Kommune-intelligens: ${canonicalName} — Score, normering, trivsel | Institutionsguide`}
+        title={`Kommune-intelligens: ${canonicalName} — Score, normering, trivsel | Institutionsguiden`}
         description={`Se hvordan ${canonicalName} Kommune ligger på kvalitetsindekset for ${trackLabel} — normering, trivsel, pris og mere, sammenlignet med landsmedianen.`}
         path={`/kommune-intelligens/${toSlug(canonicalName)}`}
       />

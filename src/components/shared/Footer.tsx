@@ -58,7 +58,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-6 sm:gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-2">
-            <span className="font-display font-bold text-lg text-foreground">Institutionsguide</span>
+            <span className="font-display font-bold text-lg text-foreground">Institutionsguiden</span>
             <p className="text-xs text-muted leading-relaxed">
               {t.home.moreToolsSubtitle}
             </p>
@@ -146,7 +146,7 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted">
-            &copy; {new Date().getFullYear()} Institutionsguide &middot; {t.common.partOfFamily}
+            &copy; {new Date().getFullYear()} Institutionsguiden &middot; {t.common.partOfFamily}
           </p>
           <p className="text-[10px] text-muted/70 max-w-md text-center md:text-right">
             {t.footer.disclaimer}

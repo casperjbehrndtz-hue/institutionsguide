@@ -210,7 +210,7 @@ export default function NormeringPage() {
     url: "https://www.institutionsguiden.dk/normering",
     publisher: {
       "@type": "Organization",
-      name: "Institutionsguide.dk",
+      name: "Institutionsguiden.dk",
       url: "https://www.institutionsguiden.dk",
     },
   };

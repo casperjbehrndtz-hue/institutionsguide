@@ -10,8 +10,8 @@ export default function PrivacyPage() {
   return (
     <>
       <SEOHead
-        title="Privatlivspolitik — Institutionsguide.dk"
-        description="Læs om hvordan Institutionsguide.dk behandler dine personoplysninger, cookies og lokalt lagrede data."
+        title="Privatlivspolitik — Institutionsguiden.dk"
+        description="Læs om hvordan Institutionsguiden.dk behandler dine personoplysninger, cookies og lokalt lagrede data."
         path="/privatliv"
       />
       <Breadcrumbs items={[
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
             1. Dataansvarlig
           </h2>
           <p>
-            Institutionsguide.dk drives af Casper via ParFinans (parfinans.dk).
+            Institutionsguiden.dk drives af Casper via ParFinans (parfinans.dk).
             Har du spørgsmål vedrørende behandlingen af dine personoplysninger,
             er du velkommen til at kontakte os via{" "}
             <a href="https://parfinans.dk" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
@@ -48,7 +48,7 @@ export default function PrivacyPage() {
             2. Cookie-samtykke
           </h2>
           <p>
-            Når du besøger Institutionsguide.dk, vises et cookiebanner, hvor du
+            Når du besøger Institutionsguiden.dk, vises et cookiebanner, hvor du
             aktivt kan vælge at acceptere eller afvise analytiske cookies. Ingen
             analytiske scripts indlæses, før du har givet dit udtrykkelige
             samtykke. Du kan til enhver tid ændre dit valg ved at slette

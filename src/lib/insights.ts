@@ -3,7 +3,7 @@
  * human-readable risk signals, percentile profiles,
  * and contextual comparisons.
  *
- * This is the premium data layer of Institutionsguide.
+ * This is the premium data layer of Institutionsguiden.
  */
 
 import type { SchoolQuality, UnifiedInstitution } from "./types";

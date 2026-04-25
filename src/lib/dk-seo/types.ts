@@ -3,7 +3,7 @@
 export interface SiteConfig {
   /** Full site URL without trailing slash, e.g. "https://www.institutionsguiden.dk" */
   siteUrl: string;
-  /** Site display name, e.g. "Institutionsguide" */
+  /** Site display name, e.g. "Institutionsguiden" */
   siteName: string;
   /** Default OG image path (relative to siteUrl), e.g. "/og-image.png" */
   defaultOgImage: string;

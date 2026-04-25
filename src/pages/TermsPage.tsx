@@ -7,8 +7,8 @@ export default function TermsPage() {
   return (
     <>
       <SEOHead
-        title="Vilkår — Institutionsguide.dk"
-        description="Læs vilkår for brug af Institutionsguide.dk. Alle priser er vejledende og baseret på offentligt tilgængelige data."
+        title="Vilkår — Institutionsguiden.dk"
+        description="Læs vilkår for brug af Institutionsguiden.dk. Alle priser er vejledende og baseret på offentligt tilgængelige data."
         path="/vilkaar"
       />
       <Breadcrumbs items={[
@@ -26,7 +26,7 @@ export default function TermsPage() {
             Vejledende priser
           </h2>
           <p>
-            Alle priser vist på Institutionsguide.dk er <strong>vejledende</strong> og baseret på
+            Alle priser vist på Institutionsguiden.dk er <strong>vejledende</strong> og baseret på
             offentligt tilgængelige data. De faktiske takster kan afvige. Kontakt altid din kommune
             for den præcise takst.
           </p>
@@ -62,7 +62,7 @@ export default function TermsPage() {
           </h2>
           <p>
             Vi bestræber os på at vise korrekte og opdaterede data, men kan ikke garantere
-            fuldstændighed eller nøjagtighed. Brug af Institutionsguide.dk sker på eget ansvar.
+            fuldstændighed eller nøjagtighed. Brug af Institutionsguiden.dk sker på eget ansvar.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function TermsPage() {
             Ophavsret
           </h2>
           <p>
-            &copy; 2026 Institutionsguide. Alle rettigheder forbeholdes. Indholdet på denne side
+            &copy; 2026 Institutionsguiden. Alle rettigheder forbeholdes. Indholdet på denne side
             må ikke kopieres eller distribueres uden tilladelse.
           </p>
         </div>

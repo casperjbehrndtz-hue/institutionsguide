@@ -17,7 +17,7 @@ function truncate(str: string, max: number): string {
 
 export default function SEOHead({ title, description, path = "", noIndex }: SEOHeadProps) {
   const { language } = useLanguage();
-  const rawTitle = title.includes("Institutionsguide") ? title : `${title} | Institutionsguide`;
+  const rawTitle = title.includes("Institutionsguiden") ? title : `${title} | Institutionsguiden`;
   const fullTitle = truncate(rawTitle, 60);
   const safeDescription = truncate(description, 155);
   const url = `${BASE_URL}${path}`;

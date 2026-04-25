@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Heart, MapPin, Camera } from "lucide-react";
+import { Check, Heart, MapPin, Camera, Plus } from "lucide-react";
 import { formatDKK } from "@/lib/format";
 import { haversineKm, formatDistance } from "@/lib/geo";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCompare } from "@/contexts/CompareContext";
 import { CATEGORY_BADGE_COLORS } from "@/lib/badges";
 import type { UnifiedInstitution } from "@/lib/types";
 
@@ -88,6 +89,9 @@ export default function InstitutionListCard({
   const loc = useLocation();
   const [imgFailed, setImgFailed] = useState(false);
   const isDa = language === "da";
+  const { compareList, addToCompare, removeFromCompare } = useCompare();
+  const isInCompare = compareList.some((c) => c.id === inst.id);
+  const compareFull = compareList.length >= 4 && !isInCompare;
 
   // Priority-ordered metric chips. Cap to 3 so the row stays readable on all
   // screen sizes and never needs a horizontal scroll.
@@ -210,17 +214,41 @@ export default function InstitutionListCard({
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-2.5">
+          <div className="flex items-center justify-between gap-2 mt-2.5">
             <span className="text-xs text-primary font-semibold">
               {t.common.seeFullProfile} &rarr;
             </span>
-            <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(inst.id); }}
-              className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
-              aria-label={isFavorite ? t.favorites.removeFavorite : t.favorites.addFavorite}
-            >
-              <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
-            </button>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (isInCompare) removeFromCompare(inst.id);
+                  else if (!compareFull) addToCompare(inst);
+                }}
+                disabled={compareFull}
+                className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-md text-[11px] font-semibold transition-colors min-h-[36px] border ${
+                  isInCompare
+                    ? "bg-primary/10 text-primary border-primary/30"
+                    : compareFull
+                      ? "bg-muted/5 text-muted/50 border-border/50 cursor-not-allowed"
+                      : "bg-bg text-foreground border-border hover:bg-primary/5 hover:border-primary/30"
+                }`}
+                aria-pressed={isInCompare}
+                aria-label={isInCompare ? `Fjern ${inst.name} fra sammenligning` : `Tilføj ${inst.name} til sammenligning`}
+                title={compareFull ? "Maks 4 valgt — fjern én først" : isInCompare ? "Fjern fra sammenligning" : "Tilføj til sammenligning"}
+              >
+                {isInCompare ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                <span className="hidden sm:inline">{isInCompare ? "Valgt" : isDa ? "Sammenlign" : "Compare"}</span>
+              </button>
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(inst.id); }}
+                className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
+                aria-label={isFavorite ? t.favorites.removeFavorite : t.favorites.addFavorite}
+              >
+                <Heart className={`w-4 h-4 transition-colors ${isFavorite ? "text-red-500 fill-red-500" : "text-muted hover:text-red-400"}`} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

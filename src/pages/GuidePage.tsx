@@ -118,8 +118,8 @@ export default function GuidePage() {
       <SEOHead
         title={
           isDa
-            ? "Dagpleje eller vuggestue? Find den rigtige pasningstype — Institutionsguide"
-            : "Childminder or nursery? Find the right childcare type — Institutionsguide"
+            ? "Dagpleje eller vuggestue? Find den rigtige pasningstype — Institutionsguiden"
+            : "Childminder or nursery? Find the right childcare type — Institutionsguiden"
         }
         description={
           isDa

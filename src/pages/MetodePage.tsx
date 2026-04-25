@@ -12,8 +12,8 @@ export default function MetodePage() {
   return (
     <>
       <SEOHead
-        title="Metode og datakilder — Institutionsguide"
-        description="Læs om hvordan Institutionsguide beregner kvalitetsscorer, normering og priser. Se vores datakilder fra Undervisningsministeriet, STIL og Dagtilbudsregisteret."
+        title="Metode og datakilder — Institutionsguiden"
+        description="Læs om hvordan Institutionsguiden beregner kvalitetsscorer, normering og priser. Se vores datakilder fra Undervisningsministeriet, STIL og Dagtilbudsregisteret."
         path="/metode"
       />
       <JsonLd data={breadcrumbSchema([
@@ -34,7 +34,7 @@ export default function MetodePage() {
           Metode og datakilder
         </h1>
         <p className="text-muted text-base max-w-2xl mx-auto">
-          Institutionsguide bygger på offentlige data fra danske myndigheder. Her kan du
+          Institutionsguiden bygger på offentlige data fra danske myndigheder. Her kan du
           læse om, hvordan vi beregner kvalitetsscorer, normering og priser.
         </p>
         <DataFreshness />
@@ -159,11 +159,11 @@ export default function MetodePage() {
         <ScrollReveal><section>
           <div className="card p-6">
             <h2 className="font-display text-xl font-semibold text-foreground mb-3">
-              Om Institutionsguide
+              Om Institutionsguiden
             </h2>
             <div className="text-sm text-muted space-y-3">
               <p>
-                Institutionsguide.dk er en del af{" "}
+                Institutionsguiden.dk er en del af{" "}
                 <a href="https://parfinans.dk" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                   ParFinans
                 </a>{" "}

@@ -55,7 +55,7 @@ export default function KommuneCompareMIPage() {
   return (
     <>
       <SEOHead
-        title={`Sammenlign kommuner side om side — Kommune-intelligens | Institutionsguide`}
+        title={`Sammenlign kommuner side om side — Kommune-intelligens | Institutionsguiden`}
         description="Pin op til 3 kommuner og se deres score, drivers og råtal side om side. Del linket med din partner."
         path="/kommune-intelligens/sammenlign"
       />

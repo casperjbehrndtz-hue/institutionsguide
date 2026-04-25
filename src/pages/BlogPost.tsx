@@ -70,7 +70,7 @@ function extractAndInjectToc(html: string): { toc: TocEntry[]; html: string } {
 }
 
 const MODULE_LINKS: Record<string, { path: string; label: string }> = {
-  dagtilbud: { path: "/", label: "Institutionsguide" },
+  dagtilbud: { path: "/", label: "Institutionsguiden" },
   skole: { path: "/skole", label: "Skoleguide" },
   normering: { path: "/normering", label: "Normeringstabel" },
   friplads: { path: "/friplads", label: "Fripladsberegner" },
@@ -178,7 +178,7 @@ export default function BlogPost() {
         dateModified: post.updated_at,
         publisher: {
           "@type": "Organization",
-          name: "Institutionsguide.dk",
+          name: "Institutionsguiden.dk",
           url: "https://www.institutionsguiden.dk",
         },
         inLanguage: language,

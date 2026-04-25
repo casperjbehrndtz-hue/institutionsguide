@@ -75,7 +75,7 @@ export function websiteSchema(siteUrl: string): object {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Institutionsguide",
+    name: "Institutionsguiden",
     url: siteUrl,
     potentialAction: {
       "@type": "SearchAction",

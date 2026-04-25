@@ -39,23 +39,23 @@ const POPULAR_KOMMUNER: string[] = [
 const FAQ: { q: string; a: string }[] = [
   {
     q: "Hvordan ved jeg om en institution er god?",
-    a: "Vi samler officielle data fra Undervisningsministeriet, Danmarks Statistik og den Nationale Trivselsmåling og viser hvordan hver institution rangerer nationalt. For dagtilbud er de vigtigste mål normering (børn pr. voksen), andel uddannede pædagoger og forældretilfredshed. For skoler er det trivsel, karaktergennemsnit, undervisningseffekt (socioøkonomisk løft) og kompetencedækning.",
+    a: "Vi samler officielle data fra Børne- og Undervisningsministeriet, Danmarks Statistik og Den Nationale Trivselsmåling og viser hvordan hver institution rangerer nationalt. For dagtilbud er de vigtigste mål normering (børn pr. voksen), andel uddannede pædagoger og forældretilfredshed. For skoler er det trivsel, karaktergennemsnit, undervisningseffekt (socioøkonomisk løft) og kompetencedækning.",
   },
   {
     q: "Er data pålidelige og opdaterede?",
     a: `Alle tal kommer fra officielle danske kilder og opdateres automatisk når nye datasæt frigives. Senest opdateret ${formatDataDate(dataVersions.overall.lastUpdated, "da")}.`,
   },
   {
-    q: "Hvad koster det at bruge Institutionsguide?",
+    q: "Hvad koster det at bruge Institutionsguiden?",
     a: "Gratis. Vi får ingen penge fra institutioner eller kommuner, og vi sælger ikke dine data. Uafhængighed er hele pointen — ellers kunne du ikke stole på rangeringerne.",
   },
   {
     q: "Kan jeg sammenligne flere institutioner?",
-    a: "Ja. Klik på hjerteikon på et institution-kort for at tilføje til sammenligning, eller brug Kommune-intelligens til at sammenligne hele kommuner mod hinanden.",
+    a: "Ja. Klik 'Sammenlign' på et institution-kort for at tilføje til sammenligningskurven nederst i skærmen — så kan du vælge op til 4 institutioner og se dem side om side. Vil du sammenligne hele kommuner, så brug Kommune-intelligens.",
   },
   {
     q: "Hvorfor er normering så vigtig for dagtilbud?",
-    a: "Normeringen (antal børn pr. voksen) er det mest robuste kvalitetsmål for dagtilbud, fordi den direkte styrer hvor meget voksenkontakt hvert barn får. BUVM har fastsat minimumsnormering på 3 børn pr. voksen i vuggestuer og 6 børn pr. voksen i børnehaver, men mange kommuner ligger bedre end det.",
+    a: "Normeringen (antal børn pr. voksen) er det mest robuste kvalitetsmål for dagtilbud, fordi den direkte styrer hvor meget voksenkontakt hvert barn får. Børne- og Undervisningsministeriet har fastsat minimumsnormering på 3 børn pr. voksen i vuggestuer og 6 børn pr. voksen i børnehaver, men mange kommuner ligger bedre end det.",
   },
   {
     q: "Hvad er forskellen på folkeskole og privatskole i rangeringen?",
@@ -110,7 +110,7 @@ export default function HomePage() {
   return (
     <>
       <SEOHead
-        title="Institutionsguide — Find den bedste skole, børnehave eller vuggestue i Danmark"
+        title="Institutionsguiden — Find den bedste skole, børnehave eller vuggestue i Danmark"
         description="Se top-rangerede folkeskoler, vuggestuer, børnehaver og dagplejere i dit område. Uafhængig kvalitetsdata fra Undervisningsministeriet og Danmarks Statistik. Gratis."
         path="/"
       />
@@ -120,17 +120,17 @@ export default function HomePage() {
       <main>
 
       {/* 1. Hero — Instant Answer Engine with video backdrop */}
-      <InstantAnswer onLocationSelected={handleLocationSelected} />
+      <InstantAnswer onLocationSelected={handleLocationSelected} geo={geo} />
 
       {/* 2. Trust bar */}
       <section className="border-b border-border/70 bg-bg">
         <div className="max-w-5xl mx-auto px-4 py-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px]">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/70">Verificeret data fra</span>
-          <span className="text-foreground/75">Undervisningsministeriet</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/70">Officiel data fra</span>
+          <span className="text-foreground/75">Børne- og Undervisningsministeriet</span>
           <span className="text-muted/30" aria-hidden="true">·</span>
           <span className="text-foreground/75">Danmarks Statistik</span>
           <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-foreground/75">BUVM</span>
+          <span className="text-foreground/75">Den Nationale Trivselsmåling</span>
           <span className="text-muted/30" aria-hidden="true">·</span>
           <span className="text-foreground/75">Kommunale tilsynsrapporter</span>
           <span className="text-muted/30" aria-hidden="true">·</span>
@@ -271,51 +271,50 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
+            {/* Card 1: Open the leaderboard */}
             <Link
-              to="/kommune-intelligens?mode=daycare"
-              className="group flex flex-col justify-between p-6 rounded-2xl border border-border hover:border-primary/50 bg-bg-card hover:bg-primary/5 transition-colors min-h-[160px]"
+              to="/kommune-intelligens"
+              className="lg:col-span-2 group flex flex-col justify-between p-6 sm:p-8 rounded-2xl border border-border hover:border-primary/50 bg-bg-card hover:bg-primary/5 transition-colors min-h-[200px]"
             >
-              <div className="flex items-center gap-2">
-                <Baby className="w-5 h-5 text-primary" />
-                <h3 className="font-display text-lg font-semibold text-foreground">Dagtilbud-ranking</h3>
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <h3 className="font-display text-xl sm:text-2xl font-semibold text-foreground">Åbn rangeringen</h3>
+                </div>
+                <p className="text-sm text-muted leading-relaxed max-w-prose">
+                  Justér selv hvor meget normering, trivsel, karakter og pris skal tælle —
+                  leaderboardet over alle 98 kommuner genberegnes med det samme.
+                </p>
               </div>
-              <p className="text-sm text-muted mt-2 leading-relaxed">
-                Se alle 98 kommuner rangeret på normering, stabilitet og forældretilfredshed.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm text-primary font-semibold">
-                Åbn værktøj <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </span>
+              <div className="flex flex-wrap items-center gap-3 mt-5">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <GraduationCap className="w-3.5 h-3.5" /> Folkeskole
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <Baby className="w-3.5 h-3.5" /> Dagtilbud
+                </span>
+                <span className="ml-auto inline-flex items-center gap-1 text-sm text-primary font-semibold">
+                  Åbn værktøj <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </div>
             </Link>
 
-            <Link
-              to="/kommune-intelligens?mode=school"
-              className="group flex flex-col justify-between p-6 rounded-2xl border border-border hover:border-primary/50 bg-bg-card hover:bg-primary/5 transition-colors min-h-[160px]"
-            >
-              <div className="flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-primary" />
-                <h3 className="font-display text-lg font-semibold text-foreground">Folkeskole-ranking</h3>
-              </div>
-              <p className="text-sm text-muted mt-2 leading-relaxed">
-                Se alle 98 kommuner rangeret på trivsel, karakter og undervisningseffekt.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm text-primary font-semibold">
-                Åbn værktøj <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </span>
-            </Link>
-
+            {/* Card 2: Side-by-side compare */}
             <Link
               to="/kommune-intelligens/sammenlign"
-              className="group flex flex-col justify-between p-6 rounded-2xl border border-border hover:border-primary/50 bg-bg-card hover:bg-primary/5 transition-colors min-h-[160px]"
+              className="group flex flex-col justify-between p-6 sm:p-8 rounded-2xl border border-border hover:border-primary/50 bg-bg-card hover:bg-primary/5 transition-colors min-h-[200px]"
             >
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <h3 className="font-display text-lg font-semibold text-foreground">Side om side</h3>
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <h3 className="font-display text-xl sm:text-2xl font-semibold text-foreground">Side om side</h3>
+                </div>
+                <p className="text-sm text-muted leading-relaxed">
+                  Pin 2-3 kommuner og se dem i kolonner med "avisoverskrifter" — hvem vinder hvilken metrik.
+                </p>
               </div>
-              <p className="text-sm text-muted mt-2 leading-relaxed">
-                Pin 2-3 kommuner og se deres kvalitetsmål i kolonner.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm text-primary font-semibold">
+              <span className="mt-5 inline-flex items-center gap-1 text-sm text-primary font-semibold">
                 Sammenlign <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </span>
             </Link>

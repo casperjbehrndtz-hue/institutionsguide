@@ -68,10 +68,10 @@ export function buildInstitutionFaqs(
     faqs.push({ q: `Hvad er karaktersnittet på ${inst.name}?`, a: `${inst.name} har et karaktersnit på ${inst.quality.k}${inst.quality.ts ? ` (landsgennemsnit: ~7.0). Trivslen er ${inst.quality.ts}/5` : " (landsgennemsnit: ~7.0)"}.` });
   }
   if (inst.category === "skole" && inst.quality?.ts && inst.quality?.k) {
-    faqs.push({ q: `Er ${inst.name} en god skole?`, a: `${inst.name} har en samlet kvalitetsvurdering baseret på trivsel (${inst.quality.ts}/5), karaktersnit (${inst.quality.k})${inst.quality.kp ? ` og kompetencedækning (${inst.quality.kp}%)` : ""}. Se den fulde vurdering på Institutionsguide.` });
+    faqs.push({ q: `Er ${inst.name} en god skole?`, a: `${inst.name} har en samlet kvalitetsvurdering baseret på trivsel (${inst.quality.ts}/5), karaktersnit (${inst.quality.k})${inst.quality.kp ? ` og kompetencedækning (${inst.quality.kp}%)` : ""}. Se den fulde vurdering på Institutionsguiden.` });
   }
   if (nearby.length >= 3) {
-    faqs.push({ q: `Hvilke andre ${catLabel.toLowerCase()}r ligger tæt på ${inst.name}?`, a: `De nærmeste ${catLabel.toLowerCase()}r er ${nearby[0].name} (${nearby[0].dist.toFixed(1)} km), ${nearby[1].name} (${nearby[1].dist.toFixed(1)} km) og ${nearby[2].name} (${nearby[2].dist.toFixed(1)} km). Se alle ${catLabel.toLowerCase()}r i ${inst.municipality} på Institutionsguide.` });
+    faqs.push({ q: `Hvilke andre ${catLabel.toLowerCase()}r ligger tæt på ${inst.name}?`, a: `De nærmeste ${catLabel.toLowerCase()}r er ${nearby[0].name} (${nearby[0].dist.toFixed(1)} km), ${nearby[1].name} (${nearby[1].dist.toFixed(1)} km) og ${nearby[2].name} (${nearby[2].dist.toFixed(1)} km). Se alle ${catLabel.toLowerCase()}r i ${inst.municipality} på Institutionsguiden.` });
   }
 
   return faqs;

@@ -23,7 +23,7 @@ function estimateReadTime(html: string): number {
 }
 
 const MODULE_LINKS: Record<string, { path: string; label: string }> = {
-  dagtilbud: { path: "/", label: "Institutionsguide" },
+  dagtilbud: { path: "/", label: "Institutionsguiden" },
   skole: { path: "/skole", label: "Skoleguide" },
   normering: { path: "/normering", label: "Normeringstabel" },
   friplads: { path: "/friplads", label: "Fripladsberegner" },
@@ -77,12 +77,12 @@ export default function BlogIndex() {
       <JsonLd data={{
         "@context": "https://schema.org",
         "@type": "CollectionPage",
-        name: isDa ? "Institutionsguide Blog" : "Institutionsguide Blog",
+        name: isDa ? "Institutionsguiden Blog" : "Institutionsguiden Blog",
         url: "https://www.institutionsguiden.dk/blog",
         description: pageDesc,
         publisher: {
           "@type": "Organization",
-          name: "Institutionsguide.dk",
+          name: "Institutionsguiden.dk",
           url: "https://www.institutionsguiden.dk",
         },
         inLanguage: language,

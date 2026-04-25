@@ -72,8 +72,8 @@ export default function TotalCostPage() {
       <SEOHead
         title={
           isDa
-            ? `Hvad koster børnepasning i ${municipality}? Samlet pris fra vuggestue til SFO — Institutionsguide`
-            : `What does childcare cost in ${municipality}? Total cost from nursery to after-school care — Institutionsguide`
+            ? `Hvad koster børnepasning i ${municipality}? Samlet pris fra vuggestue til SFO — Institutionsguiden`
+            : `What does childcare cost in ${municipality}? Total cost from nursery to after-school care — Institutionsguiden`
         }
         description={
           isDa

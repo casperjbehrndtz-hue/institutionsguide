@@ -12,14 +12,18 @@ import type { UnifiedInstitution } from "@/lib/types";
 
 interface InstantAnswerProps {
   onLocationSelected?: (kommune: string, postnummer?: string) => void;
+  /** Shared geolocation hook from parent — keeps "Find i nærheden" loading state consistent */
+  geo?: ReturnType<typeof useGeolocation>;
 }
 
-/** Popular quick-click destinations shown above the input on empty state */
-const QUICK_PICKS: { pn: string; city: string }[] = [
+/** Popular quick-click destinations. First 3 always visible; rest collapsed on mobile. */
+const QUICK_PICKS_PRIMARY: { pn: string; city: string }[] = [
   { pn: "2100", city: "København Ø" },
-  { pn: "2300", city: "København S" },
   { pn: "8000", city: "Aarhus C" },
   { pn: "5000", city: "Odense C" },
+];
+const QUICK_PICKS_SECONDARY: { pn: string; city: string }[] = [
+  { pn: "2300", city: "København S" },
   { pn: "9000", city: "Aalborg" },
   { pn: "6000", city: "Kolding" },
 ];
@@ -75,10 +79,12 @@ function scoreInstitutionForCategory(
   return null;
 }
 
-export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps = {}) {
+export default function InstantAnswer({ onLocationSelected, geo: geoProp }: InstantAnswerProps = {}) {
   const { institutions, institutionStats, kommuneStats, normering } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
-  const geo = useGeolocation(() => { /* no-op — we react via geo.userLocation below */ });
+  // Fallback when used standalone — but parents should pass shared state in
+  const internalGeo = useGeolocation(() => { /* no-op */ });
+  const geo = geoProp ?? internalGeo;
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<LocationCandidate | null>(null);
@@ -358,13 +364,16 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
         style={{ background: "radial-gradient(ellipse at center, transparent 0%, transparent 45%, rgba(13,28,47,0.35) 100%)" }}
       />
 
-      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-12 pb-8 sm:pt-16 sm:pb-12">
-        <h1 className="font-display text-[2rem] sm:text-[3rem] lg:text-[3.5rem] font-bold text-white leading-[1.08] mb-3 tracking-tight text-center">
+      <div className="relative z-10 max-w-3xl mx-auto px-4 pt-10 pb-7 sm:pt-16 sm:pb-12">
+        <h1 className="font-display text-[1.85rem] sm:text-[3rem] lg:text-[3.5rem] font-bold text-white leading-[1.05] mb-3 tracking-tight text-center">
           Find den bedste institution til dit barn
         </h1>
-        <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-8 leading-relaxed text-center">
+        <p className="hidden sm:block text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-6 leading-relaxed text-center">
           Uafhængig kvalitetsdata fra Undervisningsministeriet og Danmarks Statistik.
           Find skolen, børnehaven eller vuggestuen med den bedste kvalitet i dit område.
+        </p>
+        <p className="sm:hidden text-white/70 text-sm max-w-xl mx-auto mb-5 leading-relaxed text-center">
+          Uafhængig kvalitetsdata. Skriv postnummer eller by.
         </p>
 
         {/* Category toggle — primary options emphasized, rest muted */}
@@ -485,11 +494,19 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
           )}
         </div>
 
-        {/* Quick-pick popular locations — shown only when nothing selected */}
+        {/* Quick-pick popular locations — primaries always; secondaries hidden on mobile */}
         {!selected && postIndex && (
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 max-w-2xl mx-auto">
+          <div className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 max-w-2xl mx-auto">
             <span className="text-[11px] font-mono uppercase tracking-[0.15em] text-white/55">Populære:</span>
-            {QUICK_PICKS.filter((q) => postIndex[q.pn]).map((q) => (
+            <button
+              onClick={handleNearMe}
+              disabled={geo.nearMeLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-white text-[12px] font-medium hover:bg-white/25 transition-colors disabled:opacity-50"
+            >
+              <MapPin className="w-3 h-3" />
+              {geo.nearMeLoading ? "Henter…" : "Min position"}
+            </button>
+            {QUICK_PICKS_PRIMARY.filter((q) => postIndex[q.pn]).map((q) => (
               <button
                 key={q.pn}
                 onClick={() => handleQuickPick(q.pn)}
@@ -498,14 +515,15 @@ export default function InstantAnswer({ onLocationSelected }: InstantAnswerProps
                 {q.pn} {q.city}
               </button>
             ))}
-            <button
-              onClick={handleNearMe}
-              disabled={geo.nearMeLoading}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-white text-[12px] font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
-            >
-              <MapPin className="w-3 h-3" />
-              {geo.nearMeLoading ? "Henter…" : "Min position"}
-            </button>
+            {QUICK_PICKS_SECONDARY.filter((q) => postIndex[q.pn]).map((q) => (
+              <button
+                key={q.pn}
+                onClick={() => handleQuickPick(q.pn)}
+                className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 text-white text-[12px] font-medium hover:bg-white/20 transition-colors"
+              >
+                {q.pn} {q.city}
+              </button>
+            ))}
           </div>
         )}
       </div>

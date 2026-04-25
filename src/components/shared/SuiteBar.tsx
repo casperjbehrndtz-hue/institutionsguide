@@ -83,7 +83,7 @@ function useSuiteLinks(): SuiteLink[] {
           source: "institutionsguide",
         }),
       },
-      { label: "Institutionsguide", href: "/", current: true },
+      { label: "Institutionsguiden", href: "/", current: true },
     ];
   }, [profile]);
 }

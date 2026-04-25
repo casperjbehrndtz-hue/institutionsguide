@@ -82,7 +82,7 @@ export default function FripladsPage() {
   return (
     <>
       <SEOHead
-        title={isDa ? `Beregn fripladstilskud ${FRIPLADS_CONSTANTS.year} — Institutionsguide` : `Calculate childcare subsidy ${FRIPLADS_CONSTANTS.year} — Institutionsguide`}
+        title={isDa ? `Beregn fripladstilskud ${FRIPLADS_CONSTANTS.year} — Institutionsguiden` : `Calculate childcare subsidy ${FRIPLADS_CONSTANTS.year} — Institutionsguiden`}
         description={
           isDa
             ? "Beregn dit fripladstilskud for vuggestue, børnehave, dagpleje og SFO. Se hvad du skal betale i alle 98 kommuner med vores gratis fripladstilskud-beregner."

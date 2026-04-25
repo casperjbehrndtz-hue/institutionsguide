@@ -246,7 +246,7 @@ export default function InstitutionReport({
           Data: {lang === "da" ? "Undervisningsministeriet" : "Ministry of Education"} · {lang === "da" ? "Opdateret" : "Updated"} {dateStr}
         </span>
         <div className="flex items-center gap-1.5">
-          <span className="font-display text-xs text-primary font-medium">Institutionsguide</span>
+          <span className="font-display text-xs text-primary font-medium">Institutionsguiden</span>
           <span className="text-border">·</span>
           <span>{lang === "da" ? "Del af ParFinans-familien" : "Part of the ParFinans family"}</span>
         </div>
