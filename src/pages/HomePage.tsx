@@ -85,15 +85,14 @@ export default function HomePage() {
   }, [navigate, location]);
 
   const handleLocationSelected = useCallback((kommune: string, _postnummer?: string) => {
-    // Fly map to that kommune's rough centroid
+    // Update the map's fly-to target, but DO NOT auto-scroll the page.
+    // Auto-scroll caused the "scroll down -> jump up" bug when geolocation
+    // resolved asynchronously after the user had moved on.
     const instsInKommune = institutions.filter((i) => i.municipality === kommune);
     if (instsInKommune.length === 0) return;
     const avgLat = instsInKommune.reduce((s, i) => s + i.lat, 0) / instsInKommune.length;
     const avgLng = instsInKommune.reduce((s, i) => s + i.lng, 0) / instsInKommune.length;
     setFlyTo({ lat: avgLat, lng: avgLng, zoom: 12 });
-    // Scroll map into view
-    const mapEl = document.getElementById("homepage-map");
-    if (mapEl) mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [institutions]);
 
   const mapProps = useMemo(() => ({
