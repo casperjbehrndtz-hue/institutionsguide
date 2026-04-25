@@ -122,8 +122,11 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     return () => { cancelled = true; };
   }, []);
 
-  // Hydrate from URL once data is ready
+  // Hydrate from URL once on mount + when external nav happens (postIndex/data ready)
+  const hydratedRef = useRef(false);
   useEffect(() => {
+    if (hydratedRef.current) return;
+    if (!postIndex || institutions.length === 0) return;
     const urlCat = searchParams.get("cat") as CategoryKey | null;
     const urlKommune = searchParams.get("k");
     const urlPn = searchParams.get("pn");
@@ -138,7 +141,9 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
         setSelected({ kind: "kommune", id: `k-${decoded}`, label: decoded, sublabel: "Hele kommunen", kommune: decoded, count });
       }
     }
-  }, [postIndex, institutions, searchParams]);
+    hydratedRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postIndex, institutions]);
 
   // Keep URL in sync with selection
   useEffect(() => {

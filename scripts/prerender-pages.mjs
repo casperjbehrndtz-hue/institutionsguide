@@ -29,87 +29,87 @@ function esc(str) {
 const PAGES = [
   {
     path: "/vuggestue",
-    title: "Vuggestuer i Danmark — Sammenlign priser og kvalitet | Institutionsguide",
+    title: "Vuggestuer i Danmark — Sammenlign priser og kvalitet | Institutionsguiden",
     description: "Find og sammenlign vuggestuer (0-2 år) i alle 98 kommuner. Se priser, ejerskab og beregn fripladstilskud.",
   },
   {
     path: "/boernehave",
-    title: "Børnehaver i Danmark — Sammenlign børnehaver | Institutionsguide",
+    title: "Børnehaver i Danmark — Sammenlign børnehaver | Institutionsguiden",
     description: "Sammenlign børnehaver (3-5 år) i hele landet. Se kommunale, selvejende og private børnehaver med priser.",
   },
   {
     path: "/dagpleje",
-    title: "Dagplejere i Danmark — Find dagpleje | Institutionsguide",
+    title: "Dagplejere i Danmark — Find dagpleje | Institutionsguiden",
     description: "Find dagpleje (0-2 år) i din kommune. Ofte et billigere alternativ til vuggestue med højere voksen-barn ratio.",
   },
   {
     path: "/skole",
-    title: "Skoler i Danmark — Folkeskoler og friskoler med kvalitetsdata | Institutionsguide",
+    title: "Skoler i Danmark — Folkeskoler og friskoler med kvalitetsdata | Institutionsguiden",
     description: "Sammenlign folkeskoler og friskoler med kvalitetsdata: trivsel, karaktersnit, fravær og kompetencedækning.",
   },
   {
     path: "/sfo",
-    title: "SFO og fritidsordninger i Danmark | Institutionsguide",
+    title: "SFO og fritidsordninger i Danmark | Institutionsguiden",
     description: "Find SFO-tilbud (6-9 år) i din kommune. Se priser og sammenlign med andre fritidsordninger.",
   },
   {
     path: "/sammenlign",
-    title: "Sammenlign institutioner side om side | Institutionsguide",
+    title: "Sammenlign institutioner side om side | Institutionsguiden",
     description: "Sammenlign op til 4 vuggestuer, børnehaver, dagplejere eller skoler side om side. Se priser, kvalitet og beliggenhed.",
   },
   {
     path: "/privatliv",
-    title: "Privatlivspolitik | Institutionsguide",
-    description: "Læs om hvordan Institutionsguide behandler dine persondata i overensstemmelse med GDPR.",
+    title: "Privatlivspolitik | Institutionsguiden",
+    description: "Læs om hvordan Institutionsguiden behandler dine persondata i overensstemmelse med GDPR.",
   },
   {
     path: "/vilkaar",
-    title: "Vilkår og betingelser | Institutionsguide",
-    description: "Vilkår for brug af Institutionsguide. Alle data er vejledende og udgør ikke rådgivning.",
+    title: "Vilkår og betingelser | Institutionsguiden",
+    description: "Vilkår for brug af Institutionsguiden. Alle data er vejledende og udgør ikke rådgivning.",
   },
   {
     path: "/normering",
-    title: "Normering i daginstitutioner 2026 — Børn per voksen i alle kommuner | Institutionsguide",
+    title: "Normering i daginstitutioner 2026 — Børn per voksen i alle kommuner | Institutionsguiden",
     description: "Se normeringen (børn per voksen) i vuggestuer, børnehaver og dagplejere i alle 98 kommuner. Officielle normeringstal 2026.",
   },
   {
     path: "/friplads",
-    title: "Fripladstilskud 2026 — Beregn dit tilskud | Institutionsguide",
+    title: "Fripladstilskud 2026 — Beregn dit tilskud | Institutionsguiden",
     description: "Beregn dit fripladstilskud til vuggestue, børnehave og dagpleje. Se indkomstgrænser og tilskudsprocenter for 2026.",
   },
   {
     path: "/prissammenligning",
-    title: "Prissammenligning — Dagtilbud i alle kommuner 2026 | Institutionsguide",
+    title: "Prissammenligning — Dagtilbud i alle kommuner 2026 | Institutionsguiden",
     description: "Sammenlign priser på vuggestue, børnehave og dagpleje i alle 98 kommuner. Se dyreste og billigste kommuner.",
   },
   {
     path: "/guide",
-    title: "Guide til valg af daginstitution 2026 | Institutionsguide",
+    title: "Guide til valg af daginstitution 2026 | Institutionsguiden",
     description: "Alt du skal vide om valg af vuggestue, børnehave, dagpleje og skole. Priser, ventelister, normering og kvalitet.",
   },
   {
     path: "/find",
-    title: "Find institution nær dig | Institutionsguide",
+    title: "Find institution nær dig | Institutionsguiden",
     description: "Find vuggestuer, børnehaver, dagplejere og skoler tæt på din adresse. Søg på postnummer eller adresse.",
   },
   {
     path: "/om",
-    title: "Om Institutionsguide | Institutionsguide",
-    description: "Institutionsguide hjælper danske forældre med at finde og sammenligne daginstitutioner og skoler. Uafhængig og gratis.",
+    title: "Om Institutionsguiden | Institutionsguiden",
+    description: "Institutionsguiden hjælper danske forældre med at finde og sammenligne daginstitutioner og skoler. Uafhængig og gratis.",
   },
   {
     path: "/samlet-pris",
-    title: "Samlet pris for et børneliv — Fra vuggestue til skole 2026 | Institutionsguide",
+    title: "Samlet pris for et børneliv — Fra vuggestue til skole 2026 | Institutionsguiden",
     description: "Se den samlede pris fra vuggestue til SFO i alle kommuner. Beregn hvad det koster over et helt børneliv.",
   },
   {
     path: "/kommune-intelligens",
-    title: "Kommune-intelligens — Sammenlign Danmarks 98 kommuner på børnepasning og skole | Institutionsguide",
+    title: "Kommune-intelligens — Sammenlign Danmarks 98 kommuner på børnepasning og skole | Institutionsguiden",
     description: "Volumen-vægtet kvalitetsindeks for alle 98 kommuner. Vælg selv hvor meget normering, trivsel, karakter og pris skal tælle — leaderboardet genberegnes med det samme.",
   },
   {
     path: "/kommune-intelligens/sammenlign",
-    title: "Sammenlign kommuner side om side — Kommune-intelligens | Institutionsguide",
+    title: "Sammenlign kommuner side om side — Kommune-intelligens | Institutionsguiden",
     description: "Pin op til 3 kommuner og se deres score, drivers og råtal i kolonner. Del linket med din partner.",
   },
 ];
@@ -125,7 +125,7 @@ function getMunicipalityPages() {
     }
     return [...municipalities].sort().map((name) => ({
       path: `/kommune/${encodeURIComponent(name)}`,
-      title: `${name} Kommune — Institutioner, priser og kvalitet | Institutionsguide`,
+      title: `${name} Kommune — Institutioner, priser og kvalitet | Institutionsguiden`,
       description: `Oversigt over vuggestuer, børnehaver, dagplejere og skoler i ${name} Kommune. Se kommunale takster, kvalitetsdata og beregn fripladstilskud.`,
     }));
   } catch {
@@ -145,7 +145,7 @@ function getKommuneIntelligensPages() {
     }
     return [...municipalities].sort().map((name) => ({
       path: `/kommune-intelligens/${toSlug(name)}`,
-      title: `Kommune-intelligens: ${name} — Score, normering, trivsel 2026 | Institutionsguide`,
+      title: `Kommune-intelligens: ${name} — Score, normering, trivsel 2026 | Institutionsguiden`,
       description: `Se hvordan ${name} Kommune ligger på kvalitetsindekset — normering, trivsel, karakter og pris målt mod landsmedianen. Justér dine prioriteter og se hvordan rangeringen ændrer sig.`,
     }));
   } catch {
@@ -162,7 +162,7 @@ function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Institutionsguide",
+    name: "Institutionsguiden",
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",
@@ -318,10 +318,10 @@ function buildPage(shellHtml, page) {
       faqs.push({ q: `Hvad er karaktersnittet på ${d.name}?`, a: `${d.name} har et karaktersnit på ${d.quality.k}${d.quality.ts ? ` (landsgennemsnit: ~7.0). Trivslen er ${d.quality.ts}/5` : " (landsgennemsnit: ~7.0)"}.` });
     }
     if (d.quality && d.category === "skole" && d.quality.ts && d.quality.k) {
-      faqs.push({ q: `Er ${d.name} en god skole?`, a: `${d.name} har en samlet kvalitetsvurdering baseret på trivsel (${d.quality.ts}/5), karaktersnit (${d.quality.k})${d.quality.kv ? ` og kompetencedækning (${d.quality.kv}%)` : ""}. Se den fulde vurdering på Institutionsguide.` });
+      faqs.push({ q: `Er ${d.name} en god skole?`, a: `${d.name} har en samlet kvalitetsvurdering baseret på trivsel (${d.quality.ts}/5), karaktersnit (${d.quality.k})${d.quality.kv ? ` og kompetencedækning (${d.quality.kv}%)` : ""}. Se den fulde vurdering på Institutionsguiden.` });
     }
     if (d.nearby && d.nearby.length >= 3) {
-      faqs.push({ q: `Hvilke andre ${catLabel.toLowerCase()} ligger tæt på ${d.name}?`, a: `De nærmeste ${catLabel.toLowerCase()} er ${d.nearby[0].name} (${d.nearby[0].distance.toFixed(1)} km), ${d.nearby[1].name} (${d.nearby[1].distance.toFixed(1)} km) og ${d.nearby[2].name} (${d.nearby[2].distance.toFixed(1)} km). Se alle ${catLabel.toLowerCase()} i ${d.municipality} på Institutionsguide.` });
+      faqs.push({ q: `Hvilke andre ${catLabel.toLowerCase()} ligger tæt på ${d.name}?`, a: `De nærmeste ${catLabel.toLowerCase()} er ${d.nearby[0].name} (${d.nearby[0].distance.toFixed(1)} km), ${d.nearby[1].name} (${d.nearby[1].distance.toFixed(1)} km) og ${d.nearby[2].name} (${d.nearby[2].distance.toFixed(1)} km). Se alle ${catLabel.toLowerCase()} i ${d.municipality} på Institutionsguiden.` });
     }
     if (faqs.length > 0) {
       jsonLd += "\n" + jsonLdTag({
@@ -721,7 +721,7 @@ function generateInstitutionDetailPages(allInstitutions, nearbyMap, institutionS
 
     return {
       path: `/institution/${inst.id}`,
-      title: `${inst.name} \u2014 ${typeLabel} i ${inst.municipality} | Institutionsguide`,
+      title: `${inst.name} \u2014 ${typeLabel} i ${inst.municipality} | Institutionsguiden`,
       description,
       jsonLdType: "institution",
       seoContent,
@@ -794,7 +794,7 @@ function generateNationalRankingPages(allInstitutions) {
   if (bhContent) {
     pages.push({
       path: "/billigste-boernehave",
-      title: "Billigste b\u00f8rnehaver i Danmark 2026 \u2014 Top 20 | Institutionsguide",
+      title: "Billigste b\u00f8rnehaver i Danmark 2026 \u2014 Top 20 | Institutionsguiden",
       description: "Se de billigste b\u00f8rnehaver i Danmark 2026. Sammenlign m\u00e5nedspriser fra alle 98 kommuner.",
       seoContent: bhContent,
     });
@@ -805,7 +805,7 @@ function generateNationalRankingPages(allInstitutions) {
   if (vugContent) {
     pages.push({
       path: "/billigste-vuggestue",
-      title: "Billigste vuggestuer i Danmark 2026 \u2014 Top 20 | Institutionsguide",
+      title: "Billigste vuggestuer i Danmark 2026 \u2014 Top 20 | Institutionsguiden",
       description: "Se de billigste vuggestuer i Danmark 2026. Sammenlign m\u00e5nedspriser fra alle 98 kommuner.",
       seoContent: vugContent,
     });
@@ -816,7 +816,7 @@ function generateNationalRankingPages(allInstitutions) {
   if (dagContent) {
     pages.push({
       path: "/billigste-dagpleje",
-      title: "Billigste dagpleje i Danmark 2026 \u2014 Top 20 | Institutionsguide",
+      title: "Billigste dagpleje i Danmark 2026 \u2014 Top 20 | Institutionsguiden",
       description: "Se de billigste dagplejere i Danmark 2026. Sammenlign m\u00e5nedspriser fra alle 98 kommuner.",
       seoContent: dagContent,
     });
@@ -852,7 +852,7 @@ function generateNationalRankingPages(allInstitutions) {
 
     pages.push({
       path: "/bedste-skoler",
-      title: "Bedste skoler i Danmark 2026 \u2014 Kvalitetsranking | Institutionsguide",
+      title: "Bedste skoler i Danmark 2026 \u2014 Kvalitetsranking | Institutionsguiden",
       description: "Se de 20 bedste skoler i Danmark baseret p\u00e5 trivsel, karaktersnit og kompetenced\u00e6kning. Officielle kvalitetsdata.",
       seoContent: `<section class="seo-content" style="position:absolute;left:-9999px" aria-hidden="true">\n${parts.join("\n")}\n</section>`,
     });
@@ -878,7 +878,7 @@ function generateProgrammaticPages() {
 
       pages.push({
         path: `/${cat}/${slug}`,
-        title: `${label} i ${mun} 2026 — Priser og sammenligning | Institutionsguide`,
+        title: `${label} i ${mun} 2026 — Priser og sammenligning | Institutionsguiden`,
         description: `Der er ${data.count} ${label.toLowerCase()} i ${mun} Kommune.${avg ? ` Gennemsnitlig månedlig takst: ${avg} kr.` : ""} Se priser, kontakt og sammenlign.`,
         jsonLdType: "categoryMunicipality",
         catLabel: label,
@@ -900,7 +900,7 @@ function generateProgrammaticPages() {
 
       pages.push({
         path: `/billigste-${cat}/${slug}`,
-        title: `Billigste ${singular} i ${mun} 2026 — Fra ${minPrice.toLocaleString("da-DK")} kr/md | Institutionsguide`,
+        title: `Billigste ${singular} i ${mun} 2026 — Fra ${minPrice.toLocaleString("da-DK")} kr/md | Institutionsguiden`,
         description: `Se de billigste ${CATEGORY_LABELS[cat].toLowerCase()} i ${mun} Kommune rangeret efter pris. Billigste fra ${minPrice.toLocaleString("da-DK")} kr/md.`,
       });
     }
@@ -911,7 +911,7 @@ function generateProgrammaticPages() {
     const slug = toSlug(mun);
     pages.push({
       path: `/bedste-skole/${slug}`,
-      title: `Bedste skoler i ${mun} 2026 — Kvalitetsranking | Institutionsguide`,
+      title: `Bedste skoler i ${mun} 2026 — Kvalitetsranking | Institutionsguiden`,
       description: `Se de bedste skoler i ${mun} rangeret efter kvalitetsdata: trivsel, karaktersnit, fravær og kompetencedækning.`,
     });
   }
@@ -932,7 +932,7 @@ function generateProgrammaticPages() {
 
       pages.push({
         path: `/bedste-${cat}/${slug}`,
-        title: `Bedste ${plural} i ${mun} 2026 — Kvalitetsranking | Institutionsguide`,
+        title: `Bedste ${plural} i ${mun} 2026 — Kvalitetsranking | Institutionsguiden`,
         description: `Top ${Math.min(data.count, 10)} ${plural} i ${mun} rangeret efter kvalitetsdata. Se priser, normering og kvalitet.`,
       });
     }
@@ -941,7 +941,7 @@ function generateProgrammaticPages() {
   // 5. Best value page (single national page)
   pages.push({
     path: "/bedste-vaerdi",
-    title: "Bedste værdi for pengene — Skoler med mest kvalitet per krone 2026 | Institutionsguide",
+    title: "Bedste værdi for pengene — Skoler med mest kvalitet per krone 2026 | Institutionsguiden",
     description: "Top 25 skoler i Danmark rangeret efter kvalitet i forhold til SFO-pris. Find den skole der giver mest værdi for pengene.",
   });
 
@@ -958,7 +958,7 @@ function generateProgrammaticPages() {
 
       pages.push({
         path: `/sammenlign/${catA}-vs-${catB}/${slug}`,
-        title: `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB} i ${mun} 2026 — Pris og forskelle | Institutionsguide`,
+        title: `${singA.charAt(0).toUpperCase() + singA.slice(1)} vs ${singB} i ${mun} 2026 — Pris og forskelle | Institutionsguiden`,
         description: `Sammenlign ${singA} og ${singB} i ${mun}. ${dataA.count} ${CATEGORY_LABELS[catA].toLowerCase()} vs. ${dataB.count} ${CATEGORY_LABELS[catB].toLowerCase()}. Se priser og forskelle.`,
       });
     }

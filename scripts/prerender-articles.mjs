@@ -29,7 +29,7 @@ function buildHtml(post, shellHtml) {
   const publishedAt = post.published_at || new Date().toISOString();
 
   const metaTags = `
-    <title>${title} — Institutionsguide</title>
+    <title>${title} — Institutionsguiden</title>
     <meta name="description" content="${description}" />
     <link rel="canonical" href="${url}" />
     <link rel="alternate" hreflang="da" href="${url}" />
@@ -43,7 +43,7 @@ function buildHtml(post, shellHtml) {
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="da_DK" />
-    <meta property="og:site_name" content="Institutionsguide" />
+    <meta property="og:site_name" content="Institutionsguiden" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
@@ -56,8 +56,8 @@ function buildHtml(post, shellHtml) {
       description: post.meta_description || "",
       datePublished: publishedAt,
       ...(post.updated_at ? { dateModified: post.updated_at } : {}),
-      author: { "@type": "Organization", name: "Institutionsguide" },
-      publisher: { "@type": "Organization", name: "Institutionsguide" },
+      author: { "@type": "Organization", name: "Institutionsguiden" },
+      publisher: { "@type": "Organization", name: "Institutionsguiden" },
       mainEntityOfPage: { "@type": "WebPage", "@id": url },
       inLanguage: "da",
       isAccessibleForFree: true,
@@ -72,7 +72,7 @@ function buildHtml(post, shellHtml) {
   const articleContent = `
     <noscript>
       <article style="max-width:680px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif">
-        <nav aria-label="Breadcrumb"><a href="/">Institutionsguide</a> › <a href="/blog">Blog</a> › ${title}</nav>
+        <nav aria-label="Breadcrumb"><a href="/">Institutionsguiden</a> › <a href="/blog">Blog</a> › ${title}</nav>
         <h1>${title}</h1>
         ${post.content_html || ""}
       </article>
