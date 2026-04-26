@@ -61,6 +61,16 @@ export default function KommuneQualityMap({ track, flyTo, isFullscreen = false, 
     return () => mql.removeEventListener("change", update);
   }, []);
 
+  // Lock body scroll while bottom-sheet is open (mobile only)
+  useEffect(() => {
+    if (!bottomSheetKommune || typeof document === "undefined") return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [bottomSheetKommune]);
+
   const dataset = useMemo(
     () => buildMIDataset({ track, institutions, institutionStats, kommuneStats, normering }),
     [track, institutions, institutionStats, kommuneStats, normering],
@@ -164,7 +174,10 @@ export default function KommuneQualityMap({ track, flyTo, isFullscreen = false, 
             onClick={() => setBottomSheetKommune(null)}
             aria-hidden="true"
           />
-          <div className="fixed bottom-0 inset-x-0 z-[1101] sm:hidden bg-bg-card border-t border-border rounded-t-2xl shadow-2xl p-4 animate-in slide-in-from-bottom-2">
+          <div
+            className="fixed bottom-0 inset-x-0 z-[1101] sm:hidden bg-bg-card border-t border-border rounded-t-2xl shadow-2xl p-4 animate-in slide-in-from-bottom-2"
+            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+          >
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
                 <p className="font-display text-lg font-bold text-foreground">{bottomSheetKommune.name}</p>

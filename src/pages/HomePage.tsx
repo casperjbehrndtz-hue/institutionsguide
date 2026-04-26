@@ -122,31 +122,38 @@ export default function HomePage() {
       {/* 1. Hero — Instant Answer Engine with video backdrop */}
       <InstantAnswer onLocationSelected={handleLocationSelected} geo={geo} />
 
-      {/* 2. Trust bar — per-source freshness on hover */}
+      {/* 2. Trust bar — collapsible on mobile so per-source dates are accessible without hover */}
       <section className="border-b border-border/70 bg-bg">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px]">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/70">Officiel data fra</span>
-          <span className="text-foreground/75" title={`Skolekvalitet (FP9 + Trivsel) — skoleår ${dataVersions.schoolQuality.schoolYear}, opdateret ${formatDataDate(dataVersions.schoolQuality.lastUpdated, "da")}`}>
-            Børne- og Undervisningsministeriet
-          </span>
-          <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-foreground/75" title={`Priser og takster — år ${dataVersions.prices.year}, opdateret ${formatDataDate(dataVersions.prices.lastUpdated, "da")}`}>
-            Danmarks Statistik
-          </span>
-          <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-foreground/75" title={`Den Nationale Trivselsmåling — skoleår ${dataVersions.schoolQuality.schoolYear}`}>
-            Den Nationale Trivselsmåling
-          </span>
-          <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-foreground/75" title={`Normering pr. kommune — opdateret ${formatDataDate(dataVersions.normering.lastUpdated, "da")}`}>
-            Kommunale tilsynsrapporter
-          </span>
-          <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-muted">Opdateret {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}</span>
-        </div>
-        <p className="max-w-5xl mx-auto px-4 pb-2 -mt-1 text-[10px] text-muted/60 text-center">
-          Hold musen over en kilde for at se hvilken data den dækker og hvornår den sidst er opdateret.
-        </p>
+        <details className="max-w-5xl mx-auto px-4 py-3 group">
+          <summary className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px] cursor-pointer list-none">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/70">Officiel data fra</span>
+            <span className="text-foreground/75">Børne- og Undervisningsministeriet</span>
+            <span className="hidden sm:inline text-muted/30" aria-hidden="true">·</span>
+            <span className="text-foreground/75">Danmarks Statistik</span>
+            <span className="hidden sm:inline text-muted/30" aria-hidden="true">·</span>
+            <span className="text-foreground/75">Den Nationale Trivselsmåling</span>
+            <span className="hidden md:inline text-muted/30" aria-hidden="true">·</span>
+            <span className="hidden md:inline text-foreground/75">Kommunale tilsynsrapporter</span>
+            <span className="text-muted/30" aria-hidden="true">·</span>
+            <span className="text-muted">Opdateret {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}</span>
+            <span className="text-[11px] text-primary font-medium ml-1 group-open:hidden">vis kilder</span>
+            <span className="text-[11px] text-primary font-medium ml-1 hidden group-open:inline">skjul kilder</span>
+          </summary>
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px] text-muted">
+            <div>
+              <strong className="text-foreground/90 font-semibold">Børne- og Undervisningsministeriet</strong> · skolekvalitet (FP9 + trivsel), skoleår {dataVersions.schoolQuality.schoolYear} — opdateret {formatDataDate(dataVersions.schoolQuality.lastUpdated, "da")}
+            </div>
+            <div>
+              <strong className="text-foreground/90 font-semibold">Danmarks Statistik</strong> · priser og takster {dataVersions.prices.year} — opdateret {formatDataDate(dataVersions.prices.lastUpdated, "da")}
+            </div>
+            <div>
+              <strong className="text-foreground/90 font-semibold">Den Nationale Trivselsmåling</strong> · trivsel skoleår {dataVersions.schoolQuality.schoolYear}
+            </div>
+            <div>
+              <strong className="text-foreground/90 font-semibold">Kommunale tilsynsrapporter</strong> · normering — opdateret {formatDataDate(dataVersions.normering.lastUpdated, "da")}
+            </div>
+          </div>
+        </details>
       </section>
 
       {/* 3. Map — the core visual feature, always visible */}

@@ -268,40 +268,55 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     [institutions, institutionStats, kommuneStats, normering],
   );
 
-  // Live candidates as user types
+  // Pre-compute kommune index ONCE — avoids iterating 10K institutions on every keystroke
+  const kommuneIndex = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const inst of institutions) {
+      counts.set(inst.municipality, (counts.get(inst.municipality) ?? 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count, lower: name.toLowerCase() }))
+      .sort((a, b) => a.name.localeCompare(b.name, "da"));
+  }, [institutions]);
+
+  // Pre-flatten postIndex for fast iteration (avoids Object.entries() per keystroke)
+  const postIndexEntries = useMemo<{ pn: string; city: string; kommune: string; count: number; cityLower: string }[]>(() => {
+    if (!postIndex) return [];
+    return Object.entries(postIndex).map(([pn, e]) => ({ pn, city: e.city, kommune: e.kommune, count: e.count, cityLower: e.city.toLowerCase() }));
+  }, [postIndex]);
+
+  // Live candidates as user types — O(N) over pre-built indexes, not O(N) over 10K institutions
   const candidates = useMemo<LocationCandidate[]>(() => {
     const q = query.trim().toLowerCase();
-    if (q.length < 2 || !postIndex) return [];
+    if (q.length < 2 || postIndexEntries.length === 0) return [];
     const out: LocationCandidate[] = [];
     const isDigits = /^\d+$/.test(q);
 
     if (isDigits) {
-      for (const [pn, e] of Object.entries(postIndex)) {
-        if (pn.startsWith(q)) {
-          out.push({ kind: "postnummer", id: `pn-${pn}`, label: `${pn} ${e.city}`, sublabel: `${e.kommune} Kommune`, kommune: e.kommune, postnummer: pn, count: e.count });
+      for (const e of postIndexEntries) {
+        if (e.pn.startsWith(q)) {
+          out.push({ kind: "postnummer", id: `pn-${e.pn}`, label: `${e.pn} ${e.city}`, sublabel: `${e.kommune} Kommune`, kommune: e.kommune, postnummer: e.pn, count: e.count });
         }
         if (out.length >= 8) break;
       }
     } else {
-      const kommuneMatches = new Set<string>();
-      for (const inst of institutions) {
-        if (inst.municipality.toLowerCase().startsWith(q) && !kommuneMatches.has(inst.municipality)) {
-          kommuneMatches.add(inst.municipality);
+      // Match kommune names from pre-built index
+      for (const k of kommuneIndex) {
+        if (k.lower.startsWith(q)) {
+          out.push({ kind: "kommune", id: `k-${k.name}`, label: k.name, sublabel: `Hele kommunen · ${k.count} institutioner`, kommune: k.name, count: k.count });
         }
+        if (out.length >= 6) break;
       }
-      for (const k of Array.from(kommuneMatches).slice(0, 6).sort((a, b) => a.localeCompare(b, "da"))) {
-        const count = institutions.filter((i) => i.municipality === k).length;
-        out.push({ kind: "kommune", id: `k-${k}`, label: k, sublabel: `Hele kommunen · ${count} institutioner`, kommune: k, count });
-      }
-      for (const [pn, e] of Object.entries(postIndex)) {
-        if (e.city.toLowerCase().startsWith(q)) {
-          out.push({ kind: "postnummer", id: `pn-${pn}`, label: `${pn} ${e.city}`, sublabel: `${e.kommune} Kommune`, kommune: e.kommune, postnummer: pn, count: e.count });
+      // Match city names
+      for (const e of postIndexEntries) {
+        if (e.cityLower.startsWith(q)) {
+          out.push({ kind: "postnummer", id: `pn-${e.pn}`, label: `${e.pn} ${e.city}`, sublabel: `${e.kommune} Kommune`, kommune: e.kommune, postnummer: e.pn, count: e.count });
         }
         if (out.length >= 12) break;
       }
     }
     return out.slice(0, 10);
-  }, [query, postIndex, institutions]);
+  }, [query, postIndexEntries, kommuneIndex]);
 
   // Matching institutions for the selected location + category + sort
   const topResults = useMemo(() => {
@@ -560,7 +575,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
                 inputMode="search"
               />
               {dropdownOpen && candidates.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-border/50 overflow-hidden max-h-[320px] overflow-y-auto z-20">
+                <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-border/50 overflow-hidden overflow-y-auto z-20" style={{ maxHeight: "min(50vh, 320px)" }}>
                   {candidates.map((c) => (
                     <button
                       key={c.id}

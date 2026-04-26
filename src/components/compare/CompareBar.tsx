@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X, ArrowRight } from "lucide-react";
 import type { UnifiedInstitution } from "@/lib/types";
 import { useCompare } from "@/contexts/CompareContext";
@@ -12,11 +12,26 @@ export default function CompareBar() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [minimized, setMinimized] = useState(false);
 
+  // Reserve bottom space on the body so fixed bar doesn't cover NextStepBar,
+  // last institution-card row, or footer links on mobile.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (selected.length === 0) {
+      document.body.style.removeProperty("padding-bottom");
+      return;
+    }
+    const padding = minimized ? "72px" : "112px";
+    document.body.style.paddingBottom = padding;
+    return () => {
+      document.body.style.removeProperty("padding-bottom");
+    };
+  }, [selected.length, minimized]);
+
   if (selected.length === 0) return null;
 
   if (minimized) {
     return (
-      <div className="print:hidden fixed bottom-4 right-4 z-40">
+      <div className="print:hidden fixed bottom-4 right-4 z-40" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         <Button variant="primary" size="md" onClick={() => setMinimized(false)}>
           {t.compare.barTitle.replace("{count}", String(selected.length))}
         </Button>
@@ -26,7 +41,7 @@ export default function CompareBar() {
 
   return (
     <>
-      <div className="print:hidden fixed bottom-0 inset-x-0 z-40 bg-bg-card border-t border-border p-4 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" role="region" aria-label={t.compare.barAriaLabel} aria-live="polite">
+      <div className="print:hidden fixed bottom-0 inset-x-0 z-40 bg-bg-card border-t border-border p-4 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" role="region" aria-label={t.compare.barAriaLabel} aria-live="polite" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
         <div className="max-w-7xl mx-auto flex items-center gap-3 flex-wrap">
           <span className="text-sm text-muted shrink-0">
             {t.compare.barTitle.replace("{count}", String(selected.length))}
