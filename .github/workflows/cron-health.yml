@@ -1,0 +1,31 @@
+name: Cron Health Check
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # Daily at 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe cron-health
+        id: health
+        run: |
+          response=$(curl -sw "\nHTTP_STATUS:%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/cron-health" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          http_code=$(echo "$response" | grep "HTTP_STATUS:" | cut -d: -f2)
+          body=$(echo "$response" | sed '$d')
+          echo "$body" | jq .
+          echo "http_code=$http_code" >> $GITHUB_OUTPUT
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Fail if degraded
+        if: steps.health.outputs.http_code != '200'
+        run: |
+          echo "::error::Cron-health is degraded — check the response above"
+          exit 1

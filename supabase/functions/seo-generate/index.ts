@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { handleCorsPreflightOrGetHeaders } from "../_shared/cors.ts";
 import { getAIConfig, resolveModel, fetchAI, extractJSON } from "../_shared/ai-client.ts";
+import { recordCronRun } from "../_shared/cron-tracking.ts";
 
 // Module → page path mapping for internal links / CTAs
 const MODULE_PATHS: Record<string, { path: string; label: string; site: string }> = {
@@ -931,6 +932,12 @@ Returner KUN: ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]` }],
         .upsert(acInserts, { onConflict: "keyword,locale", ignoreDuplicates: true });
     }
 
+    await recordCronRun(supabase, {
+      jobName: "seo-generate",
+      status: "success",
+      outputCount: 1,
+      message: keywordRow.keyword,
+    });
     return new Response(
       JSON.stringify({
         ok: true,
@@ -943,6 +950,12 @@ Returner KUN: ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]` }],
     );
   } catch (err) {
     console.error("seo-generate error:", err);
+    await recordCronRun(supabase, {
+      jobName: "seo-generate",
+      status: "failure",
+      outputCount: 0,
+      message: err instanceof Error ? err.message : "Unknown error",
+    });
     return new Response(
       JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
