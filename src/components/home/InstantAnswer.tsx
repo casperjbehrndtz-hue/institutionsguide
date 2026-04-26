@@ -32,6 +32,9 @@ interface PostIndexEntry { city: string; kommune: string; count: number }
 type PostIndex = Record<string, PostIndexEntry>;
 
 type CategoryKey = "vuggestue" | "boernehave" | "dagpleje" | "skole" | "sfo" | "efterskole";
+type SortKey = "kvalitet" | "billigst" | "vaerdi";
+
+const STORAGE_KEY = "ia-last-v1";
 
 const CATEGORY_OPTIONS: { key: CategoryKey; label: string; primary?: boolean }[] = [
   { key: "skole", label: "Folkeskoler", primary: true },
@@ -40,6 +43,12 @@ const CATEGORY_OPTIONS: { key: CategoryKey; label: string; primary?: boolean }[]
   { key: "dagpleje", label: "Dagplejere" },
   { key: "sfo", label: "SFO" },
   { key: "efterskole", label: "Efterskoler" },
+];
+
+const SORT_OPTIONS: { key: SortKey; label: string; help: string }[] = [
+  { key: "kvalitet", label: "Bedst kvalitet", help: "Højest national percentil" },
+  { key: "billigst", label: "Billigst", help: "Lavest månedspris" },
+  { key: "vaerdi", label: "Bedst værdi", help: "Højest kvalitet pr. krone" },
 ];
 
 interface LocationCandidate {
@@ -74,23 +83,42 @@ function scoreInstitutionForCategory(
     if (cells.length === 0) return null;
     return cells.reduce((s, c) => s + c.percentile, 0) / cells.length;
   }
-  // SFO / efterskole: no MIL track — use quality.r if present, else null
   if (inst.quality?.r != null) return (inst.quality.r / 5) * 100;
   return null;
+}
+
+interface PersistedSelection {
+  kind: "postnummer" | "kommune";
+  kommune: string;
+  postnummer?: string;
+  category: CategoryKey;
+  sortKey?: SortKey;
+}
+
+function loadPersisted(): PersistedSelection | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as PersistedSelection;
+  } catch {
+    return null;
+  }
 }
 
 export default function InstantAnswer({ onLocationSelected, geo: geoProp }: InstantAnswerProps = {}) {
   const { institutions, institutionStats, kommuneStats, normering } = useData();
   const [searchParams, setSearchParams] = useSearchParams();
-  // Fallback when used standalone — but parents should pass shared state in
   const internalGeo = useGeolocation(() => { /* no-op */ });
   const geo = geoProp ?? internalGeo;
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<LocationCandidate | null>(null);
   const [category, setCategory] = useState<CategoryKey>("skole");
+  const [sortKey, setSortKey] = useState<SortKey>("kvalitet");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
+  const [showWelcomeBack, setShowWelcomeBack] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -122,7 +150,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     return () => { cancelled = true; };
   }, []);
 
-  // Hydrate from URL once on mount + when external nav happens (postIndex/data ready)
+  // Hydrate from URL once data is ready, OR fall back to localStorage
   const hydratedRef = useRef(false);
   useEffect(() => {
     if (hydratedRef.current) return;
@@ -130,22 +158,48 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     const urlCat = searchParams.get("cat") as CategoryKey | null;
     const urlKommune = searchParams.get("k");
     const urlPn = searchParams.get("pn");
+    const urlSort = searchParams.get("sort") as SortKey | null;
     if (urlCat && CATEGORY_OPTIONS.some((c) => c.key === urlCat)) setCategory(urlCat);
+    if (urlSort && SORT_OPTIONS.some((s) => s.key === urlSort)) setSortKey(urlSort);
+
+    let restored = false;
     if (urlPn && postIndex?.[urlPn]) {
       const e = postIndex[urlPn];
       setSelected({ kind: "postnummer", id: `pn-${urlPn}`, label: `${urlPn} ${e.city}`, sublabel: `${e.kommune} Kommune`, kommune: e.kommune, postnummer: urlPn, count: e.count });
+      restored = true;
     } else if (urlKommune) {
       const decoded = decodeURIComponent(urlKommune);
       const count = institutions.filter((i) => i.municipality === decoded).length;
       if (count > 0) {
         setSelected({ kind: "kommune", id: `k-${decoded}`, label: decoded, sublabel: "Hele kommunen", kommune: decoded, count });
+        restored = true;
+      }
+    }
+
+    // Fallback: localStorage from a previous session
+    if (!restored) {
+      const persisted = loadPersisted();
+      if (persisted) {
+        setCategory(persisted.category);
+        if (persisted.sortKey) setSortKey(persisted.sortKey);
+        if (persisted.postnummer && postIndex[persisted.postnummer]) {
+          const e = postIndex[persisted.postnummer];
+          setSelected({ kind: "postnummer", id: `pn-${persisted.postnummer}`, label: `${persisted.postnummer} ${e.city}`, sublabel: `${e.kommune} Kommune`, kommune: e.kommune, postnummer: persisted.postnummer, count: e.count });
+          setShowWelcomeBack(true);
+        } else {
+          const count = institutions.filter((i) => i.municipality === persisted.kommune).length;
+          if (count > 0) {
+            setSelected({ kind: "kommune", id: `k-${persisted.kommune}`, label: persisted.kommune, sublabel: "Hele kommunen", kommune: persisted.kommune, count });
+            setShowWelcomeBack(true);
+          }
+        }
       }
     }
     hydratedRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postIndex, institutions]);
 
-  // Keep URL in sync with selection
+  // Keep URL in sync with selection + persist to localStorage
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     if (selected) {
@@ -157,17 +211,31 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
         params.delete("pn");
       }
       params.set("cat", category);
+      if (sortKey !== "kvalitet") params.set("sort", sortKey); else params.delete("sort");
+
+      // Persist
+      try {
+        const persisted: PersistedSelection = {
+          kind: selected.kind,
+          kommune: selected.kommune,
+          postnummer: selected.postnummer,
+          category,
+          sortKey,
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
+      } catch { /* quota — silent */ }
     } else {
       params.delete("pn");
       params.delete("k");
       params.delete("cat");
+      params.delete("sort");
     }
     const next = params.toString();
     if (next !== searchParams.toString()) {
       setSearchParams(params, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, category]);
+  }, [selected, category, sortKey]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -206,7 +274,6 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
         if (out.length >= 8) break;
       }
     } else {
-      // Match kommune names first
       const kommuneMatches = new Set<string>();
       for (const inst of institutions) {
         if (inst.municipality.toLowerCase().startsWith(q) && !kommuneMatches.has(inst.municipality)) {
@@ -217,7 +284,6 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
         const count = institutions.filter((i) => i.municipality === k).length;
         out.push({ kind: "kommune", id: `k-${k}`, label: k, sublabel: `Hele kommunen · ${count} institutioner`, kommune: k, count });
       }
-      // Also match city names from postIndex
       for (const [pn, e] of Object.entries(postIndex)) {
         if (e.city.toLowerCase().startsWith(q)) {
           out.push({ kind: "postnummer", id: `pn-${pn}`, label: `${pn} ${e.city}`, sublabel: `${e.kommune} Kommune`, kommune: e.kommune, postnummer: pn, count: e.count });
@@ -228,7 +294,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     return out.slice(0, 10);
   }, [query, postIndex, institutions]);
 
-  // Matching institutions for the selected location + category
+  // Matching institutions for the selected location + category + sort
   const topResults = useMemo(() => {
     if (!selected) return null;
     const filtered = institutions.filter((i) => {
@@ -241,16 +307,26 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       percentile: scoreInstitutionForCategory(inst, category, daycareDataset, schoolDataset),
     }));
     scored.sort((a, b) => {
-      const pa = a.percentile ?? -1;
-      const pb = b.percentile ?? -1;
-      if (pa === pb) return a.inst.name.localeCompare(b.inst.name, "da");
-      return pb - pa;
+      if (sortKey === "billigst") {
+        const pa = a.inst.monthlyRate ?? Number.POSITIVE_INFINITY;
+        const pb = b.inst.monthlyRate ?? Number.POSITIVE_INFINITY;
+        if (pa !== pb) return pa - pb;
+      } else if (sortKey === "vaerdi") {
+        // Quality per kr — higher is better. Skip institutions without price.
+        const va = a.percentile != null && a.inst.monthlyRate ? a.percentile / a.inst.monthlyRate : -1;
+        const vb = b.percentile != null && b.inst.monthlyRate ? b.percentile / b.inst.monthlyRate : -1;
+        if (va !== vb) return vb - va;
+      } else {
+        const pa = a.percentile ?? -1;
+        const pb = b.percentile ?? -1;
+        if (pa !== pb) return pb - pa;
+      }
+      return a.inst.name.localeCompare(b.inst.name, "da");
     });
     return { total: filtered.length, top: scored.slice(0, 5) };
-  }, [selected, category, institutions, daycareDataset, schoolDataset]);
+  }, [selected, category, sortKey, institutions, daycareDataset, schoolDataset]);
 
-  // National top 5 for current category — shown as "Danmarks 5 bedste" when
-  // nothing is selected. Gives immediate value at first paint.
+  // National top 5 for current category — shown when nothing selected
   const nationalTop = useMemo(() => {
     const filtered = institutions.filter((i) => i.category === category);
     const scored = filtered
@@ -263,6 +339,27 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     return scored.slice(0, 5);
   }, [category, institutions, daycareDataset, schoolDataset]);
 
+  // Postnummer chips inside a large kommune (shown only when a kommune is selected with >30 institutions)
+  const postnummerChips = useMemo(() => {
+    if (!selected || selected.postnummer) return [];
+    if (!postIndex) return [];
+    const counts = new Map<string, number>();
+    for (const inst of institutions) {
+      if (inst.municipality !== selected.kommune) continue;
+      if (inst.category !== category) continue;
+      if (!inst.postalCode) continue;
+      counts.set(inst.postalCode, (counts.get(inst.postalCode) ?? 0) + 1);
+    }
+    if (counts.size < 3) return [];
+    const total = Array.from(counts.values()).reduce((s, n) => s + n, 0);
+    if (total < 30) return [];
+    return Array.from(counts.entries())
+      .filter(([pn]) => postIndex[pn])
+      .map(([pn, n]) => ({ pn, city: postIndex[pn].city, n }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 8);
+  }, [selected, category, institutions, postIndex]);
+
   // Kommune-level percentile for badge
   const kommunePercentile = useMemo<number | null>(() => {
     if (!selected) return null;
@@ -273,7 +370,6 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     const percs = muniRows.flatMap((r) => Object.values(r.cells).filter((c): c is NonNullable<typeof c> => !!c).map((c) => c.percentile));
     if (percs.length === 0) return null;
     const mean = percs.reduce((s, p) => s + p, 0) / percs.length;
-    // Convert mean percentile to rank among all kommuner
     const allMeans: number[] = [];
     for (const rows of dataset.byMunicipality.values()) {
       const ps = rows.flatMap((r) => Object.values(r.cells).filter((c): c is NonNullable<typeof c> => !!c).map((c) => c.percentile));
@@ -287,6 +383,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     setSelected(c);
     setQuery("");
     setDropdownOpen(false);
+    setShowWelcomeBack(false);
     inputRef.current?.blur();
     onLocationSelected?.(c.kommune, c.postnummer);
   }
@@ -305,7 +402,6 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     });
   }
 
-  /** Resolve the user's geolocation to nearest postnummer and select it */
   function handleNearMe() {
     geo.handleNearMe();
   }
@@ -313,7 +409,6 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
   // When geolocation resolves, find nearest postnummer with data and select it
   useEffect(() => {
     if (!geo.userLocation || selected) return;
-    // Find nearest institution with postalCode, then use that postnummer
     let nearest: { inst: UnifiedInstitution; dist: number } | null = null;
     for (const inst of institutions) {
       if (!inst.postalCode) continue;
@@ -329,6 +424,8 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
   function clearSelection() {
     setSelected(null);
     setQuery("");
+    setShowWelcomeBack(false);
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* silent */ }
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
@@ -340,7 +437,6 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
 
   return (
     <section className="relative overflow-hidden bg-primary">
-      {/* Poster backdrop always — video fades in when idle & network OK */}
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center"
@@ -374,14 +470,14 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
           Find den bedste institution til dit barn
         </h1>
         <p className="hidden sm:block text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-6 leading-relaxed text-center">
-          Uafhængig kvalitetsdata fra Undervisningsministeriet og Danmarks Statistik.
+          Uafhængig kvalitetsdata fra Børne- og Undervisningsministeriet og Danmarks Statistik.
           Find skolen, børnehaven eller vuggestuen med den bedste kvalitet i dit område.
         </p>
         <p className="sm:hidden text-white/70 text-sm max-w-xl mx-auto mb-5 leading-relaxed text-center">
           Uafhængig kvalitetsdata. Skriv postnummer eller by.
         </p>
 
-        {/* Category toggle — primary options emphasized, rest muted */}
+        {/* Category toggle */}
         <div role="tablist" aria-label="Vælg institutionstype" className="flex flex-wrap gap-1.5 justify-center mb-3">
           {CATEGORY_OPTIONS.map((opt) => {
             const active = category === opt.key;
@@ -467,7 +563,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
                         <p className="text-[11px] text-muted truncate">{c.sublabel}</p>
                       </div>
                       <span className="text-[11px] text-muted font-mono tabular-nums shrink-0">
-                        {c.count} {c.count === 1 ? "inst." : "inst."}
+                        {c.count} inst.
                       </span>
                     </button>
                   ))}
@@ -499,7 +595,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
           )}
         </div>
 
-        {/* Quick-pick popular locations — primaries always; secondaries hidden on mobile */}
+        {/* Quick-pick popular locations — only when nothing selected */}
         {!selected && postIndex && (
           <div className="mt-4 sm:mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 max-w-2xl mx-auto">
             <span className="text-[11px] font-mono uppercase tracking-[0.15em] text-white/55">Populære:</span>
@@ -545,7 +641,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
                 </h2>
                 <p className="text-[11px] text-muted mt-0.5">Rangeret på national percentil — vælg område ovenfor for dine lokale resultater.</p>
               </div>
-              <Link to={`/${category === "sfo" || category === "efterskole" ? category : category}`} className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1">
+              <Link to={`/${category}`} className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1">
                 Se alle <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -580,7 +676,18 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       {selected && topResults && (
         <div className="relative z-10 bg-bg border-t border-border/30">
           <div className="max-w-3xl mx-auto px-4 py-6 sm:py-8">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            {showWelcomeBack && (
+              <div className="mb-4 rounded-lg bg-primary/5 border border-primary/20 px-3 py-2 flex items-center justify-between gap-2">
+                <p className="text-[12px] text-foreground">
+                  Velkommen tilbage. Sidst kiggede du på <strong>{selected.label}</strong>.
+                </p>
+                <button onClick={clearSelection} className="text-[11px] text-primary hover:underline shrink-0">
+                  Start forfra
+                </button>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
               <div>
                 <h2 className="font-display text-lg sm:text-xl font-bold text-foreground">
                   {topResults.total === 0
@@ -600,6 +707,47 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
                 </Link>
               )}
             </div>
+
+            {/* Sort toggle — visible when there are 2+ results */}
+            {topResults.total >= 2 && (
+              <div role="tablist" aria-label="Sortér efter" className="mb-3 inline-flex p-0.5 rounded-lg bg-bg-card border border-border">
+                {SORT_OPTIONS.map((opt) => {
+                  const active = sortKey === opt.key;
+                  return (
+                    <button
+                      key={opt.key}
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setSortKey(opt.key)}
+                      title={opt.help}
+                      className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors min-h-[32px] ${
+                        active ? "bg-primary text-primary-foreground" : "text-muted hover:text-foreground"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Postnummer chips for large kommuner */}
+            {postnummerChips.length > 0 && (
+              <div className="mb-3">
+                <p className="text-[11px] uppercase tracking-wide text-muted/70 mb-1.5">Smalt ind på postnummer</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {postnummerChips.map((c) => (
+                    <button
+                      key={c.pn}
+                      onClick={() => handleQuickPick(c.pn)}
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-border text-[11px] font-medium text-foreground hover:bg-primary/5 hover:border-primary/40 transition-colors"
+                    >
+                      {c.pn} {c.city} <span className="text-muted">({c.n})</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {topResults.total === 0 ? (
               <div className="rounded-xl border border-border bg-bg-card p-4 text-sm text-muted">

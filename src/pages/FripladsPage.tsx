@@ -220,18 +220,23 @@ export default function FripladsPage() {
                   </p>
                 )}
 
-                {/* CTA */}
-                <div className="pt-2">
+                {/* CTA — personalized with friplads-adjusted budget */}
+                <div className="pt-2 space-y-2">
+                  <p className="text-sm text-foreground">
+                    {isDa
+                      ? <>Med din friplads bliver din månedspris <strong className="font-mono tabular-nums">{formatDKK(result.monthlyPayment)}</strong>. Se {categoryLabels[category].split(" (")[0].toLowerCase()} i {municipality} der ligger på dit budget:</>
+                      : <>With your subsidy your monthly cost is <strong className="font-mono tabular-nums">{formatDKK(result.monthlyPayment)}</strong>. See {categoryLabels[category].split(" (")[0].toLowerCase()} in {municipality} within your budget:</>}
+                  </p>
                   <Button
                     as="link"
-                    to={ctaUrl}
+                    to={`${ctaUrl}?maxPrice=${result.monthlyPayment}`}
                     variant="primary"
                     size="md"
                     trailingIcon={<ArrowRight className="w-4 h-4" />}
                   >
                     {isDa
-                      ? `Find ${categoryLabels[category].split(" (")[0].toLowerCase()} i ${municipality}`
-                      : `Find ${categoryLabels[category].split(" (")[0].toLowerCase()} in ${municipality}`}
+                      ? `Find ${categoryLabels[category].split(" (")[0].toLowerCase()} jeg har råd til`
+                      : `Find ${categoryLabels[category].split(" (")[0].toLowerCase()} I can afford`}
                   </Button>
                 </div>
               </div>

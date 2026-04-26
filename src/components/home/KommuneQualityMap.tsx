@@ -1,6 +1,8 @@
-import { useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, CircleMarker, Tooltip, Popup, useMap } from "react-leaflet";
+import { useEffect, useMemo, useState } from "react";
+import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
+import { useMap } from "react-leaflet";
+import { ArrowRight, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { buildMIDataset } from "@/lib/mi/aggregate";
 import { percentileToTier } from "@/components/shared/GradeBadge";
@@ -34,7 +36,6 @@ interface Props {
   onToggleFullscreen?: () => void;
 }
 
-/** Imperative: fly-to handler used when parent passes a target center */
 function FlyToController({ target }: { target: { lat: number; lng: number; zoom?: number } | null }) {
   const map = useMap();
   useEffect(() => {
@@ -48,6 +49,17 @@ export default function KommuneQualityMap({ track, flyTo, isFullscreen = false, 
   const { institutions, institutionStats, kommuneStats, normering } = useData();
   const isDark = useDarkMode();
   const navigate = useNavigate();
+  const [bottomSheetKommune, setBottomSheetKommune] = useState<KommuneDatum | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(max-width: 768px)");
+    const update = () => setIsMobile(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
 
   const dataset = useMemo(
     () => buildMIDataset({ track, institutions, institutionStats, kommuneStats, normering }),
@@ -102,9 +114,7 @@ export default function KommuneQualityMap({ track, flyTo, isFullscreen = false, 
         <FlyToController target={flyTo ?? null} />
 
         {kommuneData.map((k) => {
-          const tier = percentileToTier(k.meanPercentile);
           const color = tierColor(k.meanPercentile);
-          // Tighter range — 5-12px instead of 8-26 — eliminates most overlap
           const radius = Math.max(5, Math.min(12, 4 + Math.sqrt(k.count) * 0.9));
           return (
             <CircleMarker
@@ -117,51 +127,92 @@ export default function KommuneQualityMap({ track, flyTo, isFullscreen = false, 
                 fillColor: color,
                 fillOpacity: 0.75,
               }}
+              eventHandlers={{
+                click: () => {
+                  if (isMobile) {
+                    setBottomSheetKommune(k);
+                  } else {
+                    navigate(`/kommune-intelligens/${toSlug(k.name)}`);
+                  }
+                },
+              }}
             >
-              <Tooltip direction="top" offset={[0, -4]} opacity={1}>
-                <div style={{ minWidth: 160 }}>
-                  <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>{k.name}</div>
-                  <div style={{ fontSize: 11, color: "#64748B", marginBottom: 3 }}>
-                    #{k.rank} af {kommuneData.length} · {k.count} institutioner
+              {/* Hover tooltip — desktop only (touch devices ignore it) */}
+              {!isMobile && (
+                <Tooltip direction="top" offset={[0, -4]} opacity={1}>
+                  <div style={{ minWidth: 160 }}>
+                    <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>{k.name}</div>
+                    <div style={{ fontSize: 11, color: "#64748B", marginBottom: 3 }}>
+                      #{k.rank} af {kommuneData.length} · {k.count} institutioner
+                    </div>
+                    <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 999, background: color + "22", color: color, fontSize: 10, fontWeight: 600 }}>
+                      {percentileToTier(k.meanPercentile).shortLabel}
+                    </div>
                   </div>
-                  <div style={{ display: "inline-block", padding: "1px 6px", borderRadius: 999, background: color + "22", color: color, fontSize: 10, fontWeight: 600 }}>
-                    {tier.shortLabel}
-                  </div>
-                </div>
-              </Tooltip>
-              {/* Popup opens on click for touch devices where Tooltip won't show */}
-              <Popup closeButton={false} maxWidth={240}>
-                <div style={{ minWidth: 180 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{k.name}</div>
-                  <div style={{ fontSize: 11, color: "#64748B", marginBottom: 6 }}>
-                    #{k.rank} af {kommuneData.length} · {k.count} institutioner
-                  </div>
-                  <div style={{ display: "inline-block", padding: "2px 8px", borderRadius: 999, background: color + "22", color: color, fontSize: 11, fontWeight: 600, marginBottom: 8 }}>
-                    {tier.shortLabel}
-                  </div>
-                  <button
-                    onClick={() => navigate(`/kommune-intelligens/${toSlug(k.name)}`)}
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      padding: "6px 10px",
-                      borderRadius: 6,
-                      background: "#0D1C2F",
-                      color: "white",
-                      border: "none",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    Se {k.name} →
-                  </button>
-                </div>
-              </Popup>
+                </Tooltip>
+              )}
             </CircleMarker>
           );
         })}
       </MapContainer>
+
+      {/* Mobile bottom-sheet — appears when user taps a circle on small screens */}
+      {bottomSheetKommune && (
+        <>
+          <div
+            className="fixed inset-0 z-[1100] bg-black/30 sm:hidden"
+            onClick={() => setBottomSheetKommune(null)}
+            aria-hidden="true"
+          />
+          <div className="fixed bottom-0 inset-x-0 z-[1101] sm:hidden bg-bg-card border-t border-border rounded-t-2xl shadow-2xl p-4 animate-in slide-in-from-bottom-2">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <p className="font-display text-lg font-bold text-foreground">{bottomSheetKommune.name}</p>
+                <p className="text-xs text-muted">
+                  #{bottomSheetKommune.rank} af {kommuneData.length} · {bottomSheetKommune.count} institutioner
+                </p>
+              </div>
+              <button
+                onClick={() => setBottomSheetKommune(null)}
+                className="p-2 -m-2 text-muted hover:text-foreground"
+                aria-label="Luk"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="mb-4">
+              <span
+                className="inline-flex items-center text-[11px] font-semibold uppercase tracking-wide rounded-full border px-2.5 py-1"
+                style={{
+                  background: tierColor(bottomSheetKommune.meanPercentile) + "22",
+                  color: tierColor(bottomSheetKommune.meanPercentile),
+                  borderColor: tierColor(bottomSheetKommune.meanPercentile) + "44",
+                }}
+              >
+                {percentileToTier(bottomSheetKommune.meanPercentile).label}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                navigate(`/kommune-intelligens/${toSlug(bottomSheetKommune.name)}`);
+                setBottomSheetKommune(null);
+              }}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary-light transition-colors min-h-[48px]"
+            >
+              Se {bottomSheetKommune.name} på kvalitetsindekset <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                navigate(`/kommune/${toSlug(bottomSheetKommune.name)}`);
+                setBottomSheetKommune(null);
+              }}
+              className="w-full mt-2 inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border border-border text-foreground text-sm font-semibold hover:bg-primary/5 transition-colors min-h-[48px]"
+            >
+              Se alle institutioner i {bottomSheetKommune.name}
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

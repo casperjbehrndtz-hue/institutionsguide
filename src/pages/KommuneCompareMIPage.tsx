@@ -219,6 +219,59 @@ export default function KommuneCompareMIPage() {
                   </button>
                 </footer>
               </div>
+
+              {/* Top 3 institutions per pinned kommune */}
+              <section className="mt-6">
+                <h2 className="font-display text-base sm:text-lg font-bold text-foreground mb-3">
+                  Top 3 institutioner pr. kommune
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {resolvedPins.map((mun) => {
+                    const muniRows = dataset.byMunicipality.get(mun) ?? [];
+                    const scored = muniRows.map((r) => {
+                      const cells = Object.values(r.cells).filter((c): c is NonNullable<typeof c> => !!c);
+                      const meanPercentile = cells.length > 0
+                        ? cells.reduce((s, c) => s + c.percentile, 0) / cells.length
+                        : null;
+                      return { instId: r.institutionId, percentile: meanPercentile };
+                    }).filter((s) => s.percentile != null);
+                    scored.sort((a, b) => (b.percentile ?? 0) - (a.percentile ?? 0));
+                    const top3 = scored.slice(0, 3);
+
+                    return (
+                      <div key={mun} className="rounded-xl border border-border bg-bg-card overflow-hidden">
+                        <header className="px-3 py-2 border-b border-border">
+                          <Link to={`/kommune/${toSlug(mun)}`} className="font-display text-sm font-bold text-foreground hover:text-primary">
+                            {mun}
+                          </Link>
+                        </header>
+                        {top3.length === 0 ? (
+                          <p className="px-3 py-4 text-xs text-muted">Ingen rangerede {trackLabel.toLowerCase()} her.</p>
+                        ) : (
+                          <ol className="divide-y divide-border">
+                            {top3.map((s, i) => {
+                              const inst = institutions.find((x) => x.id === s.instId);
+                              if (!inst) return null;
+                              return (
+                                <li key={s.instId}>
+                                  <Link
+                                    to={`/institution/${inst.id}`}
+                                    className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-primary/5 transition-colors"
+                                  >
+                                    <span className="text-muted font-mono w-3 shrink-0">{i + 1}</span>
+                                    <span className="flex-1 truncate font-medium text-foreground">{inst.name}</span>
+                                    <span className="font-mono tabular-nums text-muted shrink-0">{Math.round(s.percentile ?? 0)}</span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
               </>
             )}
           </main>

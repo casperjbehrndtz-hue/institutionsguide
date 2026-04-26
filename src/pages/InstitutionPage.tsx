@@ -43,6 +43,9 @@ import { categoryPath, buildChatContext, buildInstitutionFaqs } from "@/lib/inst
 import { toSlug } from "@/lib/slugs";
 import ComparisonCard from "@/components/mi/ComparisonCard";
 import { isInTrack } from "@/lib/mi/metrics";
+import NextStepBar from "@/components/detail/NextStepBar";
+import MapSkeleton from "@/components/shared/MapSkeleton";
+const InstitutionMiniMap = lazy(() => import("@/components/detail/InstitutionMiniMap"));
 
 
 export default function InstitutionPage() {
@@ -256,6 +259,17 @@ export default function InstitutionPage() {
       {/* Hero image — efterskole photo or Street View */}
       <HeroImage inst={inst} />
 
+      {/* Inline minimap — geographic context, lazy-loaded */}
+      {inst.lat && inst.lng && (
+        <div className="max-w-[1020px] mx-auto px-4 mt-3">
+          <div className="h-[180px] sm:h-[220px] rounded-xl overflow-hidden border border-border/60 shadow-sm">
+            <Suspense fallback={<MapSkeleton />}>
+              <InstitutionMiniMap lat={inst.lat} lng={inst.lng} name={inst.name} />
+            </Suspense>
+          </div>
+        </div>
+      )}
+
       {/* Section navigation */}
       <SectionNav sections={sectionDefs} />
 
@@ -392,6 +406,9 @@ export default function InstitutionPage() {
 
       {/* Cross-sell nudges — only after gate unlock */}
       {unlocked && <CrossSellNudges language={language} />}
+
+      {/* Next-step bar — clear forward path before the user bounces */}
+      <NextStepBar category={inst.category} municipality={inst.municipality} similarCount={nearby.length} />
 
       <CompareBar />
 

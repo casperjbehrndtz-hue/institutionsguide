@@ -16,6 +16,7 @@ import type { UnifiedInstitution } from "@/lib/types";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
 const KommuneQualityMap = lazy(() => import("@/components/home/KommuneQualityMap"));
+import MapSkeleton from "@/components/shared/MapSkeleton";
 
 type MapMode = "institutions" | "kommune-quality";
 type QualityTrack = "daycare" | "school";
@@ -121,20 +122,31 @@ export default function HomePage() {
       {/* 1. Hero — Instant Answer Engine with video backdrop */}
       <InstantAnswer onLocationSelected={handleLocationSelected} geo={geo} />
 
-      {/* 2. Trust bar */}
+      {/* 2. Trust bar — per-source freshness on hover */}
       <section className="border-b border-border/70 bg-bg">
         <div className="max-w-5xl mx-auto px-4 py-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px]">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/70">Officiel data fra</span>
-          <span className="text-foreground/75">Børne- og Undervisningsministeriet</span>
+          <span className="text-foreground/75" title={`Skolekvalitet (FP9 + Trivsel) — skoleår ${dataVersions.schoolQuality.schoolYear}, opdateret ${formatDataDate(dataVersions.schoolQuality.lastUpdated, "da")}`}>
+            Børne- og Undervisningsministeriet
+          </span>
           <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-foreground/75">Danmarks Statistik</span>
+          <span className="text-foreground/75" title={`Priser og takster — år ${dataVersions.prices.year}, opdateret ${formatDataDate(dataVersions.prices.lastUpdated, "da")}`}>
+            Danmarks Statistik
+          </span>
           <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-foreground/75">Den Nationale Trivselsmåling</span>
+          <span className="text-foreground/75" title={`Den Nationale Trivselsmåling — skoleår ${dataVersions.schoolQuality.schoolYear}`}>
+            Den Nationale Trivselsmåling
+          </span>
           <span className="text-muted/30" aria-hidden="true">·</span>
-          <span className="text-foreground/75">Kommunale tilsynsrapporter</span>
+          <span className="text-foreground/75" title={`Normering pr. kommune — opdateret ${formatDataDate(dataVersions.normering.lastUpdated, "da")}`}>
+            Kommunale tilsynsrapporter
+          </span>
           <span className="text-muted/30" aria-hidden="true">·</span>
           <span className="text-muted">Opdateret {formatDataDate(dataVersions.overall.lastUpdated, language === "da" ? "da" : "en")}</span>
         </div>
+        <p className="max-w-5xl mx-auto px-4 pb-2 -mt-1 text-[10px] text-muted/60 text-center">
+          Hold musen over en kilde for at se hvilken data den dækker og hvornår den sidst er opdateret.
+        </p>
       </section>
 
       {/* 3. Map — the core visual feature, always visible */}
@@ -234,7 +246,7 @@ export default function HomePage() {
           </div>
 
           <div className="h-[320px] sm:h-[520px] lg:h-[600px] rounded-2xl overflow-hidden border border-border shadow-sm">
-            <Suspense fallback={<div className="h-full bg-border/20 animate-pulse flex items-center justify-center text-sm text-muted">Indlæser kort…</div>}>
+            <Suspense fallback={<MapSkeleton />}>
               {mapMode === "institutions"
                 ? <InstitutionMap {...mapProps} />
                 : <KommuneQualityMap track={qualityTrack} flyTo={flyTo} isFullscreen={mapFullscreen} onToggleFullscreen={() => setMapFullscreen((f) => !f)} />}
@@ -243,7 +255,7 @@ export default function HomePage() {
 
           {mapFullscreen && (
             <div className="fixed inset-0 z-50">
-              <Suspense fallback={<div className="h-full bg-border/20 animate-pulse" />}>
+              <Suspense fallback={<MapSkeleton />}>
                 {mapMode === "institutions"
                   ? <InstitutionMap {...mapProps} isFullscreen />
                   : <KommuneQualityMap track={qualityTrack} flyTo={flyTo} isFullscreen onToggleFullscreen={() => setMapFullscreen(false)} />}
