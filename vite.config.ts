@@ -13,6 +13,9 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
+    // Vitest runs unit tests in src/. Playwright owns tests/e2e/ — exclude it
+    // so vitest doesn't try to import @playwright/test in jsdom.
+    exclude: ["**/node_modules/**", "**/dist/**", "**/tests/e2e/**"],
   },
   build: {
     rollupOptions: {
