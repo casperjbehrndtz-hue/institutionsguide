@@ -4,6 +4,7 @@ import type { UnifiedInstitution } from "@/lib/types";
 import { useCompare } from "@/contexts/CompareContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatDKK } from "@/lib/format";
+import { analytics } from "@/lib/analytics";
 import Button from "@/components/ui/Button";
 
 export default function CompareBar() {
@@ -99,6 +100,10 @@ export default function CompareBar() {
                 size="md"
                 trailingIcon={<ArrowRight className="w-4 h-4" />}
                 aria-label={t.compare.show}
+                onClick={() => analytics.compareCompleted({
+                  institutionIds: selected.map((i) => i.id),
+                  cartSize: selected.length,
+                })}
               >
                 {t.compare.show}
               </Button>

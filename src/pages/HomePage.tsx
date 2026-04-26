@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ArrowRight, Baby, GraduationCap, MapPin, Maximize2, Sparkles } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
@@ -12,6 +12,7 @@ import FAQAccordion from "@/components/shared/FAQAccordion";
 import CompareBar from "@/components/compare/CompareBar";
 import GeoModals from "@/components/shared/GeoModals";
 import { dataVersions, formatDataDate } from "@/lib/dataVersions";
+import { analytics } from "@/lib/analytics";
 import type { UnifiedInstitution } from "@/lib/types";
 
 const InstitutionMap = lazy(() => import("@/components/map/InstitutionMap"));
@@ -65,6 +66,17 @@ export default function HomePage() {
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 13 });
   }, []));
+
+  // Fire landing_view once on mount, with UTM params if present
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    analytics.landingView({
+      utm_source: params.get("utm_source") ?? undefined,
+      utm_medium: params.get("utm_medium") ?? undefined,
+      utm_campaign: params.get("utm_campaign") ?? undefined,
+    });
+  }, []);
 
   const institutionCount = institutions.length;
 

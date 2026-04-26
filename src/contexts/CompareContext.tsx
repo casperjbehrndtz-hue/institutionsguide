@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import type { UnifiedInstitution } from "@/lib/types";
+import { analytics } from "@/lib/analytics";
 
 const STORAGE_KEY = "institutionsguide_compare";
 const MAX_COMPARE = 4;
@@ -39,7 +40,9 @@ export function CompareProvider({ children }: { children: ReactNode }) {
     setCompareList((prev) => {
       if (prev.length >= MAX_COMPARE) return prev;
       if (prev.some((i) => i.id === inst.id)) return prev;
-      return [...prev, inst];
+      const next = [...prev, inst];
+      analytics.compareAdded({ institutionId: inst.id, cartSize: next.length, surface: "list_card" });
+      return next;
     });
   }, []);
 

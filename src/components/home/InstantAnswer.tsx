@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, MapPin, Search, Sparkles, X } from "lucide-react";
 import { useData } from "@/contexts/DataContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { analytics } from "@/lib/analytics";
 import { buildMIDataset } from "@/lib/mi/aggregate";
 import { percentileOf } from "@/lib/mi/percentiles";
 import GradeBadge from "@/components/shared/GradeBadge";
@@ -410,16 +411,19 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     return percentileOf(sorted, mean);
   }, [selected, category, daycareDataset, schoolDataset]);
 
-  function handleSelect(c: LocationCandidate, intent: "user" | "auto" = "user") {
+  function handleSelect(c: LocationCandidate, intent: "user" | "auto" = "user", method: "type" | "quickpick" | "geo" = "type") {
     setSelected(c);
     setQuery("");
     setDropdownOpen(false);
     setShowWelcomeBack(false);
     inputRef.current?.blur();
+    if (intent === "user") {
+      analytics.instantAnswerSearch({ method, kommune: c.kommune, postnummer: c.postnummer, category });
+    }
     onLocationSelected?.(c.kommune, c.postnummer, intent, category);
   }
 
-  function handleQuickPick(pn: string, intent: "user" | "auto" = "user") {
+  function handleQuickPick(pn: string, intent: "user" | "auto" = "user", method: "type" | "quickpick" | "geo" = "quickpick") {
     const e = postIndex?.[pn];
     if (!e) return;
     handleSelect({
@@ -430,7 +434,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       kommune: e.kommune,
       postnummer: pn,
       count: e.count,
-    }, intent);
+    }, intent, method);
   }
 
   function handleNearMe() {
@@ -450,8 +454,8 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     }
     // Geolocation auto-resolution counts as "user" intent (they explicitly
     // tapped Find i nærheden). It scrolls the map into view because the user
-    // asked for it.
-    if (nearest?.inst.postalCode) handleQuickPick(nearest.inst.postalCode, "user");
+    // asked for it. Method=geo so analytics tracks it separately.
+    if (nearest?.inst.postalCode) handleQuickPick(nearest.inst.postalCode, "user", "geo");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geo.userLocation]);
 
