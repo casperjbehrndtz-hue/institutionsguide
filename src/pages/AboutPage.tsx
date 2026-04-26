@@ -117,6 +117,30 @@ export default function AboutPage() {
           </p>
         </div>
 
+        {/* Independence + financing — transparency */}
+        <ScrollReveal>
+          <h2 className="font-display text-2xl font-bold text-foreground mb-4">
+            {isDa ? "Hvordan vi finansieres" : "How we are financed"}
+          </h2>
+          <div className="prose prose-sm text-muted space-y-4 mb-12">
+            <p>
+              {isDa
+                ? "Institutionsguiden er gratis at bruge. Vi får ingen penge fra kommuner, institutioner eller staten — så ingen kan betale sig til en bedre rangering."
+                : "Institutionsguiden is free to use. We receive no money from municipalities, institutions or the state — so no one can pay their way to a better ranking."}
+            </p>
+            <p>
+              {isDa
+                ? "Sitet er en del af ParFinans-familien af gratis værktøjer (parfinans.dk, nemtbudget.nu, børneskat.dk). Når brugere finder dem nyttige, opdager nogle af dem også vores andre værktøjer. Det er hele forretningsmodellen — ingen reklamer, intet salg af brugerdata, ingen affiliate-links."
+                : "The site is part of the ParFinans family of free tools (parfinans.dk, nemtbudget.nu, børneskat.dk). When users find these helpful, some discover our other tools too. That is the whole business model — no ads, no user data sale, no affiliate links."}
+            </p>
+            <p>
+              {isDa
+                ? "Vi har valgt denne model fordi uafhængighed er hele værdien. Et site der modtager penge fra dem det rangerer, kan ikke stoles på."
+                : "We chose this model because independence is the whole point. A site that takes money from those it ranks cannot be trusted."}
+            </p>
+          </div>
+        </ScrollReveal>
+
         {/* Data sources */}
         <ScrollReveal><h2 className="font-display text-2xl font-bold text-foreground mb-4">
           {isDa ? "Vores datakilder" : "Our data sources"}

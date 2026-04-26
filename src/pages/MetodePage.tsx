@@ -41,6 +41,63 @@ export default function MetodePage() {
       </section></ScrollReveal>
 
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-10">
+        {/* Kommune-intelligens (MIL) */}
+        <ScrollReveal><section>
+          <div className="card p-6">
+            <h2 className="font-display text-xl font-semibold text-foreground mb-3">
+              Kommune-intelligens (MIL)
+            </h2>
+            <div className="text-sm text-muted space-y-3">
+              <p>
+                Vores volumen-vægtede kvalitetsindeks rangerer alle 98 kommuner på dagtilbud
+                og folkeskole. For hver institution beregnes en percentil (0-100) for hver
+                metrik mod det nationale datasæt. Højere betyder altid bedre, uanset om
+                metrikken er "højere karakter" eller "færre sygedage".
+              </p>
+              <p>
+                <strong className="text-foreground">Formel — kort:</strong>{" "}
+                <code className="text-[12px] bg-muted/10 px-1.5 py-0.5 rounded">WQI = Σ(w·c·p) / Σ(w·c)</code>
+                {" "}hvor w er din vægt, c er konfidens (1 hvis observeret, 0,5 hvis kommune-median, 0,25 hvis landsmedian),
+                og p er metrikkens percentil.
+              </p>
+              <p>
+                <strong className="text-foreground">Eksempel:</strong> Hvis Gentofte folkeskole-spor scorer 72,3,
+                betyder det at en gennemsnitlig elev i Gentofte (vægtet for skolestørrelse) ligger på den 72. percentil
+                nationalt på de metrikker du har vægtet. Klikker du "Tryghed først"-presetten,
+                vægtes trivsel og personalestabilitet højere — og scoren ændrer sig.
+              </p>
+              <p>
+                <strong className="text-foreground">Mikro-kommuner</strong> (under 5 institutioner i sporet) får
+                Bayesisk udjævning: λ = N / (N + 5) trækker scoren mod landsmiddel for at undgå at en
+                enkelt institution producerer ekstreme scores. Ved N=2 vægter landet ca. 71%; ved N=20 vægter
+                kommunen selv 80%.
+              </p>
+            </div>
+          </div>
+        </section></ScrollReveal>
+
+        {/* Limitations */}
+        <ScrollReveal><section>
+          <div className="card p-6 border border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/10">
+            <h2 className="font-display text-xl font-semibold text-foreground mb-3">
+              Hvad denne side IKKE er
+            </h2>
+            <div className="text-sm text-muted space-y-3">
+              <ul className="list-disc list-inside space-y-1.5 ml-1">
+                <li>Vi vurderer ikke individuelle pædagoger eller lærere — kun aggregerede data.</li>
+                <li>Vi måler ikke pasningskultur, pædagogisk tilgang eller "atmosfære" — det er ikke i offentlige datasæt.</li>
+                <li>Vi giver ikke rådgivning om hvilken institution der er rigtig for netop dit barn — det er forældrenes valg.</li>
+                <li>Vi måler ikke kortere ventelister eller geografisk afstand til hjemmet — det skal du selv tjekke.</li>
+                <li>Privatskoler udvælger selv elever, hvilket kan løfte deres trivsels- og karaktermål kunstigt. Vi tager ikke højde for dette.</li>
+              </ul>
+              <p>
+                Brug rangeringen som et <em>udgangspunkt</em>, ikke en facitliste. Besøg altid
+                institutionen før du beslutter dig.
+              </p>
+            </div>
+          </div>
+        </section></ScrollReveal>
+
         {/* Quality scores */}
         <ScrollReveal><section>
           <div className="card p-6">
