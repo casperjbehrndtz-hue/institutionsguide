@@ -51,6 +51,15 @@ const SORT_OPTIONS: { key: SortKey; label: string; help: string }[] = [
   { key: "vaerdi", label: "Bedst værdi", help: "Højest kvalitet pr. krone" },
 ];
 
+/**
+ * Folkeskoler are gratis (and SFO is typically bundled with school) — so
+ * price-based sorts are meaningless. Only daycare types and efterskole have
+ * meaningful prices to sort by.
+ */
+function categoryHasPrice(cat: CategoryKey): boolean {
+  return cat === "vuggestue" || cat === "boernehave" || cat === "dagpleje" || cat === "efterskole";
+}
+
 interface LocationCandidate {
   kind: "postnummer" | "kommune";
   id: string;
@@ -306,13 +315,14 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       inst,
       percentile: scoreInstitutionForCategory(inst, category, daycareDataset, schoolDataset),
     }));
+    // Force quality sort for categories without price (skoler, sfo)
+    const effectiveSort = categoryHasPrice(category) ? sortKey : "kvalitet";
     scored.sort((a, b) => {
-      if (sortKey === "billigst") {
+      if (effectiveSort === "billigst") {
         const pa = a.inst.monthlyRate ?? Number.POSITIVE_INFINITY;
         const pb = b.inst.monthlyRate ?? Number.POSITIVE_INFINITY;
         if (pa !== pb) return pa - pb;
-      } else if (sortKey === "vaerdi") {
-        // Quality per kr — higher is better. Skip institutions without price.
+      } else if (effectiveSort === "vaerdi") {
         const va = a.percentile != null && a.inst.monthlyRate ? a.percentile / a.inst.monthlyRate : -1;
         const vb = b.percentile != null && b.inst.monthlyRate ? b.percentile / b.inst.monthlyRate : -1;
         if (va !== vb) return vb - va;
@@ -708,8 +718,8 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
               )}
             </div>
 
-            {/* Sort toggle — visible when there are 2+ results */}
-            {topResults.total >= 2 && (
+            {/* Sort toggle — visible when 2+ results AND category has price (skoler are gratis) */}
+            {topResults.total >= 2 && categoryHasPrice(category) && (
               <div role="tablist" aria-label="Sortér efter" className="mb-3 inline-flex p-0.5 rounded-lg bg-bg-card border border-border">
                 {SORT_OPTIONS.map((opt) => {
                   const active = sortKey === opt.key;
