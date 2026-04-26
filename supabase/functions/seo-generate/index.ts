@@ -213,6 +213,126 @@ async function fetchRealData(keyword: string, module: string): Promise<DataConte
   };
 }
 
+// ─── AUTO-KEYWORD-SEEDER ────────────────────────────────────────────────
+// Asks Claude to propose 10 fresh, high-intent Danish keywords for the
+// childcare/school domain. Inserts them into seo_keywords as pending and
+// returns the first row. Called when the queue is empty so the blog
+// system feeds itself.
+//
+// Uses already-published slugs as exclusion list to avoid topic duplicates.
+
+interface SeedKeywordRow {
+  id: string;
+  keyword: string;
+  module: string;
+  intent: string;
+  source_urls: string[];
+  locale: string;
+}
+
+interface SeedAIResponse {
+  keywords?: Array<{
+    keyword?: string;
+    module?: string;
+    intent?: string;
+    source_urls?: string[];
+  }>;
+}
+
+// Use any-typed Supabase client to avoid pulling in the schema type just for this helper
+// deno-lint-ignore no-explicit-any
+async function seedKeywordQueue(supabase: any, ai: { url: string; headers: Record<string, string> }): Promise<SeedKeywordRow[]> {
+  // 1. Get already-used slugs and recently-used keywords to avoid dupes
+  const { data: existingPosts } = await supabase
+    .from("blog_posts")
+    .select("slug, keyword")
+    .order("published_at", { ascending: false })
+    .limit(60);
+  const usedKeywords = (existingPosts ?? []).map((p: { keyword: string | null }) => p.keyword).filter(Boolean) as string[];
+
+  const { data: queuedKeywords } = await supabase
+    .from("seo_keywords")
+    .select("keyword")
+    .limit(200);
+  const queuedSet = new Set((queuedKeywords ?? []).map((k: { keyword: string }) => k.keyword.toLowerCase()));
+
+  const today = new Date();
+  const month = today.toISOString().slice(0, 7);
+  const seasonHints: Record<string, string> = {
+    "01": "skolevalg-sæsonen (forældre er ved at vælge skole)",
+    "02": "skolevalg-sæsonen (frist for indskrivning)",
+    "03": "vuggestue/børnehave-pladser efter sommer",
+    "04": "vuggestue/børnehave-pladser efter sommer",
+    "05": "vuggestue/børnehave-pladser efter sommer",
+    "06": "sommerafslutning + nyt skoleår-forberedelse",
+    "07": "nyt skoleår-forberedelse",
+    "08": "skolestart + efterskole-tilmelding",
+    "09": "efterskole-tilmelding (peak)",
+    "10": "efterskole-tilmelding + ny rangering klar",
+    "11": "skolevalg-research starter",
+    "12": "skolevalg-research + årets bedste rangeringer",
+  };
+  const seasonHint = seasonHints[month.slice(5)] ?? "alment skolevalg";
+
+  // 2. Ask Claude for 10 fresh keywords
+  const prompt = `Du er SEO-strateg for institutionsguiden.dk — Danmarks førende uafhængige sammenligningsside for vuggestuer, børnehaver, dagplejere, folkeskoler, SFO og efterskoler. Vi skriver dansk-sprogede artikler til danske forældre.
+
+Foreslå 10 nye søgeord/artikel-emner som er:
+- KOMMERCIELLE eller INFORMATIONELLE forældre-intentioner (ikke akademiske)
+- Sæson-relevante. I dag er ${today.toLocaleDateString("da-DK")} — fokus på: ${seasonHint}
+- IKKE allerede skrevet om. Eksisterende slugs/keywords: ${[...usedKeywords].slice(0, 30).join("; ")}
+- Long-tail (3-7 ord), gerne med specifik kommune eller årstal
+- Spredt over moduler: dagtilbud, skole, normering, friplads, generel
+
+Returnér KUN gyldig JSON i præcis dette format:
+{
+  "keywords": [
+    {"keyword": "...", "module": "dagtilbud|skole|normering|friplads|generel", "intent": "informational|commercial", "source_urls": ["https://..."]}
+  ]
+}
+
+Gode source_urls: borger.dk, dst.dk, kl.dk, uvm.dk, retsinformation.dk, uddannelsesstatistik.dk. Maks 2 per emne.`;
+
+  const aiRes = await fetchAI(ai.url, {
+    method: "POST",
+    headers: ai.headers,
+    body: JSON.stringify({
+      model: resolveModel(),
+      max_tokens: 2000,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  }, 60_000);
+
+  if (!aiRes.ok) {
+    throw new Error(`Claude API ${aiRes.status}: ${await aiRes.text()}`);
+  }
+  const aiBody = await aiRes.json();
+  const text = aiBody?.content?.[0]?.text;
+  if (!text) throw new Error("Empty AI response");
+  const parsed = extractJSON(text) as SeedAIResponse;
+  const candidates = (parsed.keywords ?? [])
+    .filter((k) => k.keyword && !queuedSet.has(k.keyword.toLowerCase()))
+    .slice(0, 10);
+
+  if (candidates.length === 0) return [];
+
+  // 3. Insert them all as pending
+  const inserts = candidates.map((c) => ({
+    keyword: String(c.keyword),
+    module: c.module || "generel",
+    intent: c.intent || "informational",
+    source_urls: Array.isArray(c.source_urls) ? c.source_urls.slice(0, 2) : [],
+  }));
+
+  const { data: inserted, error } = await supabase
+    .from("seo_keywords")
+    .insert(inserts)
+    .select("id, keyword, module, intent, source_urls, locale");
+
+  if (error) throw error;
+  return (inserted as SeedKeywordRow[]) ?? [];
+}
+
 Deno.serve(async (req) => {
   const { corsHeaders, preflightResponse } = handleCorsPreflightOrGetHeaders(req);
   if (preflightResponse) return preflightResponse;
@@ -369,13 +489,30 @@ Deno.serve(async (req) => {
         picked = retryable;
       }
 
+      // Auto-seed: queue empty → ask Claude to plan 10 fresh keywords with
+      // metadata, insert them, then pick the first. This makes the blog
+      // self-feeding so it doesn't silently stop publishing.
       if (!picked) {
-        return new Response(
-          JSON.stringify({ ok: true, message: "No pending keywords in queue" }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        try {
+          const seeded = await seedKeywordQueue(supabase, ai);
+          if (seeded.length > 0) {
+            keywordRow = seeded[0];
+          } else {
+            return new Response(
+              JSON.stringify({ ok: true, message: "Queue empty and seeding produced no candidates" }),
+              { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } catch (seedErr) {
+          console.error("Auto-seed failed:", seedErr);
+          return new Response(
+            JSON.stringify({ ok: false, error: "Auto-seed failed", detail: String(seedErr) }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } else {
+        keywordRow = picked;
       }
-      keywordRow = picked;
     }
 
     // Mark as generating
