@@ -28,7 +28,24 @@ async function loadSeo() {
 }
 
 function munFromSlug(slug: string, meta: NonNullable<typeof seoCache>): string {
-  return meta.m[slug] || decodeURIComponent(slug).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  // 1. Direct slug → canonical lookup (covers slug-style URLs)
+  if (meta.m[slug]) return meta.m[slug];
+
+  // 2. URL-encoded canonical name (e.g. "T%C3%A5rnby") — decode and try a
+  //    case-insensitive lookup against known canonical names. We can't trust
+  //    \b\w + toUpperCase() because Unicode word-boundary treats Danish vowels
+  //    (æøå) as non-word chars, producing broken output like "TåRnby".
+  const decoded = decodeURIComponent(slug);
+  for (const canonical of Object.values(meta.m)) {
+    if (canonical.toLowerCase() === decoded.toLowerCase()) return canonical;
+  }
+
+  // 3. Final fallback: dash-to-space, but capitalize ONLY the first character
+  //    of each space-separated segment. Unicode-safe.
+  return decoded.replace(/-/g, " ")
+    .split(" ")
+    .map((part) => part ? part.charAt(0).toLocaleUpperCase("da-DK") + part.slice(1) : part)
+    .join(" ");
 }
 
 function munToSlug(name: string): string {
