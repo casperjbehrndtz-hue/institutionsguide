@@ -11,7 +11,13 @@ import { toSlug } from "@/lib/slugs";
 import type { UnifiedInstitution } from "@/lib/types";
 
 interface InstantAnswerProps {
-  onLocationSelected?: (kommune: string, postnummer?: string) => void;
+  /**
+   * Called whenever a location is selected. `intent` is "user" when the user
+   * actively clicked a candidate / quickpick / typed a postnummer, and "auto"
+   * when the selection came from a geo-resolution or URL hydration. The parent
+   * uses this to decide whether to scroll/animate the map.
+   */
+  onLocationSelected?: (kommune: string, postnummer: string | undefined, intent: "user" | "auto", category: CategoryKey) => void;
   /** Shared geolocation hook from parent — keeps "Find i nærheden" loading state consistent */
   geo?: ReturnType<typeof useGeolocation>;
 }
@@ -404,16 +410,16 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     return percentileOf(sorted, mean);
   }, [selected, category, daycareDataset, schoolDataset]);
 
-  function handleSelect(c: LocationCandidate) {
+  function handleSelect(c: LocationCandidate, intent: "user" | "auto" = "user") {
     setSelected(c);
     setQuery("");
     setDropdownOpen(false);
     setShowWelcomeBack(false);
     inputRef.current?.blur();
-    onLocationSelected?.(c.kommune, c.postnummer);
+    onLocationSelected?.(c.kommune, c.postnummer, intent, category);
   }
 
-  function handleQuickPick(pn: string) {
+  function handleQuickPick(pn: string, intent: "user" | "auto" = "user") {
     const e = postIndex?.[pn];
     if (!e) return;
     handleSelect({
@@ -424,7 +430,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       kommune: e.kommune,
       postnummer: pn,
       count: e.count,
-    });
+    }, intent);
   }
 
   function handleNearMe() {
@@ -442,7 +448,10 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       const dist = Math.hypot(dLat, dLng);
       if (!nearest || dist < nearest.dist) nearest = { inst, dist };
     }
-    if (nearest?.inst.postalCode) handleQuickPick(nearest.inst.postalCode);
+    // Geolocation auto-resolution counts as "user" intent (they explicitly
+    // tapped Find i nærheden). It scrolls the map into view because the user
+    // asked for it.
+    if (nearest?.inst.postalCode) handleQuickPick(nearest.inst.postalCode, "user");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geo.userLocation]);
 
@@ -726,11 +735,23 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
                   </p>
                 )}
               </div>
-              {topResults.total > 5 && (
-                <Link to={seeAllHref} className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1">
-                  Se alle {topResults.total} <ArrowRight className="w-4 h-4" />
-                </Link>
-              )}
+              <div className="flex flex-wrap items-center gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("homepage-map");
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  Se på kort <ArrowRight className="w-4 h-4" />
+                </button>
+                {topResults.total > 5 && (
+                  <Link to={seeAllHref} className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                    Se alle {topResults.total} <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
+              </div>
             </div>
 
             {/* Sort toggle — visible when 2+ results AND category has price (skoler are gratis) */}

@@ -21,21 +21,6 @@ import MapSkeleton from "@/components/shared/MapSkeleton";
 type MapMode = "institutions" | "kommune-quality";
 type QualityTrack = "daycare" | "school";
 
-const CATEGORY_CHIPS: { href: string; label: string; primary?: boolean }[] = [
-  { href: "/skole", label: "Folkeskoler", primary: true },
-  { href: "/vuggestue", label: "Vuggestuer", primary: true },
-  { href: "/boernehave", label: "Børnehaver", primary: true },
-  { href: "/dagpleje", label: "Dagplejere" },
-  { href: "/sfo", label: "SFO" },
-  { href: "/efterskole", label: "Efterskoler" },
-  { href: "/gymnasium", label: "Gymnasier" },
-];
-
-const POPULAR_KOMMUNER: string[] = [
-  "København", "Aarhus", "Odense", "Aalborg", "Frederiksberg",
-  "Gentofte", "Esbjerg", "Vejle", "Randers", "Roskilde",
-  "Lyngby-Taarbæk", "Rudersdal",
-];
 
 const FAQ: { q: string; a: string }[] = [
   {
@@ -74,6 +59,8 @@ export default function HomePage() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [mapMode, setMapMode] = useState<MapMode>("institutions");
   const [qualityTrack, setQualityTrack] = useState<QualityTrack>("school");
+  // Filter applied to the institution map after a location is selected
+  const [mapFilter, setMapFilter] = useState<{ kommune: string; postnummer?: string; category: string } | null>(null);
 
   const geo = useGeolocation(useCallback((loc) => {
     setFlyTo({ ...loc, zoom: 13 });
@@ -85,19 +72,48 @@ export default function HomePage() {
     navigate(`/institution/${inst.id}`, { state: { from: location.pathname + location.search } });
   }, [navigate, location]);
 
-  const handleLocationSelected = useCallback((kommune: string, _postnummer?: string) => {
-    // Update the map's fly-to target, but DO NOT auto-scroll the page.
-    // Auto-scroll caused the "scroll down -> jump up" bug when geolocation
-    // resolved asynchronously after the user had moved on.
-    const instsInKommune = institutions.filter((i) => i.municipality === kommune);
-    if (instsInKommune.length === 0) return;
-    const avgLat = instsInKommune.reduce((s, i) => s + i.lat, 0) / instsInKommune.length;
-    const avgLng = instsInKommune.reduce((s, i) => s + i.lng, 0) / instsInKommune.length;
-    setFlyTo({ lat: avgLat, lng: avgLng, zoom: 12 });
+  const handleLocationSelected = useCallback((kommune: string, postnummer: string | undefined, intent: "user" | "auto", cat: string) => {
+    // Center map. Filter to selected location + category so the map context
+    // matches the result list above.
+    let instsInScope = institutions.filter((i) => i.category === cat);
+    if (postnummer) {
+      instsInScope = instsInScope.filter((i) => i.postalCode === postnummer);
+      // Fallback to kommune if postnummer has 0 institutions in this category
+      if (instsInScope.length === 0) instsInScope = institutions.filter((i) => i.municipality === kommune && i.category === cat);
+    } else {
+      instsInScope = instsInScope.filter((i) => i.municipality === kommune);
+    }
+    if (instsInScope.length === 0) instsInScope = institutions.filter((i) => i.municipality === kommune);
+    if (instsInScope.length === 0) return;
+
+    const avgLat = instsInScope.reduce((s, i) => s + i.lat, 0) / instsInScope.length;
+    const avgLng = instsInScope.reduce((s, i) => s + i.lng, 0) / instsInScope.length;
+    setFlyTo({ lat: avgLat, lng: avgLng, zoom: postnummer ? 13 : 11 });
+    setMapFilter({ kommune, postnummer, category: cat });
+
+    // Smooth-scroll only on explicit user intent, never on URL hydration or
+    // welcome-back. requestAnimationFrame defers until the results panel
+    // has rendered.
+    if (intent === "user") {
+      requestAnimationFrame(() => {
+        const el = document.getElementById("homepage-map");
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }, [institutions]);
 
+  // Filter institutions for map when a search location is active
+  const mapInstitutions = useMemo(() => {
+    if (!mapFilter) return institutions;
+    return institutions.filter((i) => {
+      if (mapFilter.category && i.category !== mapFilter.category) return false;
+      if (mapFilter.postnummer) return i.postalCode === mapFilter.postnummer;
+      return i.municipality === mapFilter.kommune;
+    });
+  }, [institutions, mapFilter]);
+
   const mapProps = useMemo(() => ({
-    institutions,
+    institutions: mapInstitutions,
     onSelect: handleMapSelect,
     flyTo,
     highlightedId: hoveredId,
@@ -105,7 +121,7 @@ export default function HomePage() {
     isFullscreen: mapFullscreen,
     onToggleFullscreen: () => setMapFullscreen((f) => !f),
     radiusCenter: geo.userLocation,
-  }), [institutions, handleMapSelect, flyTo, hoveredId, mapFullscreen, geo.userLocation]);
+  }), [mapInstitutions, handleMapSelect, flyTo, hoveredId, mapFullscreen, geo.userLocation]);
 
   return (
     <>
@@ -160,17 +176,21 @@ export default function HomePage() {
       <section id="homepage-map" aria-label="Udforsk institutioner på kort" className="border-b border-border/70">
         <div className="max-w-[1440px] mx-auto px-3 sm:px-4 py-8 sm:py-12">
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
-            <div>
+            <div className="min-w-0">
               <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight">
-                {mapMode === "institutions"
-                  ? "Udforsk alle institutioner på kort"
-                  : "Se Danmarks kommuner farvet efter kvalitet"}
+                {mapMode === "kommune-quality"
+                  ? "Se Danmarks kommuner farvet efter kvalitet"
+                  : mapFilter
+                    ? `Kort over ${mapFilter.category} ${mapFilter.postnummer ? `i ${mapFilter.postnummer}` : `i ${mapFilter.kommune}`}`
+                    : "Udforsk alle institutioner på kort"}
               </h2>
               <p className="text-muted text-sm mt-1 max-w-2xl">
-                {mapMode === "institutions" ? (
-                  <><span className="font-mono tabular-nums text-foreground font-semibold">{institutionCount.toLocaleString("da-DK")}</span> institutioner i hele Danmark. Klik en markør for at se institutionen.</>
-                ) : (
+                {mapMode === "kommune-quality" ? (
                   <>Hver kommune har én cirkel — farve viser samlet kvalitet i det valgte spor, størrelse viser antal institutioner. Klik eller tryk for at se kommunen.</>
+                ) : mapFilter ? (
+                  <><span className="font-mono tabular-nums text-foreground font-semibold">{mapInstitutions.length.toLocaleString("da-DK")}</span> {mapFilter.category} vist på kortet. <button onClick={() => setMapFilter(null)} className="text-primary hover:underline font-medium">Vis hele Danmark →</button></>
+                ) : (
+                  <><span className="font-mono tabular-nums text-foreground font-semibold">{institutionCount.toLocaleString("da-DK")}</span> institutioner i hele Danmark. Klik en markør for at se institutionen.</>
                 )}
               </p>
             </div>
@@ -340,55 +360,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. Browse direct */}
-      <section className="border-b border-border/70 bg-[var(--color-border)]/20">
-        <div className="max-w-5xl mx-auto px-4 py-14 sm:py-20">
-          <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-foreground tracking-tight mb-3">
-            Browse direkte
-          </h2>
-          <p className="text-muted text-base leading-relaxed mb-8 max-w-2xl">
-            Hele landet opdelt efter kategori eller kommune.
-          </p>
-
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/70 mb-3">Kategori</p>
-            <div className="flex flex-wrap gap-2 mb-8">
-              {CATEGORY_CHIPS.map((c) => (
-                <Link
-                  key={c.href}
-                  to={c.href}
-                  className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors min-h-[40px] ${
-                    c.primary
-                      ? "bg-primary text-primary-foreground border border-primary hover:bg-primary-light"
-                      : "border border-border bg-bg text-foreground hover:border-primary/60 hover:bg-primary/5"
-                  }`}
-                >
-                  {c.label}
-                </Link>
-              ))}
-            </div>
-
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted/70 mb-3">Populære kommuner</p>
-            <div className="flex flex-wrap gap-2">
-              {POPULAR_KOMMUNER.map((k) => (
-                <Link
-                  key={k}
-                  to={`/kommune/${encodeURIComponent(k)}`}
-                  className="inline-flex items-center px-4 py-2 rounded-full border border-border bg-bg text-sm font-medium text-foreground hover:border-primary/60 hover:bg-primary/5 transition-colors min-h-[40px]"
-                >
-                  {k}
-                </Link>
-              ))}
-              <Link
-                to="/kommune-intelligens"
-                className="inline-flex items-center gap-1 px-4 py-2 rounded-full text-sm font-semibold text-primary hover:underline min-h-[40px]"
-              >
-                Se alle 98 <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 6. FAQ */}
       <section aria-label="Ofte stillede spørgsmål" className="border-b border-border/70">

@@ -43,9 +43,18 @@ export default function CompareBar() {
     <>
       <div className="print:hidden fixed bottom-0 inset-x-0 z-40 bg-bg-card border-t border-border p-4 animate-fade-in shadow-[0_-4px_20px_rgba(0,0,0,0.06)]" role="region" aria-label={t.compare.barAriaLabel} aria-live="polite" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
         <div className="max-w-7xl mx-auto flex items-center gap-3 flex-wrap">
-          <span className="text-sm text-muted shrink-0">
-            {t.compare.barTitle.replace("{count}", String(selected.length))}
-          </span>
+          <div className="shrink-0">
+            <p className="text-sm font-semibold text-foreground">
+              {t.compare.barTitle.replace("{count}", String(selected.length))}
+            </p>
+            {selected.length === 1 && (
+              <p className="text-[11px] text-muted mt-0.5">
+                {language === "da"
+                  ? "Tilføj 1-3 mere ved at trykke + Sammenlign på flere kort."
+                  : "Add 1-3 more by clicking + Compare on more cards."}
+              </p>
+            )}
+          </div>
 
           <div className="flex flex-wrap gap-2 flex-1">
             {selected.map((inst) => (
