@@ -32,12 +32,23 @@ const CATEGORIES = ["vuggestue", "boernehave", "dagpleje", "skole", "sfo", "frit
 
 export default function KommunePage() {
   const { name } = useParams<{ name: string }>();
-  const decodedName = decodeURIComponent(name || "");
+  const rawName = decodeURIComponent(name || "");
   const { institutions, municipalities, normering, loading, error } = useData();
   const { t, language } = useLanguage();
   const { profile } = useFamily();
   const [selected, setSelected] = useState<UnifiedInstitution | null>(null);
   const [flyTo, setFlyTo] = useState<{ lat: number; lng: number; zoom?: number } | null>(null);
+
+  // Resolve URL param to the canonical municipality name. URL might be
+  // slug-style ("rebild"), lowercased, or the full canonical ("Rebild") —
+  // we accept all and pick the first matching municipality from data.
+  const decodedName = useMemo(() => {
+    if (!rawName) return "";
+    if (institutions.some((i) => i.municipality === rawName)) return rawName;
+    const slug = toSlug(rawName);
+    const match = institutions.find((i) => toSlug(i.municipality) === slug);
+    return match?.municipality ?? rawName;
+  }, [rawName, institutions]);
 
   const CATEGORY_LABELS: Record<string, string> = {
     vuggestue: t.categories.vuggestue,
