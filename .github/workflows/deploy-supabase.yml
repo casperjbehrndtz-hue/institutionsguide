@@ -1,0 +1,69 @@
+name: Deploy Supabase Functions
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "supabase/functions/**"
+      - "supabase/migrations/**"
+      - ".github/workflows/deploy-supabase.yml"
+  workflow_dispatch:
+    inputs:
+      function:
+        description: "Specific function to deploy (leave empty for all changed)"
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Detect changed functions
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.function }}" ]; then
+            echo "functions=${{ inputs.function }}" >> $GITHUB_OUTPUT
+          else
+            # Diff vs previous commit, find unique function dirs that changed
+            changed=$(git diff --name-only HEAD~1 HEAD | grep -E '^supabase/functions/[^/_][^/]+/' | sed 's|^supabase/functions/||' | cut -d/ -f1 | sort -u | tr '\n' ' ')
+            echo "functions=$changed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Apply pending migrations
+        if: contains(github.event.head_commit.modified, 'supabase/migrations/') || github.event_name == 'workflow_dispatch'
+        run: supabase db push --db-url "${{ secrets.SUPABASE_DB_URL }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy each changed function
+        if: steps.detect.outputs.functions != ''
+        run: |
+          for fn in ${{ steps.detect.outputs.functions }}; do
+            echo "::group::Deploying $fn"
+            supabase functions deploy "$fn" \
+              --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}" \
+              --no-verify-jwt
+            echo "::endgroup::"
+          done
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Supabase deploy" >> $GITHUB_STEP_SUMMARY
+          if [ -z "${{ steps.detect.outputs.functions }}" ]; then
+            echo "No function changes detected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Deployed: \`${{ steps.detect.outputs.functions }}\`" >> $GITHUB_STEP_SUMMARY
+          fi
