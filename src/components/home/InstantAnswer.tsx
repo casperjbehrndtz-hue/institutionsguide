@@ -481,7 +481,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
         style={{
           backgroundImage: "url('/og-image.png')",
           backgroundPosition: "center bottom",
-          transform: "scale(2.2)",
+          transform: "scale(1.8)",
           transformOrigin: "center bottom",
           filter: "brightness(0.95) saturate(0.85)",
         }}
@@ -499,7 +499,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{
             objectPosition: "center bottom",
-            transform: "scale(2.2)",
+            transform: "scale(1.8)",
             transformOrigin: "center bottom",
             filter: "brightness(0.95) saturate(0.85)",
           }}
