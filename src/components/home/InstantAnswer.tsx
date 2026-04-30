@@ -478,7 +478,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/og-image.png')", filter: "brightness(0.7) saturate(0.6) contrast(0.95)" }}
+        style={{ backgroundImage: "url('/og-image.png')", filter: "brightness(0.95) saturate(0.85)" }}
       />
       {shouldLoadVideo && (
         <video
@@ -491,27 +491,27 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
           aria-hidden="true"
           poster="/og-image.png"
           className="absolute left-0 top-[90%] w-full min-h-full object-cover pointer-events-none"
-          style={{ transform: "translateY(-90%)", filter: "brightness(0.7) saturate(0.6) contrast(0.95)" }}
+          style={{ transform: "translateY(-90%)", filter: "brightness(0.95) saturate(0.85)" }}
         >
           <source src="/hero-1.mp4" type="video/mp4" />
         </video>
       )}
-      <div aria-hidden="true" className="absolute inset-0 bg-primary/50" />
+      <div aria-hidden="true" className="absolute inset-0 bg-primary/25" />
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at center, transparent 0%, transparent 45%, rgba(13,28,47,0.35) 100%)" }}
+        style={{ background: "linear-gradient(180deg, rgba(13,28,47,0.45) 0%, rgba(13,28,47,0.15) 35%, rgba(13,28,47,0.15) 65%, rgba(13,28,47,0.45) 100%)" }}
       />
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 pt-10 pb-7 sm:pt-16 sm:pb-12">
-        <h1 className="font-display text-[1.85rem] sm:text-[3rem] lg:text-[3.5rem] font-bold text-white leading-[1.05] mb-3 tracking-tight text-center">
+        <h1 className="font-display text-[1.85rem] sm:text-[3rem] lg:text-[3.5rem] font-bold text-white leading-[1.05] mb-3 tracking-tight text-center" style={{ textShadow: "0 2px 16px rgba(0,0,0,0.45)" }}>
           Find den bedste institution til dit barn
         </h1>
-        <p className="hidden sm:block text-white/70 text-base sm:text-lg max-w-xl mx-auto mb-6 leading-relaxed text-center">
+        <p className="hidden sm:block text-white/85 text-base sm:text-lg max-w-xl mx-auto mb-6 leading-relaxed text-center" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}>
           Uafhængig kvalitetsdata fra Børne- og Undervisningsministeriet og Danmarks Statistik.
           Find skolen, børnehaven eller vuggestuen med den bedste kvalitet i dit område.
         </p>
-        <p className="sm:hidden text-white/70 text-sm max-w-xl mx-auto mb-5 leading-relaxed text-center">
+        <p className="sm:hidden text-white/85 text-sm max-w-xl mx-auto mb-5 leading-relaxed text-center" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}>
           Uafhængig kvalitetsdata. Skriv postnummer eller by.
         </p>
 
