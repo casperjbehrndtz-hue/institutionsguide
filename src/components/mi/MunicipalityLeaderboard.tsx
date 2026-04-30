@@ -86,7 +86,7 @@ export default function MunicipalityLeaderboard({ municipalities, nationalMean, 
                 <span className="text-muted font-mono tabular-nums text-xs w-6 shrink-0">{i + 1}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <Link to={`/kommune/${toSlug(m.municipality)}`} className="font-medium text-foreground hover:text-primary truncate">
+                    <Link to={`/kommune-intelligens/${toSlug(m.municipality)}`} className="font-medium text-foreground hover:text-primary truncate">
                       {m.municipality}
                     </Link>
                     <span className={`text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded border ${label.cls}`}>
