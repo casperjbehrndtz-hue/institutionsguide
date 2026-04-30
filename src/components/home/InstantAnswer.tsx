@@ -478,7 +478,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/og-image.png')", filter: "brightness(0.45) saturate(0.5) contrast(0.95)" }}
+        style={{ backgroundImage: "url('/og-image.png')", filter: "brightness(0.7) saturate(0.6) contrast(0.95)" }}
       />
       {shouldLoadVideo && (
         <video
@@ -491,12 +491,12 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
           aria-hidden="true"
           poster="/og-image.png"
           className="absolute left-0 top-[90%] w-full min-h-full object-cover pointer-events-none"
-          style={{ transform: "translateY(-90%)", filter: "brightness(0.45) saturate(0.5) contrast(0.95)" }}
+          style={{ transform: "translateY(-90%)", filter: "brightness(0.7) saturate(0.6) contrast(0.95)" }}
         >
           <source src="/hero-1.mp4" type="video/mp4" />
         </video>
       )}
-      <div aria-hidden="true" className="absolute inset-0 bg-primary/75" />
+      <div aria-hidden="true" className="absolute inset-0 bg-primary/50" />
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
