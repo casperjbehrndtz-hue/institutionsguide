@@ -16,6 +16,8 @@
     "test:e2e:ui": "playwright test --ui",
     "assessments": "node scripts/batch-assessments.mjs",
     "assessments:dry": "node scripts/batch-assessments.mjs --dry-run",
+    "kommune-summaries": "node scripts/generate-kommune-summaries.mjs",
+    "kommune-summaries:dry": "node scripts/generate-kommune-summaries.mjs --dry-run",
     "fetch:inst-stats": "node scripts/fetch-institution-stats.mjs",
     "fetch:kommune-stats": "node scripts/fetch-dst-kommune-stats.mjs",
     "fetch:arbejdstilsyn": "node scripts/fetch-arbejdstilsyn.mjs",

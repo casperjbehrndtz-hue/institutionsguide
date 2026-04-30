@@ -4,6 +4,7 @@ import { useData } from "@/contexts/DataContext";
 import { useTrack } from "@/contexts/TrackContext";
 import { useMunicipalityIntelligence } from "@/hooks/useMunicipalityIntelligence";
 import KommuneVsNationalCard from "@/components/mi/KommuneVsNationalCard";
+import KommuneSummaryCard from "@/components/mi/KommuneSummaryCard";
 import LifeStageToggle from "@/components/mi/LifeStageToggle";
 import WeightSliders from "@/components/mi/WeightSliders";
 import SEOHead from "@/components/shared/SEOHead";
@@ -101,6 +102,7 @@ export default function KommuneIntelligensMunicipalityPage() {
           </aside>
 
           <main className="flex-1 min-w-0 space-y-4">
+            <KommuneSummaryCard municipality={canonicalName} />
             <KommuneVsNationalCard municipality={canonicalName} />
 
             <div className="rounded-xl border border-border bg-bg-card p-4">
