@@ -490,8 +490,8 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
           preload="metadata"
           aria-hidden="true"
           poster="/og-image.png"
-          className="absolute left-0 top-[90%] w-full min-h-full object-cover pointer-events-none"
-          style={{ transform: "translateY(-90%)", filter: "brightness(0.95) saturate(0.85)" }}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ objectPosition: "center 35%", filter: "brightness(0.95) saturate(0.85)" }}
         >
           <source src="/hero-1.mp4" type="video/mp4" />
         </video>
