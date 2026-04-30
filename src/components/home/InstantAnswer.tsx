@@ -477,8 +477,14 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
     <section className="relative overflow-hidden bg-primary">
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/og-image.png')", filter: "brightness(0.95) saturate(0.85)" }}
+        className="absolute inset-0 bg-cover"
+        style={{
+          backgroundImage: "url('/og-image.png')",
+          backgroundPosition: "center bottom",
+          transform: "scale(2.2)",
+          transformOrigin: "center bottom",
+          filter: "brightness(0.95) saturate(0.85)",
+        }}
       />
       {shouldLoadVideo && (
         <video
@@ -493,7 +499,7 @@ export default function InstantAnswer({ onLocationSelected, geo: geoProp }: Inst
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{
             objectPosition: "center bottom",
-            transform: "scale(1.6)",
+            transform: "scale(2.2)",
             transformOrigin: "center bottom",
             filter: "brightness(0.95) saturate(0.85)",
           }}
